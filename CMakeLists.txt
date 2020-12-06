@@ -10,9 +10,7 @@ endif ()
 set(CMAKE_TOOLCHAIN_FILE ${VCPKG_ROOT})
 
 #### Main Project Config ############################
-set(RENDER_API "OpenGL")
 set(CMAKE_BUILD_TYPE "Debug")
-set(PROFILE 0) # This Option will generate runtime profile info to json
 #### Main Project Config ############################
 
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -25,3 +23,5 @@ message(STATUS "###################################")
 project( RocketGE )
 message(STATUS "CMAKE_TOOLCHAIN_FILE ${CMAKE_TOOLCHAIN_FILE}")
 message(STATUS "Project Name ${PROJECT_NAME}")
+
+add_subdirectory( Test )
