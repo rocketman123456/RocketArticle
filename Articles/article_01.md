@@ -72,4 +72,4 @@ int main()
 }
 ```
 
-![article_01.1]](https://github.com/rocketman123456/RocketArticle/Articles/Picture/article_01.1.png "article_01 Hello World")
+![article_01.1](https://github.com/rocketman123456/RocketArticle/Articles/Picture/article_01.1.png "article_01 Hello World")
