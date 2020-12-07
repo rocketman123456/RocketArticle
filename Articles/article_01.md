@@ -1,9 +1,10 @@
+# Rocket 引擎系列<br>
+游戏引擎，如Unreal 4和Unity，可以进行游戏开发，或者是开发其他的软件应用，做场景展示等。我开展的这个系列，就是为了搭建一个框架，模仿游戏引擎，实现一定的对应功能，并针对这个框架进行应用/实例演示，作为个人的学习与笔记。
 # 一、项目开始--RocketGE<br>
-从本科起，就一直想进行引擎开发的相关工作，但是剧本是不会写的，美术也是不会，只能做程序员了。经过学习整理，打算开始这段旅程。这里参考了[高品质游戏开发](https://www.zhihu.com/column/c_119702958)的内容，结合[Cherno Game Series](https://www.youtube.com/playlist?list=PLlrATfBNZ98dC-V-N3m0Go4deliWHPFwT)，又进行修改，得到的便是这个系列。这个可以算是个人总结，也希望能够对别人起到一定帮助。<br> 
+从本科起，就一直想进行引擎开发的相关工作，但是剧本是不会写的，只能做程序员了。经过学习整理，打算开始这段旅程。这里参考了[高品质游戏开发](https://www.zhihu.com/column/c_119702958)的内容，结合[Cherno Game Series](https://www.youtube.com/playlist?list=PLlrATfBNZ98dC-V-N3m0Go4deliWHPFwT)，又进行修改，得到的便是这个系列。这个可以算是个人总结，也希望能够对别人起到一定帮助。<br> 
 本系列面向有一定C++基础的童鞋，有关的部分编程知识并不会在这里详细讲解。<br>
 首先使用CMake开始第一个项目吧。<br>
 搭建项目，首先确定一下文件夹结构。<br>
-
 > - SourceDir<br>
 >    - Assets<br>
 >    - Rocket<br>
@@ -11,7 +12,7 @@
 >    - Test<br>
 >    - CMakeLists.txt<br>
 
-其中，**RocketGE**用于存放主体代码，**Sandbox**用于存放应用Rocket的例子，比如渲染和其他功能，**Test**用于存放学习以及测试的代码，**Assets**存放项目的资源文件。本项目存于[github](https://github.com/rocketman123456/RocketArticle)。<br>
+其中，**Rocket**用于存放主体代码，**Sandbox**用于存放应用Rocket的例子，比如渲染和其他功能，**Test**用于存放学习以及测试的代码，**Assets**存放项目的资源文件。本项目存于[github](https://github.com/rocketman123456/RocketArticle)。<br>
 ## 1.建立github仓库<br>
 请从web界面新建项目，选择.gitignore为C++类型，然后clone到电脑本地<br>
 ## 2.建立CMakeLists.txt<br>
@@ -70,3 +71,5 @@ int main()
     return 0;
 }
 ```
+
+![article_01.1]](https://github.com/rocketman123456/RocketArticle/Articles/Picture/article_01.1.png "article_01 Hello World")
