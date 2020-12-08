@@ -1,4 +1,4 @@
-# Rocket 引擎系列<br>
+# Rocket 引擎系列（一）<br>
 游戏引擎，如Unreal 4和Unity，可以进行游戏开发，或者是开发其他的软件应用，做场景展示等。我开展的这个系列，就是为了搭建一个框架，模仿游戏引擎，实现一定的对应功能，并针对这个框架进行应用/实例演示，作为个人的学习与笔记。
 # 一、项目开始--RocketGE<br>
 从本科起，就一直想进行引擎开发的相关工作，但是剧本是不会写的，只能做程序员了。经过学习整理，打算开始这段旅程。这里参考了[高品质游戏开发](https://www.zhihu.com/column/c_119702958)的内容，结合[Cherno Game Series](https://www.youtube.com/playlist?list=PLlrATfBNZ98dC-V-N3m0Go4deliWHPFwT)，又进行修改，得到的便是这个系列。这个可以算是个人总结，也希望能够对别人起到一定帮助。<br> 
