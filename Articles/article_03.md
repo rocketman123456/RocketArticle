@@ -1,3 +1,8 @@
+# Rocket 引擎系列（三）<br>
+本项目面对的是多平台，具体是指Mac，Windows和Linux，为了能够使代码顺利在不同平台下编译，我们需要对CMake进行配置，使其能够检测不同平台，并对其进行处理。
+# 1.CMake 配置
+- `CMakeLists.txt`
+```
 cmake_minimum_required (VERSION 2.8.12)
 
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -82,3 +87,22 @@ endif()
 message(STATUS "###################################")
 
 add_subdirectory( Test )
+```
+其中主要设定了各种defination，用于在代码中识别不同的编译对象，包括编译平台，渲染API选择等。其中，下面的代码用于生成对应的配置文件：
+```
+configure_file (
+    "${PROJECT_SOURCE_DIR}/RKConfig.h.in"
+    "${PROJECT_SOURCE_DIR}/Rocket/GEEngine/RKConfig.h"
+)
+```
+- `RKConfig.h.in`
+```
+#define PROJECT_SOURCE_DIR "@PROJECT_SOURCE_DIR@"
+#define RENDER_API "@RENDER_API@"
+#define BUILD_TYPE "@CMAKE_BUILD_TYPE@"
+```
+在本项目中，渲染暂时只拥有OpenGL一个版本，未来首先会集成Vulkan，并将整个项目进行并行化处理。<br>
+# 2.添加第一个Application<br>
+
+# 3.添加第一个窗口<br>
+
