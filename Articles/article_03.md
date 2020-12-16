@@ -1,5 +1,5 @@
 # Rocket 引擎系列（三）<br>
-本项目面对的是多平台，具体是指Mac，Windows和Linux，为了能够使代码顺利在不同平台下编译，我们需要对CMake进行配置，使其能够检测不同平台，并对其进行处理。
+本项目面对的是多平台，具体是指Mac，Windows和Linux，为了能够使代码顺利在不同平台下编译，我们需要对CMake进行配置，使其能够检测不同平台，并对其进行处理。[github](https://github.com/rocketman123456/RocketArticle)
 # 1.CMake 配置
 - `CMakeLists.txt`
 ```
@@ -46,28 +46,18 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
     add_definitions(-DRK_RELEASE)
 endif()
-message(STATUS "Build System Set to ${CMAKE_BUILD_TYPE}")
 
-message(STATUS "operation system is ${CMAKE_SYSTEM}")
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
-    message(STATUS "current platform: Linux ")
     set(Linux 1)
     add_definitions(-DPLATFORM_LINUX)
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
-    message(STATUS "current platform: Windows")
     set(Windows 1)
     add_definitions(-DPLATFORM_WINDOWS)
 elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-    message(STATUS "current platform: Apple Darwin")
     set(Apple 1)
     add_definitions(-DPLATFORM_APPLE)
-else ()
-    message(STATUS "other platform: ${CMAKE_SYSTEM_NAME}")
 endif ()
 
-message(STATUS "###################################")
-
-message(STATUS "Render API Set to ${RENDER_API}")
 if (RENDER_API MATCHES "OpenGL")
     set(OpenGL 1)
     add_definitions(-DRK_OPENGL)
@@ -83,8 +73,6 @@ elseif (RENDER_API MATCHES "Metal")
     set(Metal 1)
     add_definitions(-DRK_METAL)
 endif()
-
-message(STATUS "###################################")
 
 add_subdirectory( Test )
 ```
@@ -330,5 +318,267 @@ namespace Rocket
     #endif
 	}
 
+}
+```
+- `WindowApple.h`
+```
+#pragma once
+
+#include "GECore/Core.h"
+#include "GEWindow/Window.h"
+#include "GEEvent/Event.h"
+#include "GERender/GraphicsContext.h"
+
+struct GLFWwindow;
+
+namespace Rocket
+{
+	class WindowApple : implements Window
+	{
+	public:
+		WindowApple(const WindowProps &props);
+		virtual ~WindowApple();
+
+		virtual void PollEvent() override;
+		virtual void OnUpdate() override;
+
+		unsigned int GetWidth() const override { return m_Data.Width; }
+		unsigned int GetHeight() const override { return m_Data.Height; }
+
+		// Window attributes
+		void SetEventCallback(const EventCallbackFn &callback) override { m_Data.EventCallback = callback; }
+		void SetVSync(bool enabled) override;
+		bool IsVSync() const override;
+
+		virtual void *GetNativeWindow() const override { return m_Window; }
+
+	private:
+		virtual void Init(const WindowProps &props);
+		virtual void Shutdown();
+
+	private:
+		struct WindowData
+		{
+			std::string Title;
+			uint32_t Width, Height;
+			float xScale = 1.0f, yScale = 1.0f;
+			bool VSync;
+			EventCallbackFn EventCallback;
+		};
+
+		WindowData m_Data;
+		GLFWwindow *m_Window;
+		Scope<GraphicsContext> m_Context;
+	};
+
+}
+```
+- `WindowApple.cpp`
+```
+#include "GEWindow/WindowApple.h"
+#include "GEEvent/KeyEvent.h"
+#include "GEEvent/MouseEvent.h"
+#include "GEEvent/ApplicationEvent.h"
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#ifdef RK_OPENGL
+#include "GERender/OpenGLContext.h"
+#endif
+#ifdef RK_VULKAN
+#include "GERender/VulkanContext.h"
+#endif
+#ifdef RK_METAL
+#include "GERender/MetalContext.h"
+#endif
+
+namespace Rocket
+{
+	static uint8_t s_GLFWWindowCount = 0;
+
+	static void GLFWErrorCallback(int error, const char *description)
+	{
+		//RK_CORE_ERROR("GLFW Error ({0}): {1}", error, description);
+	}
+
+	WindowApple::WindowApple(const WindowProps &props)
+	{
+		Init(props);
+	}
+
+	WindowApple::~WindowApple()
+	{
+		Shutdown();
+	}
+
+	void WindowApple::Init(const WindowProps &props)
+	{
+		m_Data.Title = props.Title;
+		m_Data.Width = props.Width;
+		m_Data.Height = props.Height;
+
+		RK_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
+
+		if (s_GLFWWindowCount == 0)
+		{
+			int success = glfwInit();
+			RK_CORE_ASSERT(success, "Could not initialize GLFW!");
+			glfwSetErrorCallback(GLFWErrorCallback);
+		}
+
+		{
+#if defined(RK_OPENGL)
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#elif defined(RK_VULKAN)
+			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+#elif defined(RK_METAL)
+			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+#endif
+			glfwWindowHint(GLFW_SCALE_TO_MONITOR, GL_TRUE);
+#if defined(RK_DEBUG)
+			glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+#endif
+			//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+
+			m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
+			++s_GLFWWindowCount;
+		}
+
+		m_Context = GraphicsContext::Create(m_Window);
+		m_Context->Init();
+
+		glfwSetWindowUserPointer(m_Window, &m_Data);
+		SetVSync(true);
+
+		// Set GLFW callbacks
+		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow *window, int width, int height) {
+			//RK_CORE_TRACE("glfwSetWindowSizeCallback");
+		});
+
+		glfwSetWindowContentScaleCallback(m_Window, [](GLFWwindow* window, float xscale, float yscale){
+			RK_CORE_TRACE("glfwSetWindowContentScaleCallback");
+		});
+
+		glfwSetWindowRefreshCallback(m_Window, [](GLFWwindow* window){
+			RK_CORE_TRACE("glfwSetWindowRefreshCallback");
+			//glfwSwapBuffers(window);
+		});
+
+		glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height){
+			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
+			data.Width = width;
+			data.Height = height;
+
+			WindowResizeEvent event(width, height, 1.0f, 1.0f);
+			data.EventCallback(event);
+		});
+
+		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow *window) {
+			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
+			WindowCloseEvent event;
+			data.EventCallback(event);
+		});
+
+		glfwSetKeyCallback(m_Window, [](GLFWwindow *window, int key, int scancode, int action, int mods) {
+			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
+
+			switch (action)
+			{
+			case GLFW_PRESS: {
+				KeyPressedEvent event(key, 0);
+				data.EventCallback(event);
+				break;
+			}
+			case GLFW_RELEASE: {
+				KeyReleasedEvent event(key);
+				data.EventCallback(event);
+				break;
+			}
+			case GLFW_REPEAT: {
+				KeyPressedEvent event(key, 1);
+				data.EventCallback(event);
+				break;
+			}
+			}
+		});
+
+		glfwSetCharCallback(m_Window, [](GLFWwindow *window, unsigned int keycode) {
+			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
+
+			KeyTypedEvent event(keycode);
+			data.EventCallback(event);
+		});
+
+		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow *window, int button, int action, int mods) {
+			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
+
+			switch (action)
+			{
+			case GLFW_PRESS: {
+				MouseButtonPressedEvent event(button);
+				data.EventCallback(event);
+				break;
+			}
+			case GLFW_RELEASE: {
+				MouseButtonReleasedEvent event(button);
+				data.EventCallback(event);
+				break;
+			}
+			}
+		});
+
+		glfwSetScrollCallback(m_Window, [](GLFWwindow *window, double xOffset, double yOffset) {
+			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
+
+			MouseScrolledEvent event((float)xOffset, (float)yOffset);
+			data.EventCallback(event);
+		});
+
+		glfwSetCursorPosCallback(m_Window, [](GLFWwindow *window, double xPos, double yPos) {
+			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
+
+			MouseMovedEvent event((float)xPos, (float)yPos);
+			data.EventCallback(event);
+		});
+	}
+
+	void WindowApple::Shutdown()
+	{
+		glfwDestroyWindow(m_Window);
+		--s_GLFWWindowCount;
+
+		if (s_GLFWWindowCount == 0)
+		{
+			glfwTerminate();
+		}
+	}
+
+	void WindowApple::PollEvent()
+	{
+		glfwPollEvents();
+	}
+
+	void WindowApple::OnUpdate()
+	{
+		m_Context->SwapBuffers();
+	}
+
+	void WindowApple::SetVSync(bool enabled)
+	{
+		if (enabled)
+			glfwSwapInterval(1);
+		else
+			glfwSwapInterval(0);
+
+		m_Data.VSync = enabled;
+	}
+
+	bool WindowApple::IsVSync() const
+	{
+		return m_Data.VSync;
+	}
 }
 ```
