@@ -103,6 +103,232 @@ configure_file (
 ```
 在本项目中，渲染暂时只拥有OpenGL一个版本，未来首先会集成Vulkan，并将整个项目进行并行化处理。<br>
 # 2.添加第一个Application<br>
+- `Application.h`
+```
+#pragma once
 
+#include "GECore/Core.h"
+#include "GEInterface/IApplication.h"
+#include "GEWindow/Window.h"
+#include "GEEvent/Event.h"
+
+namespace Rocket {
+    Interface Application : implements IApplication
+    {
+    public:
+        Application(const std::string& name = "Application") 
+            : IApplication(name) { s_Instance = this; }
+        virtual ~Application() = default;
+
+        virtual void PreInitialize() override {}
+        virtual int Initialize() override;
+        virtual void PostInitialize() override {}
+        virtual void Finalize() override;
+
+        virtual void PreInitializeModule() override {}
+        virtual int InitializeModule() override;
+        virtual void PostInitializeModule() override {}
+        virtual void FinalizeModule() override;
+
+        virtual void OnEvent(Event& e) override;
+        void Close();
+
+        void PushModule(IRuntimeModule* module);
+
+        virtual void TickModule() override;
+        virtual void Tick() override;
+
+        inline Window& GetWindow() { return *m_Window; }
+        inline bool GetIsRunning() override { return m_Running; }
+        static Application& Get() { return *s_Instance; }
+    private:
+        bool OnWindowClose(WindowCloseEvent& e);
+		bool OnWindowResize(WindowResizeEvent& e);
+    private:
+        Ref<Window> m_Window;
+
+        std::vector<IRuntimeModule*> m_Modules;
+
+        bool m_Running = true;
+        bool m_Minimized = false;
+        bool m_Parallel = true;
+
+        std::chrono::steady_clock m_Clock;
+        std::chrono::duration<double> m_Duration;
+        std::chrono::time_point<std::chrono::steady_clock> m_CurrentTime;
+        std::chrono::time_point<std::chrono::steady_clock> m_LastTime;
+    private:
+        static Application* s_Instance;
+    };
+
+    Application* CreateApplication();
+}
+```
+- `Application.cpp`
+```
+#include "GEModule/Application.h"
+#include "GEModule/WindowManager.h"
+
+namespace Rocket
+{
+    Application *Application::s_Instance = nullptr;
+
+    int Application::Initialize()
+    {
+        // Initialize Layers
+        m_CurrentTime = m_Clock.now();
+        m_LastTime = m_CurrentTime;
+
+        return 0;
+    }
+
+    void Application::Finalize()
+    {
+        // Finalize Layers
+    }
+
+    int Application::InitializeModule()
+    {
+        // Initialize Modules
+        int ret = 0;
+        for (auto& module : m_Modules)
+        {
+            if ((ret = module->Initialize()) != 0) {
+                RK_CORE_ERROR("Failed. err = {0}", ret);
+                return ret;
+            }
+        }
+
+        m_Window = g_WindowManager->GetWindow();
+        Renderer::Init();
+        return ret;
+    }
+
+    void Application::FinalizeModule()
+    {
+        // Finalize Modules
+        for (auto& module : m_Modules)
+        {
+            module->Finalize();
+            delete module;
+        }
+
+        Renderer::Shutdown();
+    }
+
+    void Application::PushModule(IRuntimeModule* module)
+    {
+        m_Modules.push_back(module);
+    }
+
+    void Application::OnEvent(Event &e)
+    {
+        // Send Events
+        EventDispatcher dispatcher(e);
+        dispatcher.Dispatch<WindowCloseEvent>(RK_BIND_EVENT_FN(Application::OnWindowClose));
+        dispatcher.Dispatch<WindowResizeEvent>(RK_BIND_EVENT_FN(Application::OnWindowResize));
+    }
+
+    void Application::Tick()
+    {
+        // Calculate Delta Time
+        m_LastTime = m_CurrentTime;
+        m_CurrentTime = m_Clock.now();
+        m_Duration = m_CurrentTime - m_LastTime;
+        // Poll Event Must Call in Main Thread
+        m_Window->PollEvent();
+    }
+
+    void Application::TickModule()
+    {
+        for (auto& module : m_Modules)
+        {
+            module->Tick(Timestep(m_Duration.count()));
+        }
+    }
+
+    void Application::Close()
+    {
+        m_Running = false;
+    }
+}
+
+```
 # 3.添加第一个窗口<br>
+- `Window.h`
+```
+#pragma once
 
+#include "GECore/Core.h"
+
+namespace Rocket {
+	struct WindowProps
+	{
+		std::string Title;
+		uint32_t Width;
+		uint32_t Height;
+
+		WindowProps(const std::string& title = "Rocket Engine",
+			        uint32_t width = 1600,
+			        uint32_t height = 900)
+			: Title(title), Width(width), Height(height)
+		{
+		}
+	};
+
+	// Interface representing a desktop system based Window
+	Interface Window
+	{
+	public:
+		using EventCallbackFn = std::function<void(Event&)>;
+
+		virtual ~Window() = default;
+
+		virtual void PollEvent() = 0;
+		virtual void OnUpdate() = 0;
+
+		virtual uint32_t GetWidth() const = 0;
+		virtual uint32_t GetHeight() const = 0;
+
+		// Window attributes
+		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
+		virtual void SetVSync(bool enabled) = 0;
+		virtual bool IsVSync() const = 0;
+
+		virtual void* GetNativeWindow() const = 0;
+
+		static Ref<Window> Create(const WindowProps& props = WindowProps());
+	};
+
+}
+```
+- `Window.cpp`
+```
+#include "GEWindow/Window.h"
+
+#if defined(PLATFORM_WINDOWS)
+#include "GEWindow/WindowWindows.h"
+#elif defined(PLATFORM_APPLE)
+#include "GEWindow/WindowApple.h"
+#elif defined(PLATFORM_LINUX)
+#include "GEWindow/WindowLinux.h"
+#endif
+
+namespace Rocket
+{
+	Ref<Window> Window::Create(const WindowProps& props)
+	{
+	#if defined(PLATFORM_WINDOWS)
+		return CreateRef<WindowWindows>(props);
+	#elif defined(PLATFORM_APPLE)
+		return CreateRef<WindowApple>(props);
+    #elif defined(PLATFORM_LINUX)
+        return CreateRef<WindowLinux>(props);
+    #else
+        RK_CORE_ASSERT(false, "Unknown platform!");
+        return nullptr;
+    #endif
+	}
+
+}
+```
