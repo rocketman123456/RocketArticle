@@ -108,13 +108,13 @@ include_directories(
 #    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/RHI/Metal )
 #endif()
 
-#if(Apple)
-#    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/Platform/Apple )
-#elseif(Linux)
-#    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/Platform/Linux )
-#elseif(Windows)
-#    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/Platform/Windows )
-#endif()
+if(Apple)
+    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/Platform/GLFWWindow )
+elseif(Linux)
+    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/Platform/GLFWWindow )
+elseif(Windows)
+    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/Platform/GLFWWindow )
+endif()
 #### Project Includes ###############################
 
 add_subdirectory( Thirdparty )
@@ -130,13 +130,13 @@ set( ENGINE_LIBRARY
     CACHE STRING ""
 )
 
-#if(Apple)
-#    set(ENGINE_PLATFORM_LIBRARY Platform_Apple CACHE STRING "")
-#elseif(Linux)
-#    set(ENGINE_PLATFORM_LIBRARY Platform_Linux CACHE STRING "")
-#elseif(Windows)
-#    set(ENGINE_PLATFORM_LIBRARY Platform_Windows CACHE STRING "")
-#endif()
+if(Apple)
+    set(ENGINE_PLATFORM_LIBRARY PlatformWindow CACHE STRING "")
+elseif(Linux)
+    set(ENGINE_PLATFORM_LIBRARY PlatformWindow CACHE STRING "")
+elseif(Windows)
+    set(ENGINE_PLATFORM_LIBRARY PlatformWindow CACHE STRING "")
+endif()
 
 #if(OpenGL)
 #    set(ENGINE_RENDER_LIBRARY Render_OpenGL CACHE STRING "")

@@ -6,7 +6,9 @@ int main(int argc, char **argv)
     RK_CORE_WARN("Initialize Log");
 
     auto app = Rocket::CreateApplication();
-    
+
+    app->LoadConfig();
+
     app->PreInitializeModule();
     if (app->InitializeModule() != 0)
         return 1;

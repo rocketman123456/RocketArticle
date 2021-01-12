@@ -8,7 +8,7 @@ namespace Rocket
     {
     public:
         IRuntimeModule(const std::string &name = "IRuntimeModule") : m_Name(name) {}
-        virtual ~IRuntimeModule(){};
+        virtual ~IRuntimeModule() = default;
 
         virtual int Initialize() = 0;
         virtual void Finalize() = 0;

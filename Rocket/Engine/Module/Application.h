@@ -1,6 +1,8 @@
 #pragma once
 #include "Interface/IApplication.h"
 
+#include <yaml-cpp/yaml.h>
+
 namespace Rocket
 {
     class Application : implements IApplication
@@ -9,20 +11,19 @@ namespace Rocket
         Application(const std::string &name = "Application") : IApplication(name) {}
         virtual ~Application() = default;
 
-        virtual void PreInitialize() override {}
-        virtual int Initialize() override;
-        virtual void PostInitialize() override {}
-        virtual void Finalize() override;
+        virtual void LoadConfig() override;
 
-        virtual void PreInitializeModule() override {}
-        virtual int InitializeModule() override;
-        virtual void PostInitializeModule() override {}
-        virtual void FinalizeModule() override;
+        virtual int Initialize() final;
+        virtual void Finalize() final;
+
+        virtual int InitializeModule() final;
+        virtual void FinalizeModule() final;
 
         void PushModule(IRuntimeModule * module);
 
-        virtual void TickModule() override;
-        virtual void Tick() override;
+        virtual void TickModule() final;
+        virtual void Tick() final;
+        virtual void OnEvent(Event & event) override;
 
         static Application &Get() { return *s_Instance; }
     protected:
@@ -36,6 +37,9 @@ namespace Rocket
         std::chrono::time_point<std::chrono::steady_clock> m_LastTime;
 
         std::vector<IRuntimeModule *> m_Modules;
+
+        YAML::Node m_Config;
+        std::string m_AssetPath;
     private:
         static Application *s_Instance;
     };

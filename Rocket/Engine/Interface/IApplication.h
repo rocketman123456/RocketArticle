@@ -1,5 +1,6 @@
 #pragma once
 #include "Interface/IRuntimeModule.h"
+#include "Event/Event.h"
 
 namespace Rocket
 {
@@ -21,6 +22,8 @@ namespace Rocket
 
         virtual void TickModule() = 0;
         virtual void Tick() = 0;
+        virtual void Tick(Timestep ts) override {}
+        virtual void OnEvent(Event & event) = 0;
         
         bool IsRunning() { return m_IsRunning; }
         void SetRunningState(bool state) { m_IsRunning = state; }

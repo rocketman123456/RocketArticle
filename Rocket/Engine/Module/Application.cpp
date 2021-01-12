@@ -4,6 +4,21 @@ namespace Rocket
 {
     Application* Application::s_Instance = nullptr;
 
+    void Application::LoadConfig()
+    {
+        std::string config_file;
+#if defined(PLATFORM_LINUX)
+        config_file = ProjectSourceDir + "/Config/setting-linux.yaml";
+#elif defined(PLATFORM_WINDOWS)
+        config_file = ProjectSourceDir + "/Config/setting-windows.yaml";
+#elif defined(PLATFORM_APPLE)
+        config_file = ProjectSourceDir + "/Config/setting-mac.yaml";
+#endif
+        m_Config = YAML::LoadFile(config_file);
+        m_AssetPath = m_Config["asset_path"].as<std::string>();
+        RK_CORE_INFO("Asset Path {0}", m_AssetPath);
+    }
+
     int Application::InitializeModule()
     {
         RK_CORE_ASSERT(!s_Instance, "Application already exists!");
@@ -47,7 +62,6 @@ namespace Rocket
 
     void Application::PushModule(IRuntimeModule *module)
     {
-        RK_PROFILE_FUNCTION();
         m_Modules.push_back(module);
     }
 
@@ -67,8 +81,9 @@ namespace Rocket
         }
     }
 
-    void Application::Close()
+    void Application::OnEvent(Event & event)
     {
-        m_Running = false;
+        EventDispatcher dispatcher(event);
+        //dispatcher.Dispatch<WindowCloseEvent>(RK_BIND_EVENT_FN(Application::OnWindowClose));
     }
 }

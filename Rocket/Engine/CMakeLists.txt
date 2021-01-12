@@ -1,9 +1,14 @@
 message(STATUS "Add Engine")
 add_library( RocketEngine
+    # Common
+    Common/Window.cpp
     # Core
     Core/EntryPoint.cpp
     Core/Log.cpp
+    # Module
+    Module/Application.cpp
+    Module/WindowManager.cpp
 )
-target_link_libraries( RocketEngine
+target_link_libraries( RocketEngine PRIVATE
     spdlog::spdlog_header_only
 )
