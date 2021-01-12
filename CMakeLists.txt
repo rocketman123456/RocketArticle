@@ -6,6 +6,11 @@ set(CMAKE_BUILD_TYPE "Debug") # Debug or Release
 set(PROFILE 0) # This Option will generate runtime profile
 #### Main Project Config ############################
 
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 17)
+
 project( RocketGE )
 
 #### Project Definition #############################
@@ -65,6 +70,7 @@ find_package(EnTT CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(tinyobjloader CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
+find_package(glad CONFIG REQUIRED)
 #find_package(marl CONFIG REQUIRED)
 #### Project Packages ###############################
 
@@ -83,10 +89,10 @@ message(STATUS "###################################")
 
 #### Project Includes ###############################
 include_directories(
-    ${PROJECT_SOURCE_DIR}/Thirdparty/glad/include
+    #${PROJECT_SOURCE_DIR}/Thirdparty/glad/include
     ${PROJECT_SOURCE_DIR}/Thirdparty/stb_image
-    #${PROJECT_SOURCE_DIR}/Thirdparty/crossguid/include
-    #${PROJECT_SOURCE_DIR}/Thirdparty/imgui
+    ${PROJECT_SOURCE_DIR}/Thirdparty/crossguid/include
+    ${PROJECT_SOURCE_DIR}/Thirdparty/imgui
     ${EIGEN3_INCLUDE_DIRS}
     ${BULLET_INCLUDE_DIRS}
     ${OPENAL_INCLUDE_DIRS}
@@ -94,25 +100,52 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/Rocket/Engine
 )
 
-if(OpenGL)
-    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/RHI/OpenGL )
-elseif(Vulkan)
-    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/RHI/Vulkan )
-elseif(Metal)
-    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/RHI/Metal )
-endif()
+#if(OpenGL)
+#    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/RHI/OpenGL )
+#elseif(Vulkan)
+#    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/RHI/Vulkan )
+#elseif(Metal)
+#    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/RHI/Metal )
+#endif()
 
-if(Apple)
-    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/Platform/Apple )
-elseif(Linux)
-    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/Platform/Linux )
-elseif(Windows)
-    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/Platform/Windows )
-endif()
+#if(Apple)
+#    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/Platform/Apple )
+#elseif(Linux)
+#    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/Platform/Linux )
+#elseif(Windows)
+#    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/Platform/Windows )
+#endif()
 #### Project Includes ###############################
 
 add_subdirectory( Thirdparty )
 add_subdirectory( Rocket )
+
+set( ENGINE_LIBRARY
+    ${Threads_LIBS}
+    glfw yaml-cpp glm 
+    Eigen3::Eigen glad::glad EnTT::EnTT
+    spdlog::spdlog spdlog::spdlog_header_only
+    OpenAL::OpenAL SndFile::sndfile
+    imgui stb_image crossguid
+    CACHE STRING ""
+)
+
+#if(Apple)
+#    set(ENGINE_PLATFORM_LIBRARY Platform_Apple CACHE STRING "")
+#elseif(Linux)
+#    set(ENGINE_PLATFORM_LIBRARY Platform_Linux CACHE STRING "")
+#elseif(Windows)
+#    set(ENGINE_PLATFORM_LIBRARY Platform_Windows CACHE STRING "")
+#endif()
+
+#if(OpenGL)
+#    set(ENGINE_RENDER_LIBRARY Render_OpenGL CACHE STRING "")
+#elseif(Vulkan)
+#    set(ENGINE_RENDER_LIBRARY Render_Vulkan CACHE STRING "")
+#elseif(Metal)
+#    set(ENGINE_RENDER_LIBRARY Render_Metal CACHE STRING "")
+#endif()
+
 add_subdirectory( Test )
 add_subdirectory( Editor )
 add_subdirectory( Sandbox )

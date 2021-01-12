@@ -10,4 +10,5 @@ Rocket主要会参考图1的图片，先从底层开始，逐渐丰富内容。<
 4. Log/Profile System<br>
 5. etc.
 
-暂定这些内容，下一次开始窗口的部分。本项目预计支持Linux，Windows和MacOS，使用CMake进行项目管理。
+暂定这些内容，下一次开始窗口的部分。本项目预计支持Linux，Windows和MacOS，使用CMake进行项目管理。<br>
+本项目的地址为：https://github.com/rocketman123456/RocketArticle
