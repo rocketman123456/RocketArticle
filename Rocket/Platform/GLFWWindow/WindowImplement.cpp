@@ -159,23 +159,8 @@ namespace Rocket
 		}
 	}
 
-	void WindowImplement::PollEvent()
-	{
-		glfwPollEvents();
-	}
-
 	void WindowImplement::Update()
 	{
-		PollEvent();
-	}
-
-	void WindowImplement::SetVSync(bool enabled)
-	{
-		if (enabled)
-			glfwSwapInterval(1);
-		else
-			glfwSwapInterval(0);
-
-		m_Data.VSync = enabled;
+		glfwPollEvents();
 	}
 }

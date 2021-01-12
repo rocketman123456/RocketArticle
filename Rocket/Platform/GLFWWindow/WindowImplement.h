@@ -14,16 +14,13 @@ namespace Rocket
         virtual void Initialize() final;
 		virtual void Finalize() final;
 
-		virtual void PollEvent() final;
-		virtual void Update() final;
+		virtual void Tick() final;
 
 		uint32_t GetWidth() const final { return m_Data.Width; }
 		uint32_t GetHeight() const final { return m_Data.Height; }
 
 		// Window attributes
 		void SetEventCallback(const EventCallbackFn &callback) final { m_Data.EventCallback = callback; }
-		bool IsVSync() const final { return m_Data.VSync; }
-		void SetVSync(bool enabled) final;
 
 		virtual void* GetNativeWindow() const final { return m_Window; }
     private:

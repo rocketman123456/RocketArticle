@@ -22,6 +22,6 @@ namespace Rocket
 
     void WindowManager::Tick(Timestep ts)
     {
-        m_Window->Update();
+        m_Window->Tick();
     }
 }

@@ -8,7 +8,10 @@ add_library( RocketEngine
     # Module
     Module/Application.cpp
     Module/GraphicsManager.cpp
+    Module/ProcessManager.cpp
     Module/WindowManager.cpp
+    # Process
+    Process/Process.cpp
 )
 target_link_libraries( RocketEngine PRIVATE
     spdlog::spdlog_header_only

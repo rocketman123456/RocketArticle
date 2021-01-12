@@ -1,6 +1,7 @@
 #include "SimpleApp.h"
 #include "Module/WindowManager.h"
 #include "Module/GraphicsManager.h"
+#include "Module/ProcessManager.h"
 
 namespace Rocket
 {
@@ -11,15 +12,17 @@ namespace Rocket
 
     WindowManager* g_WindowManager;
     GraphicsManager* g_GraphicsManager;
+    ProcessManager* g_ProcessManager;
 
     void SimpleApp::PreInitializeModule()
     {
-        auto window_manager = GetWindowManager();
-        auto graphics_manager = GetGraphicsManager();
-        g_WindowManager = window_manager;
-        g_GraphicsManager = graphics_manager;
-        PushModule(window_manager);
-        PushModule(graphics_manager);
+        g_WindowManager = GetWindowManager();
+        g_GraphicsManager = GetGraphicsManager();
+        g_ProcessManager = GetProcessManager();
+
+        PushModule(g_WindowManager);
+        PushModule(g_GraphicsManager);
+        PushModule(g_ProcessManager);
     }
 
     void SimpleApp::PostInitializeModule()
