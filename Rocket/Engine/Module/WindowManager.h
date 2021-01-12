@@ -19,4 +19,7 @@ namespace Rocket
     private:
         Ref<Window> m_Window;
     };
+
+    WindowManager* GetWindowManager();
+    extern WindowManager* g_WindowManager;
 }

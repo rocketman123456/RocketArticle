@@ -1,4 +1,4 @@
-#include "Common/WindowImplement.h"
+#include "GLFWWindow/WindowImplement.h"
 #include "Event/ApplicationEvent.h"
 
 #include <glad/glad.h>
@@ -42,7 +42,6 @@ namespace Rocket
 #elif defined(RK_VULKAN) || defined(RK_METAL)
 			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 #endif
-			glfwWindowHint(GLFW_SCALE_TO_MONITOR, GL_TRUE);
 			glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 			m_Window = glfwCreateWindow((int)m_Props.Width, (int)m_Props.Height, m_Data.Title.c_str(), nullptr, nullptr);
@@ -50,9 +49,9 @@ namespace Rocket
 		}
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
-		SetVSync(true);
-
-		SetCallback();
+		
+		//SetVSync(true);
+		//SetCallback();
 	}
 
 	void WindowImplement::SetCallback()
@@ -167,9 +166,7 @@ namespace Rocket
 
 	void WindowImplement::Update()
 	{
-#if defined(RK_OPENGL)
-        glfwSwapBuffers(m_Window);
-#endif
+		PollEvent();
 	}
 
 	void WindowImplement::SetVSync(bool enabled)

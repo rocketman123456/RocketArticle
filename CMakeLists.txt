@@ -97,24 +97,12 @@ include_directories(
     ${BULLET_INCLUDE_DIRS}
     ${OPENAL_INCLUDE_DIRS}
     ${SNDFILE_INCLUDE_DIRS}
-    ${PROJECT_SOURCE_DIR}/Rocket/Engine
 )
-
-#if(OpenGL)
-#    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/RHI/OpenGL )
-#elseif(Vulkan)
-#    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/RHI/Vulkan )
-#elseif(Metal)
-#    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/RHI/Metal )
-#endif()
-
-if(Apple)
-    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/Platform/GLFWWindow )
-elseif(Linux)
-    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/Platform/GLFWWindow )
-elseif(Windows)
-    include_directories( ${PROJECT_SOURCE_DIR}/Rocket/Platform/GLFWWindow )
-endif()
+include_directories(
+    ${PROJECT_SOURCE_DIR}/Rocket/Engine
+    ${PROJECT_SOURCE_DIR}/Rocket/RHI
+    ${PROJECT_SOURCE_DIR}/Rocket/Platform
+)
 #### Project Includes ###############################
 
 add_subdirectory( Thirdparty )
@@ -138,13 +126,13 @@ elseif(Windows)
     set(ENGINE_PLATFORM_LIBRARY PlatformWindow CACHE STRING "")
 endif()
 
-#if(OpenGL)
-#    set(ENGINE_RENDER_LIBRARY Render_OpenGL CACHE STRING "")
-#elseif(Vulkan)
-#    set(ENGINE_RENDER_LIBRARY Render_Vulkan CACHE STRING "")
-#elseif(Metal)
-#    set(ENGINE_RENDER_LIBRARY Render_Metal CACHE STRING "")
-#endif()
+if(OpenGL)
+    set(ENGINE_RENDER_LIBRARY RendererOpenGL CACHE STRING "")
+elseif(Vulkan)
+    set(ENGINE_RENDER_LIBRARY RendererVulkan CACHE STRING "")
+elseif(Metal)
+    set(ENGINE_RENDER_LIBRARY RendererMetal CACHE STRING "")
+endif()
 
 add_subdirectory( Test )
 add_subdirectory( Editor )

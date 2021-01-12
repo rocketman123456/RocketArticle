@@ -17,7 +17,6 @@ namespace Rocket
 
         // For Debug
         [[nodiscard]] const std::string &GetName() const { return m_Name; }
-
     private:
         std::string m_Name;
     };

@@ -2,6 +2,11 @@
 
 namespace Rocket
 {
+    WindowManager* GetWindowManager()
+    {
+        return new WindowManager();
+    }
+
     int WindowManager::Initialize()
     {
         WindowProps prop;

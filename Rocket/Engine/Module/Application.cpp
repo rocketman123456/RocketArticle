@@ -62,7 +62,7 @@ namespace Rocket
 
     void Application::PushModule(IRuntimeModule *module)
     {
-        m_Modules.push_back(module);
+        m_Modules.emplace_back(module);
     }
 
     void Application::Tick()

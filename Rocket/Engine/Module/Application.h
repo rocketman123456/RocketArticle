@@ -5,7 +5,7 @@
 
 namespace Rocket
 {
-    class Application : implements IApplication
+    class Application : inheritance IApplication
     {
     public:
         Application(const std::string &name = "Application") : IApplication(name) {}

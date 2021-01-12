@@ -1,0 +1,8 @@
+message(STATUS "Add Module RHI")
+if(OpenGL)
+    add_subdirectory(OpenGL)
+elseif(Vulkan)
+    add_subdirectory(Vulkan)
+elseif(Metal)
+    add_subdirectory(Metal)
+endif()

@@ -7,6 +7,7 @@ add_library( RocketEngine
     Core/Log.cpp
     # Module
     Module/Application.cpp
+    Module/GraphicsManager.cpp
     Module/WindowManager.cpp
 )
 target_link_libraries( RocketEngine PRIVATE

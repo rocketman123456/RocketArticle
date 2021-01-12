@@ -1,6 +1,6 @@
 #include "Common/Window.h"
 #if defined(PLATFORM_WINDOWS) || defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
-#include "Common/WindowImplement.h"
+#include "GLFWWindow/WindowImplement.h"
 #endif
 
 namespace Rocket
