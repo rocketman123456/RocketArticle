@@ -33,11 +33,12 @@ endif ()
 if (RENDER_API MATCHES "OpenGL")
     set(OpenGL 1)
     add_definitions(-DRK_OPENGL)
-    if(Windows)
-        add_definitions(-DHIGH_OPENGL_VERSION)
-    elseif(Linux)
-        add_definitions(-DHIGH_OPENGL_VERSION)
-    endif()
+    # TODO : use opengl 4.1 for all
+    #if(Windows)
+    #    add_definitions(-DHIGH_OPENGL_VERSION)
+    #elseif(Linux)
+    #    add_definitions(-DHIGH_OPENGL_VERSION)
+    #endif()
 elseif (RENDER_API MATCHES "Vulkan")
     set(Vulkan 1)
     add_definitions(-DRK_VULKAN)
@@ -46,10 +47,10 @@ elseif (RENDER_API MATCHES "Metal")
     add_definitions(-DRK_METAL)
 endif()
 
-#configure_file (
-#    "${PROJECT_SOURCE_DIR}/RKConfig.h.in"
-#    "${PROJECT_SOURCE_DIR}/Rocket/Engine/RKConfig.h"
-#)
+configure_file (
+    "${PROJECT_SOURCE_DIR}/RKConfig.h.in"
+    "${PROJECT_SOURCE_DIR}/Rocket/Engine/RKConfig.h"
+)
 #### Project Definition #############################
 
 #### Project Packages ###############################
@@ -64,6 +65,7 @@ find_package(EnTT CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(tinyobjloader CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
+#find_package(marl CONFIG REQUIRED)
 #### Project Packages ###############################
 
 #### Project Messages ###############################
@@ -82,17 +84,15 @@ message(STATUS "###################################")
 #### Project Includes ###############################
 include_directories(
     ${PROJECT_SOURCE_DIR}/Thirdparty/glad/include
-    ${PROJECT_SOURCE_DIR}/Thirdparty/crossguid/include
     ${PROJECT_SOURCE_DIR}/Thirdparty/stb_image
-    ${PROJECT_SOURCE_DIR}/Thirdparty/imgui
+    #${PROJECT_SOURCE_DIR}/Thirdparty/crossguid/include
+    #${PROJECT_SOURCE_DIR}/Thirdparty/imgui
     ${EIGEN3_INCLUDE_DIRS}
     ${BULLET_INCLUDE_DIRS}
     ${OPENAL_INCLUDE_DIRS}
     ${SNDFILE_INCLUDE_DIRS}
-    ${OPENMP_INCLUDES}
     ${PROJECT_SOURCE_DIR}/Rocket/Engine
 )
-#### Project Includes ###############################
 
 if(OpenGL)
     include_directories( ${PROJECT_SOURCE_DIR}/Rocket/RHI/OpenGL )
@@ -109,9 +109,12 @@ elseif(Linux)
 elseif(Windows)
     include_directories( ${PROJECT_SOURCE_DIR}/Rocket/Platform/Windows )
 endif()
+#### Project Includes ###############################
 
-#add_subdirectory( Thirdparty )
-#add_subdirectory( Rocket )
-#add_subdirectory( Test )
-#add_subdirectory( Editor )
-#add_subdirectory( Sandbox )
+add_subdirectory( Thirdparty )
+add_subdirectory( Rocket )
+add_subdirectory( Test )
+add_subdirectory( Editor )
+add_subdirectory( Sandbox )
+
+message(STATUS "###################################")
