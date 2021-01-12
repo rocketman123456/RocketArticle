@@ -76,6 +76,7 @@ namespace Rocket
 ```
 ## 2. 开始Runtime Module
 在程序运行时，基本的组件就是不同的Modules，创建一个基类，所有的Module将从这里派生。
+`IRuntimeModule.h`
 ```
 #pragma once
 #include "Core/Core.h"
@@ -103,6 +104,46 @@ namespace Rocket
 }
 ```
 从这个类继续派生出Application，所有的初始化，终止以及循环的功能，都将在Application类中实现。
+`IApplication.h`
+```
+#pragma once
+#include "Interface/IRuntimeModule.h"
+#include "Event/Event.h"
+
+namespace Rocket
+{
+    Interface IApplication : implements IRuntimeModule
+    {
+    public:
+        IApplication(const std::string &name = "IApplication") : IRuntimeModule(name) {}
+        virtual ~IApplication() = default;
+
+        virtual void LoadConfig() = 0;
+
+        virtual void PreInitialize() = 0;
+        virtual void PostInitialize() = 0;
+
+        virtual void PreInitializeModule() = 0;
+        virtual int InitializeModule() = 0;
+        virtual void PostInitializeModule() = 0;
+        virtual void FinalizeModule() = 0;
+
+        virtual void TickModule() = 0;
+        virtual void Tick() = 0;
+        virtual void Tick(Timestep ts) override {}
+        virtual void OnEvent(Event & event) = 0;
+        
+        bool IsRunning() { return m_IsRunning; }
+        void SetRunningState(bool state) { m_IsRunning = state; }
+        void Close() { SetRunningState(false); }
+    protected:
+        bool m_IsRunning = true;
+    };
+
+    IApplication *CreateApplicationInstance();
+} // namespace Rocket
+```
+`Application.h`
 ```
 #pragma once
 #include "Interface/IApplication.h"
@@ -150,6 +191,7 @@ namespace Rocket
     Application* CreateApplication();
 }
 ```
+`Application.cpp`
 ```
 #include "Module/Application.h"
 
