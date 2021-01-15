@@ -23,13 +23,12 @@ namespace Rocket
         virtual void TickModule() = 0;
         virtual void Tick() = 0;
         virtual void Tick(Timestep ts) override {}
-        virtual void OnEvent(Event & event) = 0;
+        virtual void OnEvent(Event& event) = 0;
         
         bool IsRunning() { return m_IsRunning; }
         void SetRunningState(bool state) { m_IsRunning = state; }
-        void Close() { SetRunningState(false); }
     protected:
-        bool m_IsRunning = true;
+        std::atomic<bool> m_IsRunning = true;
     };
 
     IApplication *CreateApplicationInstance();

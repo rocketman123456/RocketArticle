@@ -1,6 +1,5 @@
 #pragma once
 #include "Core/Core.h"
-#include "Event/Event.h"
 
 namespace Rocket
 {
@@ -20,7 +19,6 @@ namespace Rocket
 	Interface Window
 	{
 	public:
-		using EventCallbackFn = std::function<void(Event &)>;
 		virtual ~Window() = default;
 
         virtual void Initialize() = 0;
@@ -31,21 +29,8 @@ namespace Rocket
 		virtual uint32_t GetWidth() const = 0;
 		virtual uint32_t GetHeight() const = 0;
 
-		// Window attributes
-		virtual void SetEventCallback(const EventCallbackFn &callback) = 0;
-
 		virtual void* GetNativeWindow() const = 0;
 
 		static Ref<Window> Create(const WindowProps &props = WindowProps());
-
-    protected:
-        struct WindowData
-        {
-            std::string Title;
-            uint32_t Width = 0, Height = 0;
-            float xScale = 1.0f, yScale = 1.0f;
-            bool VSync = true;
-            EventCallbackFn EventCallback;
-        };
 	};
 }

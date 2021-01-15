@@ -1,5 +1,6 @@
 #pragma once
 #include "Interface/IApplication.h"
+#include "Event/ApplicationEvent.h"
 
 #include <yaml-cpp/yaml.h>
 
@@ -23,21 +24,26 @@ namespace Rocket
 
         virtual void TickModule() final;
         virtual void Tick() final;
-        virtual void OnEvent(Event & event) override;
+        virtual void OnEvent(Event& event) override;
 
         static Application &Get() { return *s_Instance; }
+
+    protected:
+        bool OnWindowClose(WindowCloseEvent &e);
+        bool OnWindowResize(WindowResizeEvent &e);
+
     protected:
         bool m_Running = true;
         bool m_Minimized = false;
         bool m_Parallel = true;
-
+        // Clock
         std::chrono::steady_clock m_Clock;
         std::chrono::duration<double> m_Duration;
         std::chrono::time_point<std::chrono::steady_clock> m_CurrentTime;
         std::chrono::time_point<std::chrono::steady_clock> m_LastTime;
-
+        // Modules
         std::vector<IRuntimeModule *> m_Modules;
-
+        // Config
         YAML::Node m_Config;
         std::string m_AssetPath;
     private:

@@ -81,9 +81,27 @@ namespace Rocket
         }
     }
 
-    void Application::OnEvent(Event & event)
+    void Application::OnEvent(Event& event)
     {
         EventDispatcher dispatcher(event);
-        //dispatcher.Dispatch<WindowCloseEvent>(RK_BIND_EVENT_FN(Application::OnWindowClose));
+        dispatcher.Dispatch<WindowCloseEvent>(RK_BIND_EVENT_FN(Application::OnWindowClose));
+        dispatcher.Dispatch<WindowResizeEvent>(RK_BIND_EVENT_FN(Application::OnWindowResize));
+    }
+
+    bool Application::OnWindowClose(WindowCloseEvent &e)
+    {
+        SetRunningState(false);
+        return true;
+    }
+
+    bool Application::OnWindowResize(WindowResizeEvent &e)
+    {
+        if (e.GetWidth() == 0 || e.GetHeight() == 0)
+        {
+            m_Minimized = true;
+            return false;
+        }
+        m_Minimized = false;
+        return false;
     }
 }

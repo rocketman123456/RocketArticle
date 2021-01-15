@@ -13,7 +13,7 @@ namespace Rocket
 
     int OpenGLGraphicsManager::Initialize()
     {
-        m_WindowHandle = static_cast<GLFWwindow*>(g_WindowManager->GetWindow()->GetNativeWindow());
+        m_WindowHandle = static_cast<GLFWwindow*>(g_WindowManager->GetNativeWindow());
 
         glfwMakeContextCurrent(m_WindowHandle);
         int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
