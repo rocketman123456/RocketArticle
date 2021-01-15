@@ -4,3 +4,6 @@
 [submodule "Thirdparty/crossguid"]
 	path = Thirdparty/crossguid
 	url = https://github.com/graeme-hill/crossguid.git
+[submodule "Thirdparty/Remotery"]
+	path = Thirdparty/Remotery
+	url = https://github.com/Celtoys/Remotery.git
