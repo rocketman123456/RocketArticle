@@ -9,7 +9,11 @@ namespace Rocket
     class Application : inheritance IApplication
     {
     public:
-        Application(const std::string &name = "Application") : IApplication(name) {}
+        Application(const std::string &name = "Application") : IApplication(name) 
+        {
+            RK_CORE_ASSERT(!s_Instance, "Application already exists!");
+            s_Instance = this;
+        }
         virtual ~Application() = default;
 
         virtual void LoadConfig() override;
@@ -24,11 +28,12 @@ namespace Rocket
 
         virtual void TickModule() final;
         virtual void Tick() final;
-        virtual void OnEvent(Event& event) override;
+        virtual bool OnEvent(IEvent& event) override;
 
         static Application &Get() { return *s_Instance; }
 
     protected:
+        // Event Call Back
         bool OnWindowClose(WindowCloseEvent &e);
         bool OnWindowResize(WindowResizeEvent &e);
 
@@ -47,9 +52,10 @@ namespace Rocket
         YAML::Node m_Config;
         std::string m_AssetPath;
     private:
-        static Application *s_Instance;
+        static Application* s_Instance;
     };
 
     // Implement This Function to Create Different Applications
     Application* CreateApplication();
+    extern Application* g_Application;
 }

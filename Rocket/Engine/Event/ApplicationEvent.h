@@ -3,7 +3,7 @@
 
 namespace Rocket
 {
-	class WindowResizeEvent : implements Event
+	class WindowResizeEvent : implements IEvent
 	{
 	public:
 		WindowResizeEvent(uint32_t width, uint32_t height, float x, float y)
@@ -28,7 +28,7 @@ namespace Rocket
 		float m_xScale, m_yScale;
 	};
 
-	class WindowCloseEvent : implements Event
+	class WindowCloseEvent : implements IEvent
 	{
 	public:
 		WindowCloseEvent() = default;
@@ -37,7 +37,7 @@ namespace Rocket
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
-	class AppTickEvent : implements Event
+	class AppTickEvent : implements IEvent
 	{
 	public:
 		AppTickEvent() = default;
@@ -46,7 +46,7 @@ namespace Rocket
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
-	class AppUpdateEvent : implements Event
+	class AppUpdateEvent : implements IEvent
 	{
 	public:
 		AppUpdateEvent() = default;
@@ -55,7 +55,7 @@ namespace Rocket
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
-	class AppRenderEvent : implements Event
+	class AppRenderEvent : implements IEvent
 	{
 	public:
 		AppRenderEvent() = default;

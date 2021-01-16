@@ -1,71 +1,30 @@
 #pragma once
-#include "Core/Basic.h"
-
 #include "RKConfig.h"
+
+#include <string>
+#include <utility>
+#include <optional>
+#include <functional>
+
 static const std::string ProjectSourceDir = PROJECT_SOURCE_DIR;
 static const std::string RenderAPI = RENDER_API;
-
-#ifdef RK_DEBUG
-#if defined(PLATFORM_WINDOWS)
-#define RK_DEBUGBREAK() __debugbreak()
-#elif defined(PLATFORM_LINUX) || defined(PLATFORM_APPLE)
-#include <signal.h>
-#define RK_DEBUGBREAK() raise(SIGTRAP)
-#else
-#error "Platform doesn't support debugbreak yet!"
-#endif
-#define RK_ENABLE_ASSERTS
-#else
-#define RK_DEBUGBREAK()
-#endif
-
-// These just for glfw
-#if defined(RK_OPENGL)
-#define GLFW_INCLUDE_NONE
-#elif defined(RK_VULKAN)
-#define GLFW_INCLUDE_NONE
-#elif defined(RK_METAL)
-//#define GLFW_INCLUDE_NONE
-#define GLFW_EXPOSE_NATIVE_COCOA
-#endif
-
-#define RK_EXPAND_MACRO(x) x
-#define RK_STRINGIFY_MACRO(x) #x
-
-#define BIT(x) (1 << x)
-#define RK_BIND_EVENT_FN(fn) [this](auto &&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
 
 #define Interface class
 #define implements public
 #define inheritance public
 
-namespace Rocket
-{
-	template <typename Base, typename T>
-	inline bool InstanceOf (const T *)
-	{
-		return std::is_base_of<Base, T>::value;
-	}
+#define RK_EXPAND_MACRO(x) x
+#define RK_STRINGIFY_MACRO(x) #x
 
-	template <typename T>
-	using Scope = std::unique_ptr<T>;
-	template <typename T, typename... Args>
-	constexpr Scope<T> CreateScope(Args &&... args)
-	{
-		return std::make_unique<T>(std::forward<Args>(args)...);
-	}
+#define BIT(x) (1 << x)
+#define RK_BIND_EVENT_FN(fn) [](auto &&... args) -> decltype(auto) \
+		{ return fn(std::forward<decltype(args)>(args)...); }
+#define RK_BIND_EVENT_FN_CLASS(fn) [this](auto &&... args) -> decltype(auto) \
+		{ return this->fn(std::forward<decltype(args)>(args)...); }
+#define RK_BIND_EVENT_FN_CLASS_PTR(pointer, fn) [pointer](auto &&... args) -> decltype(auto) \
+		{ return pointer->fn(std::forward<decltype(args)>(args)...); }
 
-	template <typename T>
-	using Ref = std::shared_ptr<T>;
-	template <typename T, typename... Args>
-	constexpr Ref<T> CreateRef(Args &&... args)
-	{
-		return std::make_shared<T>(std::forward<Args>(args)...);
-	}
-
-	template <typename T>
-	using StoreRef = std::weak_ptr<T>;
-} // namespace Rocket
-
+#include "Core/Config.h"
+#include "Core/Template.h"
 #include "Core/Assert.h"
 #include "Core/Log.h"

@@ -22,8 +22,9 @@ namespace Rocket
 
         virtual void TickModule() = 0;
         virtual void Tick() = 0;
-        virtual void Tick(Timestep ts) override {}
-        virtual void OnEvent(Event& event) = 0;
+        virtual bool OnEvent(IEvent& event) = 0;
+        // this Tick is useless in app tick loop
+        virtual void Tick(Timestep ts) final {}
         
         bool IsRunning() { return m_IsRunning; }
         void SetRunningState(bool state) { m_IsRunning = state; }

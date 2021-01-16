@@ -6,15 +6,17 @@
 
 namespace Rocket
 {
-    Application* CreateApplication()
-    {
-        return new SimpleApp();
-    }
-
+    Application* g_Application;
     WindowManager* g_WindowManager;
     GraphicsManager* g_GraphicsManager;
     ProcessManager* g_ProcessManager;
     EventManager* g_EventManager;
+    
+    Application* CreateApplication()
+    {
+        g_Application = new SimpleApp();
+        return g_Application;
+    }
 
     void SimpleApp::PreInitializeModule()
     {

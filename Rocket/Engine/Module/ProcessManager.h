@@ -2,6 +2,8 @@
 #include "Interface/IRuntimeModule.h"
 #include "Process/Process.h"
 
+#include <list>
+
 namespace Rocket
 {
     class ProcessManager : implements IRuntimeModule

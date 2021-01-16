@@ -21,19 +21,15 @@ namespace Rocket
 
     int Application::InitializeModule()
     {
-        RK_CORE_ASSERT(!s_Instance, "Application already exists!");
-        s_Instance = this;
-
         int ret = 0;
         for (auto &module : m_Modules)
         {
             if ((ret = module->Initialize()) != 0)
             {
-                RK_CORE_ERROR("Failed. err = {0}", ret);
+                RK_CORE_ERROR("Failed. err = {0}, {1}", ret, module->GetName());
                 return ret;
             }
         }
-
         return ret;
     }
 
@@ -81,16 +77,18 @@ namespace Rocket
         }
     }
 
-    void Application::OnEvent(Event& event)
+    bool Application::OnEvent(IEvent& event)
     {
         EventDispatcher dispatcher(event);
-        dispatcher.Dispatch<WindowCloseEvent>(RK_BIND_EVENT_FN(Application::OnWindowClose));
-        dispatcher.Dispatch<WindowResizeEvent>(RK_BIND_EVENT_FN(Application::OnWindowResize));
+        dispatcher.Dispatch<WindowCloseEvent>(RK_BIND_EVENT_FN_CLASS(Application::OnWindowClose));
+        dispatcher.Dispatch<WindowResizeEvent>(RK_BIND_EVENT_FN_CLASS(Application::OnWindowResize));
+        return event.Handled;
     }
 
     bool Application::OnWindowClose(WindowCloseEvent &e)
     {
         SetRunningState(false);
+        e.Handled = true;
         return true;
     }
 

@@ -1,12 +1,10 @@
 #pragma once
 #include "Core/Core.h"
 
+#include <sstream>
+
 namespace Rocket
 {
-	// Events in Rocket are currently blocking, meaning when an event occurs it
-	// immediately gets dispatched and must be dealt with right then an there.
-	// For the future, a better strategy might be to buffer events in an event
-	// bus and process them during the "event" part of the update stage.
 	enum class EventType
 	{
 		None = 0,
@@ -39,7 +37,7 @@ namespace Rocket
 		EventCategoryAudio = BIT(5),
 	};
 
-#define EVENT_CLASS_TYPE(type)                                                  \
+#define EVENT_CLASS_TYPE(type) \
 	static EventType GetStaticType() { return EventType::type; }                \
 	virtual EventType GetEventType() const override { return GetStaticType(); } \
 	virtual const char* GetName() const override { return #type; }
@@ -47,10 +45,10 @@ namespace Rocket
 #define EVENT_CLASS_CATEGORY(category) \
 	virtual int GetCategoryFlags() const override { return static_cast<int>(category); }
 
-	Interface Event
+	Interface IEvent
 	{
 	public:
-		virtual ~Event() = default;
+		virtual ~IEvent() = default;
 
 		bool Handled = false;
 
@@ -63,12 +61,15 @@ namespace Rocket
 		{
 			return GetCategoryFlags() & static_cast<int>(category);
 		}
+
+	protected:
+		float m_Time;
 	};
 
 	class EventDispatcher
 	{
 	public:
-		EventDispatcher(Event &event) : m_Event(event) {}
+		EventDispatcher(IEvent &event) : m_Event(event) {}
 
 		// F will be deduced by the compiler
 		template <typename T, typename F>
@@ -83,10 +84,10 @@ namespace Rocket
 		}
 
 	private:
-		Event &m_Event;
+		IEvent &m_Event;
 	};
 
-	inline std::ostream &operator<<(std::ostream &os, const Event &e)
+	inline std::ostream &operator<<(std::ostream &os, const IEvent &e)
 	{
 		return os << e.ToString();
 	}
