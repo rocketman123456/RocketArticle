@@ -55,73 +55,73 @@ namespace Rocket
 		});
 
 		glfwSetFramebufferSizeCallback(m_WindowHandle, [](GLFWwindow *window, int width, int height) {
-            RK_CORE_TRACE("glfwSetFramebufferSizeCallback");
+            //RK_CORE_TRACE("glfwSetFramebufferSizeCallback");
 			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
-            EventPtr event = std::make_shared<WindowResizeEvent>(width, height, 1.0f, 1.0f);
+            EventPtr event = CreateEvent<WindowResizeEvent>(width, height, 1.0f, 1.0f);
 			data.EventCallback(event);
 		});
 
 		glfwSetWindowCloseCallback(m_WindowHandle, [](GLFWwindow *window) {
-            RK_CORE_TRACE("glfwSetWindowCloseCallback");
+            //RK_CORE_TRACE("glfwSetWindowCloseCallback");
 			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
-            EventPtr event = std::make_shared<WindowCloseEvent>();
+            EventPtr event = CreateEvent<WindowCloseEvent>();
 			data.EventCallback(event);
 		});
 
 		glfwSetKeyCallback(m_WindowHandle, [](GLFWwindow *window, int key, int scancode, int action, int mods) {
-            RK_CORE_TRACE("glfwSetKeyCallback");
+            //RK_CORE_TRACE("glfwSetKeyCallback");
 			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 			switch (action)
 			{
                 case GLFW_PRESS: {
-                    EventPtr event = std::make_shared<KeyPressedEvent>(key, 0);
+                    EventPtr event = CreateEvent<KeyPressedEvent>(key, 0);
                     data.EventCallback(event);
                 } break;
                 case GLFW_RELEASE: {
-                    EventPtr event = std::make_shared<KeyReleasedEvent>(key);
+                    EventPtr event = CreateEvent<KeyReleasedEvent>(key);
                     data.EventCallback(event);
                 } break;
                 case GLFW_REPEAT: {
-                    EventPtr event = std::make_shared<KeyPressedEvent>(key, 1);
+                    EventPtr event = CreateEvent<KeyPressedEvent>(key, 1);
                     data.EventCallback(event);
                 } break;
 			}
 		});
 
 		glfwSetCharCallback(m_WindowHandle, [](GLFWwindow *window, uint32_t keycode) {
-            RK_CORE_TRACE("glfwSetCharCallback");
+            //RK_CORE_TRACE("glfwSetCharCallback");
 			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
-            EventPtr event = std::make_shared<KeyTypedEvent>(keycode);
+            EventPtr event = CreateEvent<KeyTypedEvent>(keycode);
 			data.EventCallback(event);
 		});
 
 		glfwSetMouseButtonCallback(m_WindowHandle, [](GLFWwindow *window, int button, int action, int mods) {
-            RK_CORE_TRACE("glfwSetMouseButtonCallback");
+            //RK_CORE_TRACE("glfwSetMouseButtonCallback");
 			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 			switch (action)
 			{
                 case GLFW_PRESS: {
-                    EventPtr event = std::make_shared<MouseButtonPressedEvent>(button);
+                    EventPtr event = CreateEvent<MouseButtonPressedEvent>(button);
                     data.EventCallback(event);
                 } break;
                 case GLFW_RELEASE: {
-                    EventPtr event = std::make_shared<MouseButtonReleasedEvent>(button);
+                    EventPtr event = CreateEvent<MouseButtonReleasedEvent>(button);
                     data.EventCallback(event);
                 } break;
 			}
 		});
 
 		glfwSetScrollCallback(m_WindowHandle, [](GLFWwindow *window, double xOffset, double yOffset) {
-            RK_CORE_TRACE("glfwSetScrollCallback");
+            //RK_CORE_TRACE("glfwSetScrollCallback");
 			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
-            EventPtr event = std::make_shared<MouseScrolledEvent>((float)xOffset, (float)yOffset);
+            EventPtr event = CreateEvent<MouseScrolledEvent>((float)xOffset, (float)yOffset);
 			data.EventCallback(event);
 		});
 
 		glfwSetCursorPosCallback(m_WindowHandle, [](GLFWwindow *window, double xPos, double yPos) {
-            RK_CORE_TRACE("glfwSetCursorPosCallback");
+            //RK_CORE_TRACE("glfwSetCursorPosCallback");
 			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
-            EventPtr event = std::make_shared<MouseMovedEvent>((float)xPos, (float)yPos);
+            EventPtr event = CreateEvent<MouseMovedEvent>((float)xPos, (float)yPos);
 			data.EventCallback(event);
 		});
 
@@ -130,8 +130,7 @@ namespace Rocket
 
     void EventManager::SetupListener()
     {
-        EventListenerDelegate delegate{entt::connect_arg<&Application::OnWindowClose>, *g_Application};
-        AddListener(delegate, EventType::WindowClose);
+        AddListener(REGISTER_DELEGATE(Application::OnWindowClose, *g_Application), EventType::WindowClose);
     }
 
     void EventManager::Finalize()
@@ -145,11 +144,14 @@ namespace Rocket
 
     void EventManager::Tick(Timestep ts)
     {
-        m_Timer.MarkTimeThisTick();
         glfwPollEvents();
+
+        m_Timer.MarkTimeThisTick();
         bool result = Update();
         if(!result)
+        {
             RK_CORE_WARN("EventManager Process Unfinish!");
+        }
     }
 
     bool EventManager::Update(uint64_t maxMillis)
@@ -158,8 +160,8 @@ namespace Rocket
         float maxMs = currMs + maxMillis;
 
         // This section added to handle events from other threads.
-        EventPtr pRealtimeEvent;
         // TODO : support multi-thread event handle
+        //EventPtr pRealtimeEvent;
         //while (m_EventThreadQueue.try_pop(pRealtimeEvent))
         //{
         //    QueueEvent(pRealtimeEvent);
@@ -178,7 +180,7 @@ namespace Rocket
         m_ActiveEventQueue = (m_ActiveEventQueue + 1) % EVENTMANAGER_NUM_QUEUES;
         m_EventQueue[m_ActiveEventQueue].clear();
 
-        RK_CORE_INFO("Processing Event Queue {0} - {1} events to process", queueToProcess, m_EventQueue[queueToProcess].size());
+        //RK_CORE_INFO("Processing Event Queue {0} - {1} events to process", queueToProcess, m_EventQueue[queueToProcess].size());
 
         // Process the queue
         while (!m_EventQueue[queueToProcess].empty())

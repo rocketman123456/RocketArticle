@@ -1,7 +1,4 @@
 message(STATUS "Add Thirdparty")
-#add_library( glad
-#    glad/src/glad.c
-#)
 
 add_library( stb_image
     stb_image/stb_image.cpp
@@ -16,4 +13,8 @@ add_library( imgui
 
 add_library( crossguid
     crossguid/src/guid.cpp
+)
+
+add_library( Remotery
+    Remotery/lib/Remotery.c
 )

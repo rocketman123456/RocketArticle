@@ -52,7 +52,7 @@ namespace Rocket
             return false;
         }
 
-        BaseClass* Create(IdType id)
+        Ref<BaseClass> Create(IdType id)
         {
             auto findIt = m_creationFunctions.find(id);
             if (findIt != m_creationFunctions.end())

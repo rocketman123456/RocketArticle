@@ -21,6 +21,8 @@ namespace Rocket
     using EventListenerList = std::list<EventListenerDelegate>;
     using EventListenerMap = std::map<EventType, EventListenerList>;
     using EventQueue = std::list<EventPtr>;
+
+#define REGISTER_DELEGATE(f,x) EventListenerDelegate{entt::connect_arg<&f>, x}
     
     class EventManager : implements IRuntimeModule
     {
@@ -92,14 +94,15 @@ namespace Rocket
         };
 
         bool        m_Global;
-        WindowData  m_Data;
         GLFWwindow* m_WindowHandle = nullptr;
+        WindowData  m_Data;
         int32_t     m_ActiveEventQueue;
         EventQueue  m_EventQueue[2];
         // TODO : use thread safe queue
         EventQueue  m_EventThreadQueue;
         EventListenerMap m_EventListener;
         ProfilerTimer    m_Timer;
+        GenericObjectFactory<IEvent, EventType> m_EventFactory;
     private:
         static EventManager* s_Instance;
     };

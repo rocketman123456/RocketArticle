@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 2.8.12)
 #### Main Project Config ############################
 set(RENDER_API "OpenGL") # Render API Select
 set(CMAKE_BUILD_TYPE "Debug") # Debug or Release
-set(PROFILE 0) # This Option will generate runtime profile
+set(PROFILE 1) # This Option will generate runtime profile
 #### Main Project Config ############################
 
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -38,12 +38,6 @@ endif ()
 if (RENDER_API MATCHES "OpenGL")
     set(OpenGL 1)
     add_definitions(-DRK_OPENGL)
-    # TODO : use opengl 4.1 for all
-    #if(Windows)
-    #    add_definitions(-DHIGH_OPENGL_VERSION)
-    #elseif(Linux)
-    #    add_definitions(-DHIGH_OPENGL_VERSION)
-    #endif()
 elseif (RENDER_API MATCHES "Vulkan")
     set(Vulkan 1)
     add_definitions(-DRK_VULKAN)
@@ -71,7 +65,6 @@ find_package(glm CONFIG REQUIRED)
 find_package(tinyobjloader CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
-#find_package(marl CONFIG REQUIRED)
 #### Project Packages ###############################
 
 #### Project Messages ###############################
@@ -89,7 +82,6 @@ message(STATUS "###################################")
 
 #### Project Includes ###############################
 include_directories(
-    #${PROJECT_SOURCE_DIR}/Thirdparty/glad/include
     ${PROJECT_SOURCE_DIR}/Thirdparty/stb_image
     ${PROJECT_SOURCE_DIR}/Thirdparty/crossguid/include
     ${PROJECT_SOURCE_DIR}/Thirdparty/imgui
@@ -103,20 +95,37 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/Rocket/RHI
     ${PROJECT_SOURCE_DIR}/Rocket/Platform
 )
+if(PROFILE)
+    include_directories(
+        ${PROJECT_SOURCE_DIR}/Thirdparty/Remotery/lib
+    )
+endif()
 #### Project Includes ###############################
 
 add_subdirectory( Thirdparty )
 add_subdirectory( Rocket )
 
-set( ENGINE_LIBRARY
-    ${Threads_LIBS}
-    glfw yaml-cpp glm 
-    Eigen3::Eigen glad::glad EnTT::EnTT
-    spdlog::spdlog spdlog::spdlog_header_only
-    OpenAL::OpenAL SndFile::sndfile
-    imgui stb_image crossguid
-    CACHE STRING ""
-)
+if(PROFILE)
+    set( ENGINE_LIBRARY
+        ${Threads_LIBS}
+        glfw yaml-cpp glm 
+        Eigen3::Eigen glad::glad EnTT::EnTT
+        spdlog::spdlog spdlog::spdlog_header_only
+        OpenAL::OpenAL SndFile::sndfile
+        imgui stb_image crossguid Remotery
+        CACHE STRING ""
+    )
+else()
+    set( ENGINE_LIBRARY
+        ${Threads_LIBS}
+        glfw yaml-cpp glm 
+        Eigen3::Eigen glad::glad EnTT::EnTT
+        spdlog::spdlog spdlog::spdlog_header_only
+        OpenAL::OpenAL SndFile::sndfile
+        imgui stb_image crossguid
+        CACHE STRING ""
+    )
+endif()
 
 if(Apple)
     set(ENGINE_PLATFORM_LIBRARY PlatformWindow CACHE STRING "")

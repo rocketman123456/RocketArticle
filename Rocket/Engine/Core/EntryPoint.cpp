@@ -1,7 +1,24 @@
 #include "Core/EntryPoint.h"
+#include "Utils/Timer.h"
+
+#ifdef RK_PROFILE
+#include <Remotery.h>
+#endif
 
 int main(int argc, char **argv)
 {
+#ifdef RK_PROFILE
+    Remotery *rmt;
+	rmt_CreateGlobalInstance(&rmt);
+#endif
+
+#ifdef RK_PROFILE
+    rmt_SetCurrentThreadName("Main");
+#endif
+
+    Rocket::g_GlobalTimer = new Rocket::ProfilerTimer;
+    Rocket::g_GlobalTimer->InitTime();
+
     Rocket::Log::Init();
     RK_CORE_WARN("Initialize Log");
 
@@ -29,12 +46,31 @@ int main(int argc, char **argv)
     
     while (app->IsRunning())
     {
+#ifdef RK_PROFILE
+        rmt_ScopedCPUSample(MainLoop, 0);
+#endif
+
+        Rocket::g_GlobalTimer->MarkTimeThisTick();
+
         LastTime = CurrentTime;
         CurrentTime = Clock.now();
         Duration = CurrentTime - LastTime;
 
+#ifdef RK_PROFILE
+        rmt_BeginCPUSample(ApplicationUpdate, 0);
+#endif
         app->Tick(Duration.count());
+#ifdef RK_PROFILE
+        rmt_EndCPUSample();
+#endif
+
+#ifdef RK_PROFILE
+        rmt_BeginCPUSample(ModuleUpdate, 0);
+#endif
         app->TickModule(Duration.count());
+#ifdef RK_PROFILE
+        rmt_EndCPUSample();
+#endif
     }
     
     app->Finalize();

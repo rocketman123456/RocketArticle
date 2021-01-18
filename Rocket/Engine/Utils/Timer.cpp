@@ -2,6 +2,8 @@
 
 namespace Rocket
 {
+    ProfilerTimer* g_GlobalTimer;
+
     void ProfilerTimer::InitTime()
     {
         m_StartTimepoint = std::chrono::high_resolution_clock::now();
@@ -15,9 +17,9 @@ namespace Rocket
         m_CurrentTimepoint = m_ElapsedTimepoint;
     }
 
-    float ProfilerTimer::GetElapsedTime(void)
+    double ProfilerTimer::GetElapsedTime(void)
     {
-        float duration = GetElapsedTimeCount() * 0.001f;
+        double duration = GetElapsedTimeCount() * 0.001f;
         return duration;
     }
 
@@ -36,9 +38,9 @@ namespace Rocket
         return m_TimeLastTick;
     }
 
-    float ProfilerTimer::GetExactTime(void)
+    double ProfilerTimer::GetExactTime(void)
     {
-        float duration = GetExactTimeCount() * 0.001f;
+        double duration = GetExactTimeCount() * 0.001f;
         return duration;
     }
 
