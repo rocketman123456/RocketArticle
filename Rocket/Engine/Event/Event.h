@@ -94,25 +94,4 @@ namespace Rocket
 	{
 		return os << e.ToString();
 	}
-
-	class EventDispatcher
-	{
-	public:
-		EventDispatcher(IEvent &event) : m_Event(event) {}
-
-		// F will be deduced by the compiler
-		template <typename T, typename F>
-		bool Dispatch(const F &func)
-		{
-			if (m_Event.GetEventType() == T::GetStaticType())
-			{
-				m_Event.Handled |= func(static_cast<T &>(m_Event));
-				return true;
-			}
-			return false;
-		}
-
-	private:
-		IEvent &m_Event;
-	};
 } // namespace Rocket
