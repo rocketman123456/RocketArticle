@@ -23,3 +23,6 @@
 //#define GLFW_INCLUDE_NONE
 #define GLFW_EXPOSE_NATIVE_COCOA
 #endif
+
+// EnTT
+#define ENTT_USE_ATOMIC

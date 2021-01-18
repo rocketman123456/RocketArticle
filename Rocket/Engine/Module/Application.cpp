@@ -46,9 +46,6 @@ namespace Rocket
 
     int Application::Initialize()
     {
-        m_CurrentTime = m_Clock.now();
-        m_LastTime = m_CurrentTime;
-
         return 0;
     }
 
@@ -61,40 +58,29 @@ namespace Rocket
         m_Modules.emplace_back(module);
     }
 
-    void Application::Tick()
+    void Application::Tick(Timestep ts)
     {
-        // Calculate Delta Time
-        m_LastTime = m_CurrentTime;
-        m_CurrentTime = m_Clock.now();
-        m_Duration = m_CurrentTime - m_LastTime;
     }
 
-    void Application::TickModule()
+    void Application::TickModule(Timestep ts)
     {
         for (auto &module : m_Modules)
         {
-            module->Tick(Timestep(m_Duration.count()));
+            module->Tick(ts);
         }
     }
 
-    bool Application::OnEvent(IEvent& event)
-    {
-        EventDispatcher dispatcher(event);
-        dispatcher.Dispatch<WindowCloseEvent>(RK_BIND_EVENT_FN_CLASS(Application::OnWindowClose));
-        dispatcher.Dispatch<WindowResizeEvent>(RK_BIND_EVENT_FN_CLASS(Application::OnWindowResize));
-        return event.Handled;
-    }
-
-    bool Application::OnWindowClose(WindowCloseEvent &e)
+    bool Application::OnWindowClose(EventPtr& e)
     {
         SetRunningState(false);
-        e.Handled = true;
+        e->Handled = true;
         return true;
     }
 
-    bool Application::OnWindowResize(WindowResizeEvent &e)
+    bool Application::OnWindowResize(EventPtr& e)
     {
-        if (e.GetWidth() == 0 || e.GetHeight() == 0)
+        auto event = static_cast<WindowResizeEvent*>(e.get());
+        if (event->GetWidth() == 0 || event->GetHeight() == 0)
         {
             m_Minimized = true;
             return false;

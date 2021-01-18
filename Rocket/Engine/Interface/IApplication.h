@@ -20,11 +20,7 @@ namespace Rocket
         virtual void PostInitializeModule() = 0;
         virtual void FinalizeModule() = 0;
 
-        virtual void TickModule() = 0;
-        virtual void Tick() = 0;
-        virtual bool OnEvent(IEvent& event) = 0;
-        // this Tick is useless in app tick loop
-        virtual void Tick(Timestep ts) final {}
+        virtual void TickModule(Timestep ts) = 0;
         
         bool IsRunning() { return m_IsRunning; }
         void SetRunningState(bool state) { m_IsRunning = state; }

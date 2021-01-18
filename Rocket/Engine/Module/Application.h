@@ -26,26 +26,19 @@ namespace Rocket
 
         void PushModule(IRuntimeModule * module);
 
-        virtual void TickModule() final;
-        virtual void Tick() final;
-        virtual bool OnEvent(IEvent& event) override;
+        virtual void TickModule(Timestep ts) final;
+        virtual void Tick(Timestep ts) final;
 
-        static Application &Get() { return *s_Instance; }
+        static Application& Get() { return *s_Instance; }
 
-    protected:
         // Event Call Back
-        bool OnWindowClose(WindowCloseEvent &e);
-        bool OnWindowResize(WindowResizeEvent &e);
+        bool OnWindowClose(EventPtr& e);
+        bool OnWindowResize(EventPtr& e);
 
     protected:
         bool m_Running = true;
         bool m_Minimized = false;
         bool m_Parallel = true;
-        // Clock
-        std::chrono::steady_clock m_Clock;
-        std::chrono::duration<double> m_Duration;
-        std::chrono::time_point<std::chrono::steady_clock> m_CurrentTime;
-        std::chrono::time_point<std::chrono::steady_clock> m_LastTime;
         // Modules
         std::vector<IRuntimeModule *> m_Modules;
         // Config

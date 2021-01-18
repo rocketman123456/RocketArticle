@@ -13,6 +13,8 @@ add_library( RocketEngine
     Module/WindowManager.cpp
     # Process
     Process/Process.cpp
+    # Utils
+    Utils/Timer.cpp
 )
 target_link_libraries( RocketEngine PRIVATE
     spdlog::spdlog_header_only

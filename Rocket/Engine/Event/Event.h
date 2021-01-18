@@ -2,10 +2,11 @@
 #include "Core/Core.h"
 
 #include <sstream>
+#include <memory>
 
 namespace Rocket
 {
-	enum class EventType
+	enum class EventType : uint32_t
 	{
 		None = 0,
 		WindowClose,
@@ -24,6 +25,27 @@ namespace Rocket
 		MouseMoved,
 		MouseScrolled,
 		AudioEvent,
+	};
+
+	static const char* EventTypeName[] = 
+	{
+		"None",
+		"WindowClose",
+		"WindowResize",
+		"WindowFocus",
+		"WindowLostFocus",
+		"WindowMoved",
+		"AppTick",
+		"AppUpdate",
+		"AppRender",
+		"KeyPressed",
+		"KeyReleased",
+		"KeyTyped",
+		"MouseButtonPressed",
+		"MouseButtonReleased",
+		"MouseMoved",
+		"MouseScrolled",
+		"AudioEvent",
 	};
 
 	enum EventCategory
@@ -66,6 +88,13 @@ namespace Rocket
 		float m_Time;
 	};
 
+	using EventPtr = std::shared_ptr<IEvent>;
+
+	inline std::ostream &operator<<(std::ostream &os, const IEvent &e)
+	{
+		return os << e.ToString();
+	}
+
 	class EventDispatcher
 	{
 	public:
@@ -86,9 +115,4 @@ namespace Rocket
 	private:
 		IEvent &m_Event;
 	};
-
-	inline std::ostream &operator<<(std::ostream &os, const IEvent &e)
-	{
-		return os << e.ToString();
-	}
 } // namespace Rocket
