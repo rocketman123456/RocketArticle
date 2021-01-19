@@ -68,6 +68,7 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 if(Vulkan)
     find_package(Vulkan REQUIRED)
+    find_package(glslang CONFIG REQUIRED)
 endif()
 #### Project Packages ###############################
 

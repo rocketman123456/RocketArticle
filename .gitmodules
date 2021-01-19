@@ -10,3 +10,6 @@
 [submodule "Thirdparty/FiberTaskingLib"]
 	path = Thirdparty/FiberTaskingLib
 	url = https://github.com/RichieSams/FiberTaskingLib.git
+[submodule "Thirdparty/glslang"]
+	path = Thirdparty/glslang
+	url = https://github.com/KhronosGroup/glslang.git

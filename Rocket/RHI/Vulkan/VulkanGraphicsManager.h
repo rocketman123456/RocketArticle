@@ -48,6 +48,7 @@ namespace Rocket
         void createLogicalDevice();
         void createSwapChain();
         void createImageViews();
+        void createGraphicsPipeline();
 
         std::vector<const char*> getRequiredExtensions();
         void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);

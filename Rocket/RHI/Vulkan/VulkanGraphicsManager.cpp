@@ -76,6 +76,7 @@ namespace Rocket
         createLogicalDevice();
         createSwapChain();
         createImageViews();
+        createGraphicsPipeline();
 
         return 0;
     }
@@ -473,6 +474,11 @@ namespace Rocket
                 throw std::runtime_error("failed to create image views!");
             }
         }
+    }
+
+    void VulkanGraphicsManager::createGraphicsPipeline()
+    {
+
     }
 
     void VulkanGraphicsManager::Finalize()

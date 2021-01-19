@@ -11,10 +11,6 @@ add_library( imgui
     imgui/imgui_demo.cpp
 )
 
-add_library( crossguid
-    crossguid/src/guid.cpp
-)
-
 add_library( Remotery
     Remotery/lib/Remotery.c
 )
@@ -25,3 +21,4 @@ if(OpenGL)
 endif()
 
 add_subdirectory( FiberTaskingLib )
+add_subdirectory( crossguid )
