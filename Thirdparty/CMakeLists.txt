@@ -18,3 +18,5 @@ add_library( crossguid
 add_library( Remotery
     Remotery/lib/Remotery.c
 )
+
+add_subdirectory( FiberTaskingLib )

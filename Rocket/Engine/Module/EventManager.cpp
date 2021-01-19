@@ -139,11 +139,14 @@ namespace Rocket
 
     void EventManager::OnEvent(EventPtr& event)
     {
+        RK_CORE_TRACE("Callback Event {0}", event->ToString());
         TriggerEvent(event);
     }
 
     void EventManager::Tick(Timestep ts)
     {
+        //PROFILE_BEGIN_CPU_SAMPLE(EventManagerUpdate, 0);
+
         glfwPollEvents();
 
         m_Timer.MarkTimeThisTick();
@@ -152,6 +155,8 @@ namespace Rocket
         {
             RK_CORE_WARN("EventManager Process Unfinish!");
         }
+
+        //PROFILE_END_CPU_SAMPLE();
     }
 
     bool EventManager::Update(uint64_t maxMillis)
@@ -235,19 +240,17 @@ namespace Rocket
 
     bool EventManager::AddListener(const EventListenerDelegate& eventDelegate, const EventType& type)
     {
-        bool success = false;
         EventListenerList& eventListenerList = m_EventListener[type];  // this will find or create the entry
         for (auto it = eventListenerList.begin(); it != eventListenerList.end(); ++it)
         {
             if (eventDelegate == (*it))
             {
                 RK_CORE_WARN("Attempting to double-register a delegate");
-                return success;
+                return false;
             }
         }
         eventListenerList.push_back(eventDelegate);
-        success = true;
-        return success;
+        return true;
     }
 
     bool EventManager::RemoveListener(const EventListenerDelegate& eventDelegate, const EventType& type)

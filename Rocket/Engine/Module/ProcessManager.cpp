@@ -20,12 +20,12 @@ namespace Rocket
 
     void ProcessManager::Tick(Timestep ts)
     {
-        static uint64_t result_i = 0;
-        result_i = UpdateProcesses(ts.GetMilliseconds());
-        //std::stringstream stream;
-        //stream << std::oct << result_i;
-        //std::string result( stream.str() );
-        //RK_CORE_TRACE("Process Manager Tick Result {0}", result);
+        //PROFILE_BEGIN_CPU_SAMPLE(ProcessManagerUpdate, 0);
+
+        auto result_i = UpdateProcesses(ts.GetMilliseconds());
+        //RK_CORE_TRACE("Process Success {0}, Fail {1}", m_SuccessCount, m_FailCount);
+
+        //PROFILE_END_CPU_SAMPLE();
     }
 
     //---------------------------------------------------------------------------------------------------------------------
@@ -95,6 +95,8 @@ namespace Rocket
             }
         }
 
+        m_SuccessCount = successCount;
+        m_FailCount = failCount;
         return (static_cast<uint64_t>(successCount << 32) | static_cast<uint64_t>(failCount));
     }
 

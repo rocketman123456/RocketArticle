@@ -29,6 +29,8 @@ namespace Rocket
     private:
         typedef std::list<StrongProcessPtr> ProcessList;
         ProcessList m_ProcessList;
+        uint64_t m_SuccessCount = 0;
+        uint64_t m_FailCount = 0;
     };
 
     ProcessManager* GetProcessManager();

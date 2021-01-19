@@ -24,6 +24,7 @@ namespace Rocket
         int ret = 0;
         for (auto &module : m_Modules)
         {
+            RK_CORE_INFO("Initialize Module {0}", module->GetName());
             if ((ret = module->Initialize()) != 0)
             {
                 RK_CORE_ERROR("Failed. err = {0}, {1}", ret, module->GetName());
@@ -37,6 +38,7 @@ namespace Rocket
     {
         for (auto &module : m_Modules)
         {
+            RK_CORE_INFO("Finalize Module {0}", module->GetName());
             module->Finalize();
             delete module;
             module = nullptr;
@@ -72,6 +74,7 @@ namespace Rocket
 
     bool Application::OnWindowClose(EventPtr& e)
     {
+        RK_CORE_TRACE("Application::OnWindowClose");
         SetRunningState(false);
         e->Handled = true;
         return true;
@@ -79,6 +82,7 @@ namespace Rocket
 
     bool Application::OnWindowResize(EventPtr& e)
     {
+        RK_CORE_TRACE("Application::OnWindowResize");
         auto event = static_cast<WindowResizeEvent*>(e.get());
         if (event->GetWidth() == 0 || event->GetHeight() == 0)
         {

@@ -12,6 +12,7 @@ namespace Rocket
         WindowProps prop;
         m_Window = Window::Create(prop);
         m_Window->Initialize();
+
         return 0;
     }
 
@@ -22,6 +23,10 @@ namespace Rocket
 
     void WindowManager::Tick(Timestep ts)
     {
+        //PROFILE_BEGIN_CPU_SAMPLE(WindowManagerUpdate, 0);
+
         m_Window->Tick();
+
+        //PROFILE_END_CPU_SAMPLE();
     }
 }

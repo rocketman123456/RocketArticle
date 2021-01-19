@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 2.8.12)
 #### Main Project Config ############################
 set(RENDER_API "OpenGL") # Render API Select
 set(CMAKE_BUILD_TYPE "Debug") # Debug or Release
-set(PROFILE 1) # This Option will generate runtime profile
+set(PROFILE 0) # This Option will generate runtime profile
 #### Main Project Config ############################
 
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -102,6 +102,7 @@ if(PROFILE)
 endif()
 #### Project Includes ###############################
 
+#### Project Sources ################################
 add_subdirectory( Thirdparty )
 add_subdirectory( Rocket )
 
@@ -148,3 +149,4 @@ add_subdirectory( Editor )
 add_subdirectory( Sandbox )
 
 message(STATUS "###################################")
+#### Project Sources ################################

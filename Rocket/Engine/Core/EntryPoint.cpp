@@ -7,14 +7,8 @@
 
 int main(int argc, char **argv)
 {
-#ifdef RK_PROFILE
-    Remotery *rmt;
-	rmt_CreateGlobalInstance(&rmt);
-#endif
-
-#ifdef RK_PROFILE
-    rmt_SetCurrentThreadName("Main");
-#endif
+    PROFILE_ENTRY();
+    //PROFILE_SET_THREAD(Main);
 
     Rocket::g_GlobalTimer = new Rocket::ProfilerTimer;
     Rocket::g_GlobalTimer->InitTime();
@@ -28,12 +22,18 @@ int main(int argc, char **argv)
 
     app->PreInitializeModule();
     if (app->InitializeModule() != 0)
-        return 1;
+    {
+        RK_CORE_ERROR("Application InitializeModule Failed");
+	    return 1;
+    }
     app->PostInitializeModule();
 
     app->PreInitialize();
     if (app->Initialize() != 0)
-        return 1;
+    {
+        RK_CORE_ERROR("Application Initialize Failed");
+	    return 1;
+    }
     app->PostInitialize();
 
     std::chrono::steady_clock Clock;
@@ -46,9 +46,7 @@ int main(int argc, char **argv)
     
     while (app->IsRunning())
     {
-#ifdef RK_PROFILE
-        rmt_ScopedCPUSample(MainLoop, 0);
-#endif
+        PROFILE_SCOPE_CPU(MainLoop, 0);
 
         Rocket::g_GlobalTimer->MarkTimeThisTick();
 
@@ -56,26 +54,19 @@ int main(int argc, char **argv)
         CurrentTime = Clock.now();
         Duration = CurrentTime - LastTime;
 
-#ifdef RK_PROFILE
-        rmt_BeginCPUSample(ApplicationUpdate, 0);
-#endif
-        app->Tick(Duration.count());
-#ifdef RK_PROFILE
-        rmt_EndCPUSample();
-#endif
+	    PROFILE_BEGIN_CPU_SAMPLE(ApplicationUpdate, 0);
+	    app->Tick(Duration.count());
+	    PROFILE_END_CPU_SAMPLE();
 
-#ifdef RK_PROFILE
-        rmt_BeginCPUSample(ModuleUpdate, 0);
-#endif
-        app->TickModule(Duration.count());
-#ifdef RK_PROFILE
-        rmt_EndCPUSample();
-#endif
+	    PROFILE_BEGIN_CPU_SAMPLE(ModuleUpdate, 0);
+	    app->TickModule(Duration.count());
+	    PROFILE_END_CPU_SAMPLE();
     }
     
     app->Finalize();
     app->FinalizeModule();
     delete app;
 
+    PROFILE_EXIT();
     return 0;
 }

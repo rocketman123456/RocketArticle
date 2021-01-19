@@ -38,9 +38,13 @@ namespace Rocket
 
     void OpenGLGraphicsManager::Tick(Timestep ts)
     {
+        //PROFILE_BEGIN_CPU_SAMPLE(OpenGLGraphicsManagerUpdate, 0);
+
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         glfwSwapBuffers(m_WindowHandle);
+
+        //PROFILE_END_CPU_SAMPLE();
     }
 }

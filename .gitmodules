@@ -7,3 +7,6 @@
 [submodule "Thirdparty/Remotery"]
 	path = Thirdparty/Remotery
 	url = https://github.com/Celtoys/Remotery.git
+[submodule "Thirdparty/FiberTaskingLib"]
+	path = Thirdparty/FiberTaskingLib
+	url = https://github.com/RichieSams/FiberTaskingLib.git
