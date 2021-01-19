@@ -13,6 +13,8 @@ namespace Rocket
 
     int OpenGLGraphicsManager::Initialize()
     {
+        PROFILE_BIND_OPENGL();
+
         m_WindowHandle = static_cast<GLFWwindow*>(g_WindowManager->GetNativeWindow());
 
         glfwMakeContextCurrent(m_WindowHandle);
@@ -34,17 +36,21 @@ namespace Rocket
 
     void OpenGLGraphicsManager::Finalize()
     {
+        PROFILE_UNBIND_OPENGL();
     }
 
     void OpenGLGraphicsManager::Tick(Timestep ts)
     {
-        //PROFILE_BEGIN_CPU_SAMPLE(OpenGLGraphicsManagerUpdate, 0);
+        PROFILE_SCOPE_OPENGL(OpenGLTick);
+        PROFILE_BEGIN_OPENGL(OpenGLRender);
+        PROFILE_BEGIN_CPU_SAMPLE(OpenGLGraphicsManagerUpdate, 0);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         glfwSwapBuffers(m_WindowHandle);
 
-        //PROFILE_END_CPU_SAMPLE();
+        PROFILE_END_CPU_SAMPLE();
+        PROFILE_END_OPENGL();
     }
 }

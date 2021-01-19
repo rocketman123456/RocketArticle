@@ -140,12 +140,13 @@ namespace Rocket
     void EventManager::OnEvent(EventPtr& event)
     {
         RK_CORE_TRACE("Callback Event {0}", event->ToString());
-        TriggerEvent(event);
+        //TriggerEvent(event);
+        QueueEvent(event);
     }
 
     void EventManager::Tick(Timestep ts)
     {
-        //PROFILE_BEGIN_CPU_SAMPLE(EventManagerUpdate, 0);
+        PROFILE_BEGIN_CPU_SAMPLE(EventManagerUpdate, 0);
 
         glfwPollEvents();
 
@@ -156,7 +157,7 @@ namespace Rocket
             RK_CORE_WARN("EventManager Process Unfinish!");
         }
 
-        //PROFILE_END_CPU_SAMPLE();
+        PROFILE_END_CPU_SAMPLE();
     }
 
     bool EventManager::Update(uint64_t maxMillis)
@@ -193,7 +194,7 @@ namespace Rocket
             // pop the front of the queue
             EventPtr pEvent = m_EventQueue[queueToProcess].front();
             m_EventQueue[queueToProcess].pop_front();
-            RK_CORE_INFO("\t\tProcessing Event {0}", pEvent->GetName());
+            RK_CORE_INFO("\tProcessing Event {0}", pEvent->GetName());
 
             const EventType& eventType = pEvent->GetEventType();
 
@@ -202,13 +203,13 @@ namespace Rocket
             if (findIt != m_EventListener.end())
             {
                 const EventListenerList& eventListeners = findIt->second;
-                RK_CORE_INFO("\t\tFound {0} delegates", (unsigned long)eventListeners.size());
+                RK_CORE_INFO("\tFound {0} delegates", (unsigned long)eventListeners.size());
 
                 // call each listener
                 for (auto it = eventListeners.begin(); it != eventListeners.end(); ++it)
                 {
                     EventListenerDelegate listener = (*it);
-                    RK_CORE_INFO("\t\tSending event {0} to delegate", pEvent->GetName());
+                    RK_CORE_INFO("\tSending event {0} to delegate", pEvent->GetName());
                     listener(pEvent);
                 }
             }
@@ -309,7 +310,7 @@ namespace Rocket
         }
         else
         {
-            RK_CORE_INFO("Skipping event since there are no delegates registered to receive it: {0}", event->GetName());
+            RK_CORE_INFO("Skipping event since there are no delegates registered: {0}", event->GetName());
             return false;
         }
     }

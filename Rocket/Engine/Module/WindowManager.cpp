@@ -23,10 +23,10 @@ namespace Rocket
 
     void WindowManager::Tick(Timestep ts)
     {
-        //PROFILE_BEGIN_CPU_SAMPLE(WindowManagerUpdate, 0);
+        PROFILE_BEGIN_CPU_SAMPLE(WindowManagerUpdate, 0);
 
         m_Window->Tick();
 
-        //PROFILE_END_CPU_SAMPLE();
+        PROFILE_END_CPU_SAMPLE();
     }
 }

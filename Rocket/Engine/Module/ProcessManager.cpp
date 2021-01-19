@@ -20,12 +20,12 @@ namespace Rocket
 
     void ProcessManager::Tick(Timestep ts)
     {
-        //PROFILE_BEGIN_CPU_SAMPLE(ProcessManagerUpdate, 0);
+        PROFILE_BEGIN_CPU_SAMPLE(ProcessManagerUpdate, 0);
 
         auto result_i = UpdateProcesses(ts.GetMilliseconds());
         //RK_CORE_TRACE("Process Success {0}, Fail {1}", m_SuccessCount, m_FailCount);
 
-        //PROFILE_END_CPU_SAMPLE();
+        PROFILE_END_CPU_SAMPLE();
     }
 
     //---------------------------------------------------------------------------------------------------------------------

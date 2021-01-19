@@ -1,14 +1,10 @@
 #include "Core/EntryPoint.h"
 #include "Utils/Timer.h"
 
-#ifdef RK_PROFILE
-#include <Remotery.h>
-#endif
-
 int main(int argc, char **argv)
 {
     PROFILE_ENTRY();
-    //PROFILE_SET_THREAD(Main);
+    PROFILE_SET_THREAD(Main);
 
     Rocket::g_GlobalTimer = new Rocket::ProfilerTimer;
     Rocket::g_GlobalTimer->InitTime();
