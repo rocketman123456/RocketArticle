@@ -29,14 +29,14 @@ namespace Rocket
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#if defined(PLATFORM_APPLE)
+	#if defined(PLATFORM_APPLE)
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	#endif
+#elif defined(RK_VULKAN) || defined(RK_METAL)
+			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 #endif
 #if defined(RK_DEBUG)
 			glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
-#endif
-#elif defined(RK_VULKAN) || defined(RK_METAL)
-			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 #endif
 			glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 

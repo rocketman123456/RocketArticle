@@ -9,7 +9,9 @@ add_library( RocketEngine
     Module/Application.cpp
     Module/EventManager.cpp
     Module/GraphicsManager.cpp
+    Module/MemoryManager.cpp
     Module/ProcessManager.cpp
+    Module/SceneManager.cpp
     Module/WindowManager.cpp
     # Process
     Process/Process.cpp

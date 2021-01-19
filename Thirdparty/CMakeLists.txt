@@ -18,5 +18,10 @@ add_library( crossguid
 add_library( Remotery
     Remotery/lib/Remotery.c
 )
+if(OpenGL)
+    target_compile_options( Remotery PRIVATE
+        -DRMT_USE_OPENGL=1
+    )
+endif()
 
 add_subdirectory( FiberTaskingLib )

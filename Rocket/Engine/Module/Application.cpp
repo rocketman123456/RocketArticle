@@ -4,15 +4,15 @@ namespace Rocket
 {
     Application* Application::s_Instance = nullptr;
 
-    void Application::LoadConfig()
+    void Application::LoadConfig(const std::string& path)
     {
         std::string config_file;
 #if defined(PLATFORM_LINUX)
-        config_file = ProjectSourceDir + "/Config/setting-linux.yaml";
+        config_file = path + "/Config/setting-linux.yaml";
 #elif defined(PLATFORM_WINDOWS)
-        config_file = ProjectSourceDir + "/Config/setting-windows.yaml";
+        config_file = path + "/Config/setting-windows.yaml";
 #elif defined(PLATFORM_APPLE)
-        config_file = ProjectSourceDir + "/Config/setting-mac.yaml";
+        config_file = path + "/Config/setting-mac.yaml";
 #endif
         m_Config = YAML::LoadFile(config_file);
         m_AssetPath = m_Config["asset_path"].as<std::string>();

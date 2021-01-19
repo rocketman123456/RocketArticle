@@ -16,7 +16,7 @@ namespace Rocket
         }
         virtual ~Application() = default;
 
-        virtual void LoadConfig() override;
+        virtual void LoadConfig(const std::string& path) override;
 
         virtual int Initialize() final;
         virtual void Finalize() final;

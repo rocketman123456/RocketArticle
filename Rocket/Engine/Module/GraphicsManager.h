@@ -8,6 +8,9 @@ namespace Rocket
     public:
         GraphicsManager(const std::string &name = "IRuntimeModule");
         virtual ~GraphicsManager() = default;
+
+    protected:
+        virtual void SwapBuffers() = 0;
     };
 
     GraphicsManager* GetGraphicsManager();

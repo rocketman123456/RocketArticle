@@ -9,12 +9,16 @@ namespace Rocket
     {
     public:
         OpenGLGraphicsManager() : GraphicsManager("OpenGLGraphicsManager") {}
-        ~OpenGLGraphicsManager() = default;
+        virtual ~OpenGLGraphicsManager() = default;
 
         virtual int Initialize() final;
         virtual void Finalize() final;
 
         virtual void Tick(Timestep ts) final;
+
+    protected:
+        virtual void SwapBuffers() final;
+
     private:
         GLFWwindow* m_WindowHandle = nullptr;
         bool m_VSync = true;

@@ -4,6 +4,31 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+void OpenGLMessageCallback(
+    unsigned source, unsigned type,
+    unsigned id, unsigned severity,
+    int length, const char *message, const void *userParam)
+{
+    switch (severity)
+    {
+    case GL_DEBUG_SEVERITY_HIGH:
+        RK_CORE_CRITICAL(message);
+        break;
+    case GL_DEBUG_SEVERITY_MEDIUM:
+        RK_CORE_ERROR(message);
+        break;
+    case GL_DEBUG_SEVERITY_LOW:
+        RK_CORE_WARN(message);
+        break;
+    case GL_DEBUG_SEVERITY_NOTIFICATION:
+        RK_CORE_TRACE(message);
+        break;
+    default:
+        RK_CORE_ASSERT(false, "Unknown severity level!");
+        break;
+    }
+}
+
 namespace Rocket
 {
     GraphicsManager* GetGraphicsManager()
@@ -27,9 +52,28 @@ namespace Rocket
         RK_CORE_INFO("  Version: {0}", glGetString(GL_VERSION));
 
         if (m_VSync)
+        {
 			glfwSwapInterval(1);
+        }
 		else
+        {
 			glfwSwapInterval(0);
+        }
+
+        int flags;
+		glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+		if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+		{
+			glEnable(GL_DEBUG_OUTPUT);
+			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+			glDebugMessageCallback(OpenGLMessageCallback, nullptr);
+			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, GL_FALSE);
+		}
+
+        glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		glEnable(GL_DEPTH_TEST);
 
         return 0;
     }
@@ -46,11 +90,16 @@ namespace Rocket
         PROFILE_BEGIN_CPU_SAMPLE(OpenGLGraphicsManagerUpdate, 0);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glfwSwapBuffers(m_WindowHandle);
+        SwapBuffers();
 
         PROFILE_END_CPU_SAMPLE();
         PROFILE_END_OPENGL();
+    }
+
+    void OpenGLGraphicsManager::SwapBuffers()
+    {
+        glfwSwapBuffers(m_WindowHandle);
     }
 }

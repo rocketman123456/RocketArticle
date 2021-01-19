@@ -10,7 +10,7 @@
 #include <map>
 
 struct GLFWwindow;
-#define EVENTMANAGER_NUM_QUEUES 2
+constexpr uint16_t EVENTMANAGER_NUM_QUEUES = 2;
 
 namespace Rocket
 {

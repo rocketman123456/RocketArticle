@@ -1,7 +1,8 @@
-cmake_minimum_required (VERSION 2.8.12)
+cmake_minimum_required (VERSION 3.2)
+cmake_policy(SET CMP0054 NEW)
 
 #### Main Project Config ############################
-set(RENDER_API "OpenGL") # Render API Select
+set(RENDER_API "Vulkan") # Render API Select: OpenGL Vulkan Metal
 set(CMAKE_BUILD_TYPE "Debug") # Debug or Release
 set(PROFILE 1) # This Option will generate runtime profile
 #### Main Project Config ############################
@@ -65,6 +66,9 @@ find_package(glm CONFIG REQUIRED)
 find_package(tinyobjloader CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
+if(Vulkan)
+    find_package(Vulkan REQUIRED)
+endif()
 #### Project Packages ###############################
 
 #### Project Messages ###############################
@@ -95,6 +99,11 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/Rocket/RHI
     ${PROJECT_SOURCE_DIR}/Rocket/Platform
 )
+if(Vulkan)
+    include_directories(
+        ${Vulkan_INCLUDE_DIRS}
+    )
+endif()
 if(PROFILE)
     include_directories(
         ${PROJECT_SOURCE_DIR}/Thirdparty/Remotery/lib
@@ -139,7 +148,7 @@ endif()
 if(OpenGL)
     set(ENGINE_RENDER_LIBRARY RendererOpenGL CACHE STRING "")
 elseif(Vulkan)
-    set(ENGINE_RENDER_LIBRARY RendererVulkan CACHE STRING "")
+    set(ENGINE_RENDER_LIBRARY RendererVulkan ${Vulkan_LIBRARIES} CACHE STRING "")
 elseif(Metal)
     set(ENGINE_RENDER_LIBRARY RendererMetal CACHE STRING "")
 endif()

@@ -7,10 +7,10 @@ namespace Rocket
     Interface IApplication : implements IRuntimeModule
     {
     public:
-        IApplication(const std::string &name = "IApplication") : IRuntimeModule(name), m_IsRunning(true) {}
+        IApplication(const std::string &name = "IApplication") : IRuntimeModule(name) {}
         virtual ~IApplication() = default;
 
-        virtual void LoadConfig() = 0;
+        virtual void LoadConfig(const std::string& path) = 0;
 
         virtual void PreInitialize() = 0;
         virtual void PostInitialize() = 0;
@@ -25,7 +25,7 @@ namespace Rocket
         bool IsRunning() { return m_IsRunning; }
         void SetRunningState(bool state) { m_IsRunning = state; }
     protected:
-        std::atomic<bool> m_IsRunning;
+        std::atomic<bool> m_IsRunning = true;
     };
 
     IApplication *CreateApplicationInstance();

@@ -14,7 +14,14 @@ int main(int argc, char **argv)
 
     auto app = Rocket::CreateApplication();
 
-    app->LoadConfig();
+    if(argc > 1)
+    {
+        app->LoadConfig(argv[1]);
+    }
+    else
+    {
+        app->LoadConfig(ProjectSourceDir);
+    }
 
     app->PreInitializeModule();
     if (app->InitializeModule() != 0)

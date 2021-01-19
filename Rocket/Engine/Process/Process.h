@@ -23,13 +23,13 @@ namespace Rocket
     Interface Process
     {
         friend class ProcessManager;
-
     public:
         enum State
         {
             // Processes that are neither dead nor alive
             UNINITIALIZED = 0, // created but not running
-            REMOVED,           // removed from the process list but not destroyed; this can happen when a process that is already running is parented to another process
+            REMOVED,           // removed from the process list but not destroyed; 
+                               // this can happen when a process that is already running is parented to another process
 
             // Living processes
             RUNNING, // initialized and running
