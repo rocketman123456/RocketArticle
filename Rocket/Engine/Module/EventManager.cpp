@@ -24,7 +24,7 @@ namespace Rocket
 
         m_WindowHandle = static_cast<GLFWwindow*>(g_WindowManager->GetNativeWindow());
         m_Data.Title = Application::Get().GetName();
-        glfwMakeContextCurrent(m_WindowHandle);
+        
         glfwSetWindowUserPointer(m_WindowHandle, &m_Data);
 
         SetupCallback();

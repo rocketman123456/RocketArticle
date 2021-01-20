@@ -12,7 +12,7 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17)
 
-project( RocketGE )
+project( Rocket )
 
 #### Project Definition #############################
 if(PROFILE)
@@ -66,9 +66,9 @@ find_package(glm CONFIG REQUIRED)
 find_package(tinyobjloader CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
+find_package(glslang CONFIG REQUIRED)
 if(Vulkan)
     find_package(Vulkan REQUIRED)
-    find_package(glslang CONFIG REQUIRED)
 endif()
 #### Project Packages ###############################
 
@@ -147,9 +147,9 @@ elseif(Windows)
 endif()
 
 if(OpenGL)
-    set(ENGINE_RENDER_LIBRARY RendererOpenGL CACHE STRING "")
+    set(ENGINE_RENDER_LIBRARY RendererOpenGL glslang::OGLCompiler glslang::glslang CACHE STRING "")
 elseif(Vulkan)
-    set(ENGINE_RENDER_LIBRARY RendererVulkan ${Vulkan_LIBRARIES} CACHE STRING "")
+    set(ENGINE_RENDER_LIBRARY RendererVulkan glslang::SPIRV glslang::glslang ${Vulkan_LIBRARIES} CACHE STRING "")
 elseif(Metal)
     set(ENGINE_RENDER_LIBRARY RendererMetal CACHE STRING "")
 endif()
