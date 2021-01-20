@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/Sandbox/SimpleApp/SimpleApp",
-            "args": [],
+            "args": ["."],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
