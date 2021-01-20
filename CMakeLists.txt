@@ -70,6 +70,8 @@ find_package(glslang CONFIG REQUIRED)
 if(Vulkan)
     find_package(Vulkan REQUIRED)
 endif()
+#find_package(libcopp CONFIG REQUIRED)
+#target_link_libraries(main PRIVATE libcopp::copp libcopp::cotask)
 #### Project Packages ###############################
 
 #### Project Messages ###############################
