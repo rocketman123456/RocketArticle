@@ -1,0 +1,8 @@
+message(STATUS "Add Platform")
+if(Apple)
+    add_subdirectory( GLFWWindow )
+elseif(Linux)
+    add_subdirectory( GLFWWindow )
+elseif(Windows)
+    add_subdirectory( GLFWWindow )
+endif()

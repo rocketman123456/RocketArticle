@@ -1,0 +1,15 @@
+[submodule "Thirdparty/imgui"]
+	path = Thirdparty/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "Thirdparty/crossguid"]
+	path = Thirdparty/crossguid
+	url = https://github.com/graeme-hill/crossguid.git
+[submodule "Thirdparty/Remotery"]
+	path = Thirdparty/Remotery
+	url = https://github.com/Celtoys/Remotery.git
+[submodule "Thirdparty/FiberTaskingLib"]
+	path = Thirdparty/FiberTaskingLib
+	url = https://github.com/RichieSams/FiberTaskingLib.git
+[submodule "Thirdparty/glslang"]
+	path = Thirdparty/glslang
+	url = https://github.com/KhronosGroup/glslang.git
