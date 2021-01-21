@@ -16,7 +16,7 @@ namespace Rocket
         virtual void Tick(Timestep ts) = 0;
 
         // For Debug
-        [[nodiscard]] const std::string &GetName() const { return m_Name; }
+        [[maybe_unused]] const std::string &GetName() const { return m_Name; }
     private:
         std::string m_Name;
     };

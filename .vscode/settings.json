@@ -66,6 +66,8 @@
         "bitset": "cpp",
         "regex": "cpp",
         "shared_mutex": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "complex": "cpp",
+        "coroutine": "cpp"
     }
 }

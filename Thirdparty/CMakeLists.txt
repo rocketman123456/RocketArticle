@@ -18,7 +18,11 @@ if(OpenGL)
     target_compile_options( Remotery PRIVATE
         -DRMT_USE_OPENGL=1
     )
+elseif(Metal)
+    target_compile_options( Remotery PRIVATE
+        -DRMT_USE_METAL=1
+    )
 endif()
 
-add_subdirectory( FiberTaskingLib )
+#add_subdirectory( FiberTaskingLib )
 add_subdirectory( crossguid )
