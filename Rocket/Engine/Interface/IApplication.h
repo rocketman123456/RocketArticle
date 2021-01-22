@@ -7,7 +7,7 @@ namespace Rocket
     Interface IApplication : implements IRuntimeModule
     {
     public:
-        IApplication(const std::string &name = "IApplication") : IRuntimeModule(name) {}
+        IApplication(const std::string &name) : IRuntimeModule(name) {}
         virtual ~IApplication() = default;
 
         virtual void LoadConfig(const std::string& path) = 0;

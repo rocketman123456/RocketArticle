@@ -103,7 +103,7 @@ namespace Rocket
         EventQueue  m_EventThreadQueue;
         EventListenerMap m_EventListener;
         
-        ProfilerTimer    m_Timer;
+        ElapseTimer    m_Timer;
         GenericObjectFactory<IEvent, EventType> m_EventFactory;
     private:
         static EventManager* s_Instance;

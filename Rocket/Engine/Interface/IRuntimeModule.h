@@ -10,7 +10,7 @@ namespace Rocket
         IRuntimeModule(const std::string &name = "IRuntimeModule") : m_Name(name) {}
         virtual ~IRuntimeModule() = default;
 
-        virtual int Initialize() = 0;
+        [[nodiscard]] virtual int Initialize() = 0;
         virtual void Finalize() = 0;
 
         virtual void Tick(Timestep ts) = 0;

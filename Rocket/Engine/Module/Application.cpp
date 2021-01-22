@@ -1,4 +1,5 @@
 #include "Module/Application.h"
+#include "Utils/Timer.h"
 
 namespace Rocket
 {
@@ -21,6 +22,9 @@ namespace Rocket
 
     int Application::InitializeModule()
     {
+        Rocket::g_GlobalTimer = new Rocket::ElapseTimer();
+        Rocket::g_GlobalTimer->InitTime();
+
         int ret = 0;
         for (auto &module : m_Modules)
         {
@@ -44,6 +48,8 @@ namespace Rocket
             module = nullptr;
         }
         m_Modules.clear();
+
+        delete Rocket::g_GlobalTimer;
     }
 
     int Application::Initialize()
@@ -62,6 +68,7 @@ namespace Rocket
 
     void Application::Tick(Timestep ts)
     {
+        Rocket::g_GlobalTimer->MarkTimeThisTick();
     }
 
     void Application::TickModule(Timestep ts)

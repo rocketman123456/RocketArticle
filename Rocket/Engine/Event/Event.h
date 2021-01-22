@@ -2,6 +2,9 @@
 #include "Core/Core.h"
 #include "Utils/Timer.h"
 
+#include <utility>
+#include <optional>
+#include <functional>
 #include <sstream>
 #include <memory>
 
@@ -50,10 +53,8 @@ namespace Rocket
 		virtual int GetCategoryFlags() const = 0;
 		virtual std::string ToString() const { return GetName(); }
 		
-		inline double GetTimeStamp() { return m_TimeStamp; }
 		inline bool IsInCategory(EventCategory category) { return GetCategoryFlags() & static_cast<int>(category); }
 
-	public:
 		bool Handled = false;
 		double m_TimeStamp = 0.0f;
 	};
@@ -73,6 +74,13 @@ namespace Rocket
 
 #define EVENT_CLASS_CATEGORY(category) \
 	virtual int GetCategoryFlags() const override { return static_cast<int>(category); }
+
+#define RK_BIND_EVENT_FN(fn) [](auto &&... args) -> decltype(auto) \
+	{ return fn(std::forward<decltype(args)>(args)...); }
+#define RK_BIND_EVENT_FN_CLASS(fn) [this](auto &&... args) -> decltype(auto) \
+	{ return this->fn(std::forward<decltype(args)>(args)...); }
+#define RK_BIND_EVENT_FN_CLASS_PTR(pointer, fn) [pointer](auto &&... args) -> decltype(auto) \
+	{ return pointer->fn(std::forward<decltype(args)>(args)...); }
 
 	inline std::ostream &operator<<(std::ostream &os, const IEvent &e)
 	{

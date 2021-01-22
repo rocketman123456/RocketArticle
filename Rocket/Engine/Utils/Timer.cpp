@@ -2,28 +2,28 @@
 
 namespace Rocket
 {
-    ProfilerTimer* g_GlobalTimer;
+    ElapseTimer* g_GlobalTimer;
 
-    void ProfilerTimer::InitTime()
+    void ElapseTimer::InitTime()
     {
         m_StartTimepoint = std::chrono::high_resolution_clock::now();
         m_CurrentTimepoint = std::chrono::high_resolution_clock::now();
         m_TimeLastTick = 1000;
     }
 
-    void ProfilerTimer::MarkTimeThisTick()
+    void ElapseTimer::MarkTimeThisTick()
     {
         m_ElapsedTimepoint = std::chrono::high_resolution_clock::now();
         m_CurrentTimepoint = m_ElapsedTimepoint;
     }
 
-    double ProfilerTimer::GetElapsedTime(void)
+    double ElapseTimer::GetElapsedTime(void)
     {
         double duration = GetElapsedTimeCount() * 0.001f;
         return duration;
     }
 
-    uint64_t ProfilerTimer::GetElapsedTimeCount(void)
+    uint64_t ElapseTimer::GetElapsedTimeCount(void)
     {
         m_ElapsedTimepoint = std::chrono::high_resolution_clock::now();
         uint64_t start = TIMER_COUNT(m_CurrentTimepoint);
@@ -38,13 +38,13 @@ namespace Rocket
         return m_TimeLastTick;
     }
 
-    double ProfilerTimer::GetExactTime(void)
+    double ElapseTimer::GetExactTime(void)
     {
         double duration = GetExactTimeCount() * 0.001f;
         return duration;
     }
 
-    uint64_t ProfilerTimer::GetExactTimeCount(void)
+    uint64_t ElapseTimer::GetExactTimeCount(void)
     {
         m_CurrentTimepoint = std::chrono::high_resolution_clock::now();
         uint64_t start = TIMER_COUNT(m_StartTimepoint);
