@@ -22,15 +22,18 @@
 [submodule "Thirdparty/yaml-cpp"]
 	path = Thirdparty/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp.git
-[submodule ".\\Thirdparty\\openal-soft"]
-	path = .\\Thirdparty\\openal-soft
+[submodule "Thirdparty/openal-soft"]
+	path = Thirdparty/openal-soft
 	url = https://github.com/kcat/openal-soft.git
 [submodule "Thirdparty/glfw"]
 	path = Thirdparty/glfw
 	url = https://github.com/glfw/glfw.git
-[submodule ".\\Thirdparty\\tinyobjloader"]
-	path = .\\Thirdparty\\tinyobjloader
+[submodule "Thirdparty/tinyobjloader"]
+	path = Thirdparty/tinyobjloader
 	url = https://github.com/tinyobjloader/tinyobjloader.git
-[submodule ".\\Thirdparty\\libsndfile"]
-	path = .\\Thirdparty\\libsndfile
+[submodule "Thirdparty/libsndfile"]
+	path = Thirdparty/libsndfile
 	url = https://github.com/libsndfile/libsndfile.git
+[submodule "Thirdparty/spdlog"]
+	path = Thirdparty/spdlog
+	url = https://github.com/gabime/spdlog.git
