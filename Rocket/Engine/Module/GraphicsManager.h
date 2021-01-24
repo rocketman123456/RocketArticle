@@ -10,7 +10,8 @@ namespace Rocket
     class GraphicsManager : inheritance IRuntimeModule
     {
     public:
-        GraphicsManager(const std::string &name = "GraphicsManager") : IRuntimeModule(name) {}
+        RUNTIME_MODULE_TYPE(GraphicsManager);
+        GraphicsManager() = default;
         virtual ~GraphicsManager() = default;
 
         //virtual int Initialize() override;

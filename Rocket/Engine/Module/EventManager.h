@@ -27,7 +27,9 @@ namespace Rocket
     class EventManager : implements IRuntimeModule
     {
     public:
-        EventManager(bool global = true) : IRuntimeModule("EventManager"), m_Global(global) 
+        RUNTIME_MODULE_TYPE(EventManager);
+
+        EventManager(bool global = true) : m_Global(global) 
         {
             if(m_Global)
             {

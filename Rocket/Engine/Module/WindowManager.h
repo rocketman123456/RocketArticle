@@ -7,7 +7,8 @@ namespace Rocket
     class WindowManager : implements IRuntimeModule
     {
     public:
-        WindowManager() : IRuntimeModule("WindowManager") {}
+        RUNTIME_MODULE_TYPE(WindowManager);
+        WindowManager() = default;
         virtual ~WindowManager() = default;
 
         virtual int Initialize() final;

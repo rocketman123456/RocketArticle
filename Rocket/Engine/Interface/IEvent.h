@@ -1,12 +1,14 @@
 #pragma once
 #include "Core/Core.h"
 #include "Utils/Timer.h"
+#include "Utils/Variant.h"
 
 #include <utility>
 #include <optional>
 #include <functional>
 #include <sstream>
 #include <memory>
+#include <vector>
 
 namespace Rocket
 {
@@ -30,7 +32,7 @@ namespace Rocket
 		"AudioEvent",
 	};
 
-	enum EventCategory
+	enum EventCategory : uint32_t
 	{
 		None = 0,
 		EventCategoryApplication = BIT(0),
@@ -47,7 +49,6 @@ namespace Rocket
 		IEvent() { m_TimeStamp = g_GlobalTimer->GetExactTime(); }
 		virtual ~IEvent() = default;
 
-
 		virtual EventType GetEventType() const = 0;
 		virtual const char* GetName() const = 0;
 		virtual int GetCategoryFlags() const = 0;
@@ -59,11 +60,43 @@ namespace Rocket
 		double m_TimeStamp = 0.0f;
 	};
 
+	inline std::ostream &operator << (std::ostream &os, const IEvent &e)
+	{
+		return os << e.ToString();
+	}
+
+	// TODO : use Variant to transmit data
+	using EventVar = Vec<Variant>;
+	using EventVarPtr = Ref<Variant[]>;
+
+	Interface IEvent_
+	{
+	public:
+		IEvent(const EventVar& var) : m_Var(var) { m_TimeStamp = g_GlobalTimer->GetExactTime(); }
+		virtual ~IEvent() = default;
+
+		virtual EventType GetEventType() const = 0;
+		virtual const char* GetName() const = 0;
+		virtual std::string ToString() const { return GetName(); }
+
+		bool Handled = false;
+		double m_TimeStamp = 0.0f;
+		EventVar m_Var;
+	};
+
+	inline std::ostream &operator << (std::ostream &os, const IEvent_ &e)
+	{
+		os << e.ToString();
+		for(auto var : e.m_Var)
+		return os << e.ToString();
+	}
+
 	using EventPtr = Ref<IEvent>;
 
 	template<typename T, typename... Args>
 	EventPtr CreateEvent(Args&&... args) 
 	{
+		// TODO : use pool allocator
 		return CreateScope<T>(std::forward<Args>(args)...);
 	}
 
@@ -81,9 +114,4 @@ namespace Rocket
 	{ return this->fn(std::forward<decltype(args)>(args)...); }
 #define RK_BIND_EVENT_FN_CLASS_PTR(pointer, fn) [pointer](auto &&... args) -> decltype(auto) \
 	{ return pointer->fn(std::forward<decltype(args)>(args)...); }
-
-	inline std::ostream &operator<<(std::ostream &os, const IEvent &e)
-	{
-		return os << e.ToString();
-	}
 } // namespace Rocket

@@ -6,7 +6,8 @@ namespace Rocket
     class MemoryManager : implements IRuntimeModule
     {
     public:
-        MemoryManager() : IRuntimeModule("MemoryManager") {}
+        RUNTIME_MODULE_TYPE(MemoryManager);
+        MemoryManager() = default;
         virtual ~MemoryManager() = default;
     };
 

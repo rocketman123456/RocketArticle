@@ -9,7 +9,7 @@ namespace Rocket
     Interface Application : inheritance IApplication
     {
     public:
-        Application(const std::string &name = "Application") : IApplication(name) 
+        Application()
         {
             RK_CORE_ASSERT(!s_Instance, "Application already exists!");
             s_Instance = this;

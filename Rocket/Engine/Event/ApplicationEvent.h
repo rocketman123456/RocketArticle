@@ -1,5 +1,5 @@
 #pragma once
-#include "Event/Event.h"
+#include "Interface/IEvent.h"
 
 namespace Rocket
 {
@@ -17,7 +17,7 @@ namespace Rocket
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "[" << m_TimeStamp << "]" << "WindowResizeEvent: " << m_Width << ", " << m_Height;
+			ss << "[" << m_TimeStamp << "] " << "WindowResizeEvent: " << m_Width << ", " << m_Height;
 			return ss.str();
 		}
 
@@ -33,6 +33,13 @@ namespace Rocket
 	public:
 		WindowCloseEvent() = default;
 
+		std::string ToString() const override
+		{
+			std::stringstream ss;
+			ss << "[" << m_TimeStamp << "] " << "WindowCloseEvent";
+			return ss.str();
+		}
+
 		EVENT_CLASS_TYPE(WindowClose)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
@@ -41,6 +48,13 @@ namespace Rocket
 	{
 	public:
 		AppTickEvent() = default;
+
+		std::string ToString() const override
+		{
+			std::stringstream ss;
+			ss << "[" << m_TimeStamp << "] " << "AppTickEvent";
+			return ss.str();
+		}
 
 		EVENT_CLASS_TYPE(AppTick)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
@@ -51,6 +65,13 @@ namespace Rocket
 	public:
 		AppUpdateEvent() = default;
 
+		std::string ToString() const override
+		{
+			std::stringstream ss;
+			ss << "[" << m_TimeStamp << "] " << "AppUpdateEvent";
+			return ss.str();
+		}
+
 		EVENT_CLASS_TYPE(AppUpdate)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
@@ -59,6 +80,13 @@ namespace Rocket
 	{
 	public:
 		AppRenderEvent() = default;
+
+		std::string ToString() const override
+		{
+			std::stringstream ss;
+			ss << "[" << m_TimeStamp << "] " << "AppRenderEvent";
+			return ss.str();
+		}
 
 		EVENT_CLASS_TYPE(AppRender)
 		EVENT_CLASS_CATEGORY(EventCategoryApplication)

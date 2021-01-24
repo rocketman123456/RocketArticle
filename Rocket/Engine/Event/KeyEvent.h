@@ -1,5 +1,5 @@
 #pragma once
-#include "Event/Event.h"
+#include "Interface/IEvent.h"
 #include "Utils/KeyCode.h"
 
 namespace Rocket
