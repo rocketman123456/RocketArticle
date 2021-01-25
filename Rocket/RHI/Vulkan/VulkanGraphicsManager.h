@@ -23,14 +23,15 @@ namespace Rocket
     struct SwapChainSupportDetails
     {
         VkSurfaceCapabilitiesKHR capabilities;
-        std::vector<VkSurfaceFormatKHR> formats;
-        std::vector<VkPresentModeKHR> presentModes;
+        Vec<VkSurfaceFormatKHR> formats;
+        Vec<VkPresentModeKHR> presentModes;
     };
     
     class VulkanGraphicsManager : implements GraphicsManager
     {
     public:
-        VulkanGraphicsManager() : GraphicsManager("VulkanGraphicsManager") {}
+        RUNTIME_MODULE_TYPE(VulkanGraphicsManager);
+        VulkanGraphicsManager() = default;
         virtual ~VulkanGraphicsManager() = default;
 
         virtual int Initialize() final;
@@ -60,17 +61,17 @@ namespace Rocket
         void cleanupSwapChain();
         void recreateSwapChain();
 
-        std::vector<const char*> getRequiredExtensions();
+        Vec<const char*> getRequiredExtensions();
         void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
         bool isDeviceSuitable(VkPhysicalDevice device);
         bool checkDeviceExtensionSupport(VkPhysicalDevice device);
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
-        VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-        VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+        VkSurfaceFormatKHR chooseSwapSurfaceFormat(const Vec<VkSurfaceFormatKHR>& availableFormats);
+        VkPresentModeKHR chooseSwapPresentMode(const Vec<VkPresentModeKHR>& availablePresentModes);
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
         SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
         bool checkValidationLayerSupport();
-        VkShaderModule createShaderModule(const std::vector<char>& code);
+        VkShaderModule createShaderModule(const Vec<char>& code);
 
     private:
         bool m_VSync = true;
@@ -87,23 +88,23 @@ namespace Rocket
         VkQueue presentQueue;
 
         VkSwapchainKHR swapChain;
-        std::vector<VkImage> swapChainImages;
+        Vec<VkImage> swapChainImages;
         VkFormat swapChainImageFormat;
         VkExtent2D swapChainExtent;
-        std::vector<VkImageView> swapChainImageViews;
-        std::vector<VkFramebuffer> swapChainFramebuffers;
+        Vec<VkImageView> swapChainImageViews;
+        Vec<VkFramebuffer> swapChainFramebuffers;
 
         VkRenderPass renderPass;
         VkPipelineLayout pipelineLayout;
         VkPipeline graphicsPipeline;
 
         VkCommandPool commandPool;
-        std::vector<VkCommandBuffer> commandBuffers;
+        Vec<VkCommandBuffer> commandBuffers;
 
-        std::vector<VkSemaphore> imageAvailableSemaphores;
-        std::vector<VkSemaphore> renderFinishedSemaphores;
-        std::vector<VkFence> inFlightFences;
-        std::vector<VkFence> imagesInFlight;
+        Vec<VkSemaphore> imageAvailableSemaphores;
+        Vec<VkSemaphore> renderFinishedSemaphores;
+        Vec<VkFence> inFlightFences;
+        Vec<VkFence> imagesInFlight;
         size_t currentFrame = 0;
 
         bool framebufferResized = false;

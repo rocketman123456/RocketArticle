@@ -2,21 +2,19 @@
 #include "Interface/IApplication.h"
 #include "Event/ApplicationEvent.h"
 
-#include <yaml-cpp/yaml.h>
-
 namespace Rocket
 {
-    class Application : inheritance IApplication
+    Interface Application : inheritance IApplication
     {
     public:
-        Application(const std::string &name = "Application") : IApplication(name) 
+        Application()
         {
             RK_CORE_ASSERT(!s_Instance, "Application already exists!");
             s_Instance = this;
         }
         virtual ~Application() = default;
 
-        virtual void LoadConfig(const std::string& path) override;
+        virtual void LoadConfig(ConfigLoader& config) override;
 
         virtual int Initialize() final;
         virtual void Finalize() final;
@@ -40,9 +38,8 @@ namespace Rocket
         bool m_Minimized = false;
         bool m_Parallel = true;
         // Modules
-        std::vector<IRuntimeModule *> m_Modules;
+        Vec<IRuntimeModule *> m_Modules;
         // Config
-        YAML::Node m_Config;
         std::string m_AssetPath;
     private:
         static Application* s_Instance;

@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <vector>
 #include <map>
 
 namespace Rocket
@@ -9,6 +10,9 @@ namespace Rocket
 	{
 		return std::is_base_of<Base, T>::value;
 	}
+
+    template <typename T>
+    using Vec = std::vector<T>;
 
 	template <typename T>
 	using Scope = std::unique_ptr<T>;

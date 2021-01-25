@@ -12,11 +12,11 @@
 
 constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-const std::vector<const char*> validationLayers = {
+const Vec<const char*> validationLayers = {
     "VK_LAYER_KHRONOS_validation"
 };
 
-const std::vector<const char*> deviceExtensions = {
+const Vec<const char*> deviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
@@ -68,7 +68,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 }
 
 // TODO : use asset manager to load files
-static std::vector<char> readFile(const std::string& filename) {
+static Vec<char> readFile(const std::string& filename) {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) {
@@ -77,7 +77,7 @@ static std::vector<char> readFile(const std::string& filename) {
     }
 
     size_t fileSize = (size_t) file.tellg();
-    std::vector<char> buffer(fileSize);
+    Vec<char> buffer(fileSize);
 
     file.seekg(0);
     file.read(buffer.data(), fileSize);
@@ -171,7 +171,7 @@ namespace Rocket
             RK_CORE_ERROR("failed to find GPUs with Vulkan support!");
         }
 
-        std::vector<VkPhysicalDevice> devices(deviceCount);
+        Vec<VkPhysicalDevice> devices(deviceCount);
         vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
         for (const auto& device : devices) {
@@ -190,7 +190,7 @@ namespace Rocket
     {
         QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
-        std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+        Vec<VkDeviceQueueCreateInfo> queueCreateInfos;
         std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
         float queuePriority = 1.0f;
@@ -621,7 +621,7 @@ namespace Rocket
         uint32_t layerCount;
         vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
-        std::vector<VkLayerProperties> availableLayers(layerCount);
+        Vec<VkLayerProperties> availableLayers(layerCount);
         vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
         for (const char* layerName : validationLayers) {
@@ -642,13 +642,13 @@ namespace Rocket
         return true;
     }
 
-    std::vector<const char*> VulkanGraphicsManager::getRequiredExtensions()
+    Vec<const char*> VulkanGraphicsManager::getRequiredExtensions()
     {
         uint32_t glfwExtensionCount = 0;
         const char** glfwExtensions;
         glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-        std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+        Vec<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
         if (enableValidationLayers) {
             extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -698,7 +698,7 @@ namespace Rocket
         uint32_t extensionCount;
         vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
-        std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+        Vec<VkExtensionProperties> availableExtensions(extensionCount);
         vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
 
         std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
@@ -717,7 +717,7 @@ namespace Rocket
         uint32_t queueFamilyCount = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
-        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+        Vec<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
         int i = 0;
@@ -743,7 +743,7 @@ namespace Rocket
         return indices;
     }
 
-    VkSurfaceFormatKHR VulkanGraphicsManager::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
+    VkSurfaceFormatKHR VulkanGraphicsManager::chooseSwapSurfaceFormat(const Vec<VkSurfaceFormatKHR>& availableFormats)
     {
         for (const auto& availableFormat : availableFormats) {
             if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
@@ -754,7 +754,7 @@ namespace Rocket
         return availableFormats[0];
     }
 
-    VkPresentModeKHR VulkanGraphicsManager::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
+    VkPresentModeKHR VulkanGraphicsManager::chooseSwapPresentMode(const Vec<VkPresentModeKHR>& availablePresentModes)
     {
         for (const auto& availablePresentMode : availablePresentModes) {
             if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
@@ -810,7 +810,7 @@ namespace Rocket
         return details;
     }
 
-    VkShaderModule VulkanGraphicsManager::createShaderModule(const std::vector<char>& code) 
+    VkShaderModule VulkanGraphicsManager::createShaderModule(const Vec<char>& code) 
     {
         VkShaderModuleCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;

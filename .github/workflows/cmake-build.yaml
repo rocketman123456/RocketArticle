@@ -1,4 +1,4 @@
-name: CMake Ubuntu
+name: CMake
 
 on: 
   push:
@@ -8,7 +8,7 @@ on:
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
+  BUILD_TYPE: Debug
 
 jobs:
   build-macos:
@@ -30,7 +30,7 @@ jobs:
         
       - name: Install Packages
         working-directory: ${{github.workspace}}/build/vcpkg
-        run: ./vcpkg install yaml-cpp glfw3 eigen3 bullet3 openal-soft entt sndfile glm tinyobjloader spdlog glad glslang
+        run: ./vcpkg install yaml-cpp glfw3 eigen3 bullet3 openal-soft entt sndfile glm tinyobjloader spdlog glad glslang libcopp
 
       - name: Configure CMake
         shell: bash
@@ -38,9 +38,8 @@ jobs:
         run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
 
       - name: Build
-        working-directory: ${{github.workspace}}/build
         shell: bash
-        # Execute the build.  You can specify a specific target with "--target <NAME>"
+        working-directory: ${{github.workspace}}/build
         run: cmake --build . --config $BUILD_TYPE
 
   build-win10:
@@ -59,7 +58,21 @@ jobs:
       - name: Compile vcpkg
         working-directory: ${{github.workspace}}/build/vcpkg
         run: ./bootstrap-vcpkg.bat
+      
+      - name: Install Packages
+        working-directory: ${{github.workspace}}/build/vcpkg
+        run: ./vcpkg install --triplet=x64-windows yaml-cpp glfw3 eigen3 bullet3 openal-soft entt sndfile glm tinyobjloader spdlog glad glslang libcopp
         
+      - name: Configure CMake
+        shell: bash
+        working-directory: ${{github.workspace}}/build
+        run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+
+      - name: Build
+        shell: bash
+        working-directory: ${{github.workspace}}/build
+        run: cmake --build . --config $BUILD_TYPE
+      
   build-ubuntu:
     runs-on: ubuntu-18.04
     steps:
@@ -76,3 +89,17 @@ jobs:
       - name: Compile vcpkg
         working-directory: ${{github.workspace}}/build/vcpkg
         run: ./bootstrap-vcpkg.sh
+
+      - name: Install Packages
+        working-directory: ${{github.workspace}}/build/vcpkg
+        run: ./vcpkg install --triplet=x64-linux yaml-cpp glfw3 eigen3 bullet3 openal-soft entt sndfile glm tinyobjloader spdlog glad glslang libcopp
+
+      - name: Configure CMake
+        shell: bash
+        working-directory: ${{github.workspace}}/build
+        run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+
+      - name: Build
+        shell: bash
+        working-directory: ${{github.workspace}}/build
+        run: cmake --build . --config $BUILD_TYPE

@@ -1,5 +1,9 @@
 #pragma once
 
+#include <string>
+static const std::string ProjectSourceDir = PROJECT_SOURCE_DIR;
+static const std::string RenderAPI = RENDER_API;
+
 #ifdef RK_DEBUG
     #if defined(PLATFORM_WINDOWS)
         #define RK_DEBUGBREAK() __debugbreak()

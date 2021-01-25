@@ -1,7 +1,7 @@
 #pragma once
 #include "Interface/IRuntimeModule.h"
 
-#include "Event/Event.h"
+#include "Interface/IEvent.h"
 #include "Utils/Timer.h"
 
 #include <entt/entt.hpp>
@@ -21,13 +21,13 @@ namespace Rocket
     using EventListenerList = std::list<EventListenerDelegate>;
     using EventListenerMap = std::map<EventType, EventListenerList>;
     using EventQueue = std::list<EventPtr>;
-
-#define REGISTER_DELEGATE(f,x) EventListenerDelegate{entt::connect_arg<&f>, x}
     
     class EventManager : implements IRuntimeModule
     {
     public:
-        EventManager(bool global = true) : IRuntimeModule("EventManager"), m_Global(global) 
+        RUNTIME_MODULE_TYPE(EventManager);
+
+        EventManager(bool global = true) : m_Global(global) 
         {
             if(m_Global)
             {
@@ -103,7 +103,7 @@ namespace Rocket
         EventQueue  m_EventThreadQueue;
         EventListenerMap m_EventListener;
         
-        ProfilerTimer    m_Timer;
+        ElapseTimer    m_Timer;
         GenericObjectFactory<IEvent, EventType> m_EventFactory;
     private:
         static EventManager* s_Instance;
@@ -111,4 +111,7 @@ namespace Rocket
 
     EventManager* GetEventManager();
     extern EventManager* g_EventManager;
+
+    #define REGISTER_DELEGATE_CLASS(f,x) EventListenerDelegate{entt::connect_arg<&f>, x}
+    #define REGISTER_DELEGATE_FN(f) EventListenerDelegate{entt::connect_arg<&f>}
 }

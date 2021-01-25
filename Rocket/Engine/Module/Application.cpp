@@ -1,26 +1,21 @@
 #include "Module/Application.h"
+#include "Utils/Timer.h"
 
 namespace Rocket
 {
     Application* Application::s_Instance = nullptr;
 
-    void Application::LoadConfig(const std::string& path)
+    void Application::LoadConfig(ConfigLoader& config)
     {
-        std::string config_file;
-#if defined(PLATFORM_LINUX)
-        config_file = path + "/Config/setting-linux.yaml";
-#elif defined(PLATFORM_WINDOWS)
-        config_file = path + "/Config/setting-windows.yaml";
-#elif defined(PLATFORM_APPLE)
-        config_file = path + "/Config/setting-mac.yaml";
-#endif
-        m_Config = YAML::LoadFile(config_file);
-        m_AssetPath = m_Config["asset_path"].as<std::string>();
+        m_AssetPath = config.GetAssetPath();
         RK_CORE_INFO("Asset Path {0}", m_AssetPath);
     }
 
     int Application::InitializeModule()
     {
+        Rocket::g_GlobalTimer = new Rocket::ElapseTimer();
+        Rocket::g_GlobalTimer->InitTime();
+
         int ret = 0;
         for (auto &module : m_Modules)
         {
@@ -44,6 +39,8 @@ namespace Rocket
             module = nullptr;
         }
         m_Modules.clear();
+
+        delete Rocket::g_GlobalTimer;
     }
 
     int Application::Initialize()
@@ -62,6 +59,7 @@ namespace Rocket
 
     void Application::Tick(Timestep ts)
     {
+        Rocket::g_GlobalTimer->MarkTimeThisTick();
     }
 
     void Application::TickModule(Timestep ts)

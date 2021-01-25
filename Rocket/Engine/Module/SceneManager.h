@@ -6,7 +6,8 @@ namespace Rocket
     class SceneManager : implements IRuntimeModule
     {
     public:
-        SceneManager() : IRuntimeModule("SceneManager") {}
+        RUNTIME_MODULE_TYPE(SceneManager);
+        SceneManager() = default;
         virtual ~SceneManager() = default;
     };
 

@@ -1,16 +1,78 @@
 #pragma once
 #include "Interface/IRuntimeModule.h"
+#include "Interface/IDrawPass.h"
+#include "Interface/IDispatchPass.h"
+#include "Common/GeomMath.h"
+#include "Scene/Scene.h"
+
+#include <map>
+
+#define MAX_FRAME_IN_FLIGHT 2
 
 namespace Rocket
 {
     class GraphicsManager : inheritance IRuntimeModule
     {
     public:
-        GraphicsManager(const std::string &name = "IRuntimeModule");
+        RUNTIME_MODULE_TYPE(GraphicsManager);
+        GraphicsManager() = default;
         virtual ~GraphicsManager() = default;
+
+        virtual int Initialize() override;
+        virtual void Finalize() override;
+
+        virtual void Tick(Timestep ts) override;
+
+        void InitConstants() {}
+        void UpdateConstants();
+
+        virtual void BeginPass(const Frame& frame) {}
+        virtual void EndPass(const Frame& frame) {}
+
+        virtual void BeginCompute() {}
+        virtual void EndCompute() {}
+
+        virtual void BeginFrame(const Frame& frame);
+        virtual void EndFrame(const Frame& frame);
+
+        virtual void BeginScene(const Scene& scene);
+        virtual void EndScene(const Scene& scene);
+
+        virtual void Draw();
+        virtual void Present() {}
+
+        virtual void DrawBatch(const Frame& frame) {}
+
+        // For Debug
+        virtual void DrawPoint(const Point3D& point, const Vector3f& color) {}
+        virtual void DrawPointSet(const Point3DSet& point_set, const Vector3f& color) {}
+        virtual void DrawPointSet(const Point3DSet& point_set, const Matrix4f& trans, const Vector3f& color) {}
+
+        virtual void DrawLine(const Point3D& from, const Point3D& to, const Vector3f &color) {}
+        virtual void DrawLine(const Point3DList& vertices, const Vector3f &color) {}
+        virtual void DrawLine(const Point3DList& vertices, const Matrix4f& trans, const Vector3f &color) {}
+
+        virtual void DrawTriangle(const Point3DList& vertices, const Vector3f &color) {}
+        virtual void DrawTriangle(const Point3DList& vertices, const Matrix4f& trans, const Vector3f &color) {}
+        virtual void DrawTriangleStrip(const Point3DList& vertices, const Vector3f &color) {}
+
+        void DrawEdgeList(const EdgeList& edges, const Vector3f& color);
+        void DrawEdgeList(const EdgeList& edges, const Matrix4f& trans, const Vector3f& color);
+        void DrawPolygon(const Face& polygon, const Vector3f& color);
+        void DrawPolygon(const Face& polygon, const Matrix4f& trans, const Vector3f& color);
+        void DrawBox(const Vector3f& bbMin, const Vector3f& bbMax, const Vector3f& color);
+        void DrawBox(const Vector3f& bbMin, const Vector3f& bbMax, const Matrix4f& trans, const Vector3f& color);
 
     protected:
         virtual void SwapBuffers() = 0;
+
+    protected:
+        uint32_t m_nFrameIndex;
+        std::array<Frame, MAX_FRAME_IN_FLIGHT> m_Frames;
+        Vec<Ref<IDispatchPass>> m_InitPasses;
+        Vec<Ref<IDispatchPass>> m_DispatchPasses;
+        Vec<Ref<IDrawPass>> m_DrawPasses;
+        std::map<std::string, texture_id> m_Textures;
     };
 
     GraphicsManager* GetGraphicsManager();

@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.2)
 cmake_policy(SET CMP0054 NEW)
 
 #### Main Project Config ############################
-set(RENDER_API "Vulkan") # Render API Select: OpenGL Vulkan Metal
+set(RENDER_API "OpenGL") # Render API Select: OpenGL Vulkan Metal
 set(CMAKE_BUILD_TYPE "Debug") # Debug or Release
 set(PROFILE 1) # This Option will generate runtime profile
 #### Main Project Config ############################
@@ -158,5 +158,4 @@ add_subdirectory( Test )
 add_subdirectory( Editor )
 add_subdirectory( Sandbox )
 
-message(STATUS "###################################")
 #### Project Sources ################################

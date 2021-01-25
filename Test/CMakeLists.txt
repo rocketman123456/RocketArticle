@@ -1,4 +1,5 @@
 message(STATUS "Add Test")
-add_subdirectory( ENTT )
-add_subdirectory( CPP )
+add_subdirectory( copp )
+add_subdirectory( cpp )
+add_subdirectory( entt )
 add_subdirectory( Remotery )

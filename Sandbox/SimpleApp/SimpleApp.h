@@ -6,7 +6,9 @@ namespace Rocket
     class SimpleApp : implements Application
     {
     public:
-        SimpleApp() : Application("SimpleApp") {}
+        RUNTIME_MODULE_TYPE(SimpleApp);
+        SimpleApp() = default;
+        virtual ~SimpleApp() = default;
 
         virtual void PreInitializeModule() override;
         virtual void PostInitializeModule() override;

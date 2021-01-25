@@ -1,12 +1,14 @@
 #pragma once
 #include "Core/Core.h"
 
+#include <chrono>
+
 namespace Rocket
 {
     #define TIMER_COUNT(x) std::chrono::time_point_cast<std::chrono::microseconds>(x)\
             .time_since_epoch().count()
     // TODO : make timer thread safe
-	class ProfilerTimer
+	class ElapseTimer
 	{
 	public:
 		void InitTime(void);
@@ -24,5 +26,5 @@ namespace Rocket
 		uint64_t m_TimeLastTick;
 	};
 
-    extern ProfilerTimer* g_GlobalTimer;
+    extern ElapseTimer* g_GlobalTimer;
 } // namespace Rocket
