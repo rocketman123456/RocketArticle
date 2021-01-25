@@ -53,10 +53,10 @@ int main()
 	cout << "Hash of '" << s2 << "': " << hash<string>{}(s2) << endl;
 	cout << "Hash of '" << s3 << "': " << hash<string>{}(s3) << endl;
 
-	H h1{"Vorbrodt's C++ Blog", "https://vorbrodt.blog"};
-	H h2{"Vorbrodt's C++ Blog", "https://vorbrodt.blog"};
-	H h3{"https://vorbrodt.blog", "Vorbrodt's C++ Blog"};
-	cout << "Hash of '" << h1 << "': " << hash<H>{}(h1) << endl;
-	cout << "Hash of '" << h2 << "': " << hash<H>{}(h2) << endl;
-	cout << "Hash of '" << h3 << "': " << hash<H>{}(h3) << endl;
+	Rocket::_H_ h1{"Vorbrodt's C++ Blog", "https://vorbrodt.blog"};
+	Rocket::_H_ h2{"Vorbrodt's C++ Blog", "https://vorbrodt.blog"};
+	Rocket::_H_ h3{"https://vorbrodt.blog", "Vorbrodt's C++ Blog"};
+	cout << "Hash of '" << h1 << "': " << hash<Rocket::_H_>{}(h1) << endl;
+	cout << "Hash of '" << h2 << "': " << hash<Rocket::_H_>{}(h2) << endl;
+	cout << "Hash of '" << h3 << "': " << hash<Rocket::_H_>{}(h3) << endl;
 }

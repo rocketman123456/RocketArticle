@@ -11,17 +11,21 @@ int main(int argc, char **argv)
     Rocket::CommandParser Parser(argc, argv);
     RK_CORE_INFO("CommandParser : {0}", Parser.ToString());
 
-    auto app = Rocket::CreateApplication();
-    
+    std::string command;
     if(argc > 1)
-    {
-        auto command = Parser.GetCommand(1);
-        app->LoadConfig(command);
-    }
+        command = Parser.GetCommand(1);
     else
+        command = ProjectSourceDir;
+
+    Rocket::ConfigLoader Loader(command);
+    if(!Loader.Initialize())
     {
-        app->LoadConfig(ProjectSourceDir);
+        RK_CORE_ERROR("Config Loader Initialize Failed");
+        return 1;
     }
+
+    auto app = Rocket::CreateApplication();
+    app->LoadConfig(Loader);
 
     app->PreInitializeModule();
     if (app->InitializeModule() != 0)

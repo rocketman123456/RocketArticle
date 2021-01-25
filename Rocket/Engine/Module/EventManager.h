@@ -1,7 +1,7 @@
 #pragma once
 #include "Interface/IRuntimeModule.h"
 
-#include "Event/Event.h"
+#include "Interface/IEvent.h"
 #include "Utils/Timer.h"
 
 #include <entt/entt.hpp>
@@ -21,8 +21,6 @@ namespace Rocket
     using EventListenerList = std::list<EventListenerDelegate>;
     using EventListenerMap = std::map<EventType, EventListenerList>;
     using EventQueue = std::list<EventPtr>;
-
-#define REGISTER_DELEGATE(f,x) EventListenerDelegate{entt::connect_arg<&f>, x}
     
     class EventManager : implements IRuntimeModule
     {
@@ -113,4 +111,7 @@ namespace Rocket
 
     EventManager* GetEventManager();
     extern EventManager* g_EventManager;
+
+    #define REGISTER_DELEGATE_CLASS(f,x) EventListenerDelegate{entt::connect_arg<&f>, x}
+    #define REGISTER_DELEGATE_FN(f) EventListenerDelegate{entt::connect_arg<&f>}
 }

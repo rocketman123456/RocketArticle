@@ -1,6 +1,5 @@
 #pragma once
 #include "Core/Core.h"
-#include <vector>
 
 namespace Rocket
 {
@@ -36,6 +35,6 @@ namespace Rocket
 
     private:
         int32_t m_CommandCount;
-        std::vector<std::string> m_CommandList;
+        Vec<std::string> m_CommandList;
     };
 }

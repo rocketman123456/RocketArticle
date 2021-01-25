@@ -2,8 +2,6 @@
 #include "Interface/IApplication.h"
 #include "Event/ApplicationEvent.h"
 
-#include <yaml-cpp/yaml.h>
-
 namespace Rocket
 {
     Interface Application : inheritance IApplication
@@ -16,7 +14,7 @@ namespace Rocket
         }
         virtual ~Application() = default;
 
-        virtual void LoadConfig(const std::string& path) override;
+        virtual void LoadConfig(ConfigLoader& config) override;
 
         virtual int Initialize() final;
         virtual void Finalize() final;
@@ -40,9 +38,8 @@ namespace Rocket
         bool m_Minimized = false;
         bool m_Parallel = true;
         // Modules
-        std::vector<IRuntimeModule *> m_Modules;
+        Vec<IRuntimeModule *> m_Modules;
         // Config
-        YAML::Node m_Config;
         std::string m_AssetPath;
     private:
         static Application* s_Instance;

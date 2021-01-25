@@ -72,8 +72,8 @@ namespace Rocket
 	Interface IEvent_
 	{
 	public:
-		IEvent(const EventVar& var) : m_Var(var) { m_TimeStamp = g_GlobalTimer->GetExactTime(); }
-		virtual ~IEvent() = default;
+		IEvent_(const EventVar& var) : m_Var(var) { m_TimeStamp = g_GlobalTimer->GetExactTime(); }
+		virtual ~IEvent_() = default;
 
 		virtual EventType GetEventType() const = 0;
 		virtual const char* GetName() const = 0;
@@ -88,7 +88,10 @@ namespace Rocket
 	{
 		os << e.ToString();
 		for(auto var : e.m_Var)
-		return os << e.ToString();
+		{
+			os << var.var.index() << " ";
+		}
+		return os;
 	}
 
 	using EventPtr = Ref<IEvent>;

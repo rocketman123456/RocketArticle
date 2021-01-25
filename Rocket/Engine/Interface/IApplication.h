@@ -1,16 +1,16 @@
 #pragma once
 #include "Interface/IRuntimeModule.h"
-#include "Event/Event.h"
+#include "Common/ConfigLoader.h"
 
 namespace Rocket
 {
     Interface IApplication : implements IRuntimeModule
     {
     public:
-        IApplication(const std::string &name) : IRuntimeModule(name) {}
+        IApplication() {}
         virtual ~IApplication() = default;
 
-        virtual void LoadConfig(const std::string& path) = 0;
+        virtual void LoadConfig(ConfigLoader& config) = 0;
 
         virtual void PreInitialize() = 0;
         virtual void PostInitialize() = 0;

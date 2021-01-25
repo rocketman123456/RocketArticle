@@ -102,4 +102,49 @@ namespace Rocket
     {
         glfwSwapBuffers(m_WindowHandle);
     }
+
+    void OpenGLGraphicsManager::DrawPoint(const Point3D& point, const Vector3f& color)
+    {
+
+    }
+
+    void OpenGLGraphicsManager::DrawPointSet(const Point3DSet& point_set, const Vector3f& color)
+    {
+
+    }
+
+    void OpenGLGraphicsManager::DrawPointSet(const Point3DSet& point_set, const Matrix4f& trans, const Vector3f& color)
+    {
+
+    }
+
+    void OpenGLGraphicsManager::DrawLine(const Point3D& from, const Point3D& to, const Vector3f &color)
+    {
+
+    }
+
+    void OpenGLGraphicsManager::DrawLine(const Point3DList& vertices, const Vector3f &color)
+    {
+
+    }
+
+    void OpenGLGraphicsManager::DrawLine(const Point3DList& vertices, const Matrix4f& trans, const Vector3f &color)
+    {
+
+    }
+
+    void OpenGLGraphicsManager::DrawTriangle(const Point3DList& vertices, const Vector3f &color)
+    {
+
+    }
+
+    void OpenGLGraphicsManager::DrawTriangle(const Point3DList& vertices, const Matrix4f& trans, const Vector3f &color)
+    {
+
+    }
+
+    void OpenGLGraphicsManager::DrawTriangleStrip(const Point3DList& vertices, const Vector3f &color)
+    {
+
+    }
 }

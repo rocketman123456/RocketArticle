@@ -18,17 +18,17 @@ namespace Rocket
 
     using Point2D = Eigen::Vector2f;
     using Point2DPtr = Ref<Point2D>;
-    using Point2DList = std::vector<Point2DPtr>;
+    using Point2DList = Vec<Point2DPtr>;
     using Point2DSet = std::unordered_set<Point2DPtr>;
 
     using Point3D = Eigen::Vector3f;
     using Point3DPtr = Ref<Point3D>;
-    using Point3DList = std::vector<Point3DPtr>;
+    using Point3DList = Vec<Point3DPtr>;
     using Point3DSet = std::unordered_set<Point3DPtr>;
 
     using Edge = std::pair<Point3DPtr, Point3DPtr>;
     using EdgePtr = Ref<Edge>;
-    using EdgeList = std::vector<EdgePtr>;
+    using EdgeList = Vec<EdgePtr>;
     using EdgeSet = std::unordered_set<EdgePtr>;
 
     struct Face {
@@ -45,6 +45,6 @@ namespace Rocket
         }
     };
     using FacePtr = Ref<Face>;
-    using FaceList = std::vector<FacePtr>;
+    using FaceList = Vec<FacePtr>;
     using FaceSet = std::unordered_set<FacePtr>;
 }

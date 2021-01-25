@@ -34,7 +34,42 @@ namespace Rocket
         struct Light lights[MAX_LIGHTS];  // 288 bytes * MAX_LIGHTS
     };
 
-    struct DrawFrameContext
+    struct texture_id {
+        intptr_t texture{-1};
+        uint32_t width{0};
+        uint32_t height{0};
+        uint32_t depth{1};
+        uint32_t index{0};
+        float    mipmap{0.0f};
+    };
+
+    struct material_textures {
+        texture_id diffuseMap;
+        texture_id normalMap;
+        texture_id metallicMap;
+        texture_id roughnessMap;
+        texture_id aoMap;
+        texture_id heightMap;
+    };
+
+    struct global_textures {
+        texture_id brdfLUT;
+        texture_id skybox;
+        texture_id terrainHeightMap;
+    };
+
+    struct frame_textures {
+        texture_id shadowMap;
+        uint32_t shadowMapCount;
+
+        texture_id globalShadowMap;
+        uint32_t globalShadowMapCount;
+
+        texture_id cubeShadowMap;
+        uint32_t cubeShadowMapCount;
+    };
+
+    struct DrawFrameContext : frame_textures
     {
         Matrix4f viewMatrix;        // 64 bytes
         Matrix4f projectionMatrix;  // 64 bytes
@@ -44,14 +79,18 @@ namespace Rocket
 
     struct DrawBatchContext
     {
+        virtual ~DrawBatchContext() = default;
+        
         Matrix4f modelMatrix;       // 64 bytes
+        int32_t batchIndex{0};
+        material_textures material;
     };
 
-    struct Frame
+    struct Frame : global_textures
     {
         int32_t frameIndex = 0;
         DrawFrameContext frameContext;
-        std::vector<Ref<DrawBatchContext>> batchContexts;
+        Vec<Ref<DrawBatchContext>> batchContexts;
         LightInfo lightInfo;
     };
 }
