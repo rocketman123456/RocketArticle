@@ -17,7 +17,7 @@ namespace Rocket
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "[" << m_TimeStamp << "] " << "WindowResizeEvent: " << m_Width << ", " << m_Height;
+			ss << "[" << TimeStamp << "] " << "WindowResizeEvent: " << m_Width << ", " << m_Height;
 			return ss.str();
 		}
 
@@ -36,7 +36,7 @@ namespace Rocket
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "[" << m_TimeStamp << "] " << "WindowCloseEvent";
+			ss << "[" << TimeStamp << "] " << "WindowCloseEvent";
 			return ss.str();
 		}
 
@@ -52,7 +52,7 @@ namespace Rocket
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "[" << m_TimeStamp << "] " << "AppTickEvent";
+			ss << "[" << TimeStamp << "] " << "AppTickEvent";
 			return ss.str();
 		}
 
@@ -68,7 +68,7 @@ namespace Rocket
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "[" << m_TimeStamp << "] " << "AppUpdateEvent";
+			ss << "[" << TimeStamp << "] " << "AppUpdateEvent";
 			return ss.str();
 		}
 
@@ -84,7 +84,7 @@ namespace Rocket
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "[" << m_TimeStamp << "] " << "AppRenderEvent";
+			ss << "[" << TimeStamp << "] " << "AppRenderEvent";
 			return ss.str();
 		}
 

@@ -12,7 +12,7 @@ namespace Rocket {
 
         int Initialize() override;
         void Finalize() override;
-        void Tick(Timestep ts) override;
+        void Tick(Timestep ts) override {}
 
         bool RegisterPipelineState(PipelineState& pipelineState) override;
         void UnregisterPipelineState(PipelineState& pipelineState) override;
@@ -27,4 +27,7 @@ namespace Rocket {
     protected:
         std::map<std::string, Ref<PipelineState>> m_pipelineStates;
     };
+
+    PipelineStateManager* GetPipelineStateManager();
+    extern PipelineStateManager* g_PipelineStateManager;
 }

@@ -10,7 +10,7 @@ namespace Rocket
         IApplication() {}
         virtual ~IApplication() = default;
 
-        virtual void LoadConfig(ConfigLoader& config) = 0;
+        virtual void LoadConfig(const Ref<ConfigLoader>& config) = 0;
 
         virtual void PreInitialize() = 0;
         virtual void PostInitialize() = 0;

@@ -1,11 +1,18 @@
 #include "OpenGL/OpenGLPipelineStateManager.h"
+#include "Module/Application.h"
 
 #include <glad/glad.h>
 #include <fstream>
+#include <sstream>
 #include <utility>
 
 namespace Rocket
 {
+    PipelineStateManager* GetPipelineStateManager()
+    {
+        return new OpenGLPipelineStateManager();
+    }
+
     static void OutputShaderErrorMessage(unsigned int shaderId, const char* shaderFilename) 
     {
         int logSize, i;
@@ -92,19 +99,126 @@ namespace Rocket
         std::string commonShaderBuffer;
         std::string shaderBuffer;
         int status;
+
+        // Load the shader source file into a text buffer.
+        // TODO : use asset loader to load file
+        std::ifstream srcFile(filename, std::ios::in);
+        std::ostringstream buf;
+        char ch;
+        while(buf && srcFile.get(ch))
+            buf.put(ch);
+        shaderBuffer = buf.str();
+        if (shaderBuffer.empty())
+        {
+            return false;
+        }
+
+        shaderBuffer = cbufferShaderBuffer + commonShaderBuffer + shaderBuffer;
+
+        // Create a shader object.
+        shader = glCreateShader(shaderType);
+
+        // Copy the shader source code strings into the shader objects.
+        const char* pStr = shaderBuffer.c_str();
+        glShaderSource(shader, 1, &pStr, NULL);
+
+        // Compile the shaders.
+        glCompileShader(shader);
+
+        // Check to see if the shader compiled successfully.
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+        if (status != 1)
+        {
+            // If it did not compile then write the syntax error message out to a
+            // text file for review.
+            OutputShaderErrorMessage(shader, filename);
+            return false;
+        }
+
+        return true;
     }
 
     using ShaderSourceList = Vec<std::pair<GLenum, std::string>>;
 
-    bool OpenGLPipelineStateManagerCommonBase::InitializePipelineState(PipelineState** ppPipelineState)
+    static bool LoadShaderProgram(const ShaderSourceList& source, GLuint& shaderProgram)
+    {
+        int status;
+
+        // Create a shader program object.
+        shaderProgram = glCreateProgram();
+
+        for (auto it = source.cbegin(); it != source.cend(); it++)
+        {
+            if (!it->second.empty()) {
+                GLuint shader;
+                auto config = g_Application->GetConfig();
+                status = LoadShaderFromFile((config->GetAssetPath() + it->second).c_str(), it->first, shader);
+                if (!status)
+                {
+                    return false;
+                }
+
+                // Attach the shader to the program object.
+                glAttachShader(shaderProgram, shader);
+                glDeleteShader(shader);
+            }
+        }
+
+        // Link the shader program.
+        glLinkProgram(shaderProgram);
+
+        // Check the status of the link.
+        glGetProgramiv(shaderProgram, GL_LINK_STATUS, &status);
+        if (status != 1)
+        {
+            // If it did not link then write the syntax error message out to a text
+            // file for review.
+            OutputLinkerErrorMessage(shaderProgram);
+            return false;
+        }
+
+        return true;
+    }
+
+    bool OpenGLPipelineStateManager::InitializePipelineState(PipelineState** ppPipelineState)
     {
         bool result;
         OpenGLPipelineState* pnew_state =new OpenGLPipelineState(**ppPipelineState);
 
         ShaderSourceList list;
+
+        if (!(*ppPipelineState)->vertexShaderName.empty()) {
+            list.emplace_back(GL_VERTEX_SHADER, (*ppPipelineState)->vertexShaderName);
+        }
+
+        if (!(*ppPipelineState)->pixelShaderName.empty()) {
+            list.emplace_back(GL_FRAGMENT_SHADER, (*ppPipelineState)->pixelShaderName);
+        }
+
+        if (!(*ppPipelineState)->geometryShaderName.empty()) {
+            list.emplace_back(GL_GEOMETRY_SHADER, (*ppPipelineState)->geometryShaderName);
+        }
+
+        if (!(*ppPipelineState)->computeShaderName.empty()) {
+            list.emplace_back(GL_COMPUTE_SHADER, (*ppPipelineState)->computeShaderName);
+        }
+
+        if (!(*ppPipelineState)->tessControlShaderName.empty()) {
+            list.emplace_back(GL_TESS_CONTROL_SHADER, (*ppPipelineState)->tessControlShaderName);
+        }
+
+        if (!(*ppPipelineState)->tessEvaluateShaderName.empty()) {
+            list.emplace_back(GL_TESS_EVALUATION_SHADER, (*ppPipelineState)->tessEvaluateShaderName);
+        }
+
+        result = LoadShaderProgram(list, pnew_state->shaderProgram);
+
+        *ppPipelineState = pnew_state;
+
+        return result;
     }
 
-    void OpenGLPipelineStateManagerCommonBase::DestroyPipelineState(PipelineState& pipelineState)
+    void OpenGLPipelineStateManager::DestroyPipelineState(PipelineState& pipelineState)
     {
         OpenGLPipelineState* pPipelineState = dynamic_cast<OpenGLPipelineState*>(&pipelineState);
         glDeleteProgram(pPipelineState->shaderProgram);

@@ -27,7 +27,7 @@ namespace Rocket
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "[" << m_TimeStamp << "]" << "KeyPressedEvent: " << m_KeyCode << " (" << m_RepeatCount << " repeats)";
+			ss << "[" << TimeStamp << "]" << "KeyPressedEvent: " << m_KeyCode << " (" << m_RepeatCount << " repeats)";
 			return ss.str();
 		}
 
@@ -45,7 +45,7 @@ namespace Rocket
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "[" << m_TimeStamp << "]" << "KeyReleasedEvent: " << m_KeyCode;
+			ss << "[" << TimeStamp << "]" << "KeyReleasedEvent: " << m_KeyCode;
 			return ss.str();
 		}
 
@@ -61,7 +61,7 @@ namespace Rocket
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "[" << m_TimeStamp << "]" << "KeyTypedEvent: " << m_KeyCode;
+			ss << "[" << TimeStamp << "]" << "KeyTypedEvent: " << m_KeyCode;
 			return ss.str();
 		}
 

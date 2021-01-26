@@ -15,5 +15,10 @@ namespace Rocket
         };
         Type type;
         std::variant<int32_t, float, bool, uint32_t> var;
+
+        auto GetIndex()
+        {
+            return var.index();
+        }
     };
 }

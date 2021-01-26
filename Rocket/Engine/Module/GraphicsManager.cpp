@@ -1,4 +1,5 @@
 #include "Module/GraphicsManager.h"
+#include "Module/Application.h"
 
 namespace Rocket
 {
@@ -60,10 +61,39 @@ namespace Rocket
             pPass->EndPass(m_Frames[0]);
         }
 
+        auto config = g_Application->GetConfig();
+
         for (int32_t i = 0; i < MAX_FRAME_IN_FLIGHT; i++)
         {
             m_Frames[i] = m_Frames[0];
             m_Frames[i].frameIndex = i;
+
+            // generate shadow map array
+            if (m_Frames[i].frameContext.shadowMap.texture == -1) {
+                m_Frames[i].frameContext.shadowMap =
+                    g_GraphicsManager->GenerateShadowMapArray(
+                        config->GetConfig<uint32_t>("shadow_map_width"),
+                        config->GetConfig<uint32_t>("shadow_map_height"),
+                        config->GetConfig<uint32_t>("max_shadow_map_count"));
+            }
+
+            // generate global shadow map array
+            if (m_Frames[i].frameContext.globalShadowMap.texture == -1) {
+                m_Frames[i].frameContext.globalShadowMap =
+                    g_GraphicsManager->GenerateShadowMapArray(
+                        config->GetConfig<uint32_t>("global_shadow_map_width"),
+                        config->GetConfig<uint32_t>("global_shadow_map_height"),
+                        config->GetConfig<uint32_t>("max_global_shadow_map_count"));
+            }
+
+            // generate cube shadow map array
+            if (m_Frames[i].frameContext.cubeShadowMap.texture == -1) {
+                m_Frames[i].frameContext.cubeShadowMap =
+                    g_GraphicsManager->GenerateCubeShadowMapArray(
+                        config->GetConfig<uint32_t>("cube_shadow_map_width"),
+                        config->GetConfig<uint32_t>("cube_shadow_map_height"),
+                        config->GetConfig<uint32_t>("max_cube_shadow_map_count"));
+            }
         }
     }
 
@@ -148,7 +178,7 @@ namespace Rocket
 
         // vertices
         Point3DPtr points[8];
-        for (auto& point : points) point = CreateRef<Point3D>(bbMin);
+        for (auto& point : points) point = Ref<Point3D>(new Point3D(bbMin));
         *points[0] = *points[2] = *points[3] = *points[7] = bbMax;
         (*points[0].get())[0] = bbMin[0];
         (*points[2].get())[1] = bbMin[1];
@@ -161,22 +191,22 @@ namespace Rocket
         EdgeList edges;
 
         // top
-        edges.push_back(CreateRef<Edge>(make_pair(points[0], points[3])));
-        edges.push_back(CreateRef<Edge>(make_pair(points[3], points[2])));
-        edges.push_back(CreateRef<Edge>(make_pair(points[2], points[1])));
-        edges.push_back(CreateRef<Edge>(make_pair(points[1], points[0])));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[0], points[3]))));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[3], points[2]))));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[2], points[1]))));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[1], points[0]))));
 
         // bottom
-        edges.push_back(CreateRef<Edge>(make_pair(points[4], points[7])));
-        edges.push_back(CreateRef<Edge>(make_pair(points[7], points[6])));
-        edges.push_back(CreateRef<Edge>(make_pair(points[6], points[5])));
-        edges.push_back(CreateRef<Edge>(make_pair(points[5], points[4])));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[4], points[7]))));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[7], points[6]))));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[6], points[5]))));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[5], points[4]))));
 
         // side
-        edges.push_back(CreateRef<Edge>(make_pair(points[0], points[4])));
-        edges.push_back(CreateRef<Edge>(make_pair(points[1], points[5])));
-        edges.push_back(CreateRef<Edge>(make_pair(points[2], points[6])));
-        edges.push_back(CreateRef<Edge>(make_pair(points[3], points[7])));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[0], points[4]))));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[1], points[5]))));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[2], points[6]))));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[3], points[7]))));
 
         DrawEdgeList(edges, color);
     }
@@ -193,7 +223,7 @@ namespace Rocket
 
         // vertices
         Point3DPtr points[8];
-        for (auto& point : points) point = CreateRef<Point3D>(bbMin);
+        for (auto& point : points) point = std::shared_ptr<Point3D>(new Point3D(bbMin));
         *points[0] = *points[2] = *points[3] = *points[7] = bbMax;
         (*points[0].get())[0] = bbMin[0];
         (*points[2].get())[1] = bbMin[1];
@@ -206,22 +236,22 @@ namespace Rocket
         EdgeList edges;
 
         // top
-        edges.push_back(CreateRef<Edge>(make_pair(points[0], points[3])));
-        edges.push_back(CreateRef<Edge>(make_pair(points[3], points[2])));
-        edges.push_back(CreateRef<Edge>(make_pair(points[2], points[1])));
-        edges.push_back(CreateRef<Edge>(make_pair(points[1], points[0])));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[0], points[3]))));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[3], points[2]))));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[2], points[1]))));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[1], points[0]))));
 
         // bottom
-        edges.push_back(CreateRef<Edge>(make_pair(points[4], points[7])));
-        edges.push_back(CreateRef<Edge>(make_pair(points[7], points[6])));
-        edges.push_back(CreateRef<Edge>(make_pair(points[6], points[5])));
-        edges.push_back(CreateRef<Edge>(make_pair(points[5], points[4])));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[4], points[7]))));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[7], points[6]))));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[6], points[5]))));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[5], points[4]))));
 
         // side
-        edges.push_back(CreateRef<Edge>(make_pair(points[0], points[4])));
-        edges.push_back(CreateRef<Edge>(make_pair(points[1], points[5])));
-        edges.push_back(CreateRef<Edge>(make_pair(points[2], points[6])));
-        edges.push_back(CreateRef<Edge>(make_pair(points[3], points[7])));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[0], points[4]))));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[1], points[5]))));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[2], points[6]))));
+        edges.push_back(Ref<Edge>(new Edge(make_pair(points[3], points[7]))));
 
         DrawEdgeList(edges, trans, color);
     }

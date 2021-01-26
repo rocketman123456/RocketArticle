@@ -1,30 +1,32 @@
 #include "Core/EntryPoint.h"
 
+using namespace Rocket;
+
 int main(int argc, char **argv)
 {
     PROFILE_ENTRY();
     PROFILE_SET_THREAD(Main);
 
-    Rocket::Log::Init();
+    Log::Init();
     RK_CORE_WARN("Initialize Log");
 
-    Rocket::CommandParser Parser(argc, argv);
-    RK_CORE_INFO("CommandParser : {0}", Parser.ToString());
+    Ref<CommandParser> Parser = Ref<CommandParser>(new CommandParser(argc, argv));
+    RK_CORE_INFO("CommandParser : {0}", Parser->ToString());
 
     std::string command;
     if(argc > 1)
-        command = Parser.GetCommand(1);
+        command = Parser->GetCommand(1);
     else
         command = ProjectSourceDir;
 
-    Rocket::ConfigLoader Loader(command);
-    if(!Loader.Initialize())
+    Ref<ConfigLoader> Loader  = Ref<ConfigLoader>(new ConfigLoader(command));
+    if(!Loader->Initialize())
     {
         RK_CORE_ERROR("Config Loader Initialize Failed");
         return 1;
     }
 
-    auto app = Rocket::CreateApplication();
+    auto app = CreateApplication();
     app->LoadConfig(Loader);
 
     app->PreInitializeModule();

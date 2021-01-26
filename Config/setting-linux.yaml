@@ -1,1 +1,10 @@
 asset_path: /home/developer/Program/CppCode/RocketArticle/Asset
+shadow_map_width: 512
+shadow_map_height: 512
+cube_shadow_map_width: 512
+cube_shadow_map_height: 512
+global_shadow_map_width: 2048
+global_shadow_map_height: 2048
+max_shadow_map_count: 1
+max_cube_shadow_map_count: 1
+max_global_shadow_map_count: 1

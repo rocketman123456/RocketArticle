@@ -10,11 +10,12 @@ namespace Rocket
         OpenGLPipelineState(PipelineState&& rhs) : PipelineState(std::move(rhs)) {}
     };
 
-    class OpenGLPipelineStateManagerCommonBase : public PipelineStateManager
+    class OpenGLPipelineStateManager : public PipelineStateManager
     {
     public:
-        OpenGLPipelineStateManagerCommonBase() = default;
-        virtual ~OpenGLPipelineStateManagerCommonBase() = default;
+        RUNTIME_MODULE_TYPE(OpenGLPipelineStateManager);
+        OpenGLPipelineStateManager() = default;
+        virtual ~OpenGLPipelineStateManager() = default;
 
     protected:
         bool InitializePipelineState(PipelineState** ppPipelineState) final;

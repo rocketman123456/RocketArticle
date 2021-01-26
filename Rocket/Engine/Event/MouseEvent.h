@@ -16,7 +16,7 @@ namespace Rocket
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "[" << m_TimeStamp << "]" << "MouseMovedEvent: " << m_MouseX << ", " << m_MouseY;
+			ss << "[" << TimeStamp << "]" << "MouseMovedEvent: " << m_MouseX << ", " << m_MouseY;
 			return ss.str();
 		}
 
@@ -38,7 +38,7 @@ namespace Rocket
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "[" << m_TimeStamp << "]" << "MouseScrolledEvent: " << GetXOffset() << ", " << GetYOffset();
+			ss << "[" << TimeStamp << "]" << "MouseScrolledEvent: " << GetXOffset() << ", " << GetYOffset();
 			return ss.str();
 		}
 
@@ -70,7 +70,7 @@ namespace Rocket
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "[" << m_TimeStamp << "]" << "MouseButtonPressedEvent: " << m_Button;
+			ss << "[" << TimeStamp << "]" << "MouseButtonPressedEvent: " << m_Button;
 			return ss.str();
 		}
 
@@ -86,7 +86,7 @@ namespace Rocket
 		std::string ToString() const override
 		{
 			std::stringstream ss;
-			ss << "[" << m_TimeStamp << "]" << "MouseButtonReleasedEvent: " << m_Button;
+			ss << "[" << TimeStamp << "]" << "MouseButtonReleasedEvent: " << m_Button;
 			return ss.str();
 		}
 

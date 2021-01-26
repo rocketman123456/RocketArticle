@@ -5,9 +5,10 @@ namespace Rocket
 {
     Application* Application::s_Instance = nullptr;
 
-    void Application::LoadConfig(ConfigLoader& config)
+    void Application::LoadConfig(const Ref<ConfigLoader>& config)
     {
-        m_AssetPath = config.GetAssetPath();
+        m_Config = config;
+        m_AssetPath = config->GetAssetPath();
         RK_CORE_INFO("Asset Path {0}", m_AssetPath);
     }
 

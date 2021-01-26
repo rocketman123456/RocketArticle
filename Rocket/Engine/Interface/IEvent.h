@@ -35,18 +35,18 @@ namespace Rocket
 	enum EventCategory : uint32_t
 	{
 		None = 0,
-		EventCategoryApplication = BIT(0),
-		EventCategoryInput = BIT(1),
-		EventCategoryKeyboard = BIT(2),
-		EventCategoryMouse = BIT(3),
-		EventCategoryMouseButton = BIT(4),
-		EventCategoryAudio = BIT(5),
+		EventCategoryApplication = RK_BIT(0),
+		EventCategoryInput = RK_BIT(1),
+		EventCategoryKeyboard = RK_BIT(2),
+		EventCategoryMouse = RK_BIT(3),
+		EventCategoryMouseButton = RK_BIT(4),
+		EventCategoryAudio = RK_BIT(5),
 	};
 
 	Interface IEvent
 	{
 	public:
-		IEvent() { m_TimeStamp = g_GlobalTimer->GetExactTime(); }
+		IEvent() { TimeStamp = g_GlobalTimer->GetExactTime(); }
 		virtual ~IEvent() = default;
 
 		virtual EventType GetEventType() const = 0;
@@ -57,7 +57,7 @@ namespace Rocket
 		inline bool IsInCategory(EventCategory category) { return GetCategoryFlags() & static_cast<int>(category); }
 
 		bool Handled = false;
-		double m_TimeStamp = 0.0f;
+		double TimeStamp = 0.0f;
 	};
 
 	inline std::ostream &operator << (std::ostream &os, const IEvent &e)
@@ -69,27 +69,28 @@ namespace Rocket
 	using EventVar = Vec<Variant>;
 	using EventVarPtr = Ref<Variant[]>;
 
-	Interface IEvent_
+	Interface _IEvent_
 	{
 	public:
-		IEvent_(const EventVar& var) : m_Var(var) { m_TimeStamp = g_GlobalTimer->GetExactTime(); }
-		virtual ~IEvent_() = default;
+		_IEvent_(const EventVarPtr& var, uint32_t count) : Var(var), Count(count) { TimeStamp = g_GlobalTimer->GetExactTime(); }
+		virtual ~_IEvent_() = default;
 
 		virtual EventType GetEventType() const = 0;
 		virtual const char* GetName() const = 0;
 		virtual std::string ToString() const { return GetName(); }
 
 		bool Handled = false;
-		double m_TimeStamp = 0.0f;
-		EventVar m_Var;
+		double TimeStamp = 0.0f;
+		EventVarPtr Var;
+		uint32_t Count;
 	};
 
-	inline std::ostream &operator << (std::ostream &os, const IEvent_ &e)
+	inline std::ostream &operator << (std::ostream &os, const _IEvent_ &e)
 	{
 		os << e.ToString();
-		for(auto var : e.m_Var)
+		for(int i = 0; i < e.Count; ++i)
 		{
-			os << var.var.index() << " ";
+			os << (*e.Var)[i].GetIndex() << " ";
 		}
 		return os;
 	}

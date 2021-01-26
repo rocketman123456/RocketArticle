@@ -34,7 +34,7 @@ namespace Rocket
 		return m_Shaders[name];
 	}
 
-	inline bool ShaderLibrary::Exists(const std::string &name) const
+	bool ShaderLibrary::Exists(const std::string &name) const
 	{
 		return m_Shaders.find(name) != m_Shaders.end();
 	}

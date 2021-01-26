@@ -43,3 +43,6 @@
 [submodule "Thirdparty/bullet3"]
 	path = Thirdparty/bullet3
 	url = https://github.com/bulletphysics/bullet3.git
+[submodule "Thirdparty/box2d"]
+	path = Thirdparty/box2d
+	url = https://github.com/erincatto/box2d.git

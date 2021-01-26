@@ -1,6 +1,7 @@
 #include "Module/EventManager.h"
 #include "Module/WindowManager.h"
 #include "Module/Application.h"
+#include "Module/GraphicsManager.h"
 
 #include "Event/ApplicationEvent.h"
 #include "Event/AudioEvent.h"
@@ -131,6 +132,7 @@ namespace Rocket
     void EventManager::SetupListener()
     {
         AddListener(REGISTER_DELEGATE_CLASS(Application::OnWindowClose, *g_Application), EventType::WindowClose);
+        AddListener(REGISTER_DELEGATE_CLASS(GraphicsManager::OnWindowResize, *g_GraphicsManager), EventType::WindowResize);
     }
 
     void EventManager::Finalize()
