@@ -20,7 +20,8 @@ int main(int argc, char **argv)
         command = ProjectSourceDir;
 
     Ref<ConfigLoader> Loader  = Ref<ConfigLoader>(new ConfigLoader(command));
-    if(!Loader->Initialize())
+    int ret = Loader->Initialize();
+    if(ret != 0)
     {
         RK_CORE_ERROR("Config Loader Initialize Failed");
         return 1;

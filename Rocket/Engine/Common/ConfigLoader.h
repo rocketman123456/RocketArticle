@@ -2,6 +2,7 @@
 #include "Core/Core.h"
 
 #include <yaml-cpp/yaml.h>
+#include <unordered_map>
 
 namespace Rocket
 {
@@ -13,24 +14,33 @@ namespace Rocket
 
         int Initialize()
         {
-            auto config_file = m_Path + "/Config/setting-linux.yaml";
-            m_Config = YAML::LoadFile(config_file);
+            std::string config_file;
+#if defined(PLATFORM_LINUX)
+            config_file = m_Path + "/Config/setting-linux.yaml";
+#elif defined(PLATFORM_WINDOWS)
+            config_file = m_Path + "/Config/setting-windows.yaml";
+#elif defined(PLATFORM_APPLE)
+            config_file = m_Path + "/Config/setting-mac.yaml";
+#endif
+            m_ConfigMap["Path"] = YAML::LoadFile(config_file);
+            config_file = m_Path + "/Config/setting-graphics.yaml";
+            m_ConfigMap["Graphics"] = YAML::LoadFile(config_file);
             return 0;
         }
 
         std::string GetAssetPath()
         {
-            return m_Config["asset_path"].as<std::string>();
+            return m_ConfigMap["Path"]["asset_path"].as<std::string>();
         }
 
         template<typename T>
-        T GetConfig(const std::string& name)
+        T GetConfigInfo(const std::string& category, const std::string& name)
         {
-            return m_Config[name].as<T>();
+            return m_ConfigMap[category][name].as<T>();
         }
 
     private:
         std::string m_Path;
-        YAML::Node m_Config;
+        std::unordered_map<std::string, YAML::Node> m_ConfigMap;
     };
 }

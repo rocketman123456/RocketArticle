@@ -1,6 +1,7 @@
 #include "OpenGL/OpenGLGraphicsManager.h"
 #include "OpenGL/OpenGLPipelineStateManager.h"
 #include "Module/WindowManager.h"
+#include "Module/Application.h"
 #include "Event/ApplicationEvent.h"
 
 #include <GLFW/glfw3.h>
@@ -94,8 +95,7 @@ namespace Rocket
     {
         PROFILE_BIND_OPENGL();
 
-        m_WindowHandle =
-            static_cast<GLFWwindow *>(g_WindowManager->GetNativeWindow());
+        m_WindowHandle = static_cast<GLFWwindow *>(g_WindowManager->GetNativeWindow());
 
         glfwMakeContextCurrent(m_WindowHandle);
         int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
@@ -106,14 +106,12 @@ namespace Rocket
         RK_GRAPHICS_INFO("  Renderer: {0}", glGetString(GL_RENDERER));
         RK_GRAPHICS_INFO("  Version: {0}", glGetString(GL_VERSION));
 
+        auto config = g_Application->GetConfig();
+
         if (m_VSync)
-        {
             glfwSwapInterval(1);
-        }
         else
-        {
             glfwSwapInterval(0);
-        }
 
         int flags;
         glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
@@ -283,6 +281,27 @@ namespace Rocket
             glUniformBlockBinding(m_CurrentShader, blockIndex, 13);
             glBindBufferBase(GL_UNIFORM_BUFFER, 13, m_uboShadowMatricesConstant[frame.frameIndex]);
         }
+
+        // Set common textures
+        // Bind LUT table
+        //auto texture_id = frame.brdfLUT;
+        //setShaderParameter("SPIRV_Cross_CombinedbrdfLUTsamp0", 6);
+        //glActiveTexture(GL_TEXTURE6);
+        //if (texture_id.texture > 0) {
+        //    glBindTexture(GL_TEXTURE_2D, texture_id.texture);
+        //} else {
+        //    glBindTexture(GL_TEXTURE_2D, 0);
+        //}
+
+        // Set Sky Box
+        //setShaderParameter("SPIRV_Cross_Combinedskyboxsamp0", 10);
+        //glActiveTexture(GL_TEXTURE10);
+        //GLenum target;
+        //target = GL_TEXTURE_CUBE_MAP_ARRAY;
+        //texture_id = m_Textures["SKYBOX"];
+        //if (texture_id.texture >= 0) {
+        //    glBindTexture(target, (GLuint)texture_id.texture);
+        //}
     }
 
     void OpenGLGraphicsManager::BeginFrame(const Frame &frame)
@@ -461,7 +480,6 @@ namespace Rocket
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
-
         glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, nullptr);
 
         // Bind the vertex buffer and load the vertex (uv) data into the vertex
@@ -470,7 +488,6 @@ namespace Rocket
         glBufferData(GL_ARRAY_BUFFER, sizeof(uv), uv, GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(1);
-
         glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, nullptr);
 
         glDrawArrays(GL_TRIANGLE_STRIP, 0x00, 4);

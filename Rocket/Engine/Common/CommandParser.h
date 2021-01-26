@@ -37,4 +37,10 @@ namespace Rocket
         int32_t m_CommandCount;
         Vec<std::string> m_CommandList;
     };
+
+    inline std::ostream &operator << (std::ostream &os, const CommandParser &c)
+	{
+		os << c.ToString();
+		return os;
+	}
 }

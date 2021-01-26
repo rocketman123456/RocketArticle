@@ -72,27 +72,27 @@ namespace Rocket
             if (m_Frames[i].frameContext.shadowMap.texture == -1) {
                 m_Frames[i].frameContext.shadowMap =
                     g_GraphicsManager->GenerateShadowMapArray(
-                        config->GetConfig<uint32_t>("shadow_map_width"),
-                        config->GetConfig<uint32_t>("shadow_map_height"),
-                        config->GetConfig<uint32_t>("max_shadow_map_count"));
+                        config->GetConfigInfo<uint32_t>("Graphics", "shadow_map_width"),
+                        config->GetConfigInfo<uint32_t>("Graphics", "shadow_map_height"),
+                        config->GetConfigInfo<uint32_t>("Graphics", "max_shadow_map_count"));
             }
 
             // generate global shadow map array
             if (m_Frames[i].frameContext.globalShadowMap.texture == -1) {
                 m_Frames[i].frameContext.globalShadowMap =
                     g_GraphicsManager->GenerateShadowMapArray(
-                        config->GetConfig<uint32_t>("global_shadow_map_width"),
-                        config->GetConfig<uint32_t>("global_shadow_map_height"),
-                        config->GetConfig<uint32_t>("max_global_shadow_map_count"));
+                        config->GetConfigInfo<uint32_t>("Graphics", "global_shadow_map_width"),
+                        config->GetConfigInfo<uint32_t>("Graphics", "global_shadow_map_height"),
+                        config->GetConfigInfo<uint32_t>("Graphics", "max_global_shadow_map_count"));
             }
 
             // generate cube shadow map array
             if (m_Frames[i].frameContext.cubeShadowMap.texture == -1) {
                 m_Frames[i].frameContext.cubeShadowMap =
                     g_GraphicsManager->GenerateCubeShadowMapArray(
-                        config->GetConfig<uint32_t>("cube_shadow_map_width"),
-                        config->GetConfig<uint32_t>("cube_shadow_map_height"),
-                        config->GetConfig<uint32_t>("max_cube_shadow_map_count"));
+                        config->GetConfigInfo<uint32_t>("Graphics", "cube_shadow_map_width"),
+                        config->GetConfigInfo<uint32_t>("Graphics", "cube_shadow_map_height"),
+                        config->GetConfigInfo<uint32_t>("Graphics", "max_cube_shadow_map_count"));
             }
         }
     }
