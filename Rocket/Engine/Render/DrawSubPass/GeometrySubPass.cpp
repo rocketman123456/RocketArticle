@@ -4,6 +4,5 @@ namespace Rocket
 {
     void GeometrySubPass::Draw(Frame& frame)
     {
-
     }
 }

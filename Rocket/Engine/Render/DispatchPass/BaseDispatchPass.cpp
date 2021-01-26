@@ -4,10 +4,10 @@
 namespace Rocket
 {
     void BaseDispatchPass::BeginPass([[maybe_unused]] Frame& frame) {
-        g_pGraphicsManager->BeginCompute(); 
+        g_GraphicsManager->BeginCompute(); 
     }
 
     void BaseDispatchPass::EndPass([[maybe_unused]] Frame& frame) {
-        g_pGraphicsManager->EndCompute(); 
+        g_GraphicsManager->EndCompute(); 
     }
 }

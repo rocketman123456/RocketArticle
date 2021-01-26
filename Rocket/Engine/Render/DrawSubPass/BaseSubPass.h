@@ -5,7 +5,7 @@ namespace Rocket
 {
     class BaseSubPass : implements IDrawSubPass {
     public:
-        void BeginSubPass() override{};
-        void EndSubPass() override{};
+        void BeginSubPass() override {};
+        void EndSubPass() override {};
     };
 }

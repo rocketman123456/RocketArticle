@@ -12,7 +12,8 @@ namespace Rocket
     ENUM(PIXEL_FORMAT){INVALID, BGRA8UNORM};
     enum A2V_TYPES {A2V_TYPES_NONE, A2V_TYPES_FULL, A2V_TYPES_SIMPLE, A2V_TYPES_POS_ONLY, A2V_TYPES_CUBE};
 
-    struct PipelineState {
+    struct PipelineState
+    {
         virtual ~PipelineState() = default;
 
         std::string pipelineStateName;
@@ -44,6 +45,6 @@ namespace Rocket
         virtual void UnregisterPipelineState(PipelineState & pipelineState) = 0;
         virtual void Clear() = 0;
 
-        [[nodiscard]] virtual const std::shared_ptr<PipelineState> GetPipelineState(const std::string& name) const = 0;
+        [[nodiscard]] virtual const Ref<PipelineState> GetPipelineState(const std::string& name) const = 0;
     };
 }

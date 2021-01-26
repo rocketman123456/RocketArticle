@@ -10,11 +10,20 @@ add_library( RocketEngine
     Module/EventManager.cpp
     Module/GraphicsManager.cpp
     Module/MemoryManager.cpp
+    Module/PipelineStateManager.cpp
     Module/ProcessManager.cpp
     Module/SceneManager.cpp
     Module/WindowManager.cpp
     # Process
     Process/Process.cpp
+    # Render
+    Render/Shader.cpp
+    Render/DispatchPass/BaseDispatchPass.cpp
+    Render/DrawPass/BaseDrawPass.cpp
+    Render/DrawSubPass/GeometrySubPass.cpp
+    Render/DrawSubPass/GuiSubPass.cpp
+    # Scene
+    Scene/Scene.cpp
     # Utils
     Utils/Timer.cpp
 )

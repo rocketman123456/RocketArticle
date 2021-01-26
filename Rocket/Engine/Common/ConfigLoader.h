@@ -24,6 +24,12 @@ namespace Rocket
             return m_AssetPath;
         }
 
+        template<typename T>
+        T GetConfig(const std::string& name)
+        {
+            return m_Config[name].as<T>();
+        }
+
     private:
         std::string m_Path;
         std::string m_AssetPath;

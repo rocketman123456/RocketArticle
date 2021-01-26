@@ -1,5 +1,5 @@
 #pragma once
-#include "Interface/IDispatchPass.hpp"
+#include "Interface/IDispatchPass.h"
 
 namespace Rocket
 {

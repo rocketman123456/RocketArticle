@@ -24,25 +24,23 @@ namespace Rocket
 			glfwSetErrorCallback(GLFWErrorCallback);
 		}
 
-		{
 #if defined(RK_OPENGL)
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	#if defined(PLATFORM_APPLE)
-			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	#endif
 #elif defined(RK_VULKAN) || defined(RK_METAL)
-			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 #endif
 #if defined(RK_DEBUG)
-			glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 #endif
-			glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+		glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-			m_Window = glfwCreateWindow((int)m_Props.Width, (int)m_Props.Height, m_Props.Title.c_str(), nullptr, nullptr);
-			++s_GLFWWindowCount;
-		}
+		m_Window = glfwCreateWindow((int)m_Props.Width, (int)m_Props.Height, m_Props.Title.c_str(), nullptr, nullptr);
+		++s_GLFWWindowCount;
 	}
 
 	void WindowImplement::Finalize()
@@ -54,9 +52,5 @@ namespace Rocket
 		{
 			glfwTerminate();
 		}
-	}
-
-	void WindowImplement::Tick()
-	{
 	}
 }

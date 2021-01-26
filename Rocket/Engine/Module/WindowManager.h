@@ -14,7 +14,7 @@ namespace Rocket
         virtual int Initialize() final;
         virtual void Finalize() final;
 
-        virtual void Tick(Timestep ts) final;
+        virtual void Tick(Timestep ts) final {}
 
         const Ref<Window> GetWindow() { return m_Window; }
         void* GetNativeWindow() { return m_Window->GetNativeWindow(); }

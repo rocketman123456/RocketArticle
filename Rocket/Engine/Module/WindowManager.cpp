@@ -20,13 +20,4 @@ namespace Rocket
     {
         m_Window->Finalize();
     }
-
-    void WindowManager::Tick(Timestep ts)
-    {
-        PROFILE_BEGIN_CPU_SAMPLE(WindowManagerUpdate, 0);
-
-        m_Window->Tick();
-
-        PROFILE_END_CPU_SAMPLE();
-    }
 }
