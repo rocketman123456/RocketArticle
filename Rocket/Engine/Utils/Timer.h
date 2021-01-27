@@ -5,8 +5,7 @@
 
 namespace Rocket
 {
-    #define TIMER_COUNT(x) std::chrono::time_point_cast<std::chrono::microseconds>(x)\
-            .time_since_epoch().count()
+    #define TIMER_COUNT(x) std::chrono::time_point_cast<std::chrono::microseconds>(x).time_since_epoch().count()
     // TODO : make timer thread safe
 	class ElapseTimer
 	{

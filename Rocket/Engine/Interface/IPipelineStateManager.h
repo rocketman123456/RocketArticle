@@ -16,26 +16,26 @@ namespace Rocket
     {
         virtual ~PipelineState() = default;
 
-        std::string pipelineStateName;
-        PIPELINE_TYPE pipelineType{PIPELINE_TYPE::GRAPHIC};
+        std::string         pipelineStateName;
+        PIPELINE_TYPE       pipelineType{PIPELINE_TYPE::GRAPHIC};
 
-        std::string vertexShaderName;
-        std::string pixelShaderName;
-        std::string computeShaderName;
-        std::string geometryShaderName;
-        std::string tessControlShaderName;
-        std::string tessEvaluateShaderName;
-        std::string meshShaderName;
+        std::string         vertexShaderName;
+        std::string         pixelShaderName;
+        std::string         computeShaderName;
+        std::string         geometryShaderName;
+        std::string         tessControlShaderName;
+        std::string         tessEvaluateShaderName;
+        std::string         meshShaderName;
 
-        DEPTH_TEST_MODE depthTestMode{DEPTH_TEST_MODE::ALWAYS};
-        bool bDepthWrite{true};
-        STENCIL_TEST_MODE stencilTestMode{STENCIL_TEST_MODE::NONE};
-        CULL_FACE_MODE cullFaceMode{CULL_FACE_MODE::BACK};
-        PIXEL_FORMAT pixelFormat{PIXEL_FORMAT::BGRA8UNORM};
-        uint32_t sampleCount{1};
+        DEPTH_TEST_MODE     depthTestMode{DEPTH_TEST_MODE::ALWAYS};
+        bool                bDepthWrite{true};
+        STENCIL_TEST_MODE   stencilTestMode{STENCIL_TEST_MODE::NONE};
+        CULL_FACE_MODE      cullFaceMode{CULL_FACE_MODE::BACK};
+        PIXEL_FORMAT        pixelFormat{PIXEL_FORMAT::BGRA8UNORM};
+        uint32_t            sampleCount{1};
 
-        A2V_TYPES a2vType{A2V_TYPES::A2V_TYPES_NONE};
-        PIPELINE_FLAG flag;
+        A2V_TYPES           a2vType{A2V_TYPES::A2V_TYPES_NONE};
+        PIPELINE_FLAG       flag;
     };
 
     Interface IPipelineStateManager : inheritance IRuntimeModule

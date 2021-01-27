@@ -1,5 +1,6 @@
 message(STATUS "Add Module RHI OpenGL")
 add_library( RendererOpenGL
+    OpenGLShader.cpp
     OpenGLGraphicsManager.cpp
     OpenGLPipelineStateManager.cpp
 )

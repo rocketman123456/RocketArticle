@@ -1,11 +1,14 @@
 #include "Module/PipelineStateManager.h"
+#include "Module/Application.h"
 
 #define VS_BASIC_SOURCE_FILE "basic.vert"
 #define PS_BASIC_SOURCE_FILE "basic.frag"
 #define VS_DRAW2D_SOURCE_FILE "draw2d.vert"
 #define PS_DRAW2D_SOURCE_FILE "draw2d.frag"
-#define DEBUG_VS_SHADER_SOURCE_FILE "debug.vert"
-#define DEBUG_PS_SHADER_SOURCE_FILE "debug.frag"
+//#define DEBUG_VS_SHADER_SOURCE_FILE "debug.vert"
+//#define DEBUG_PS_SHADER_SOURCE_FILE "debug.frag"
+#define VS_PASSTHROUGH_SOURCE_FILE "passthrough.vert"
+#define PS_TEXTURE_SOURCE_FILE "texture.frag"
 
 namespace Rocket
 {
@@ -62,6 +65,8 @@ namespace Rocket
 
     int PipelineStateManager::Initialize()
     {
+        auto config = g_Application->GetConfig();
+
         PipelineState pipelineState;
         pipelineState.pipelineStateName = "Basic";
         pipelineState.pipelineType = PIPELINE_TYPE::GRAPHIC;
@@ -71,7 +76,7 @@ namespace Rocket
         pipelineState.bDepthWrite = true;
         pipelineState.stencilTestMode = STENCIL_TEST_MODE::NONE;
         pipelineState.cullFaceMode = CULL_FACE_MODE::BACK;
-        //pipelineState.sampleCount = g_pApp->GetConfiguration().msaaSamples;
+        pipelineState.sampleCount = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
         pipelineState.a2vType = A2V_TYPES::A2V_TYPES_FULL;
         pipelineState.flag = PIPELINE_FLAG::NONE;
         RegisterPipelineState(pipelineState);
@@ -84,17 +89,24 @@ namespace Rocket
         pipelineState.bDepthWrite = true;
         pipelineState.stencilTestMode = STENCIL_TEST_MODE::NONE;
         pipelineState.cullFaceMode = CULL_FACE_MODE::BACK;
-        //pipelineState.sampleCount = g_pApp->GetConfiguration().msaaSamples;
+        pipelineState.sampleCount = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
         pipelineState.a2vType = A2V_TYPES::A2V_TYPES_FULL;
         pipelineState.flag = PIPELINE_FLAG::NONE;
         RegisterPipelineState(pipelineState);
 
-        pipelineState.pipelineStateName = "Debug Draw";
-        pipelineState.vertexShaderName = DEBUG_VS_SHADER_SOURCE_FILE;
-        pipelineState.pixelShaderName = DEBUG_PS_SHADER_SOURCE_FILE;
+        pipelineState.pipelineStateName = "Texture Debug Draw";
+        pipelineState.vertexShaderName = VS_PASSTHROUGH_SOURCE_FILE;
+        pipelineState.pixelShaderName = PS_TEXTURE_SOURCE_FILE;
+        pipelineState.cullFaceMode = CULL_FACE_MODE::BACK;
+        pipelineState.a2vType = A2V_TYPES::A2V_TYPES_SIMPLE;
+        pipelineState.depthTestMode = DEPTH_TEST_MODE::ALWAYS;
+        pipelineState.bDepthWrite = true;
+        pipelineState.pixelFormat = PIXEL_FORMAT::BGRA8UNORM;
+        pipelineState.sampleCount = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
+        pipelineState.flag = PIPELINE_FLAG::DEBUG_DRAW;
         RegisterPipelineState(pipelineState);
 
-        RK_CORE_INFO("Pipeline State Manager Initialized. [{}]", m_pipelineStates.size());
+        RK_CORE_INFO("Pipeline State Manager Initialized. Add [{}] Pipelines", m_pipelineStates.size());
         return 0;
     }
 

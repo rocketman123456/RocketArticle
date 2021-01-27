@@ -46,11 +46,13 @@ namespace Rocket
 
     int Application::Initialize()
     {
+        RK_CORE_INFO("Application Initialize");
         return 0;
     }
 
     void Application::Finalize()
     {
+        RK_CORE_INFO("Application Finalize");
     }
 
     void Application::PushModule(IRuntimeModule *module)
