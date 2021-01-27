@@ -7,6 +7,17 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
+#define IMGUI_IMPL_OPENGL_LOADER_GLAD
+#include "imgui.h"
+#include "backends/imgui_impl_opengl3.h"
+#include "backends/imgui_impl_opengl3.cpp"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_glfw.cpp"
+#if defined(PLATFORM_WINDOWS)
+#include "backends/imgui_impl_win32.h"
+#include "backends/imgui_impl_win32.cpp"
+#endif
+
 static void OpenGLMessageCallback(unsigned source, unsigned type, unsigned id,
                                   unsigned severity, int length,
                                   const char *message, const void *userParam)
@@ -93,7 +104,14 @@ namespace Rocket
 
     int OpenGLGraphicsManager::Initialize()
     {
-        PROFILE_BIND_OPENGL();
+        //PROFILE_BIND_OPENGL();
+
+        int ret = GraphicsManager::Initialize();
+        if(ret != 0)
+        {
+            RK_GRAPHICS_ERROR("GraphicsManager Initialize Error");
+            return ret;
+        }
 
         m_WindowHandle = static_cast<GLFWwindow *>(g_WindowManager->GetNativeWindow());
 
@@ -120,33 +138,78 @@ namespace Rocket
             glEnable(GL_DEBUG_OUTPUT);
             glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
             glDebugMessageCallback(OpenGLMessageCallback, nullptr);
-            glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE,
-                                  GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL,
-                                  GL_FALSE);
+            glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, GL_FALSE);
         }
 
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        // ImGui Init
+        // Setup Dear ImGui context
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
+        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+        //io.ConfigViewportsNoAutoMerge = true;
+        //io.ConfigViewportsNoTaskBarIcon = true;
 
-        glEnable(GL_DEPTH_TEST);
+        // Setup Dear ImGui style
+        ImGui::StyleColorsDark();
+        //ImGui::StyleColorsClassic();
+
+        // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows 
+        // can look identical to regular ones.
+        ImGuiStyle& style = ImGui::GetStyle();
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            style.WindowRounding = 0.0f;
+            style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+        }
+
+        // Load Fonts
+        // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
+        // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
+        // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
+        // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
+        // - Read 'docs/FONTS.md' for more instructions and details.
+        // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
+        //io.Fonts->AddFontDefault();
+        //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
+        //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
+        //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
+        //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
+        //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
+        //IM_ASSERT(font != NULL);
+
+        ImGui_ImplGlfw_InitForOpenGL(m_WindowHandle, true);
+        ImGui_ImplOpenGL3_Init("#version 410");
 
         return 0;
     }
 
-    void OpenGLGraphicsManager::Finalize() { PROFILE_UNBIND_OPENGL(); }
+    void OpenGLGraphicsManager::Finalize()
+    {
+        // Cleanup
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
+        // Finalize
+        GraphicsManager::Finalize();
+        //PROFILE_UNBIND_OPENGL();
+    }
 
     void OpenGLGraphicsManager::Present() { SwapBuffers(); }
 
     void OpenGLGraphicsManager::Tick(Timestep ts)
     {
-        PROFILE_SCOPE_OPENGL(OpenGLTick);
-        PROFILE_BEGIN_OPENGL(OpenGLRender);
+        //PROFILE_SCOPE_OPENGL(OpenGLTick);
+        //PROFILE_BEGIN_OPENGL(OpenGLRender);
         PROFILE_BEGIN_CPU_SAMPLE(OpenGLGraphicsManagerUpdate, 0);
 
         GraphicsManager::Tick(ts);
 
         PROFILE_END_CPU_SAMPLE();
-        PROFILE_END_OPENGL();
+        //PROFILE_END_OPENGL();
     }
 
     void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineState, const Frame &frame)
@@ -224,45 +287,33 @@ namespace Rocket
 
         // Prepare & Bind per frame constant buffer
         uint32_t blockIndex = glGetUniformBlockIndex(m_CurrentShader, "PerFrameConstants");
-
         if (blockIndex != GL_INVALID_INDEX)
         {
             int32_t blockSize;
-
             glGetActiveUniformBlockiv(m_CurrentShader, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-
-            assert(blockSize >= sizeof(PerFrameConstants));
-
+            RK_CORE_ASSERT(blockSize >= sizeof(PerFrameConstants), "Shader PerFrameConstants Not Exist");
             glUniformBlockBinding(m_CurrentShader, blockIndex, 10);
             glBindBufferBase(GL_UNIFORM_BUFFER, 10, m_uboDrawFrameConstant[frame.frameIndex]);
         }
 
         // Prepare per batch constant buffer binding point
         blockIndex = glGetUniformBlockIndex(m_CurrentShader, "PerBatchConstants");
-
         if (blockIndex != GL_INVALID_INDEX)
         {
             int32_t blockSize;
-
             glGetActiveUniformBlockiv(m_CurrentShader, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-
-            assert(blockSize >= sizeof(PerBatchConstants));
-
+            RK_CORE_ASSERT(blockSize >= sizeof(PerBatchConstants), "Shader PerBatchConstants Not Exist");
             glUniformBlockBinding(m_CurrentShader, blockIndex, 11);
             glBindBufferBase(GL_UNIFORM_BUFFER, 11, m_uboDrawBatchConstant[frame.frameIndex]);
         }
 
         // Prepare & Bind light info
         blockIndex = glGetUniformBlockIndex(m_CurrentShader, "LightInfo");
-
         if (blockIndex != GL_INVALID_INDEX)
         {
             int32_t blockSize;
-
             glGetActiveUniformBlockiv(m_CurrentShader, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-
-            assert(blockSize >= sizeof(LightInfo));
-
+            RK_CORE_ASSERT(blockSize >= sizeof(LightInfo), "Shader LightInfo Not Exist");
             glUniformBlockBinding(m_CurrentShader, blockIndex, 12);
             glBindBufferBase(GL_UNIFORM_BUFFER, 12, m_uboLightInfo[frame.frameIndex]);
         }
@@ -270,14 +321,10 @@ namespace Rocket
         if (pPipelineState->flag == PIPELINE_FLAG::SHADOW)
         {
             uint32_t blockIndex = glGetUniformBlockIndex(m_CurrentShader, "ShadowMapConstants");
-            assert(blockIndex != GL_INVALID_INDEX);
-
+            RK_CORE_ASSERT(blockIndex != GL_INVALID_INDEX, "Shader ShadowMapConstants Index Not Exist");
             int32_t blockSize;
-
             glGetActiveUniformBlockiv(m_CurrentShader, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-
-            assert(blockSize >= sizeof(ShadowMapConstants));
-
+            RK_CORE_ASSERT(blockSize >= sizeof(ShadowMapConstants), "Shader ShadowMapConstants Not Exist");
             glUniformBlockBinding(m_CurrentShader, blockIndex, 13);
             glBindBufferBase(GL_UNIFORM_BUFFER, 13, m_uboShadowMatricesConstant[frame.frameIndex]);
         }
@@ -307,20 +354,37 @@ namespace Rocket
     void OpenGLGraphicsManager::BeginFrame(const Frame &frame)
     {
         // Set the color to clear the screen to.
-        glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         // Clear the screen and depth buffer.
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         SetPerFrameConstants(frame.frameContext);
         SetLightInfo(frame.lightInfo);
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
     }
 
     void OpenGLGraphicsManager::EndFrame(const Frame &frame)
     {
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        // Update and Render additional Platform Windows
+        // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
+        //  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        {
+            GLFWwindow* backup_current_context = glfwGetCurrentContext();
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault();
+            glfwMakeContextCurrent(backup_current_context);
+        }
+
         GraphicsManager::EndFrame(frame);
     }
 
-    void OpenGLGraphicsManager::EndScene(const Scene &scene)
+    void OpenGLGraphicsManager::EndScene()
     {
         for (int i = 0; i < m_Frames.size(); i++)
         {
@@ -395,7 +459,7 @@ namespace Rocket
         m_Buffers.clear();
         m_Textures.clear();
 
-        GraphicsManager::EndScene(scene);
+        GraphicsManager::EndScene();
     }
 
     void OpenGLGraphicsManager::SetPerFrameConstants(const DrawFrameContext &context)
@@ -405,12 +469,9 @@ namespace Rocket
             glGenBuffers(1, &m_uboDrawFrameConstant[m_nFrameIndex]);
         }
 
-        glBindBuffer(GL_UNIFORM_BUFFER, m_uboDrawFrameConstant[m_nFrameIndex]);
-
         auto constants = static_cast<PerFrameConstants>(context);
-
+        glBindBuffer(GL_UNIFORM_BUFFER, m_uboDrawFrameConstant[m_nFrameIndex]);
         glBufferData(GL_UNIFORM_BUFFER, kSizePerFrameConstantBuffer, &constants, GL_DYNAMIC_DRAW);
-
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 
@@ -421,12 +482,9 @@ namespace Rocket
             glGenBuffers(1, &m_uboDrawBatchConstant[m_nFrameIndex]);
         }
 
-        glBindBuffer(GL_UNIFORM_BUFFER, m_uboDrawBatchConstant[m_nFrameIndex]);
-
         const auto &constant = static_cast<const PerBatchConstants &>(context);
-
+        glBindBuffer(GL_UNIFORM_BUFFER, m_uboDrawBatchConstant[m_nFrameIndex]);
         glBufferData(GL_UNIFORM_BUFFER, kSizePerBatchConstantBuffer, &constant, GL_DYNAMIC_DRAW);
-
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 
@@ -438,9 +496,7 @@ namespace Rocket
         }
 
         glBindBuffer(GL_UNIFORM_BUFFER, m_uboLightInfo[m_nFrameIndex]);
-
         glBufferData(GL_UNIFORM_BUFFER, kSizeLightInfo, &lightInfo, GL_DYNAMIC_DRAW);
-
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 
@@ -500,7 +556,6 @@ namespace Rocket
                                                                  const uint32_t count)
     {
         texture_id result;
-
         uint32_t shadowMap;
 
         glGenTextures(1, &shadowMap);
@@ -527,7 +582,6 @@ namespace Rocket
                                                              const uint32_t count)
     {
         texture_id result;
-
         uint32_t shadowMap;
 
         glGenTextures(1, &shadowMap);

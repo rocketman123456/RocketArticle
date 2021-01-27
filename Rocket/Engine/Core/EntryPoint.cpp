@@ -26,6 +26,7 @@ int main(int argc, char **argv)
         RK_CORE_ERROR("Config Loader Initialize Failed");
         return 1;
     }
+    RK_CORE_INFO("ConfigLoader : {0}", Loader->ToString());
 
     auto app = CreateApplication();
     app->LoadConfig(Loader);

@@ -25,9 +25,6 @@ namespace Rocket
 
         virtual void Tick(Timestep ts) override;
 
-        void InitConstants() {}
-        void UpdateConstants();
-
         virtual void SetPipelineState(const Ref<PipelineState> &pipelineState, const Frame &frame) {}
 
         virtual void BeginPass(const Frame &frame) {}
@@ -40,7 +37,7 @@ namespace Rocket
         virtual void EndFrame(const Frame &frame);
 
         virtual void BeginScene(const Scene &scene);
-        virtual void EndScene(const Scene &scene);
+        virtual void EndScene();
 
         virtual void BeginShadowMap(const int32_t light_index, const texture_id &shadowmap, const Frame &frame) {}
         virtual void EndShadowMap(const texture_id &shadowmap) {}
@@ -98,6 +95,11 @@ namespace Rocket
 
     protected:
         virtual void SwapBuffers() = 0;
+
+        void InitConstants() {}
+        void UpdateConstants();
+        void CalculateCameraMatrix();
+        void CalculateLights();
 
     protected:
         uint32_t m_nFrameIndex;

@@ -30,7 +30,7 @@ namespace Rocket
         void SetLightInfo(const LightInfo& lightInfo);
 
         void BeginScene(const Scene& scene) final { GraphicsManager::BeginScene(scene); }
-        void EndScene(const Scene& scene) final;
+        void EndScene() final;
 
         void GenerateTexture(const char* id, const uint32_t width, const uint32_t height) final {}
         //void CreateTexture(SceneObjectTexture& texture) final {}

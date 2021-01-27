@@ -3,6 +3,7 @@
 
 #include <yaml-cpp/yaml.h>
 #include <unordered_map>
+#include <sstream>
 
 namespace Rocket
 {
@@ -39,8 +40,21 @@ namespace Rocket
             return m_ConfigMap[category][name].as<T>();
         }
 
+        std::string ToString() const
+		{
+			std::stringstream ss;
+            ss << "Config Path : " << m_Path;
+			return ss.str();
+		}
+
     private:
         std::string m_Path;
         std::unordered_map<std::string, YAML::Node> m_ConfigMap;
     };
+
+    inline std::ostream &operator << (std::ostream &os, const ConfigLoader &c)
+	{
+		os << c.ToString();
+		return os;
+	}
 }

@@ -18,12 +18,12 @@ namespace Rocket
         Rocket::g_GlobalTimer->InitTime();
 
         int ret = 0;
-        for (auto &module : m_Modules)
+        for (auto iter = m_Modules.begin(); iter != m_Modules.end(); iter++)
         {
-            RK_CORE_INFO("Initialize Module {0}", module->GetName());
-            if ((ret = module->Initialize()) != 0)
+            RK_CORE_INFO("Initialize Module {0}", (*iter)->GetName());
+            if ((ret = (*iter)->Initialize()) != 0)
             {
-                RK_CORE_ERROR("Failed. err = {0}, {1}", ret, module->GetName());
+                RK_CORE_ERROR("Failed. err = {0}, {1}", ret, (*iter)->GetName());
                 return ret;
             }
         }
@@ -32,12 +32,12 @@ namespace Rocket
 
     void Application::FinalizeModule()
     {
-        for (auto &module : m_Modules)
+        for (auto iter = m_Modules.rbegin(); iter != m_Modules.rend(); iter++)
         {
-            RK_CORE_INFO("Finalize Module {0}", module->GetName());
-            module->Finalize();
-            delete module;
-            module = nullptr;
+            RK_CORE_INFO("Finalize Module {0}", (*iter)->GetName());
+            (*iter)->Finalize();
+            delete (*iter);
+            (*iter) = nullptr;
         }
         m_Modules.clear();
 

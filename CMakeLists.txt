@@ -4,19 +4,25 @@ cmake_policy(SET CMP0054 NEW)
 #### Main Project Config ############################
 set(RENDER_API "OpenGL") # Render API Select: OpenGL Vulkan Metal
 set(CMAKE_BUILD_TYPE "Debug") # Debug or Release
-set(PROFILE 1) # This Option will generate runtime profile
+set(PROFILE 0) # This Option will generate runtime profile
+set(PROFILE_FILE 0) # This Option will generate file log
 #### Main Project Config ############################
 
+#### Project Language Config ########################
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17)
 
 project( Rocket )
+#### Project Language Config ########################
 
 #### Project Definition #############################
 if(PROFILE)
     add_definitions(-DRK_PROFILE)
+endif()
+if(PROFILE_FILE)
+    add_definitions(-DRK_PROFILE_FILE)
 endif()
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")

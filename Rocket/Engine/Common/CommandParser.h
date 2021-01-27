@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/Core.h"
+#include <sstream>
 
 namespace Rocket
 {
