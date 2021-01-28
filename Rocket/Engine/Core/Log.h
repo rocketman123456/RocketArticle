@@ -25,10 +25,10 @@ namespace Rocket
 
         static void Init(LogLevel level = LogLevel::TRACE);
 
-        inline static std::shared_ptr<spdlog::logger> &GetCoreLogger() { return s_CoreLogger; }
-        inline static std::shared_ptr<spdlog::logger> &GetClientLogger() { return s_ClientLogger; }
-        inline static std::shared_ptr<spdlog::logger> &GetEventLogger() { return s_EventLogger; }
-        inline static std::shared_ptr<spdlog::logger> &GetGraphicsLogger() { return s_GraphicsLogger; }
+        inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
+        inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
+        inline static std::shared_ptr<spdlog::logger>& GetEventLogger() { return s_EventLogger; }
+        inline static std::shared_ptr<spdlog::logger>& GetGraphicsLogger() { return s_GraphicsLogger; }
 
     private:
         static std::shared_ptr<spdlog::logger> s_CoreLogger;

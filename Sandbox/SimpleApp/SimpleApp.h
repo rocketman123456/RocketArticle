@@ -10,10 +10,10 @@ namespace Rocket
         SimpleApp() = default;
         virtual ~SimpleApp() = default;
 
-        virtual void PreInitializeModule() override;
-        virtual void PostInitializeModule() override;
+        void PreInitializeModule() final;
+        void PostInitializeModule() final;
 
-        virtual void PreInitialize() override;
-        virtual void PostInitialize() override;
+        void PreInitialize() final;
+        void PostInitialize() final;
     };
 }

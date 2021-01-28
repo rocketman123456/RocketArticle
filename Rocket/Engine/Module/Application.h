@@ -39,7 +39,7 @@ namespace Rocket
         bool m_Minimized = false;
         bool m_Parallel = true;
         // Modules
-        Vec<IRuntimeModule *> m_Modules;
+        Vec<IRuntimeModule*> m_Modules;
         // Config
         Ref<ConfigLoader> m_Config;
         std::string m_AssetPath;

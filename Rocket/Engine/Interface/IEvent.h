@@ -72,12 +72,26 @@ namespace Rocket
 	Interface _IEvent_
 	{
 	public:
-		_IEvent_(const EventVarPtr& var, uint32_t count) : Var(var), Count(count) { TimeStamp = g_GlobalTimer->GetExactTime(); }
+		_IEvent_(const EventVarPtr& var, uint32_t count) : Var(var), Count(count) 
+		{
+			RK_CORE_ASSERT(count > 0, "Event Var Count Error");
+			TimeStamp = g_GlobalTimer->GetExactTime();
+		}
 		virtual ~_IEvent_() = default;
 
-		virtual EventType GetEventType() const = 0;
-		virtual const char* GetName() const = 0;
-		virtual std::string ToString() const { return GetName(); }
+		[[nodiscard]] virtual string_id GetEventType() const 
+		{
+			return (*Var)[0].GetIndex();
+		}
+
+		[[nodiscard]] auto GetIndex(int n) const
+		{
+			RK_CORE_ASSERT(n < Count, "ERROR Index Number");
+			return (*Var)[n].GetIndex();
+		}
+		
+		[[nodiscard]] virtual const std::string& GetName() const = 0;
+		[[nodiscard]] virtual std::string ToString() const { return GetName(); }
 
 		bool Handled = false;
 		double TimeStamp = 0.0f;

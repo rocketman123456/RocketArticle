@@ -3,6 +3,7 @@
 
 namespace Rocket
 {
+    using string_id = uint64_t;
     struct Variant
     {
         enum Type
@@ -14,11 +15,16 @@ namespace Rocket
             TYPE_COUNT,
         };
         Type type;
-        std::variant<int32_t, float, bool, uint32_t> var;
+        std::variant<
+            int32_t,
+            float,
+            bool,
+            string_id>
+            var;
 
         auto GetIndex()
         {
             return var.index();
         }
     };
-}
+} // namespace Rocket

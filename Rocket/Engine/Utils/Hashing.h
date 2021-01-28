@@ -1,9 +1,12 @@
 #pragma once
+#include "Core/Core.h"
+
 #include <string>
 #include <ostream>
 #include <functional>
+#include <unordered_map>
 
-namespace Rocket
+namespace std
 {
     struct _H_
     {
@@ -15,16 +18,36 @@ namespace Rocket
         os << h.s1 << "," << h.s2;
         return os;
     }
-}
 
-namespace std
-{
     template <>
-	struct hash<Rocket::_H_>
+	struct hash<_H_>
 	{
 		size_t operator()(const Rocket::_H_& h) const
 		{
 			return std::hash<std::string>{}(h.s1) ^ (std::hash<std::string>{}(h.s2) << 1);
 		}
 	};
+}
+
+namespace Rocket
+{
+    class HashTable
+    {
+    public:
+        HashTable() = default;
+        ~HashTable() = default;
+
+        template<typename T>
+        [[nodiscard]] static uint64_t Hash(T content);
+        [[nodiscard]] static uint64_t HashString(const std::string& str);
+
+        static const std::string& GetIdString(uint64_t id);
+
+    protected:
+        static std::unordered_map<std::string, uint64_t> StringIdMap;
+        static std::unordered_map<uint64_t, std::string> IdStringMap;
+    };
+
+    class EventHashTable : implements HashTable {};
+    class AssetHashTable : implements HashTable {};
 }

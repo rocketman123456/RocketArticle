@@ -55,7 +55,7 @@ namespace Rocket
         RK_CORE_INFO("Application Finalize");
     }
 
-    void Application::PushModule(IRuntimeModule *module)
+    void Application::PushModule(IRuntimeModule* module)
     {
         m_Modules.emplace_back(module);
     }
