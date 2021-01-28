@@ -12,58 +12,58 @@
 
 namespace Rocket
 {
-	enum class EventType : uint32_t
-	{
-		None = 0,
-		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
-		AppTick, AppUpdate, AppRender,
-		KeyPressed, KeyReleased, KeyTyped,
-		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled,
-		AudioEvent,
-	};
+	//enum class EventType : uint32_t
+	//{
+	//	None = 0,
+	//	WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
+	//	AppTick, AppUpdate, AppRender,
+	//	KeyPressed, KeyReleased, KeyTyped,
+	//	MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled,
+	//	AudioEvent,
+	//};
+//
+	//static const char* EventTypeName[] = 
+	//{
+	//	"None",
+	//	"WindowClose", "WindowResize", "WindowFocus", "WindowLostFocus", "WindowMoved",
+	//	"AppTick", "AppUpdate", "AppRender",
+	//	"KeyPressed", "KeyReleased", "KeyTyped",
+	//	"MouseButtonPressed", "MouseButtonReleased", "MouseMoved", "MouseScrolled",
+	//	"AudioEvent",
+	//};
 
-	static const char* EventTypeName[] = 
-	{
-		"None",
-		"WindowClose", "WindowResize", "WindowFocus", "WindowLostFocus", "WindowMoved",
-		"AppTick", "AppUpdate", "AppRender",
-		"KeyPressed", "KeyReleased", "KeyTyped",
-		"MouseButtonPressed", "MouseButtonReleased", "MouseMoved", "MouseScrolled",
-		"AudioEvent",
-	};
+	//enum EventCategory : uint32_t
+	//{
+	//	None = 0,
+	//	EventCategoryApplication = RK_BIT(0),
+	//	EventCategoryInput = RK_BIT(1),
+	//	EventCategoryKeyboard = RK_BIT(2),
+	//	EventCategoryMouse = RK_BIT(3),
+	//	EventCategoryMouseButton = RK_BIT(4),
+	//	EventCategoryAudio = RK_BIT(5),
+	//};
 
-	enum EventCategory : uint32_t
-	{
-		None = 0,
-		EventCategoryApplication = RK_BIT(0),
-		EventCategoryInput = RK_BIT(1),
-		EventCategoryKeyboard = RK_BIT(2),
-		EventCategoryMouse = RK_BIT(3),
-		EventCategoryMouseButton = RK_BIT(4),
-		EventCategoryAudio = RK_BIT(5),
-	};
+	//Interface IEvent
+	//{
+	//public:
+	//	IEvent() { TimeStamp = g_GlobalTimer->GetExactTime(); }
+	//	virtual ~IEvent() = default;
+//
+	//	virtual EventType GetEventType() const = 0;
+	//	virtual const char* GetName() const = 0;
+	//	virtual int GetCategoryFlags() const = 0;
+	//	virtual std::string ToString() const { return GetName(); }
+	//	
+	//	inline bool IsInCategory(EventCategory category) { return GetCategoryFlags() & static_cast<int>(category); }
+//
+	//	bool Handled = false;
+	//	double TimeStamp = 0.0f;
+	//};
 
-	Interface IEvent
-	{
-	public:
-		IEvent() { TimeStamp = g_GlobalTimer->GetExactTime(); }
-		virtual ~IEvent() = default;
-
-		virtual EventType GetEventType() const = 0;
-		virtual const char* GetName() const = 0;
-		virtual int GetCategoryFlags() const = 0;
-		virtual std::string ToString() const { return GetName(); }
-		
-		inline bool IsInCategory(EventCategory category) { return GetCategoryFlags() & static_cast<int>(category); }
-
-		bool Handled = false;
-		double TimeStamp = 0.0f;
-	};
-
-	inline std::ostream &operator << (std::ostream &os, const IEvent &e)
-	{
-		return os << e.ToString();
-	}
+	//inline std::ostream &operator << (std::ostream &os, const IEvent &e)
+	//{
+	//	return os << e.ToString();
+	//}
 
 	// TODO : use Variant to transmit data
 	using EventVar = Vec<Variant>;
@@ -109,7 +109,8 @@ namespace Rocket
 		return os;
 	}
 
-	using EventPtr = Ref<IEvent>;
+	using EventPtr = Ref<_IEvent_>;
+	using EventType = string_id;
 
 	template<typename T, typename... Args>
 	EventPtr CreateEvent(Args&&... args) 

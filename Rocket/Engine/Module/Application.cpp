@@ -84,12 +84,12 @@ namespace Rocket
     bool Application::OnWindowResize(EventPtr& e)
     {
         RK_CORE_TRACE("Application::OnWindowResize");
-        auto event = static_cast<WindowResizeEvent*>(e.get());
-        if (event->GetWidth() == 0 || event->GetHeight() == 0)
-        {
-            m_Minimized = true;
-            return false;
-        }
+        //auto event = static_cast<WindowResizeEvent*>(e.get());
+        //if (event->GetWidth() == 0 || event->GetHeight() == 0)
+        //{
+        //    m_Minimized = true;
+        //    return false;
+        //}
         m_Minimized = false;
         return false;
     }

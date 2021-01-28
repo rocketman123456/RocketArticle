@@ -104,7 +104,6 @@ namespace Rocket
         EventListenerMap m_EventListener;
         
         ElapseTimer    m_Timer;
-        GenericObjectFactory<IEvent, EventType> m_EventFactory;
     private:
         static EventManager* s_Instance;
     };
