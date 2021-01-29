@@ -1,5 +1,6 @@
 #include "OpenGL/OpenGLPipelineStateManager.h"
 #include "Module/Application.h"
+#include "Module/AssetLoader.h"
 
 #include <glad/glad.h>
 #include <fstream>
@@ -101,19 +102,8 @@ namespace Rocket
         int status;
 
         // Load the shader source file into a text buffer.
-        // TODO : use asset loader to load file
-        std::ifstream srcFile(filename, std::ios::in);
-        std::ostringstream buf;
-        char ch;
-        while(buf && srcFile.get(ch))
-            buf.put(ch);
-        shaderBuffer = buf.str();
-        if (shaderBuffer.empty())
-        {
-            return false;
-        }
-
-        shaderBuffer = cbufferShaderBuffer + commonShaderBuffer + shaderBuffer;
+        shaderBuffer = g_AssetLoader->SyncOpenAndReadTextFileToString(filename);
+        //shaderBuffer = cbufferShaderBuffer + commonShaderBuffer + shaderBuffer;
 
         // Create a shader object.
         shader = glCreateShader(shaderType);

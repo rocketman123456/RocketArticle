@@ -68,7 +68,8 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 }
 
 // TODO : use asset manager to load files
-static Vec<char> readFile(const std::string& filename) {
+static Vec<char> readFile(const std::string& filename)
+{
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) {

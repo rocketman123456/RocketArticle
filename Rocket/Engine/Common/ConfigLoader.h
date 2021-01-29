@@ -26,6 +26,8 @@ namespace Rocket
             m_ConfigMap["Path"] = YAML::LoadFile(config_file);
             config_file = m_Path + "/Config/setting-graphics.yaml";
             m_ConfigMap["Graphics"] = YAML::LoadFile(config_file);
+            config_file = m_Path + "/Config/setting-event.yaml";
+            m_ConfigMap["Event"] = YAML::LoadFile(config_file);
             return 0;
         }
 
@@ -52,7 +54,7 @@ namespace Rocket
         std::unordered_map<std::string, YAML::Node> m_ConfigMap;
     };
 
-    inline std::ostream &operator << (std::ostream &os, const ConfigLoader &c)
+    inline std::ostream& operator << (std::ostream &os, const ConfigLoader& c)
 	{
 		os << c.ToString();
 		return os;

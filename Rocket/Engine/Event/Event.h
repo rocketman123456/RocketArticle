@@ -1,6 +1,5 @@
 #pragma once
 #include "Interface/IEvent.h"
-#include "Utils/Hashing.h"
 
 namespace Rocket
 {
@@ -9,10 +8,5 @@ namespace Rocket
     public:
         Event(const EventVarPtr& var, uint32_t count) : _IEvent_(var, count) {}
         virtual ~Event() = default;
-
-        [[nodiscard]] const std::string& GetName() const final
-        { 
-            return EventHashTable::GetStringFromId(GetEventType());
-        }
     };
 }

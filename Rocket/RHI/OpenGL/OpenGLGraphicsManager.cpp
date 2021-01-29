@@ -613,10 +613,9 @@ namespace Rocket
 
     bool OpenGLGraphicsManager::OnWindowResize(EventPtr& e)
     {
-        // TODO : fix bug
-        //auto event = static_cast<WindowResizeEvent*>(e.get());
-        //return Resize(event->GetWidth(), event->GetHeight());
-        return true;
+        int32_t width = e->GetInt32(1);
+        int32_t height = e->GetInt32(2);
+        return Resize(width, height);
     }
 
     void OpenGLGraphicsManager::DrawPoint(const Point3D &point, const Vector3f &color)

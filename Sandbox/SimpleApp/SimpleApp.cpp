@@ -1,4 +1,5 @@
 #include "SimpleApp.h"
+#include "Module/AssetLoader.h"
 #include "Module/WindowManager.h"
 #include "Module/GraphicsManager.h"
 #include "Module/PipelineStateManager.h"
@@ -9,6 +10,7 @@
 namespace Rocket
 {
     Application* g_Application;
+    AssetLoader* g_AssetLoader;
     WindowManager* g_WindowManager;
     PipelineStateManager* g_PipelineStateManager;
     GraphicsManager* g_GraphicsManager;
@@ -24,6 +26,7 @@ namespace Rocket
 
     void SimpleApp::PreInitializeModule()
     {
+        g_AssetLoader = GetAssetLoader();
         g_WindowManager = GetWindowManager();
         g_GraphicsManager = GetGraphicsManager();
         g_PipelineStateManager = GetPipelineStateManager();
@@ -31,6 +34,7 @@ namespace Rocket
         g_SceneManager = GetSceneManager();
         g_EventManager = GetEventManager();
 
+        PushModule(g_AssetLoader);
         PushModule(g_WindowManager);
         PushModule(g_GraphicsManager);
         PushModule(g_PipelineStateManager);
@@ -41,6 +45,12 @@ namespace Rocket
 
     void SimpleApp::PostInitializeModule()
     {
+        g_EventManager->AddListener(
+            REGISTER_DELEGATE_CLASS(Application::OnWindowClose, *g_Application), 
+            EventHashTable::HashString("window_close"));
+        g_EventManager->AddListener(
+            REGISTER_DELEGATE_CLASS(GraphicsManager::OnWindowResize, *g_GraphicsManager), 
+            EventHashTable::HashString("window_resize"));
     }
 
     void SimpleApp::PreInitialize()

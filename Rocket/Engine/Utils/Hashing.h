@@ -31,7 +31,7 @@ namespace std
 
 namespace Rocket
 {
-    class HashTable
+    class EventHashTable
     {
     public:
         [[nodiscard]] static uint64_t HashString(const std::string& str);
@@ -40,6 +40,12 @@ namespace Rocket
         static std::unordered_map<uint64_t, std::string> IdStringMap;
     };
 
-    class EventHashTable : implements HashTable {};
-    class AssetHashTable : implements HashTable {};
+    class AssetHashTable
+    {
+    public:
+        [[nodiscard]] static uint64_t HashString(const std::string& str);
+        [[nodiscard]] static const std::string& GetStringFromId(uint64_t id);
+    protected:
+        static std::unordered_map<uint64_t, std::string> IdStringMap;
+    };
 }

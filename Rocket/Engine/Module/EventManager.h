@@ -12,6 +12,9 @@
 struct GLFWwindow;
 constexpr uint16_t EVENTMANAGER_NUM_QUEUES = 2;
 
+#define REGISTER_DELEGATE_CLASS(f,x) EventListenerDelegate{entt::connect_arg<&f>, x}
+#define REGISTER_DELEGATE_FN(f) EventListenerDelegate{entt::connect_arg<&f>}
+
 namespace Rocket
 {
     using EventCallbackFn = std::function<void(EventPtr &)>;
@@ -110,7 +113,4 @@ namespace Rocket
 
     EventManager* GetEventManager();
     extern EventManager* g_EventManager;
-
-    #define REGISTER_DELEGATE_CLASS(f,x) EventListenerDelegate{entt::connect_arg<&f>, x}
-    #define REGISTER_DELEGATE_FN(f) EventListenerDelegate{entt::connect_arg<&f>}
 }

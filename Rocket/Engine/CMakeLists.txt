@@ -7,6 +7,7 @@ add_library( RocketEngine
     Core/Log.cpp
     # Module
     Module/Application.cpp
+    Module/AssetLoader.cpp
     Module/EventManager.cpp
     Module/GraphicsManager.cpp
     Module/MemoryManager.cpp
