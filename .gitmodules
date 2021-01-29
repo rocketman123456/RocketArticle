@@ -46,3 +46,6 @@
 [submodule "Thirdparty/box2d"]
 	path = Thirdparty/box2d
 	url = https://github.com/erincatto/box2d.git
+[submodule "Thirdparty/ImGuizmo"]
+	path = Thirdparty/ImGuizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo.git

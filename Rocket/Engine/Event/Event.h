@@ -1,6 +1,6 @@
 #pragma once
 #include "Interface/IEvent.h"
-#include "Hashing.h"
+#include "Utils/Hashing.h"
 
 namespace Rocket
 {
@@ -12,7 +12,7 @@ namespace Rocket
 
         [[nodiscard]] const std::string& GetName() const final
         { 
-            return EventHashTable::GetIdString(GetEventType());
+            return EventHashTable::GetStringFromId(GetEventType());
         }
     };
 }

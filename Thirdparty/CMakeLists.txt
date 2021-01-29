@@ -12,6 +12,8 @@ add_library( imgui
     imgui/imgui_widgets.cpp
 )
 
+add_library(glad glad/src/glad.c)
+
 add_library( Remotery
     Remotery/lib/Remotery.c
 )

@@ -1,7 +1,7 @@
 #pragma once
 #include "Interface/IRuntimeModule.h"
-
 #include "Interface/IEvent.h"
+#include "Event/Event.h"
 #include "Utils/Timer.h"
 
 #include <entt/entt.hpp>
@@ -17,7 +17,6 @@ namespace Rocket
     using EventCallbackFn = std::function<void(EventPtr &)>;
     using EventListenerFnptr = bool(*)(EventPtr&);
     using EventListenerDelegate = entt::delegate<bool(EventPtr&)>;
-    //using EventListenerDelegate = std::function<bool(EventPtr &)>;
     using EventListenerList = std::list<EventListenerDelegate>;
     using EventListenerMap = std::map<EventType, EventListenerList>;
     using EventQueue = std::list<EventPtr>;
@@ -41,14 +40,15 @@ namespace Rocket
         virtual void Finalize() final;
 
         virtual void Tick(Timestep ts) final;
+
+        void OnEvent(EventPtr& event);
+
         // Allow for processing of any queued messages, optionally specify a processing time limit so that the event 
         // processing does not take too long. Note the danger of using this artificial limiter is that all messages 
         // may not in fact get processed.
         //
         // returns true if all messages ready for processing were completed, false otherwise (e.g. timeout )
         bool Update(uint64_t maxMillis = 1000);
-
-        void OnEvent(EventPtr& event);
 
         // Registers a delegate function that will get called when the event type is triggered.  Returns true if 
         // successful, false if not.

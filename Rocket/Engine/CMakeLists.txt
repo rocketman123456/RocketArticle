@@ -25,6 +25,7 @@ add_library( RocketEngine
     # Scene
     Scene/Scene.cpp
     # Utils
+    Utils/Hashing.cpp
     Utils/Timer.cpp
 )
 target_link_libraries( RocketEngine PRIVATE

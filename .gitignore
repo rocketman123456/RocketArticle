@@ -38,3 +38,4 @@ build/
 .VSCodeCounter/
 Rocket/GEEngine/RKConfig.h
 imgui.ini
+*.DS_Store

@@ -2,7 +2,7 @@
 #include "OpenGL/OpenGLPipelineStateManager.h"
 #include "Module/WindowManager.h"
 #include "Module/Application.h"
-#include "Event/ApplicationEvent.h"
+//#include "Event/ApplicationEvent.h"
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
@@ -13,10 +13,6 @@
 #include "backends/imgui_impl_opengl3.cpp"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_glfw.cpp"
-#if defined(PLATFORM_WINDOWS)
-#include "backends/imgui_impl_win32.h"
-#include "backends/imgui_impl_win32.cpp"
-#endif
 
 static void OpenGLMessageCallback(unsigned source, unsigned type, unsigned id,
                                   unsigned severity, int length,
@@ -617,8 +613,10 @@ namespace Rocket
 
     bool OpenGLGraphicsManager::OnWindowResize(EventPtr& e)
     {
-        auto event = static_cast<WindowResizeEvent*>(e.get());
-        return Resize(event->GetWidth(), event->GetHeight());
+        // TODO : fix bug
+        //auto event = static_cast<WindowResizeEvent*>(e.get());
+        //return Resize(event->GetWidth(), event->GetHeight());
+        return true;
     }
 
     void OpenGLGraphicsManager::DrawPoint(const Point3D &point, const Vector3f &color)

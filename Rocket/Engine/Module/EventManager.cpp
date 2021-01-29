@@ -3,10 +3,10 @@
 #include "Module/Application.h"
 #include "Module/GraphicsManager.h"
 
-#include "Event/ApplicationEvent.h"
-#include "Event/AudioEvent.h"
-#include "Event/KeyEvent.h"
-#include "Event/MouseEvent.h"
+//#include "Event/ApplicationEvent.h"
+//#include "Event/AudioEvent.h"
+//#include "Event/KeyEvent.h"
+//#include "Event/MouseEvent.h"
 
 #include <GLFW/glfw3.h>
 
@@ -38,7 +38,6 @@ namespace Rocket
 
     void EventManager::SetupCallback()
     {
-        // TODO : use factory to generate events
         // Set GLFW callbacks
 		glfwSetWindowSizeCallback(m_WindowHandle, [](GLFWwindow *window, int width, int height) {
 			RK_EVENT_TRACE("glfwSetWindowSizeCallback");
@@ -56,73 +55,146 @@ namespace Rocket
 		});
 
 		glfwSetFramebufferSizeCallback(m_WindowHandle, [](GLFWwindow *window, int width, int height) {
-            //RK_EVENT_TRACE("glfwSetFramebufferSizeCallback");
+            RK_EVENT_TRACE("glfwSetFramebufferSizeCallback");
 			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
-            EventPtr event = CreateEvent<WindowResizeEvent>(width, height, 1.0f, 1.0f);
+
+            EventVarPtr ptr = EventVarPtr(new Variant[3]);
+            ptr[0].type = Variant::TYPE_STRING_ID;
+            ptr[0].m_asStringId = HashTable::HashString("window_resize");
+            ptr[1].type = Variant::TYPE_INT32;
+            ptr[1].m_asInt32 = width;
+            ptr[2].type = Variant::TYPE_INT32;
+            ptr[2].m_asInt32 = height;
+            EventPtr event = EventPtr(new Event(ptr, 3));
+
 			data.EventCallback(event);
 		});
 
 		glfwSetWindowCloseCallback(m_WindowHandle, [](GLFWwindow *window) {
-            //RK_EVENT_TRACE("glfwSetWindowCloseCallback");
+            RK_EVENT_TRACE("glfwSetWindowCloseCallback");
 			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
-            EventPtr event = CreateEvent<WindowCloseEvent>();
-			data.EventCallback(event);
+
+            EventVarPtr ptr = EventVarPtr(new Variant[1]);
+            ptr[0].type = Variant::TYPE_STRING_ID;
+            ptr[0].m_asStringId = HashTable::HashString("window_close");
+            EventPtr event = EventPtr(new Event(ptr, 1));
+
+            data.EventCallback(event);
 		});
 
 		glfwSetKeyCallback(m_WindowHandle, [](GLFWwindow *window, int key, int scancode, int action, int mods) {
-            //RK_EVENT_TRACE("glfwSetKeyCallback");
+            RK_EVENT_TRACE("glfwSetKeyCallback");
 			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 			switch (action)
 			{
                 case GLFW_PRESS: {
-                    EventPtr event = CreateEvent<KeyPressedEvent>(key, 0);
+                    EventVarPtr ptr = EventVarPtr(new Variant[3]);
+                    ptr[0].type = Variant::TYPE_STRING_ID;
+                    ptr[0].m_asStringId = HashTable::HashString("key_press");
+                    ptr[1].type = Variant::TYPE_INT32;
+                    ptr[1].m_asInt32 = scancode;
+                    ptr[1].type = Variant::TYPE_INT32;
+                    ptr[1].m_asInt32 = 0;
+                    EventPtr event = EventPtr(new Event(ptr, 3));
+
                     data.EventCallback(event);
                 } break;
                 case GLFW_RELEASE: {
-                    EventPtr event = CreateEvent<KeyReleasedEvent>(key);
+                    EventVarPtr ptr = EventVarPtr(new Variant[2]);
+                    ptr[0].type = Variant::TYPE_STRING_ID;
+                    ptr[0].m_asStringId = HashTable::HashString("key_release");
+                    ptr[1].type = Variant::TYPE_INT32;
+                    ptr[1].m_asInt32 = scancode;
+                    EventPtr event = EventPtr(new Event(ptr, 2));
+
                     data.EventCallback(event);
                 } break;
                 case GLFW_REPEAT: {
-                    EventPtr event = CreateEvent<KeyPressedEvent>(key, 1);
+                    EventVarPtr ptr = EventVarPtr(new Variant[3]);
+                    ptr[0].type = Variant::TYPE_STRING_ID;
+                    ptr[0].m_asStringId = HashTable::HashString("key_press");
+                    ptr[1].type = Variant::TYPE_INT32;
+                    ptr[1].m_asInt32 = scancode;
+                    ptr[1].type = Variant::TYPE_INT32;
+                    ptr[1].m_asInt32 = 1;
+                    EventPtr event = EventPtr(new Event(ptr, 3));
+
                     data.EventCallback(event);
                 } break;
 			}
 		});
 
 		glfwSetCharCallback(m_WindowHandle, [](GLFWwindow *window, uint32_t keycode) {
-            //RK_EVENT_TRACE("glfwSetCharCallback");
+            RK_EVENT_TRACE("glfwSetCharCallback");
 			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
-            EventPtr event = CreateEvent<KeyTypedEvent>(keycode);
-			data.EventCallback(event);
+
+            EventVarPtr ptr = EventVarPtr(new Variant[2]);
+            ptr[0].type = Variant::TYPE_STRING_ID;
+            ptr[0].m_asStringId = HashTable::HashString("key_char_code");
+            ptr[1].type = Variant::TYPE_UINT32;
+            ptr[1].m_asUInt32 = keycode;
+            EventPtr event = EventPtr(new Event(ptr, 2));
+
+            data.EventCallback(event);
 		});
 
 		glfwSetMouseButtonCallback(m_WindowHandle, [](GLFWwindow *window, int button, int action, int mods) {
-            //RK_EVENT_TRACE("glfwSetMouseButtonCallback");
+            RK_EVENT_TRACE("glfwSetMouseButtonCallback");
 			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 			switch (action)
 			{
                 case GLFW_PRESS: {
-                    EventPtr event = CreateEvent<MouseButtonPressedEvent>(button);
+                    EventVarPtr ptr = EventVarPtr(new Variant[2]);
+                    ptr[0].type = Variant::TYPE_STRING_ID;
+                    ptr[0].m_asStringId = HashTable::HashString("mouse_button_press");
+                    ptr[1].type = Variant::TYPE_INT32;
+                    ptr[1].m_asInt32 = button;
+                    EventPtr event = EventPtr(new Event(ptr, 2));
+
                     data.EventCallback(event);
                 } break;
                 case GLFW_RELEASE: {
-                    EventPtr event = CreateEvent<MouseButtonReleasedEvent>(button);
+                    EventVarPtr ptr = EventVarPtr(new Variant[2]);
+                    ptr[0].type = Variant::TYPE_STRING_ID;
+                    ptr[0].m_asStringId = HashTable::HashString("mouse_button_release");
+                    ptr[1].type = Variant::TYPE_INT32;
+                    ptr[1].m_asInt32 = button;
+                    EventPtr event = EventPtr(new Event(ptr, 2));
+
                     data.EventCallback(event);
                 } break;
 			}
 		});
 
 		glfwSetScrollCallback(m_WindowHandle, [](GLFWwindow *window, double xOffset, double yOffset) {
-            //RK_EVENT_TRACE("glfwSetScrollCallback");
+            RK_EVENT_TRACE("glfwSetScrollCallback");
 			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
-            EventPtr event = CreateEvent<MouseScrolledEvent>((float)xOffset, (float)yOffset);
-			data.EventCallback(event);
+            
+            EventVarPtr ptr = EventVarPtr(new Variant[3]);
+            ptr[0].type = Variant::TYPE_STRING_ID;
+            ptr[0].m_asStringId = HashTable::HashString("mouse_scroll");
+            ptr[1].type = Variant::TYPE_DOUBLE;
+            ptr[1].m_asDouble = xOffset;
+            ptr[2].type = Variant::TYPE_DOUBLE;
+            ptr[2].m_asDouble = yOffset;
+            EventPtr event = EventPtr(new Event(ptr, 3));
+			
+            data.EventCallback(event);
 		});
 
 		glfwSetCursorPosCallback(m_WindowHandle, [](GLFWwindow *window, double xPos, double yPos) {
-            //RK_EVENT_TRACE("glfwSetCursorPosCallback");
+            RK_EVENT_TRACE("glfwSetCursorPosCallback");
 			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
-            EventPtr event = CreateEvent<MouseMovedEvent>((float)xPos, (float)yPos);
+
+            EventVarPtr ptr = EventVarPtr(new Variant[3]);
+            ptr[0].type = Variant::TYPE_STRING_ID;
+            ptr[0].m_asStringId = HashTable::HashString("mouse_move");
+            ptr[1].type = Variant::TYPE_DOUBLE;
+            ptr[1].m_asDouble = xPos;
+            ptr[2].type = Variant::TYPE_DOUBLE;
+            ptr[2].m_asDouble = yPos;
+            EventPtr event = EventPtr(new Event(ptr, 3));
+
 			data.EventCallback(event);
 		});
 
@@ -131,8 +203,9 @@ namespace Rocket
 
     void EventManager::SetupListener()
     {
-        AddListener(REGISTER_DELEGATE_CLASS(Application::OnWindowClose, *g_Application), EventType::WindowClose);
-        AddListener(REGISTER_DELEGATE_CLASS(GraphicsManager::OnWindowResize, *g_GraphicsManager), EventType::WindowResize);
+        // TODO : fix bug
+        AddListener(REGISTER_DELEGATE_CLASS(Application::OnWindowClose, *g_Application), HashTable::HashString("window_close"));
+        AddListener(REGISTER_DELEGATE_CLASS(GraphicsManager::OnWindowResize, *g_GraphicsManager), HashTable::HashString("window_resize"));
     }
 
     void EventManager::Finalize()
@@ -141,9 +214,9 @@ namespace Rocket
 
     void EventManager::OnEvent(EventPtr& event)
     {
-        RK_EVENT_TRACE("Callback Event {0}", event->ToString());
-        //TriggerEvent(event);
-        QueueEvent(event);
+        RK_EVENT_TRACE("Callback Event {0}", *event);
+        TriggerEvent(event);
+        //QueueEvent(event);
     }
 
     void EventManager::Tick(Timestep ts)
@@ -268,7 +341,8 @@ namespace Rocket
                 if (eventDelegate == (*it))
                 {
                     listeners.erase(it);
-                    RK_EVENT_INFO("Successfully removed delegate function from event type {0}", EventTypeName[static_cast<uint32_t>(type)]);
+                    // TODO : fix bug
+                    RK_EVENT_INFO("Successfully removed delegate function from event type {0}", "");
                     success = true;
                     // we don't need to continue because it should be impossible 
                     // for the same delegate function to be registered for the same event more than once

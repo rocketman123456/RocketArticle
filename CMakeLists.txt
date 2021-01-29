@@ -72,8 +72,8 @@ find_package(EnTT CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 #find_package(tinyobjloader CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
-find_package(glad CONFIG REQUIRED)
-find_package(glslang CONFIG REQUIRED)
+#find_package(glad CONFIG REQUIRED)
+#find_package(glslang CONFIG REQUIRED)
 if(Vulkan)
     find_package(Vulkan REQUIRED)
 endif()
@@ -97,6 +97,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/Thirdparty/stb_image
     ${PROJECT_SOURCE_DIR}/Thirdparty/crossguid/include
     ${PROJECT_SOURCE_DIR}/Thirdparty/imgui
+    ${PROJECT_SOURCE_DIR}/Thirdparty/glad/include
     ${EIGEN3_INCLUDE_DIRS}
     ${BULLET_INCLUDE_DIRS}
     ${OPENAL_INCLUDE_DIRS}
@@ -127,20 +128,20 @@ if(PROFILE)
     set( ENGINE_LIBRARY
         ${Threads_LIBS}
         glfw yaml-cpp glm 
-        Eigen3::Eigen glad::glad EnTT::EnTT
+        Eigen3::Eigen EnTT::EnTT
         spdlog::spdlog spdlog::spdlog_header_only
         OpenAL::OpenAL SndFile::sndfile
-        imgui stb_image crossguid Remotery
+        imgui stb_image crossguid glad Remotery
         CACHE STRING ""
     )
 else()
     set( ENGINE_LIBRARY
         ${Threads_LIBS}
         glfw yaml-cpp glm 
-        Eigen3::Eigen glad::glad EnTT::EnTT
+        Eigen3::Eigen EnTT::EnTT
         spdlog::spdlog spdlog::spdlog_header_only
         OpenAL::OpenAL SndFile::sndfile
-        imgui stb_image crossguid
+        imgui stb_image crossguid glad
         CACHE STRING ""
     )
 endif()
@@ -154,9 +155,9 @@ elseif(Windows)
 endif()
 
 if(OpenGL)
-    set(ENGINE_RENDER_LIBRARY RendererOpenGL glslang::OGLCompiler glslang::glslang CACHE STRING "")
+    set(ENGINE_RENDER_LIBRARY RendererOpenGL CACHE STRING "")
 elseif(Vulkan)
-    set(ENGINE_RENDER_LIBRARY RendererVulkan glslang::SPIRV glslang::glslang ${Vulkan_LIBRARIES} CACHE STRING "")
+    set(ENGINE_RENDER_LIBRARY RendererVulkan ${Vulkan_LIBRARIES} CACHE STRING "")
 elseif(Metal)
     set(ENGINE_RENDER_LIBRARY RendererMetal CACHE STRING "")
 endif()

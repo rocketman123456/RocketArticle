@@ -1,0 +1,11 @@
+event_name_001: window_close
+event_name_002: window_resize
+
+event_name_003: mouse_scroll
+event_name_004: mouse_move
+event_name_005: mouse_button_press
+event_name_006: mouse_button_release
+
+event_name_007: key_char_code
+event_name_008: key_press
+event_name_009: key_release

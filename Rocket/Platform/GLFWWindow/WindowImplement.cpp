@@ -1,5 +1,4 @@
 #include "GLFWWindow/WindowImplement.h"
-#include "Event/ApplicationEvent.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -25,8 +24,13 @@ namespace Rocket
 		}
 
 #if defined(RK_OPENGL)
+	#if defined(PLATFORM_APPLE)
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+	#elif defined(PLATFORM_WINDOWS) || defined(PLATFORM_LINUX)
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+	#endif
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	#if defined(PLATFORM_APPLE)
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);

@@ -8,23 +8,25 @@ namespace Rocket
     {
         enum Type
         {
-            TYPE_INTEGER = 0,
+            TYPE_INT32 = 0,
+            TYPE_UINT32,
             TYPE_FLOAT,
+            TYPE_DOUBLE,
             TYPE_BOOL,
+            TYPE_POINTER,
             TYPE_STRING_ID,
             TYPE_COUNT,
         };
         Type type;
-        std::variant<
-            int32_t,
-            float,
-            bool,
-            string_id>
-            var;
-
-        auto GetIndex()
+        union
         {
-            return var.index();
-        }
+            int32_t m_asInt32;
+            uint32_t m_asUInt32;
+            float m_asFloat;
+            double m_asDouble;
+            bool m_asBool;
+            void* m_asPointer;
+            string_id m_asStringId;
+        };
     };
 } // namespace Rocket

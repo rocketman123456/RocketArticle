@@ -22,7 +22,7 @@ namespace std
     template <>
 	struct hash<_H_>
 	{
-		size_t operator()(const Rocket::_H_& h) const
+		size_t operator()(const _H_& h) const
 		{
 			return std::hash<std::string>{}(h.s1) ^ (std::hash<std::string>{}(h.s2) << 1);
 		}
@@ -34,17 +34,9 @@ namespace Rocket
     class HashTable
     {
     public:
-        HashTable() = default;
-        ~HashTable() = default;
-
-        template<typename T>
-        [[nodiscard]] static uint64_t Hash(T content);
         [[nodiscard]] static uint64_t HashString(const std::string& str);
-
-        static const std::string& GetIdString(uint64_t id);
-
+        [[nodiscard]] static const std::string& GetStringFromId(uint64_t id);
     protected:
-        static std::unordered_map<std::string, uint64_t> StringIdMap;
         static std::unordered_map<uint64_t, std::string> IdStringMap;
     };
 

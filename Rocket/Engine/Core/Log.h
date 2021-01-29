@@ -13,7 +13,7 @@ namespace Rocket
         TRACE = 0,
         INFO,
         WARN,
-        ERROR,
+        ERR,
         CRITICAL,
     };
 

@@ -81,13 +81,7 @@ namespace Rocket
 
 		[[nodiscard]] virtual string_id GetEventType() const 
 		{
-			return (*Var)[0].GetIndex();
-		}
-
-		[[nodiscard]] auto GetIndex(int n) const
-		{
-			RK_CORE_ASSERT(n < Count, "ERROR Index Number");
-			return (*Var)[n].GetIndex();
+			return Var[0].m_asStringId;
 		}
 		
 		[[nodiscard]] virtual const std::string& GetName() const = 0;
@@ -102,9 +96,23 @@ namespace Rocket
 	inline std::ostream &operator << (std::ostream &os, const _IEvent_ &e)
 	{
 		os << e.ToString();
-		for(int i = 0; i < e.Count; ++i)
+		for(uint32_t i = 0; i < e.Count; ++i)
 		{
-			os << (*e.Var)[i].GetIndex() << " ";
+			switch(e.Var[i].type)
+			{
+				case Variant::TYPE_INT32:
+					os << "[" << e.Var[i].m_asInt32 << "]"; break;
+				case Variant::TYPE_UINT32:
+					os << "[" << e.Var[i].m_asUInt32 << "]"; break;
+				case Variant::TYPE_FLOAT:
+					os << "[" << e.Var[i].m_asFloat << "]"; break;
+				case Variant::TYPE_DOUBLE:
+					os << "[" << e.Var[i].m_asDouble << "]"; break;
+				case Variant::TYPE_POINTER:
+					os << "[" << e.Var[i].m_asPointer << "]"; break;
+				case Variant::TYPE_STRING_ID:
+					os << "[" << e.Var[i].m_asStringId << "]"; break;
+			}
 		}
 		return os;
 	}
@@ -119,13 +127,13 @@ namespace Rocket
 		return CreateScope<T>(std::forward<Args>(args)...);
 	}
 
-#define EVENT_CLASS_TYPE(type) \
-	static EventType GetStaticType() { return EventType::type; }                \
-	virtual EventType GetEventType() const override { return GetStaticType(); } \
-	virtual const char* GetName() const override { return #type; }
-
-#define EVENT_CLASS_CATEGORY(category) \
-	virtual int GetCategoryFlags() const override { return static_cast<int>(category); }
+//#define EVENT_CLASS_TYPE(type) \
+//	static EventType GetStaticType() { return EventType::type; }                \
+//	virtual EventType GetEventType() const override { return GetStaticType(); } \
+//	virtual const char* GetName() const override { return #type; }
+//
+//#define EVENT_CLASS_CATEGORY(category) \
+//	virtual int GetCategoryFlags() const override { return static_cast<int>(category); }
 
 #define RK_BIND_EVENT_FN(fn) [](auto &&... args) -> decltype(auto) \
 	{ return fn(std::forward<decltype(args)>(args)...); }

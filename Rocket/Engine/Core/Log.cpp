@@ -36,7 +36,7 @@ namespace Rocket
             s_EventLogger->set_level(spdlog::level::warn);
             s_GraphicsLogger->set_level(spdlog::level::warn);
             break;
-        case LogLevel::ERROR:
+        case LogLevel::ERR:
             s_CoreLogger->set_level(spdlog::level::err);
             s_ClientLogger->set_level(spdlog::level::err);
             s_EventLogger->set_level(spdlog::level::err);
