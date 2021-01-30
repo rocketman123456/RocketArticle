@@ -21,15 +21,16 @@ namespace Rocket
     {
     }
 
-    void SceneManager::SetActiveScene(const std::string& name)
+    bool SceneManager::SetActiveScene(const std::string& name)
     {
         auto findIt = m_SceneList.find(name);
         if (findIt == m_SceneList.end())
         {
             RK_CORE_ERROR("Find Active Scene Error : {}", name);
-            return;
+            return false;
         }
         m_ActiveScene = findIt->second;
+        return true;
     }
 
     bool SceneManager::AddScene(const std::string& name, Ref<Scene> scene)

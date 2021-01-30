@@ -126,14 +126,9 @@ namespace Rocket
         float far_plane;              // 4 bytes
     };                                // 16 bytes
 
-    const size_t kSizePerFrameConstantBuffer =
-        RK_ALIGN(sizeof(PerFrameConstants), 256);  // CB size is required to be 256-byte aligned.
-    const size_t kSizePerBatchConstantBuffer = 
-        RK_ALIGN(sizeof(PerBatchConstants), 256);  // CB size is required to be 256-byte aligned.
-    const size_t kSizeLightInfo = 
-        RK_ALIGN(sizeof(LightInfo), 256);  // CB size is required to be 256-byte aligned.
-    const size_t kSizeDebugConstantBuffer =
-        RK_ALIGN(sizeof(DebugConstants), 256);  // CB size is required to be 256-byte aligned.
-    const size_t kSizeShadowMapConstantBuffer =
-        RK_ALIGN(sizeof(ShadowMapConstants), 256);  // CB size is required to be 256-byte aligned.
+    const size_t kSizePerFrameConstantBuffer = RK_ALIGN(sizeof(PerFrameConstants), 256);  // CB size is required to be 256-byte aligned.
+    const size_t kSizePerBatchConstantBuffer = RK_ALIGN(sizeof(PerBatchConstants), 256);  // CB size is required to be 256-byte aligned.
+    const size_t kSizeLightInfo = RK_ALIGN(sizeof(LightInfo), 256);  // CB size is required to be 256-byte aligned.
+    const size_t kSizeDebugConstantBuffer = RK_ALIGN(sizeof(DebugConstants), 256);  // CB size is required to be 256-byte aligned.
+    const size_t kSizeShadowMapConstantBuffer = RK_ALIGN(sizeof(ShadowMapConstants), 256);  // CB size is required to be 256-byte aligned.
 }

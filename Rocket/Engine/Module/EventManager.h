@@ -51,7 +51,7 @@ namespace Rocket
         // may not in fact get processed.
         //
         // returns true if all messages ready for processing were completed, false otherwise (e.g. timeout )
-        bool Update(uint64_t maxMillis = 1000);
+        bool Update(uint64_t maxMillis = 100);
 
         // Registers a delegate function that will get called when the event type is triggered.  Returns true if 
         // successful, false if not.

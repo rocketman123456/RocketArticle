@@ -20,8 +20,7 @@ namespace Rocket
         [[nodiscard]] bool AddScene(const std::string& name, Ref<Scene> scene);
         [[nodiscard]] bool RemoveScene(const std::string& name);
         [[nodiscard]] Ref<Scene> GetActiveScene() { return m_ActiveScene; }
-        void SetActiveScene(const std::string& name);
-
+        [[nodiscard]] bool SetActiveScene(const std::string& name);
     private:
         std::unordered_map<std::string, Ref<Scene>> m_SceneList;
         Ref<Scene> m_ActiveScene;

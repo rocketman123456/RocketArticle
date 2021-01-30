@@ -22,6 +22,8 @@ namespace Rocket
             config_file = m_Path + "/Config/setting-windows.yaml";
 #elif defined(PLATFORM_APPLE)
             config_file = m_Path + "/Config/setting-mac.yaml";
+#else
+            RK_CORE_ASSERT(false, "Unknown Platform");
 #endif
             m_ConfigMap["Path"] = YAML::LoadFile(config_file);
             config_file = m_Path + "/Config/setting-graphics.yaml";

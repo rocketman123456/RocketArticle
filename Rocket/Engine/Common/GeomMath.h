@@ -44,6 +44,7 @@ namespace Rocket
             return vertices;
         }
     };
+
     using FacePtr = Ref<Face>;
     using FaceList = Vec<FacePtr>;
     using FaceSet = std::unordered_set<FacePtr>;

@@ -9,8 +9,7 @@ namespace Rocket
         if (ImGui::GetCurrentContext())
         {
             ImGui::NewFrame();
-
-            //ImGui::ShowDemoWindow();
+            
             {
                 ImGui::Begin("Hello, world!");
                 ImGui::Text("This is some useful text.");

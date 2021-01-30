@@ -72,6 +72,19 @@ namespace Rocket
         uint32_t m_uboShadowMatricesConstant[MAX_FRAME_IN_FLIGHT] = {0};
         uint32_t m_uboDebugConstant[MAX_FRAME_IN_FLIGHT] = {0};
 
+        struct QuadVertex
+        {
+            Vector3f Position;
+            Vector4f Color;
+            Vector2f TexCoord;
+            float TexIndex;
+            float TilingFactor;
+        };
+
+        struct OpenGL2DBatchContext : public DrawBatchContext, QuadVertex
+        {
+        };
+
         struct OpenGLDrawBatchContext : public DrawBatchContext
         {
             uint32_t vao{0};
@@ -90,6 +103,8 @@ namespace Rocket
 
         std::vector<DebugDrawBatchContext> m_DebugDrawBatchContext;
         std::vector<uint32_t> m_DebugBuffers;
+
+        OpenGL2DBatchContext m_Draw2DContext;
 
         OpenGLDrawBatchContext m_SkyBoxDrawBatchContext;
         OpenGLDrawBatchContext m_TerrainDrawBatchContext;
