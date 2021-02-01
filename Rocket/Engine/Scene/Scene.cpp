@@ -6,6 +6,7 @@ namespace Rocket
 {
     Entity Scene::CreateEntity(const std::string &name)
     {
+		m_SceneChange = true;
         Entity entity = { m_Registry.create(), this };
 		entity.AddComponent<TransformComponent>();
 		auto& tag = entity.AddComponent<TagComponent>();
@@ -67,6 +68,7 @@ namespace Rocket
 				}
 			}
 		}
+		m_PrimaryCamera = mainCamera;
 
 		if (mainCamera)
 		{

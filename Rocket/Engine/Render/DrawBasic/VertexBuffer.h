@@ -1,9 +1,9 @@
 #pragma once
-#include "Render/BufferLayout.h"
+#include "Render/DrawBasic/BufferLayout.h"
 
 namespace Rocket
 {
-    class VertexBuffer
+	Interface VertexBuffer
 	{
 	public:
 		virtual ~VertexBuffer() = default;

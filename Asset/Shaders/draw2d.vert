@@ -1,23 +1,5 @@
 #version 410
 
-struct a2v
-{
-    vec3 inputPosition;
-    vec3 inputNormal;
-    vec2 inputUV;
-    vec3 inputTangent;
-};
-
-struct basic_vert_output
-{
-    vec4 pos;
-    vec4 normal;
-    vec4 normal_world;
-    vec4 v;
-    vec4 v_world;
-    vec2 uv;
-};
-
 layout(location = 0) in vec3 a_Position;
 layout(location = 1) in vec4 a_Color;
 layout(location = 2) in vec2 a_TexCoord;
@@ -48,5 +30,5 @@ void main()
 	v_TexCoord = a_TexCoord;
 	v_TexIndex = a_TexIndex;
 	v_TilingFactor = a_TilingFactor;
-	gl_Position = PerFrame.projectionMatrix * PerFrame.viewMatrix * PerBatch.modelMatrix * vec4(a_Position, 1.0f);
+	gl_Position = PerFrame.projectionMatrix * PerFrame.viewMatrix * vec4(a_Position, 1.0f);
 }

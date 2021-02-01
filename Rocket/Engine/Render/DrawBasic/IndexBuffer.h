@@ -1,9 +1,9 @@
 #pragma once
-#include "Render/BufferLayout.h"
+#include "Render/DrawBasic/BufferLayout.h"
 
 namespace Rocket
 {
-    class IndexBuffer
+	Interface IndexBuffer
 	{
 	public:
 		virtual ~IndexBuffer() = default;

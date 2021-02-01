@@ -7,6 +7,10 @@
 #include "Module/EventManager.h"
 #include "Module/SceneManager.h"
 
+#include "Scene/Scene.h"
+#include "Scene/Entity.h"
+#include "Scene/Component.h"
+
 namespace Rocket
 {
     Application* g_Application;
@@ -30,16 +34,16 @@ namespace Rocket
         g_WindowManager = GetWindowManager();
         g_GraphicsManager = GetGraphicsManager();
         g_PipelineStateManager = GetPipelineStateManager();
-        g_ProcessManager = GetProcessManager();
         g_SceneManager = GetSceneManager();
+        g_ProcessManager = GetProcessManager();
         g_EventManager = GetEventManager();
 
         PushModule(g_AssetLoader);
         PushModule(g_WindowManager);
         PushModule(g_GraphicsManager);
         PushModule(g_PipelineStateManager);
-        PushModule(g_ProcessManager);
         PushModule(g_SceneManager);
+        PushModule(g_ProcessManager);
         PushModule(g_EventManager); // Make Event Manager Last to Register Listener
     }
 
@@ -55,6 +59,18 @@ namespace Rocket
 
     void SimpleApp::PreInitialize()
     {
+        Ref<Scene> scene = Ref<Scene>(new Scene());
+
+        auto square = scene->CreateEntity("Green Square");
+        square.AddComponent<SpriteRendererComponent>(Vector4f({ 0.0f, 1.0f, 0.0f, 1.0f }));
+
+        auto redSquare = scene->CreateEntity("Red Square");
+        redSquare.AddComponent<SpriteRendererComponent>(Vector4f({ 1.0f, 0.0f, 0.0f, 1.0f }));
+
+        auto camera = scene->CreateEntity("Camera A");
+        camera.AddComponent<CameraComponent>();
+
+        g_SceneManager->AddScene("first scene", scene);
     }
 
     void SimpleApp::PostInitialize()

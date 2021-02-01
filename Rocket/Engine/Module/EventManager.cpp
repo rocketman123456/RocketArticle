@@ -278,7 +278,9 @@ namespace Rocket
                 {
                     EventListenerDelegate listener = (*it);
                     RK_EVENT_INFO("\tSending event {0} to delegate", pEvent->GetName());
-                    listener(pEvent);
+                    bool processed = listener(pEvent);
+                    if (processed)
+                        break;
                 }
             }
 
@@ -357,6 +359,8 @@ namespace Rocket
                 auto listener = (*it);
                 RK_EVENT_INFO("Sending Event {0} to delegate.", event->GetName());
                 processed = listener(event);  // call the delegate
+                if (processed)
+                    break;
             }
         }
         return processed;

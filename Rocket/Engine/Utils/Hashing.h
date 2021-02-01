@@ -47,7 +47,7 @@ namespace Rocket
         [[nodiscard]] static uint64_t HashString(const std::string& str);
         [[nodiscard]] static const std::string& GetStringFromId(uint64_t id);
     protected:
-        static std::unordered_map<uint64_t, std::string> IdStringMap;
+        static UMap<uint64_t, std::string> IdStringMap;
     };
 
     class AssetHashTable
@@ -56,6 +56,6 @@ namespace Rocket
         [[nodiscard]] static uint64_t HashString(const std::string& str);
         [[nodiscard]] static const std::string& GetStringFromId(uint64_t id);
     protected:
-        static std::unordered_map<uint64_t, std::string> IdStringMap;
+        static UMap<uint64_t, std::string> IdStringMap;
     };
 }

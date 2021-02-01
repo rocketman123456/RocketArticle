@@ -25,7 +25,7 @@ namespace Rocket {
         virtual void DestroyPipelineState(PipelineState& pipelineState) {}
 
     protected:
-        std::map<std::string, Ref<PipelineState>> m_pipelineStates;
+        Map<std::string, Ref<PipelineState>> m_pipelineStates;
     };
 
     PipelineStateManager* GetPipelineStateManager();

@@ -45,8 +45,8 @@ namespace Rocket
         }
         m_pipelineStates.clear();
 
-        RK_CORE_ASSERT(m_pipelineStates.empty(), "Pipeline State Manager Clear ERROR");
-        RK_CORE_INFO("Pipeline State Manager Clear has been called. ");
+        RK_GRAPHICS_ASSERT(m_pipelineStates.empty(), "Pipeline State Manager Clear ERROR");
+        RK_GRAPHICS_INFO("Pipeline State Manager Clear has been called. ");
     }
 
     const Ref<PipelineState> PipelineStateManager::GetPipelineState(const std::string& name) const
@@ -58,7 +58,7 @@ namespace Rocket
         }
         else
         {
-            RK_CORE_ASSERT(!m_pipelineStates.empty(), "Cannot Find Required Pipeline State");
+            RK_GRAPHICS_ASSERT(!m_pipelineStates.empty(), "Cannot Find Required Pipeline State");
             return m_pipelineStates.begin()->second;
         }
     }
@@ -106,7 +106,7 @@ namespace Rocket
         //pipelineState.flag = PIPELINE_FLAG::DEBUG_DRAW;
         //RegisterPipelineState(pipelineState);
 
-        RK_CORE_INFO("Pipeline State Manager Initialized. Add [{}] Pipelines", m_pipelineStates.size());
+        RK_GRAPHICS_INFO("Pipeline State Manager Initialized. Add [{}] Pipelines", m_pipelineStates.size());
         return 0;
     }
 

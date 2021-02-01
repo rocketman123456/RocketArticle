@@ -3,8 +3,9 @@
 #include "Interface/IDrawPass.h"
 #include "Interface/IDrawSubPass.h"
 
-namespace Rocket {
-    class BaseDrawPass : implements IDrawPass {
+namespace Rocket
+{
+    Interface BaseDrawPass : inheritance IDrawPass {
     public:
         void BeginPass(Frame& frame) override { g_GraphicsManager->BeginPass(frame); }
         void Draw(Frame& frame) override;

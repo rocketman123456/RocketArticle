@@ -18,7 +18,6 @@ namespace Rocket
 
         Entity CreateEntity(const std::string &name = "");
 		void DestroyEntity(Entity entity);
-		void DestroyAllEntities();
 
         void OnUpdateRuntime(Timestep ts);
 		void OnUpdateEditor(Timestep ts, EditorCamera& camera);
@@ -28,10 +27,13 @@ namespace Rocket
 
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);
-        entt::registry& GetRegistry() { return m_Registry; }
-        uint32_t GetViewWidth() const { return m_ViewportWidth; }
-        uint32_t GetViewHeight() const { return m_ViewportHeight; }
-        const std::string& GetName() const { return m_Name; }
+
+        inline entt::registry& GetRegistry() { return m_Registry; }
+        inline uint32_t GetViewWidth() const { return m_ViewportWidth; }
+        inline uint32_t GetViewHeight() const { return m_ViewportHeight; }
+        inline const std::string& GetName() const { return m_Name; }
+        inline bool GetSceneChange() const { return m_SceneChange; }
+        inline void SetSceneChange(bool c) { m_SceneChange = c; }
 
         template<typename T>
         auto GetComponentView() { return m_Registry.view<T>(); }
@@ -43,7 +45,7 @@ namespace Rocket
 		uint32_t m_ViewportWidth = 0;
         uint32_t m_ViewportHeight = 0;
 		entt::registry m_Registry;
-
+        bool m_SceneChange = false;
 
         Camera* m_EditorCamera = nullptr;
         Camera* m_PrimaryCamera = nullptr;

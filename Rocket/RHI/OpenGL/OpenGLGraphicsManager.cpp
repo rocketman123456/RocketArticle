@@ -2,7 +2,10 @@
 #include "OpenGL/OpenGLPipelineStateManager.h"
 #include "Module/WindowManager.h"
 #include "Module/Application.h"
-//#include "Event/ApplicationEvent.h"
+#include "Render/DrawBasic/VertexArray.h"
+#include "Render/DrawBasic/VertexBuffer.h"
+#include "Render/DrawBasic/IndexBuffer.h"
+#include "Render/DrawBasic/Texture.h"
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
@@ -98,16 +101,55 @@ namespace Rocket
 {
     GraphicsManager *GetGraphicsManager() { return new OpenGLGraphicsManager(); }
 
+    struct QuadVertex
+    {
+        Vector3f Position;
+        Vector4f Color;
+        Vector2f TexCoord;
+        float TexIndex;
+        float TilingFactor;
+    };
+
+    struct Renderer2DStatistics
+    {
+        uint32_t DrawCalls = 0;
+        uint32_t QuadCount = 0;
+
+        uint32_t GetTotalVertexCount() const { return QuadCount * 4; }
+        uint32_t GetTotalIndexCount() const { return QuadCount * 6; }
+    };
+
+    struct Renderer2DData
+    {
+        static const uint32_t MaxQuads = 20'000;
+        static const uint32_t MaxVertices = MaxQuads * 4;
+        static const uint32_t MaxIndices = MaxQuads * 6;
+        static const uint32_t MaxTextureSlots = 16;
+
+        Ref<VertexArray> QuadVertexArray;
+        Ref<VertexBuffer> QuadVertexBuffer;
+        Ref<Shader> TextureShader;
+        Ref<Texture2D> WhiteTexture;
+
+        uint32_t QuadIndexCount = 0;
+        QuadVertex* QuadVertexBufferBase = nullptr;
+        QuadVertex* QuadVertexBufferPtr = nullptr;
+
+        std::array<Ref<Texture2D>, MaxTextureSlots> TextureSlots;
+        uint32_t TextureSlotIndex = 1; // 0 = white texture
+
+        Vector4f QuadVertexPositions[4];
+
+        Renderer2DStatistics Stats;
+    };
+
     int OpenGLGraphicsManager::Initialize()
     {
         //PROFILE_BIND_OPENGL();
 
         int ret = GraphicsManager::Initialize();
         if(ret != 0)
-        {
-            RK_GRAPHICS_ERROR("GraphicsManager Initialize Error");
             return ret;
-        }
 
         m_WindowHandle = static_cast<GLFWwindow *>(g_WindowManager->GetNativeWindow());
 
@@ -143,7 +185,7 @@ namespace Rocket
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
-        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;        // Enable Gamepad Controls
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
         //io.ConfigViewportsNoAutoMerge = true;
@@ -272,71 +314,6 @@ namespace Rocket
         default:
             assert(0);
         }
-
-        // Prepare & Bind per frame constant buffer
-        //uint32_t blockIndex = glGetUniformBlockIndex(m_CurrentShader, "PerFrameConstants");
-        //if (blockIndex != GL_INVALID_INDEX)
-        //{
-        //    int32_t blockSize;
-        //    glGetActiveUniformBlockiv(m_CurrentShader, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-        //    RK_CORE_ASSERT(blockSize >= sizeof(PerFrameConstants), "Shader PerFrameConstants Not Exist");
-        //    glUniformBlockBinding(m_CurrentShader, blockIndex, 10);
-        //    glBindBufferBase(GL_UNIFORM_BUFFER, 10, m_uboDrawFrameConstant[frame.frameIndex]);
-        //}
-
-        // Prepare per batch constant buffer binding point
-        //blockIndex = glGetUniformBlockIndex(m_CurrentShader, "PerBatchConstants");
-        //if (blockIndex != GL_INVALID_INDEX)
-        //{
-        //    int32_t blockSize;
-        //    glGetActiveUniformBlockiv(m_CurrentShader, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-        //    RK_CORE_ASSERT(blockSize >= sizeof(PerBatchConstants), "Shader PerBatchConstants Not Exist");
-        //    glUniformBlockBinding(m_CurrentShader, blockIndex, 11);
-        //    glBindBufferBase(GL_UNIFORM_BUFFER, 11, m_uboDrawBatchConstant[frame.frameIndex]);
-        //}
-
-        // Prepare & Bind light info
-        //blockIndex = glGetUniformBlockIndex(m_CurrentShader, "LightInfo");
-        //if (blockIndex != GL_INVALID_INDEX)
-        //{
-        //    int32_t blockSize;
-        //    glGetActiveUniformBlockiv(m_CurrentShader, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-        //    RK_CORE_ASSERT(blockSize >= sizeof(LightInfo), "Shader LightInfo Not Exist");
-        //    glUniformBlockBinding(m_CurrentShader, blockIndex, 12);
-        //    glBindBufferBase(GL_UNIFORM_BUFFER, 12, m_uboLightInfo[frame.frameIndex]);
-        //}
-
-        //if (pPipelineState->flag == PIPELINE_FLAG::SHADOW)
-        //{
-        //    uint32_t blockIndex = glGetUniformBlockIndex(m_CurrentShader, "ShadowMapConstants");
-        //    RK_CORE_ASSERT(blockIndex != GL_INVALID_INDEX, "Shader ShadowMapConstants Index Not Exist");
-        //    int32_t blockSize;
-        //    glGetActiveUniformBlockiv(m_CurrentShader, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-        //    RK_CORE_ASSERT(blockSize >= sizeof(ShadowMapConstants), "Shader ShadowMapConstants Not Exist");
-        //    glUniformBlockBinding(m_CurrentShader, blockIndex, 13);
-        //    glBindBufferBase(GL_UNIFORM_BUFFER, 13, m_uboShadowMatricesConstant[frame.frameIndex]);
-        //}
-
-        // Set common textures
-        // Bind LUT table
-        //auto texture_id = frame.brdfLUT;
-        //setShaderParameter("SPIRV_Cross_CombinedbrdfLUTsamp0", 6);
-        //glActiveTexture(GL_TEXTURE6);
-        //if (texture_id.texture > 0) {
-        //    glBindTexture(GL_TEXTURE_2D, texture_id.texture);
-        //} else {
-        //    glBindTexture(GL_TEXTURE_2D, 0);
-        //}
-
-        // Set Sky Box
-        //setShaderParameter("SPIRV_Cross_Combinedskyboxsamp0", 10);
-        //glActiveTexture(GL_TEXTURE10);
-        //GLenum target;
-        //target = GL_TEXTURE_CUBE_MAP_ARRAY;
-        //texture_id = m_Textures["SKYBOX"];
-        //if (texture_id.texture >= 0) {
-        //    glBindTexture(target, (GLuint)texture_id.texture);
-        //}
     }
 
     void OpenGLGraphicsManager::BeginFrame(const Frame &frame)
@@ -347,7 +324,6 @@ namespace Rocket
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         SetPerFrameConstants(frame.frameContext);
-        SetLightInfo(frame.lightInfo);
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -372,120 +348,27 @@ namespace Rocket
         GraphicsManager::EndFrame(frame);
     }
 
+    void OpenGLGraphicsManager::BeginScene(const Scene& scene)
+    { 
+        GraphicsManager::BeginScene(scene);
+    }
+
     void OpenGLGraphicsManager::EndScene()
     {
         for (int i = 0; i < m_Frames.size(); i++)
         {
             auto &batchContexts = m_Frames[i].batchContexts;
-
-            for (auto &dbc : batchContexts)
-            {
-                glDeleteVertexArrays(1, &std::dynamic_pointer_cast<OpenGLDrawBatchContext>(dbc)->vao);
-            }
-
             batchContexts.clear();
-
-            if (m_uboDrawFrameConstant[i])
-            {
-                glDeleteBuffers(1, &m_uboDrawFrameConstant[i]);
-                m_uboDrawFrameConstant[i] = 0;
-            }
-
-            if (m_uboDrawBatchConstant[i])
-            {
-                glDeleteBuffers(1, &m_uboDrawBatchConstant[i]);
-                m_uboDrawBatchConstant[i] = 0;
-            }
-
-            if (m_uboLightInfo[i])
-            {
-                glDeleteBuffers(1, &m_uboLightInfo[i]);
-                m_uboLightInfo[i] = 0;
-            }
-
-            if (m_uboShadowMatricesConstant[i])
-            {
-                glDeleteBuffers(1, &m_uboShadowMatricesConstant[i]);
-                m_uboShadowMatricesConstant[i] = 0;
-            }
-
-#if defined(RK_DEBUG)
-            if (m_uboDebugConstant[i])
-            {
-                glDeleteBuffers(1, &m_uboDebugConstant[i]);
-                m_uboDebugConstant[i] = 0;
-            }
-#endif
         }
-
-        if (m_SkyBoxDrawBatchContext.vao)
-        {
-            glDeleteVertexArrays(1, &m_SkyBoxDrawBatchContext.vao);
-            m_SkyBoxDrawBatchContext.vao = 0;
-        }
-
-#if defined(RK_DEBUG)
-        m_DebugDrawBatchContext.clear();
-
-        for (auto &buf : m_DebugBuffers)
-        {
-            glDeleteBuffers(1, &buf);
-        }
-#endif
-
-        for (auto &buf : m_Buffers)
-        {
-            glDeleteBuffers(1, &buf);
-        }
-
-        for (auto &it : m_Textures)
-        {
-            GLuint texture_id = static_cast<GLuint>(it.second.texture);
-            glDeleteTextures(1, &texture_id);
-        }
-
-        m_Buffers.clear();
-        m_Textures.clear();
-
         GraphicsManager::EndScene();
     }
 
     void OpenGLGraphicsManager::SetPerFrameConstants(const DrawFrameContext& context)
     {
-        if (!m_uboDrawFrameConstant[m_nFrameIndex])
-        {
-            glGenBuffers(1, &m_uboDrawFrameConstant[m_nFrameIndex]);
-        }
-
-        auto constants = static_cast<PerFrameConstants>(context);
-        glBindBuffer(GL_UNIFORM_BUFFER, m_uboDrawFrameConstant[m_nFrameIndex]);
-        glBufferData(GL_UNIFORM_BUFFER, kSizePerFrameConstantBuffer, &constants, GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 
     void OpenGLGraphicsManager::SetPerBatchConstants(const DrawBatchContext &context)
     {
-        if (!m_uboDrawBatchConstant[m_nFrameIndex])
-        {
-            glGenBuffers(1, &m_uboDrawBatchConstant[m_nFrameIndex]);
-        }
-
-        const auto &constant = static_cast<const PerBatchConstants &>(context);
-        glBindBuffer(GL_UNIFORM_BUFFER, m_uboDrawBatchConstant[m_nFrameIndex]);
-        glBufferData(GL_UNIFORM_BUFFER, kSizePerBatchConstantBuffer, &constant, GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    }
-
-    void OpenGLGraphicsManager::SetLightInfo(const LightInfo &lightInfo)
-    {
-        if (!m_uboLightInfo[m_nFrameIndex])
-        {
-            glGenBuffers(1, &m_uboLightInfo[m_nFrameIndex]);
-        }
-
-        glBindBuffer(GL_UNIFORM_BUFFER, m_uboLightInfo[m_nFrameIndex]);
-        glBufferData(GL_UNIFORM_BUFFER, kSizeLightInfo, &lightInfo, GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 
     void OpenGLGraphicsManager::DrawBatch(const Frame &frame)
@@ -509,8 +392,7 @@ namespace Rocket
         uint32_t vao;
         glGenVertexArrays(1, &vao);
 
-        // Bind the vertex array object to store all the buffers and vertex
-        // attributes we create here.
+        // Bind the vertex array object to store all the buffers and vertex attributes we create here.
         glBindVertexArray(vao);
 
         uint32_t buffer_id[2];
@@ -518,16 +400,14 @@ namespace Rocket
         // Generate an ID for the vertex buffer.
         glGenBuffers(2, buffer_id);
 
-        // Bind the vertex buffer and load the vertex (position) data into the
-        // vertex buffer.
+        // Bind the vertex buffer and load the vertex (position) data into the vertex buffer.
         glBindBuffer(GL_ARRAY_BUFFER, buffer_id[0]);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, nullptr);
 
-        // Bind the vertex buffer and load the vertex (uv) data into the vertex
-        // buffer.
+        // Bind the vertex buffer and load the vertex (uv) data into the vertex buffer.
         glBindBuffer(GL_ARRAY_BUFFER, buffer_id[1]);
         glBufferData(GL_ARRAY_BUFFER, sizeof(uv), uv, GL_STATIC_DRAW);
 
@@ -538,58 +418,6 @@ namespace Rocket
 
         glDeleteVertexArrays(1, &vao);
         glDeleteBuffers(2, buffer_id);
-    }
-
-    texture_id OpenGLGraphicsManager::GenerateCubeShadowMapArray(const uint32_t width, const uint32_t height,
-                                                                 const uint32_t count)
-    {
-        texture_id result;
-        uint32_t shadowMap;
-
-        glGenTextures(1, &shadowMap);
-        glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, shadowMap);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-        glTexStorage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 1, GL_DEPTH_COMPONENT24, width, height, count * 6);
-        glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, 0);
-
-        // register the shadow map
-        result.texture = static_cast<intptr_t>(shadowMap);
-        result.width = width;
-        result.height = height;
-        result.depth = count;
-        result.index = 0;
-
-        return result;
-    }
-
-    texture_id OpenGLGraphicsManager::GenerateShadowMapArray(const uint32_t width, const uint32_t height,
-                                                             const uint32_t count)
-    {
-        texture_id result;
-        uint32_t shadowMap;
-
-        glGenTextures(1, &shadowMap);
-        glBindTexture(GL_TEXTURE_2D_ARRAY, shadowMap);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_DEPTH_COMPONENT24, width, height, count);
-
-        glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
-
-        // register the shadow map
-        result.texture = static_cast<intptr_t>(shadowMap);
-        result.width = width;
-        result.height = height;
-        result.depth = count;
-        result.index = 0;
-
-        return result;
     }
 
     void OpenGLGraphicsManager::SwapBuffers()

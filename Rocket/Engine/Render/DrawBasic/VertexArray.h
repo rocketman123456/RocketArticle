@@ -1,10 +1,10 @@
 #pragma once
-#include "Render/VertexBuffer.h"
-#include "Render/IndexBuffer.h"
+#include "Render/DrawBasic/VertexBuffer.h"
+#include "Render/DrawBasic/IndexBuffer.h"
 
 namespace Rocket
 {
-    class VertexArray
+    Interface VertexArray
 	{
 	public:
 		virtual ~VertexArray() = default;
@@ -15,7 +15,7 @@ namespace Rocket
 		virtual void AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer) = 0;
 		virtual void SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer) = 0;
 
-		virtual const std::vector<Ref<VertexBuffer>>& GetVertexBuffers() const = 0;
+		virtual const Vec<Ref<VertexBuffer>>& GetVertexBuffers() const = 0;
 		virtual const Ref<IndexBuffer>& GetIndexBuffer() const = 0;
 	};
 }

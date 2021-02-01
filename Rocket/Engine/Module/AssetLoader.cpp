@@ -27,7 +27,7 @@ namespace Rocket
     {
         FILE* fp = nullptr;
         std::string fullPath = m_AssetPath + name;
-        RK_CORE_TRACE("Asset Full Path : {}", fullPath);
+        RK_CORE_TRACE("Open File Full Path : {}", fullPath);
 
         switch(mode)
         {
@@ -62,7 +62,7 @@ namespace Rocket
             uint8_t* data = new uint8_t[length + 1];
             length = fread(data, 1, length, static_cast<FILE*>(fp));
 #ifdef RK_DEBUG
-            RK_CORE_INFO("Read file '{}', {} bytes", filePath, length);
+            RK_CORE_TRACE("Read file '{}', {} bytes", filePath, length);
 #endif
             data[length] = '\0';
             buff.SetData(data, length);
@@ -87,7 +87,7 @@ namespace Rocket
             uint8_t* data = new uint8_t[length + 1];
             length = fread(data, 1, length, static_cast<FILE*>(fp));
 #ifdef RK_DEBUG
-            RK_CORE_INFO("Read file '{}', {} bytes", filePath, length);
+            RK_CORE_TRACE("Read file '{}', {} bytes", filePath, length);
 #endif
             data[length] = '\0';
             buff.SetData(data, length + 1);

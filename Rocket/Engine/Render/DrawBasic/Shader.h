@@ -7,6 +7,11 @@ namespace Rocket
 {
 	using ShaderSourceList = Vec<std::pair<uint32_t, std::string>>;
 
+	struct UniformData
+	{
+
+	};
+
     Interface Shader
     {
     public:
@@ -17,6 +22,8 @@ namespace Rocket
 
         virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
+
+		virtual UniformData GetUniformBinding() = 0;
 
 		virtual bool SetInt32(const std::string& name, int32_t value) = 0;
         virtual bool SetUInt32(const std::string& name, uint32_t value) = 0;

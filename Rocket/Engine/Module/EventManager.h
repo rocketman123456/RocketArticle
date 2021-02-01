@@ -21,7 +21,7 @@ namespace Rocket
     using EventListenerFnptr = bool(*)(EventPtr&);
     using EventListenerDelegate = entt::delegate<bool(EventPtr&)>;
     using EventListenerList = std::list<EventListenerDelegate>;
-    using EventListenerMap = std::map<EventType, EventListenerList>;
+    using EventListenerMap = Map<EventType, EventListenerList>;
     using EventQueue = std::list<EventPtr>;
     
     class EventManager : implements IRuntimeModule

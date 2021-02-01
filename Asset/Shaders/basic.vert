@@ -30,5 +30,5 @@ void main()
 	v_TexCoord = a_TexCoord;
 	v_TexIndex = a_TexIndex;
 	v_TilingFactor = a_TilingFactor;
-	gl_Position = PerFrame.projectionMatrix * PerFrame.viewMatrix * PerBatch.modelMatrix * vec4(a_Position, 1.0f);
+	gl_Position = PerFrame.projectionMatrix * PerFrame.viewMatrix * vec4(a_Position, 1.0f);
 }

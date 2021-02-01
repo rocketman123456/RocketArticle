@@ -1,5 +1,6 @@
 #include "Module/GraphicsManager.h"
 #include "Module/Application.h"
+#include "Module/SceneManager.h"
 #include "Render/DrawPass/ForwardGeometryPass.h"
 
 namespace Rocket
@@ -20,6 +21,14 @@ namespace Rocket
 
     void GraphicsManager::Tick(Timestep ts)
     {
+        auto scene = g_SceneManager->GetActiveScene();
+        if (m_CurrentScene->GetSceneChange() || m_CurrentScene != scene)
+        {
+            EndScene();
+            m_CurrentScene = g_SceneManager->GetActiveScene();
+            BeginScene(*m_CurrentScene);
+        }
+        
         UpdateConstants();
 
         BeginFrame(m_Frames[m_nFrameIndex]);
@@ -244,50 +253,11 @@ namespace Rocket
         {
             m_Frames[i] = m_Frames[0];
             m_Frames[i].frameIndex = i;
-
-            // generate shadow map array
-            if (m_Frames[i].frameContext.shadowMap.texture == -1) {
-                m_Frames[i].frameContext.shadowMap =
-                    g_GraphicsManager->GenerateShadowMapArray(
-                        config->GetConfigInfo<uint32_t>("Graphics", "shadow_map_width"),
-                        config->GetConfigInfo<uint32_t>("Graphics", "shadow_map_height"),
-                        config->GetConfigInfo<uint32_t>("Graphics", "max_shadow_map_count"));
-            }
-
-            // generate global shadow map array
-            if (m_Frames[i].frameContext.globalShadowMap.texture == -1) {
-                m_Frames[i].frameContext.globalShadowMap =
-                    g_GraphicsManager->GenerateShadowMapArray(
-                        config->GetConfigInfo<uint32_t>("Graphics", "global_shadow_map_width"),
-                        config->GetConfigInfo<uint32_t>("Graphics", "global_shadow_map_height"),
-                        config->GetConfigInfo<uint32_t>("Graphics", "max_global_shadow_map_count"));
-            }
-
-            // generate cube shadow map array
-            if (m_Frames[i].frameContext.cubeShadowMap.texture == -1) {
-                m_Frames[i].frameContext.cubeShadowMap =
-                    g_GraphicsManager->GenerateCubeShadowMapArray(
-                        config->GetConfigInfo<uint32_t>("Graphics", "cube_shadow_map_width"),
-                        config->GetConfigInfo<uint32_t>("Graphics", "cube_shadow_map_height"),
-                        config->GetConfigInfo<uint32_t>("Graphics", "max_cube_shadow_map_count"));
-            }
         }
-
-        //if (scene.SkyBox) {
-        //    initializeSkyBox(scene);
-        //}
-        //if (scene.Geometries.size()) {
-        //    initializeGeometries(scene);
-        //}
     }
 
     void GraphicsManager::EndScene()
     {
-        for (auto& item : m_Textures)
-        {
-            ReleaseTexture(item.second);
-        }
-        m_Textures.clear();
     }
 
     void GraphicsManager::BeginFrame(const Frame& frame) 

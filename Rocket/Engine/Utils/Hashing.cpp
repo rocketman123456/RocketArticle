@@ -2,8 +2,8 @@
 
 namespace Rocket
 {
-    std::unordered_map<uint64_t, std::string> EventHashTable::IdStringMap;
-    std::unordered_map<uint64_t, std::string> AssetHashTable::IdStringMap;
+    UMap<uint64_t, std::string> EventHashTable::IdStringMap;
+    UMap<uint64_t, std::string> AssetHashTable::IdStringMap;
 
     uint64_t EventHashTable::HashString(const std::string& str)
     {
