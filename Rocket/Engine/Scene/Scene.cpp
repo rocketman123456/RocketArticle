@@ -69,6 +69,7 @@ namespace Rocket
 			}
 		}
 		m_PrimaryCamera = mainCamera;
+		m_PrimaryCameraTransform = cameraTransform;
 
 		if (mainCamera)
 		{
@@ -83,7 +84,7 @@ namespace Rocket
 		}
 	}
 
-	void Scene::OnUpdateEditor(Timestep ts, EditorCamera& camera)
+	void Scene::OnUpdateEditor(Timestep ts)
 	{
 		//Renderer2D::BeginScene(camera);
 		auto group = m_Registry.group<TransformComponent>(entt::get<SpriteRendererComponent>);

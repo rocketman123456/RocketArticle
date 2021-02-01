@@ -20,7 +20,7 @@ namespace Rocket
 		void DestroyEntity(Entity entity);
 
         void OnUpdateRuntime(Timestep ts);
-		void OnUpdateEditor(Timestep ts, EditorCamera& camera);
+		void OnUpdateEditor(Timestep ts);
 		void OnViewportResize(uint32_t width, uint32_t height);
 
         Entity GetPrimaryCameraEntity();
@@ -28,12 +28,19 @@ namespace Rocket
 		template<typename T>
 		void OnComponentAdded(Entity entity, T& component);
 
-        inline entt::registry& GetRegistry() { return m_Registry; }
+        inline entt::registry* GetRegistry() { return &m_Registry; }
         inline uint32_t GetViewWidth() const { return m_ViewportWidth; }
         inline uint32_t GetViewHeight() const { return m_ViewportHeight; }
         inline const std::string& GetName() const { return m_Name; }
         inline bool GetSceneChange() const { return m_SceneChange; }
         inline void SetSceneChange(bool c) { m_SceneChange = c; }
+
+        void SetPrimaryCamera(Camera* camera) { m_PrimaryCamera = camera; }
+        void SetEditorCamera(Camera* camera) { m_EditorCamera = camera; }
+        Camera* GetPrimaryCamera() { return m_PrimaryCamera; }
+        Camera* GetEditorCamera() { return m_EditorCamera; }
+        Matrix4f& GetPrimaryCameraTransform() { return m_PrimaryCameraTransform; }
+        Matrix4f& GetEditorCameraTransform() { return m_EditorCameraTransform; }
 
         template<typename T>
         auto GetComponentView() { return m_Registry.view<T>(); }
@@ -47,10 +54,11 @@ namespace Rocket
 		entt::registry m_Registry;
         bool m_SceneChange = false;
 
-        Camera* m_EditorCamera = nullptr;
         Camera* m_PrimaryCamera = nullptr;
+        Camera* m_EditorCamera = nullptr;
+        Matrix4f m_PrimaryCameraTransform;
+        Matrix4f m_EditorCameraTransform;
 
-        //friend class Entity;
         friend class SceneSerializer;
     };
 }

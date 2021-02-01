@@ -1,13 +1,56 @@
 #pragma once
 #include "Module/GraphicsManager.h"
-#include "Render/DrawBasic/Shader.h"
+#include "OpenGL/OpenGLVertexArray.h"
+#include "OpenGL/OpenGLVertexBuffer.h"
+#include "OpenGL/OpenGLIndexBuffer.h"
+#include "OpenGL/OpenGLShader.h"
+#include "OpenGL/OpenGLTexture.h"
 
 struct GLFWwindow;
 
 namespace Rocket
 {
-    struct QuadVertex;
-    struct Renderer2DData;
+    struct QuadVertex
+    {
+        Vector3f Position;
+        Vector4f Color;
+        Vector2f TexCoord;
+        float TexIndex;
+        float TilingFactor;
+    };
+
+    struct Renderer2DStatistics
+    {
+        uint32_t DrawCalls = 0;
+        uint32_t QuadCount = 0;
+
+        uint32_t GetTotalVertexCount() const { return QuadCount * 4; }
+        uint32_t GetTotalIndexCount() const { return QuadCount * 6; }
+    };
+
+    struct Renderer2DData
+    {
+        static const uint32_t MaxQuads = 40'000;
+        static const uint32_t MaxVertices = MaxQuads * 4;
+        static const uint32_t MaxIndices = MaxQuads * 6;
+        static const uint32_t MaxTextureSlots = 16;
+
+        Ref<VertexArray> QuadVertexArray;
+        Ref<VertexBuffer> QuadVertexBuffer;
+        Ref<Shader> TextureShader;
+        Ref<Texture2D> WhiteTexture;
+
+        uint32_t QuadIndexCount = 0;
+        QuadVertex* QuadVertexBufferBase = nullptr;
+        QuadVertex* QuadVertexBufferPtr = nullptr;
+
+        std::array<Ref<Texture2D>, MaxTextureSlots> TextureSlots;
+        uint32_t TextureSlotIndex = 1; // 0 = white texture
+
+        Vector4f QuadVertexPositions[4];
+
+        Renderer2DStatistics Stats;
+    };
 
     class OpenGLGraphicsManager : implements GraphicsManager
     {
@@ -51,6 +94,16 @@ namespace Rocket
         bool OnWindowResize(EventPtr& e) final;
 
     protected:
+        void StartBatch();
+        void Flush();
+        void NextBatch()
+        {
+            Flush();
+            StartBatch();
+        }
+        void DrawQuad(const Matrix4f& transform, const Vector4f& color);
+
+    protected:
         void SwapBuffers() final;
         bool Resize(int32_t width, int32_t height);
 
@@ -60,7 +113,7 @@ namespace Rocket
 
         struct OpenGL2DBatchContext : public DrawBatchContext
         {
-            Renderer2DData* data;
+            Renderer2DData data;
         };
 
         struct OpenGLDrawBatchContext : public DrawBatchContext

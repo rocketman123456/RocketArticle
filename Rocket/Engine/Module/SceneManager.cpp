@@ -19,6 +19,7 @@ namespace Rocket
 
     void SceneManager::Tick(Timestep ts)
     {
+        m_ActiveScene->OnUpdateRuntime(ts);
     }
 
     bool SceneManager::SetActiveScene(const std::string& name)
@@ -27,6 +28,7 @@ namespace Rocket
         if (findIt == m_SceneList.end())
         {
             RK_CORE_ERROR("Find Active Scene Error : {}", name);
+            m_ActiveScene = nullptr;
             return false;
         }
         m_ActiveScene = findIt->second;

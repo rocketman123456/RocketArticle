@@ -35,27 +35,40 @@ namespace Rocket
     {
     public:
         template<typename T>
-        [[nodiscard]] static uint64_t Hash(const T& t)
-        {
-            return std::hash<T>{}(t);
-        }
+        [[nodiscard]] static uint64_t Hash(const T& t) { return std::hash<T>{}(t); }
     };
+
+#define DeclareHashTable \
+    public:\
+        [[nodiscard]] static uint64_t HashString(const std::string& str);\
+        [[nodiscard]] static const std::string& GetStringFromId(uint64_t id);\
+    protected:\
+        static UMap<uint64_t, std::string> IdStringMap;
+#define ImplementHashTable(class_name) \
+    UMap<uint64_t, std::string> class_name::IdStringMap;\
+    uint64_t class_name::HashString(const std::string& str)\
+    {\
+        uint64_t result = _HashString_(str, IdStringMap);\
+        return result;\
+    }\
+    const std::string& class_name::GetStringFromId(uint64_t id)\
+    {\
+        auto& result = _GetStringFromId_(id, IdStringMap);\
+        return result;\
+    }
 
     class EventHashTable
     {
-    public:
-        [[nodiscard]] static uint64_t HashString(const std::string& str);
-        [[nodiscard]] static const std::string& GetStringFromId(uint64_t id);
-    protected:
-        static UMap<uint64_t, std::string> IdStringMap;
+        DeclareHashTable;
     };
 
     class AssetHashTable
     {
-    public:
-        [[nodiscard]] static uint64_t HashString(const std::string& str);
-        [[nodiscard]] static const std::string& GetStringFromId(uint64_t id);
-    protected:
-        static UMap<uint64_t, std::string> IdStringMap;
+        DeclareHashTable;
+    };
+
+    class GraphicsHashTable
+    {
+        DeclareHashTable;
     };
 }

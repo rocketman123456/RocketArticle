@@ -22,7 +22,7 @@ namespace Rocket
         [[nodiscard]] Ref<Scene> GetActiveScene() { return m_ActiveScene; }
         [[nodiscard]] bool SetActiveScene(const std::string& name);
     private:
-        std::unordered_map<std::string, Ref<Scene>> m_SceneList;
+        UMap<std::string, Ref<Scene>> m_SceneList;
         Ref<Scene> m_ActiveScene;
     };
 

@@ -11,18 +11,11 @@ out vec2 v_TexCoord;
 out flat float v_TexIndex;
 out float v_TilingFactor;
 
-uniform PerFrameConstants
+struct PerFrameConstants
 {
     mat4 viewMatrix;
     mat4 projectionMatrix;
-    vec4 camPos;
-    int numLights;
 } PerFrame;
-
-uniform PerBatchConstants
-{
-    mat4 modelMatrix;
-} PerBatch;
 
 void main()
 {

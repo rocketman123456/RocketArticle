@@ -18,8 +18,9 @@ namespace Rocket
 		T& AddComponent(Args&&... args)
 		{
 			RK_CORE_ASSERT(!HasComponent<T>(), "Entity already has component!");
-            T& component = m_Scene->GetRegistry().emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+            T& component = m_Scene->GetRegistry()->emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
             m_Scene->OnComponentAdded<T>(*this, component);
+			m_Scene->SetSceneChange(true);
             return component;
 		}
 
@@ -27,20 +28,21 @@ namespace Rocket
 		T& GetComponent()
 		{
 			RK_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
-            return m_Scene->GetRegistry().get<T>(m_EntityHandle);
+            return m_Scene->GetRegistry()->get<T>(m_EntityHandle);
 		}
 
 		template<typename T>
 		bool HasComponent()
 		{
-            return m_Scene->GetRegistry().has<T>(m_EntityHandle);
+            return m_Scene->GetRegistry()->has<T>(m_EntityHandle);
 		}
 
 		template<typename T>
 		void RemoveComponent()
 		{
 			RK_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
-			m_Scene->GetRegistry().remove<T>(m_EntityHandle);
+			m_Scene->GetRegistry()->remove<T>(m_EntityHandle);
+			m_Scene->SetSceneChange(true);
 		}
 
         operator bool() const { return m_EntityHandle != entt::null; }

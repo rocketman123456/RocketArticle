@@ -2,6 +2,7 @@
 #include "Core/Core.h"
 #include "Common/GeomMath.h"
 #include "Scene/SceneCamera.h"
+#include "Render/DrawBasic/Texture.h"
 
 #include <string>
 
@@ -54,11 +55,11 @@ namespace Rocket
 
 	struct TextureRendererComponent
 	{
-		Vector4f Color{ 1.0f, 1.0f, 1.0f, 1.0f };
+		Ref<Texture2D> Texture;
 
 		TextureRendererComponent() = default;
 		TextureRendererComponent(const TextureRendererComponent&) = default;
-		TextureRendererComponent(const Vector4f& color) : Color(color) {}
+		TextureRendererComponent(const Ref<Texture2D>& texture) : Texture(texture) {}
 	};
 
 	struct CameraComponent

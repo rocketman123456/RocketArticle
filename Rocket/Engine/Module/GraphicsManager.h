@@ -88,8 +88,8 @@ namespace Rocket
         Vec<Ref<IDispatchPass>> m_DispatchPasses;
         Vec<Ref<IDrawPass>> m_DrawPasses;
 
-        Ref<Scene> m_CurrentScene;
-        Ref<Shader> m_CurrentShader;
+        Ref<Scene> m_CurrentScene = nullptr;
+        Ref<Shader> m_CurrentShader = nullptr;
     };
 
     GraphicsManager *GetGraphicsManager();
