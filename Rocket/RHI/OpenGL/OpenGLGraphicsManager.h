@@ -19,7 +19,7 @@ namespace Rocket
         virtual void Tick(Timestep ts) final;
 
         void Present() final;
-        void SetPipelineState(const std::shared_ptr<PipelineState>& pipelineState, const Frame& frame) final;
+        void SetPipelineState(const Ref<PipelineState>& pipelineState, const Frame& frame) final;
         void DrawBatch(const Frame& frame) final;
         void DrawFullScreenQuad() final;
 

@@ -120,7 +120,9 @@ namespace Rocket
             {
                 GLuint shader;
                 auto config = g_Application->GetConfig();
-                status = LoadShaderFromFile((config->GetAssetPath() + it->second).c_str(), it->first, shader);
+                auto full_path = ("Shaders/" + it->second);
+                RK_GRAPHICS_INFO("Load Shader File {}", full_path);
+                status = LoadShaderFromFile(full_path.c_str(), it->first, shader);
                 if (!status)
                 {
                     return false;

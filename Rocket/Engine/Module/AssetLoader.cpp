@@ -27,13 +27,14 @@ namespace Rocket
     {
         FILE* fp = nullptr;
         std::string fullPath = m_AssetPath + name;
+        RK_CORE_TRACE("Asset Full Path : {}", fullPath);
 
         switch(mode)
         {
-        case RK_OPEN_TEXT:
+        case AssetOpenMode::RK_OPEN_TEXT:
             fp = fopen(fullPath.c_str(), "r");
             break;
-        case RK_OPEN_BINARY:
+        case AssetOpenMode::RK_OPEN_BINARY:
             fp = fopen(fullPath.c_str(), "rb");
             break;
         }
@@ -51,7 +52,7 @@ namespace Rocket
 
     Buffer AssetLoader::SyncOpenAndReadText(const std::string& filePath)
     {
-        AssetFilePtr fp = OpenFile(filePath, RK_OPEN_TEXT);
+        AssetFilePtr fp = OpenFile(filePath, AssetOpenMode::RK_OPEN_TEXT);
         Buffer buff;
 
         if(fp)
@@ -76,7 +77,7 @@ namespace Rocket
 
     Buffer AssetLoader::SyncOpenAndReadBinary(const std::string& filePath)
     {
-        AssetFilePtr fp = OpenFile(filePath, RK_OPEN_BINARY);
+        AssetFilePtr fp = OpenFile(filePath, AssetOpenMode::RK_OPEN_BINARY);
         Buffer buff;
 
         if(fp)
@@ -103,7 +104,7 @@ namespace Rocket
 
     bool AssetLoader::SyncOpenAndWriteText(const std::string& filePath, const Buffer& buf)
     {
-        AssetFilePtr fp = OpenFile(filePath, RK_OPEN_TEXT);
+        AssetFilePtr fp = OpenFile(filePath, AssetOpenMode::RK_OPEN_TEXT);
         if(!fp)
         {
             RK_CORE_ERROR("Write Text to File Open File Error");
@@ -116,7 +117,7 @@ namespace Rocket
 
     bool AssetLoader::SyncOpenAndWriteBinary(const std::string& filePath, const Buffer& buf)
     {
-        AssetFilePtr fp = OpenFile(filePath, RK_OPEN_TEXT);
+        AssetFilePtr fp = OpenFile(filePath, AssetOpenMode::RK_OPEN_TEXT);
         if(!fp)
         {
             RK_CORE_ERROR("Write Text to File Open File Error");

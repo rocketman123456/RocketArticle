@@ -1,6 +1,9 @@
 #pragma once
 #include "Scene/Camera.h"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 namespace Rocket
 {
     class SceneCamera : implements Camera

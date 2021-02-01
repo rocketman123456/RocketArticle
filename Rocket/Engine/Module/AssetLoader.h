@@ -14,13 +14,13 @@ namespace Rocket
     class AssetLoader : implements IRuntimeModule
     {
     public:
-        enum AssetOpenMode
+        enum class AssetOpenMode
         {
             RK_OPEN_TEXT = 0,    /// Open In Text Mode
             RK_OPEN_BINARY = 1,  /// Open In Binary Mode
         };
 
-        enum AssetSeekBase
+        enum class AssetSeekBase
         {
             RK_SEEK_SET = 0,  /// SEEK_SET
             RK_SEEK_CUR = 1,  /// SEEK_CUR

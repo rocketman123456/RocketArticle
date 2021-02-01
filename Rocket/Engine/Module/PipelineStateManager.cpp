@@ -94,17 +94,17 @@ namespace Rocket
         pipelineState.flag = PIPELINE_FLAG::NONE;
         RegisterPipelineState(pipelineState);
 
-        pipelineState.pipelineStateName = "Texture Debug Draw";
-        pipelineState.vertexShaderName = VS_PASSTHROUGH_SOURCE_FILE;
-        pipelineState.pixelShaderName = PS_TEXTURE_SOURCE_FILE;
-        pipelineState.cullFaceMode = CULL_FACE_MODE::BACK;
-        pipelineState.a2vType = A2V_TYPES::A2V_TYPES_SIMPLE;
-        pipelineState.depthTestMode = DEPTH_TEST_MODE::ALWAYS;
-        pipelineState.bDepthWrite = true;
-        pipelineState.pixelFormat = PIXEL_FORMAT::BGRA8UNORM;
-        pipelineState.sampleCount = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
-        pipelineState.flag = PIPELINE_FLAG::DEBUG_DRAW;
-        RegisterPipelineState(pipelineState);
+        //pipelineState.pipelineStateName = "Texture Debug Draw";
+        //pipelineState.vertexShaderName = VS_PASSTHROUGH_SOURCE_FILE;
+        //pipelineState.pixelShaderName = PS_TEXTURE_SOURCE_FILE;
+        //pipelineState.cullFaceMode = CULL_FACE_MODE::BACK;
+        //pipelineState.a2vType = A2V_TYPES::A2V_TYPES_SIMPLE;
+        //pipelineState.depthTestMode = DEPTH_TEST_MODE::ALWAYS;
+        //pipelineState.bDepthWrite = true;
+        //pipelineState.pixelFormat = PIXEL_FORMAT::BGRA8UNORM;
+        //pipelineState.sampleCount = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
+        //pipelineState.flag = PIPELINE_FLAG::DEBUG_DRAW;
+        //RegisterPipelineState(pipelineState);
 
         RK_CORE_INFO("Pipeline State Manager Initialized. Add [{}] Pipelines", m_pipelineStates.size());
         return 0;

@@ -274,48 +274,48 @@ namespace Rocket
         }
 
         // Prepare & Bind per frame constant buffer
-        uint32_t blockIndex = glGetUniformBlockIndex(m_CurrentShader, "PerFrameConstants");
-        if (blockIndex != GL_INVALID_INDEX)
-        {
-            int32_t blockSize;
-            glGetActiveUniformBlockiv(m_CurrentShader, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-            RK_CORE_ASSERT(blockSize >= sizeof(PerFrameConstants), "Shader PerFrameConstants Not Exist");
-            glUniformBlockBinding(m_CurrentShader, blockIndex, 10);
-            glBindBufferBase(GL_UNIFORM_BUFFER, 10, m_uboDrawFrameConstant[frame.frameIndex]);
-        }
+        //uint32_t blockIndex = glGetUniformBlockIndex(m_CurrentShader, "PerFrameConstants");
+        //if (blockIndex != GL_INVALID_INDEX)
+        //{
+        //    int32_t blockSize;
+        //    glGetActiveUniformBlockiv(m_CurrentShader, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
+        //    RK_CORE_ASSERT(blockSize >= sizeof(PerFrameConstants), "Shader PerFrameConstants Not Exist");
+        //    glUniformBlockBinding(m_CurrentShader, blockIndex, 10);
+        //    glBindBufferBase(GL_UNIFORM_BUFFER, 10, m_uboDrawFrameConstant[frame.frameIndex]);
+        //}
 
         // Prepare per batch constant buffer binding point
-        blockIndex = glGetUniformBlockIndex(m_CurrentShader, "PerBatchConstants");
-        if (blockIndex != GL_INVALID_INDEX)
-        {
-            int32_t blockSize;
-            glGetActiveUniformBlockiv(m_CurrentShader, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-            RK_CORE_ASSERT(blockSize >= sizeof(PerBatchConstants), "Shader PerBatchConstants Not Exist");
-            glUniformBlockBinding(m_CurrentShader, blockIndex, 11);
-            glBindBufferBase(GL_UNIFORM_BUFFER, 11, m_uboDrawBatchConstant[frame.frameIndex]);
-        }
+        //blockIndex = glGetUniformBlockIndex(m_CurrentShader, "PerBatchConstants");
+        //if (blockIndex != GL_INVALID_INDEX)
+        //{
+        //    int32_t blockSize;
+        //    glGetActiveUniformBlockiv(m_CurrentShader, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
+        //    RK_CORE_ASSERT(blockSize >= sizeof(PerBatchConstants), "Shader PerBatchConstants Not Exist");
+        //    glUniformBlockBinding(m_CurrentShader, blockIndex, 11);
+        //    glBindBufferBase(GL_UNIFORM_BUFFER, 11, m_uboDrawBatchConstant[frame.frameIndex]);
+        //}
 
         // Prepare & Bind light info
-        blockIndex = glGetUniformBlockIndex(m_CurrentShader, "LightInfo");
-        if (blockIndex != GL_INVALID_INDEX)
-        {
-            int32_t blockSize;
-            glGetActiveUniformBlockiv(m_CurrentShader, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-            RK_CORE_ASSERT(blockSize >= sizeof(LightInfo), "Shader LightInfo Not Exist");
-            glUniformBlockBinding(m_CurrentShader, blockIndex, 12);
-            glBindBufferBase(GL_UNIFORM_BUFFER, 12, m_uboLightInfo[frame.frameIndex]);
-        }
+        //blockIndex = glGetUniformBlockIndex(m_CurrentShader, "LightInfo");
+        //if (blockIndex != GL_INVALID_INDEX)
+        //{
+        //    int32_t blockSize;
+        //    glGetActiveUniformBlockiv(m_CurrentShader, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
+        //    RK_CORE_ASSERT(blockSize >= sizeof(LightInfo), "Shader LightInfo Not Exist");
+        //    glUniformBlockBinding(m_CurrentShader, blockIndex, 12);
+        //    glBindBufferBase(GL_UNIFORM_BUFFER, 12, m_uboLightInfo[frame.frameIndex]);
+        //}
 
-        if (pPipelineState->flag == PIPELINE_FLAG::SHADOW)
-        {
-            uint32_t blockIndex = glGetUniformBlockIndex(m_CurrentShader, "ShadowMapConstants");
-            RK_CORE_ASSERT(blockIndex != GL_INVALID_INDEX, "Shader ShadowMapConstants Index Not Exist");
-            int32_t blockSize;
-            glGetActiveUniformBlockiv(m_CurrentShader, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-            RK_CORE_ASSERT(blockSize >= sizeof(ShadowMapConstants), "Shader ShadowMapConstants Not Exist");
-            glUniformBlockBinding(m_CurrentShader, blockIndex, 13);
-            glBindBufferBase(GL_UNIFORM_BUFFER, 13, m_uboShadowMatricesConstant[frame.frameIndex]);
-        }
+        //if (pPipelineState->flag == PIPELINE_FLAG::SHADOW)
+        //{
+        //    uint32_t blockIndex = glGetUniformBlockIndex(m_CurrentShader, "ShadowMapConstants");
+        //    RK_CORE_ASSERT(blockIndex != GL_INVALID_INDEX, "Shader ShadowMapConstants Index Not Exist");
+        //    int32_t blockSize;
+        //    glGetActiveUniformBlockiv(m_CurrentShader, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
+        //    RK_CORE_ASSERT(blockSize >= sizeof(ShadowMapConstants), "Shader ShadowMapConstants Not Exist");
+        //    glUniformBlockBinding(m_CurrentShader, blockIndex, 13);
+        //    glBindBufferBase(GL_UNIFORM_BUFFER, 13, m_uboShadowMatricesConstant[frame.frameIndex]);
+        //}
 
         // Set common textures
         // Bind LUT table

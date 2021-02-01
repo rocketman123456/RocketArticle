@@ -2,20 +2,12 @@
 
 layout(location = 0) out vec4 color;
 
-layout(binding = 10, std140) uniform PerFrameConstants
-{
-    mat4 viewMatrix;
-    mat4 projectionMatrix;
-    vec4 camPos;
-    int numLights;
-} per_frame;
+in vec4 v_Color;
+in vec2 v_TexCoord;
+in flat float v_TexIndex;
+in float v_TilingFactor;
 
-layout(binding = 11, std140) uniform PerBatchConstants
-{
-    mat4 modelMatrix;
-} per_batch;
-
-layout(location = 0) uniform vec4 u_Color;
+uniform vec4 u_Color;
 
 void main()
 {
