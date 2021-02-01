@@ -39,12 +39,15 @@ namespace Rocket
         virtual AssetFilePtr OpenFile(const std::string& name, AssetOpenMode mode);
         virtual Buffer SyncOpenAndReadText(const std::string& filePath);
         virtual Buffer SyncOpenAndReadBinary(const std::string& filePath);
+        virtual bool SyncOpenAndWriteText(const std::string& filePath, const Buffer& buf);
+        virtual bool SyncOpenAndWriteBinary(const std::string& filePath, const Buffer& buf);
         virtual size_t SyncRead(const AssetFilePtr& fp, Buffer& buf);
+        virtual size_t SyncWrite(const AssetFilePtr& fp, Buffer& buf);
         virtual void CloseFile(AssetFilePtr& fp);
         virtual size_t GetSize(const AssetFilePtr& fp);
         virtual int32_t Seek(AssetFilePtr fp, long offset, AssetSeekBase where);
 
-        inline std::string SyncOpenAndReadTextFileToString(const std::string& fileName) 
+        inline std::string SyncOpenAndReadTextFileToString(const std::string& fileName)
         {
             std::string result;
             Buffer buffer = SyncOpenAndReadText(fileName);
@@ -54,7 +57,17 @@ namespace Rocket
                 if (content)
                     result = std::string(content);
             }
+            return result;
+        }
 
+        inline bool SyncOpenAndWriteStringToTextFile(const std::string& fileName, const std::string& content)
+        {
+            Buffer buf;
+            size_t sz = content.size();
+            uint8_t* data = new uint8_t[sz + 1];
+            memcpy(data, content.data(), sz);
+            data[sz] = '\0';
+            bool result = SyncOpenAndWriteText(fileName, buf);
             return result;
         }
 

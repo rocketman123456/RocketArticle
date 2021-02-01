@@ -5,12 +5,14 @@
 
 namespace Rocket
 {
-    class ForwardGeometryPass : implements BaseDrawPass {
+    class ForwardGeometryPass : implements BaseDrawPass
+    {
     public:
-        ForwardGeometryPass() {
+        ForwardGeometryPass()
+        {
             //m_DrawSubPasses.push_back(std::make_shared<GeometrySubPass>());
-            //m_DrawSubPasses.push_back(std::make_shared<SkyBoxSubPass>());
             m_DrawSubPasses.push_back(std::make_shared<Draw2DSubPass>());
+            //m_DrawSubPasses.push_back(std::make_shared<SkyBoxSubPass>());
             m_DrawSubPasses.push_back(std::make_shared<GuiSubPass>());
         }
     };

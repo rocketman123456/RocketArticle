@@ -12,9 +12,16 @@ namespace Rocket
     using Vector2f = Eigen::Vector2f;
     using Vector3f = Eigen::Vector3f;
     using Vector4f = Eigen::Vector4f;
-    using Matrix2f = Eigen::Matrix2d;
-    using Matrix3f = Eigen::Matrix3d;
-    using Matrix4f = Eigen::Matrix4d;
+    using Matrix2f = Eigen::Matrix2f;
+    using Matrix3f = Eigen::Matrix3f;
+    using Matrix4f = Eigen::Matrix4f;
+
+    using Vector2d = Eigen::Vector2d;
+    using Vector3d = Eigen::Vector3d;
+    using Vector4d = Eigen::Vector4d;
+    using Matrix2d = Eigen::Matrix2d;
+    using Matrix3d = Eigen::Matrix3d;
+    using Matrix4d = Eigen::Matrix4d;
 
     using Point2D = Eigen::Vector2f;
     using Point2DPtr = Ref<Point2D>;

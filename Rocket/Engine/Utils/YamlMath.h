@@ -12,6 +12,7 @@ namespace YAML {
             Node node;
             node.push_back(rhs[0]);
             node.push_back(rhs[1]);
+            node.SetStyle(EmitterStyle::Flow);
             return node;
         }
 
@@ -37,6 +38,7 @@ namespace YAML {
             node.push_back(rhs[0]);
             node.push_back(rhs[1]);
             node.push_back(rhs[2]);
+            node.SetStyle(EmitterStyle::Flow);
             return node;
         }
 
@@ -64,6 +66,7 @@ namespace YAML {
             node.push_back(rhs[1]);
             node.push_back(rhs[2]);
             node.push_back(rhs[3]);
+            node.SetStyle(EmitterStyle::Flow);
             return node;
         }
 

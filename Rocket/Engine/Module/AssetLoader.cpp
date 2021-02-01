@@ -63,6 +63,7 @@ namespace Rocket
 #ifdef RK_DEBUG
             RK_CORE_INFO("Read file '{}', {} bytes", filePath, length);
 #endif
+            data[length] = '\0';
             buff.SetData(data, length);
 
             CloseFile(fp);
@@ -100,18 +101,53 @@ namespace Rocket
         return buff;
     }
 
+    bool AssetLoader::SyncOpenAndWriteText(const std::string& filePath, const Buffer& buf)
+    {
+        AssetFilePtr fp = OpenFile(filePath, RK_OPEN_TEXT);
+        if(!fp)
+        {
+            RK_CORE_ERROR("Write Text to File Open File Error");
+            return false;
+        }
+        auto sz = fputs((char*)(buf.GetData()), static_cast<FILE*>(fp));
+        CloseFile(fp);
+        return true;
+    }
+
+    bool AssetLoader::SyncOpenAndWriteBinary(const std::string& filePath, const Buffer& buf)
+    {
+        AssetFilePtr fp = OpenFile(filePath, RK_OPEN_TEXT);
+        if(!fp)
+        {
+            RK_CORE_ERROR("Write Text to File Open File Error");
+            return false;
+        }
+        size_t sz = fwrite(buf.GetData(), buf.GetDataSize(), 1, static_cast<FILE*>(fp));
+        CloseFile(fp);
+        return true;
+    }
+
     size_t AssetLoader::SyncRead(const AssetFilePtr& fp, Buffer& buf)
     {
-        size_t sz;
-
         if(!fp)
         {
             RK_CORE_ERROR("null file discriptor");
             return 0;
         }
 
-        sz = fread(buf.GetData(), buf.GetDataSize(), 1, static_cast<FILE*>(fp));
+        size_t sz = fread(buf.GetData(), buf.GetDataSize(), 1, static_cast<FILE*>(fp));
+        return sz;
+    }
 
+    size_t AssetLoader::SyncWrite(const AssetFilePtr& fp, Buffer& buf)
+    {
+        if(!fp)
+        {
+            RK_CORE_ERROR("null file discriptor");
+            return 0;
+        }
+
+        size_t sz = fwrite(buf.GetData(), buf.GetDataSize(), 1, static_cast<FILE*>(fp));
         return sz;
     }
 

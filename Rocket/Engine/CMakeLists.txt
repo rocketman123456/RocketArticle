@@ -24,7 +24,11 @@ add_library( RocketEngine
     Render/DrawSubPass/GeometrySubPass.cpp
     Render/DrawSubPass/GuiSubPass.cpp
     # Scene
+    Scene/EditorCamera.cpp
     Scene/Scene.cpp
+    Scene/SceneCamera.cpp
+    Scene/SceneObject.cpp
+    Scene/SceneSerializer.cpp
     # Utils
     Utils/Hashing.cpp
     Utils/Timer.cpp

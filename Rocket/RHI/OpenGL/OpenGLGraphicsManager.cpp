@@ -208,7 +208,7 @@ namespace Rocket
 
         // Set the color shader as the current shader program and set the matrices
         // that it will use for rendering.
-        glUseProgram(m_CurrentShader);
+        m_CurrentShader->Bind();
 
         switch (pipelineState->depthTestMode)
         {

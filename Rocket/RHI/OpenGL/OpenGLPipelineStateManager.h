@@ -1,11 +1,12 @@
 #pragma once
 #include "Module/PipelineStateManager.h"
+#include "OpenGL/OpenGLShader.h"
 
 namespace Rocket
 {
     struct OpenGLPipelineState : public PipelineState
     {
-        uint32_t shaderProgram = 0;
+        Ref<OpenGLShader> shaderProgram;
         OpenGLPipelineState(PipelineState& rhs) : PipelineState(rhs) {}
         OpenGLPipelineState(PipelineState&& rhs) : PipelineState(std::move(rhs)) {}
     };

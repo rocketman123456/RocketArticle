@@ -1,5 +1,6 @@
 #pragma once
 #include "Module/GraphicsManager.h"
+#include "Render/DrawBasic/Shader.h"
 
 struct GLFWwindow;
 
@@ -64,8 +65,9 @@ namespace Rocket
         GLFWwindow* m_WindowHandle = nullptr;
         bool m_VSync = true;
     
+        Ref<Shader> m_CurrentShader;
+        
         uint32_t m_ShadowMapFramebufferName;
-        uint32_t m_CurrentShader;
         uint32_t m_uboDrawFrameConstant[MAX_FRAME_IN_FLIGHT] = {0};
         uint32_t m_uboLightInfo[MAX_FRAME_IN_FLIGHT] = {0};
         uint32_t m_uboDrawBatchConstant[MAX_FRAME_IN_FLIGHT] = {0};

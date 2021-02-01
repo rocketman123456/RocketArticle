@@ -31,6 +31,16 @@ namespace std
 
 namespace Rocket
 {
+    class HashFunction
+    {
+    public:
+        template<typename T>
+        [[nodiscard]] static uint64_t Hash(const T& t)
+        {
+            return std::hash<T>{}(t);
+        }
+    };
+
     class EventHashTable
     {
     public:

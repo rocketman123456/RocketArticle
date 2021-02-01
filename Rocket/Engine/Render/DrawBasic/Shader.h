@@ -1,13 +1,19 @@
 #pragma once
 #include "Core/Core.h"
 #include "Common/GeomMath.h"
+#include "Utils/Hashing.h"
 
 namespace Rocket
 {
+	using ShaderSourceList = Vec<std::pair<uint32_t, std::string>>;
+
     Interface Shader
     {
     public:
         virtual ~Shader() = default;
+
+		virtual bool Initialize(const ShaderSourceList& list) = 0;
+		virtual void Finalize() = 0;
 
         virtual void Bind() const = 0;
 		virtual void Unbind() const = 0;
@@ -26,10 +32,12 @@ namespace Rocket
 
         virtual bool SetMatrix2f(const std::string& name, const Matrix2f& value) = 0;
 		virtual bool SetMatrix3f(const std::string& name, const Matrix3f& value) = 0;
-		virtual bool SetMatrix4f(const std::string& name, const Matrix3f& value) = 0;
+		virtual bool SetMatrix4f(const std::string& name, const Matrix4f& value) = 0;
 
         virtual const std::string& GetName() const = 0;
-		virtual std::string ToString() const { return GetName(); }
+		virtual const std::string& ToString() const { return GetName(); }
+
+		virtual uint32_t GetRenderId() = 0;
     };
 
     inline std::ostream& operator<<(std::ostream& os, const Shader& s)
