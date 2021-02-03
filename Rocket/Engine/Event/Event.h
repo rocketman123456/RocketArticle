@@ -3,10 +3,10 @@
 
 namespace Rocket
 {
-    class Event : implements _IEvent_
+    class Event : implements IEvent
     {
     public:
-        Event(const EventVarPtr& var, uint32_t count) : _IEvent_(var, count) {}
+        Event(const EventVarPtr& var, uint32_t count) : IEvent(var, count) {}
         virtual ~Event() = default;
     };
 }

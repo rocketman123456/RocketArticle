@@ -47,29 +47,8 @@ namespace Rocket
         virtual size_t GetSize(const AssetFilePtr& fp);
         virtual int32_t Seek(AssetFilePtr fp, long offset, AssetSeekBase where);
 
-        inline std::string SyncOpenAndReadTextFileToString(const std::string& fileName)
-        {
-            std::string result;
-            Buffer buffer = SyncOpenAndReadText(fileName);
-            if (buffer.GetDataSize())
-            {
-                char* content = reinterpret_cast<char*>(buffer.GetData());
-                if (content)
-                    result = std::string(content);
-            }
-            return result;
-        }
-
-        inline bool SyncOpenAndWriteStringToTextFile(const std::string& fileName, const std::string& content)
-        {
-            Buffer buf;
-            size_t sz = content.size();
-            uint8_t* data = new uint8_t[sz + 1];
-            memcpy(data, content.data(), sz);
-            data[sz] = '\0';
-            bool result = SyncOpenAndWriteText(fileName, buf);
-            return result;
-        }
+        std::string SyncOpenAndReadTextFileToString(const std::string& fileName);
+        bool SyncOpenAndWriteStringToTextFile(const std::string& fileName, const std::string& content);
 
     private:
         std::string m_AssetPath;

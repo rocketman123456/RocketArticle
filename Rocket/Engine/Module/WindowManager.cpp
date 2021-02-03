@@ -1,4 +1,8 @@
 #include "Module/WindowManager.h"
+#include "Module/MemoryManager.h"
+#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
+    #include "GLFWWindow/WindowImplement.h"
+#endif
 
 namespace Rocket
 {
@@ -10,7 +14,12 @@ namespace Rocket
     int WindowManager::Initialize()
     {
         WindowProps prop;
-        m_Window = Window::Create(prop);
+#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
+        //m_Window = Ref<WindowImplement>(new WindowImplement(prop));
+        m_Window = CreateRef<WindowImplement>(prop);
+#else
+		RK_CORE_ASSERT(false, "Unknown platform!");
+#endif
         m_Window->Initialize();
 
         return 0;

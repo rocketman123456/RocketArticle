@@ -48,9 +48,9 @@ int main(int argc, char **argv)
     app->PostInitialize();
 
     std::chrono::steady_clock Clock;
-    std::chrono::duration<float> Duration;
     std::chrono::time_point<std::chrono::steady_clock> CurrentTime;
     std::chrono::time_point<std::chrono::steady_clock> LastTime;
+    float Duration;
 
     CurrentTime = Clock.now();
     LastTime = CurrentTime;
@@ -61,15 +61,17 @@ int main(int argc, char **argv)
 
         LastTime = CurrentTime;
         CurrentTime = Clock.now();
-        Duration = CurrentTime - LastTime;
-        float dt = Duration.count();
+        auto last = std::chrono::time_point_cast<std::chrono::microseconds>(LastTime).time_since_epoch().count();
+        auto current = std::chrono::time_point_cast<std::chrono::microseconds>(CurrentTime).time_since_epoch().count();
+        Duration = (current - last) * 0.001f;
+        //RK_TRACE("dt:{}", Duration);
 
 	    PROFILE_BEGIN_CPU_SAMPLE(ApplicationUpdate, 0);
-	    app->Tick(dt);
+	    app->Tick(Duration);
 	    PROFILE_END_CPU_SAMPLE();
 
 	    PROFILE_BEGIN_CPU_SAMPLE(ModuleUpdate, 0);
-	    app->TickModule(dt);
+	    app->TickModule(Duration);
 	    PROFILE_END_CPU_SAMPLE();
     }
     

@@ -1,7 +1,7 @@
 message(STATUS "Add Engine")
 add_library( RocketEngine
     # Common
-    Common/Window.cpp
+    Common/BlockAllocator.cpp
     # Core
     Core/EntryPoint.cpp
     Core/Log.cpp
@@ -28,11 +28,12 @@ add_library( RocketEngine
     Scene/EditorCamera.cpp
     Scene/Scene.cpp
     Scene/SceneCamera.cpp
-    Scene/SceneObject.cpp
+    Scene/SceneComponent.cpp
     Scene/SceneSerializer.cpp
     # Utils
     Utils/Hashing.cpp
     Utils/Timer.cpp
+    Utils/Variant.cpp
 )
 target_link_libraries( RocketEngine PRIVATE
     spdlog::spdlog_header_only

@@ -1,5 +1,6 @@
 #include "Module/AssetLoader.h"
 #include "Module/Application.h"
+#include "Module/MemoryManager.h"
 
 namespace Rocket
 {
@@ -21,6 +22,30 @@ namespace Rocket
 
     void AssetLoader::Tick(Timestep ts)
     {
+    }
+
+    std::string AssetLoader::SyncOpenAndReadTextFileToString(const std::string& fileName)
+    {
+        std::string result;
+        Buffer buffer = SyncOpenAndReadText(fileName);
+        if (buffer.GetDataSize())
+        {
+            char* content = reinterpret_cast<char*>(buffer.GetData().get());
+            if (content)
+                result = std::string(content);
+        }
+        return result;
+    }
+
+    bool AssetLoader::SyncOpenAndWriteStringToTextFile(const std::string& fileName, const std::string& content)
+    {
+        Buffer buf;
+        size_t sz = content.size();
+        Ref<uint8_t> data = Ref<uint8_t>(new uint8_t[sz + 1], [](uint8_t* v){ delete[]v; });
+        memcpy(data.get(), content.data(), sz);
+        data.get()[sz] = '\0';
+        bool result = SyncOpenAndWriteText(fileName, buf);
+        return result;
     }
 
     AssetFilePtr AssetLoader::OpenFile(const std::string& name, AssetOpenMode mode)
@@ -59,16 +84,18 @@ namespace Rocket
         {
             size_t length = GetSize(fp);
 
-            uint8_t* data = new uint8_t[length + 1];
-            length = fread(data, 1, length, static_cast<FILE*>(fp));
+            Ref<uint8_t> data = Ref<uint8_t>(new uint8_t[length + 1], [](uint8_t* v){ delete[]v; });
+            length = fread(data.get(), 1, length, static_cast<FILE*>(fp));
 #ifdef RK_DEBUG
             RK_CORE_TRACE("Read file '{}', {} bytes", filePath, length);
 #endif
-            data[length] = '\0';
+            data.get()[length] = '\0';
             buff.SetData(data, length);
 
             CloseFile(fp);
-        } else {
+        }
+        else
+        {
             RK_CORE_ERROR("Error opening file '{}'", filePath);
         }
 
@@ -83,14 +110,12 @@ namespace Rocket
         if(fp)
         {
             size_t length = GetSize(fp);
-
-            uint8_t* data = new uint8_t[length + 1];
-            length = fread(data, 1, length, static_cast<FILE*>(fp));
+            Ref<uint8_t> data = Ref<uint8_t>(new uint8_t[length], [](uint8_t* v){ delete[]v; });
+            length = fread(data.get(), 1, length, static_cast<FILE*>(fp));
 #ifdef RK_DEBUG
             RK_CORE_TRACE("Read file '{}', {} bytes", filePath, length);
 #endif
-            data[length] = '\0';
-            buff.SetData(data, length + 1);
+            buff.SetData(data, length);
 
             CloseFile(fp);
         }
@@ -110,7 +135,7 @@ namespace Rocket
             RK_CORE_ERROR("Write Text to File Open File Error");
             return false;
         }
-        auto sz = fputs((char*)(buf.GetData()), static_cast<FILE*>(fp));
+        auto sz = fputs((char*)(buf.GetData().get()), static_cast<FILE*>(fp));
         CloseFile(fp);
         return true;
     }
@@ -123,7 +148,7 @@ namespace Rocket
             RK_CORE_ERROR("Write Text to File Open File Error");
             return false;
         }
-        size_t sz = fwrite(buf.GetData(), buf.GetDataSize(), 1, static_cast<FILE*>(fp));
+        size_t sz = fwrite(buf.GetData().get(), buf.GetDataSize(), 1, static_cast<FILE*>(fp));
         CloseFile(fp);
         return true;
     }
@@ -136,7 +161,7 @@ namespace Rocket
             return 0;
         }
 
-        size_t sz = fread(buf.GetData(), buf.GetDataSize(), 1, static_cast<FILE*>(fp));
+        size_t sz = fread(buf.GetData().get(), buf.GetDataSize(), 1, static_cast<FILE*>(fp));
         return sz;
     }
 
@@ -148,7 +173,7 @@ namespace Rocket
             return 0;
         }
 
-        size_t sz = fwrite(buf.GetData(), buf.GetDataSize(), 1, static_cast<FILE*>(fp));
+        size_t sz = fwrite(buf.GetData().get(), buf.GetDataSize(), 1, static_cast<FILE*>(fp));
         return sz;
     }
 

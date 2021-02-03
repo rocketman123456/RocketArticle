@@ -7,8 +7,8 @@
 #define PS_DRAW2D_SOURCE_FILE "draw2d.frag"
 //#define DEBUG_VS_SHADER_SOURCE_FILE "debug.vert"
 //#define DEBUG_PS_SHADER_SOURCE_FILE "debug.frag"
-#define VS_PASSTHROUGH_SOURCE_FILE "passthrough.vert"
-#define PS_TEXTURE_SOURCE_FILE "texture.frag"
+//#define VS_PASSTHROUGH_SOURCE_FILE "passthrough.vert"
+//#define PS_TEXTURE_SOURCE_FILE "texture.frag"
 
 namespace Rocket
 {

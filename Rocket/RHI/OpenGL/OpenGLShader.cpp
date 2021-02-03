@@ -120,13 +120,11 @@ namespace Rocket
             {
                 GLuint shader;
                 auto config = g_Application->GetConfig();
-                auto full_path = ("Shaders/" + it->second);
+                auto full_path = ("Shaders/" + RenderAPI + "/" + it->second);
                 RK_GRAPHICS_INFO("Load Shader File {}", full_path);
                 status = LoadShaderFromFile(full_path.c_str(), it->first, shader);
                 if (!status)
-                {
                     return false;
-                }
 
                 // Attach the shader to the program object.
                 glAttachShader(shaderProgram, shader);
@@ -277,7 +275,7 @@ namespace Rocket
         {
             return false;
         }
-        glUniformMatrix2fv(location, 1, GL_FALSE, (float *)value.data());
+        glUniformMatrix2fv(location, 1, GL_FALSE, value.data());
         return true;
     }
 
@@ -288,7 +286,7 @@ namespace Rocket
         {
             return false;
         }
-        glUniformMatrix3fv(location, 1, GL_FALSE, (float *)value.data());
+        glUniformMatrix3fv(location, 1, GL_FALSE, value.data());
         return true;
     }
 
@@ -299,7 +297,7 @@ namespace Rocket
         {
             return false;
         }
-        glUniformMatrix4fv(location, 1, GL_FALSE, (float *)value.data());
+        glUniformMatrix4fv(location, 1, GL_FALSE, value.data());
         return true;
     }
 } // namespace Rocket

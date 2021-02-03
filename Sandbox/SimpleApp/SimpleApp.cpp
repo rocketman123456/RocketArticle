@@ -1,4 +1,5 @@
 #include "SimpleApp.h"
+#include "Module/MemoryManager.h"
 #include "Module/AssetLoader.h"
 #include "Module/WindowManager.h"
 #include "Module/GraphicsManager.h"
@@ -14,6 +15,7 @@
 namespace Rocket
 {
     Application* g_Application;
+    MemoryManager* g_MemoryManager;
     AssetLoader* g_AssetLoader;
     WindowManager* g_WindowManager;
     PipelineStateManager* g_PipelineStateManager;
@@ -30,6 +32,7 @@ namespace Rocket
 
     void SimpleApp::PreInitializeModule()
     {
+        g_MemoryManager = GetMemoryManager();
         g_AssetLoader = GetAssetLoader();
         g_WindowManager = GetWindowManager();
         g_GraphicsManager = GetGraphicsManager();
@@ -38,6 +41,7 @@ namespace Rocket
         g_ProcessManager = GetProcessManager();
         g_EventManager = GetEventManager();
 
+        PushModule(g_MemoryManager);
         PushModule(g_AssetLoader);
         PushModule(g_WindowManager);
         PushModule(g_GraphicsManager);
@@ -70,8 +74,8 @@ namespace Rocket
         auto camera = scene->CreateEntity("Camera A");
         auto com = camera.AddComponent<CameraComponent>();
 
-        g_SceneManager->AddScene("first scene", scene);
-        g_SceneManager->SetActiveScene("first scene");
+        auto ret_1 = g_SceneManager->AddScene("first scene", scene);
+        auto ret_2 = g_SceneManager->SetActiveScene("first scene");
         scene->SetPrimaryCamera(&com.Camera);
     }
 

@@ -4,44 +4,44 @@
 
 namespace Rocket
 {
-    ENUM(SceneObjectType)
+    ENUM(SceneComponentType)
     {
-        kSceneObjectTypeMesh = "MESH"_i32,
-        kSceneObjectTypeMaterial = "MATL"_i32,
-        kSceneObjectTypeTexture = "TXTU"_i32,
-        kSceneObjectTypeLightOmni = "LGHO"_i32,
-        kSceneObjectTypeLightInfi = "LGHI"_i32,
-        kSceneObjectTypeLightSpot = "LGHS"_i32,
-        kSceneObjectTypeLightArea = "LGHA"_i32,
-        kSceneObjectTypeCamera = "CAMR"_i32,
-        kSceneObjectTypeAnimationClip = "ANIM"_i32,
-        kSceneObjectTypeClip = "CLIP"_i32,
-        kSceneObjectTypeVertexArray = "VARR"_i32,
-        kSceneObjectTypeIndexArray = "VARR"_i32,
-        kSceneObjectTypeGeometry = "GEOM"_i32,
-        kSceneObjectTypeTransform = "TRFM"_i32,
-        kSceneObjectTypeTranslate = "TSLT"_i32,
-        kSceneObjectTypeRotate = "ROTA"_i32,
-        kSceneObjectTypeScale = "SCAL"_i32,
-        kSceneObjectTypeTrack = "TRAC"_i32,
-        kSceneObjectTypeSkyBox = "SKYB"_i32,
-        kSceneObjectTypeTerrain = "TERN"_i32
+        kSceneComponentTypeMesh = "MESH"_i32,
+        kSceneComponentTypeMaterial = "MATL"_i32,
+        kSceneComponentTypeTexture = "TXTU"_i32,
+        kSceneComponentTypeLightOmni = "LGHO"_i32,
+        kSceneComponentTypeLightInfi = "LGHI"_i32,
+        kSceneComponentTypeLightSpot = "LGHS"_i32,
+        kSceneComponentTypeLightArea = "LGHA"_i32,
+        kSceneComponentTypeCamera = "CAMR"_i32,
+        kSceneComponentTypeAnimationClip = "ANIM"_i32,
+        kSceneComponentTypeClip = "CLIP"_i32,
+        kSceneComponentTypeVertexArray = "VARR"_i32,
+        kSceneComponentTypeIndexArray = "VARR"_i32,
+        kSceneComponentTypeGeometry = "GEOM"_i32,
+        kSceneComponentTypeTransform = "TRFM"_i32,
+        kSceneComponentTypeTranslate = "TSLT"_i32,
+        kSceneComponentTypeRotate = "ROTA"_i32,
+        kSceneComponentTypeScale = "SCAL"_i32,
+        kSceneComponentTypeTrack = "TRAC"_i32,
+        kSceneComponentTypeSkyBox = "SKYB"_i32,
+        kSceneComponentTypeTerrain = "TERN"_i32
     };
 
-    ENUM(SceneObjectCollisionType)
+    ENUM(SceneComponentCollisionType)
     {
-        kSceneObjectCollisionTypeNone = "CNON"_i32,
-        kSceneObjectCollisionTypeSphere = "CSPH"_i32,
-        kSceneObjectCollisionTypeBox = "CBOX"_i32,
-        kSceneObjectCollisionTypeCylinder = "CCYL"_i32,
-        kSceneObjectCollisionTypeCapsule = "CCAP"_i32,
-        kSceneObjectCollisionTypeCone = "CCON"_i32,
-        kSceneObjectCollisionTypeMultiSphere = "CMUL"_i32,
-        kSceneObjectCollisionTypeConvexHull = "CCVH"_i32,
-        kSceneObjectCollisionTypeConvexMesh = "CCVM"_i32,
-        kSceneObjectCollisionTypeBvhMesh = "CBVM"_i32,
-        kSceneObjectCollisionTypeHeightfield = "CHIG"_i32,
-        kSceneObjectCollisionTypePlane = "CPLN"_i32,
+        kSceneComponentCollisionTypeNone = "CNON"_i32,
+        kSceneComponentCollisionTypeSphere = "CSPH"_i32,
+        kSceneComponentCollisionTypeBox = "CBOX"_i32,
+        kSceneComponentCollisionTypeCylinder = "CCYL"_i32,
+        kSceneComponentCollisionTypeCapsule = "CCAP"_i32,
+        kSceneComponentCollisionTypeCone = "CCON"_i32,
+        kSceneComponentCollisionTypeMultiSphere = "CMUL"_i32,
+        kSceneComponentCollisionTypeConvexHull = "CCVH"_i32,
+        kSceneComponentCollisionTypeConvexMesh = "CCVM"_i32,
+        kSceneComponentCollisionTypeBvhMesh = "CBVM"_i32,
+        kSceneComponentCollisionTypeHeightfield = "CHIG"_i32,
+        kSceneComponentCollisionTypePlane = "CPLN"_i32,
     };
 
     ENUM(IndexDataType)
@@ -97,7 +97,7 @@ namespace Rocket
         kPrimitiveTypePolygon = "POLY"_i32,  ///< For N>=0, vertices [0, N+1, N+2] render a triangle.
     };
 
-    std::ostream& operator<<(std::ostream& out, SceneObjectType type);
+    std::ostream& operator<<(std::ostream& out, SceneComponentType type);
     std::ostream& operator<<(std::ostream& out, IndexDataType type);
     std::ostream& operator<<(std::ostream& out, VertexDataType type);
     std::ostream& operator<<(std::ostream& out, PrimitiveType type);

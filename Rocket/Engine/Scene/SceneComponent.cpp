@@ -1,11 +1,11 @@
-#include "Scene/SceneObject.h"
+#include "Scene/SceneComponent.h"
 #include <iostream>
 
 using namespace std;
 
 namespace Rocket
 {
-    ostream &operator<<(ostream &out, SceneObjectType type)
+    ostream &operator<<(ostream &out, SceneComponentType type)
     {
         auto n = static_cast<int32_t>(type);
         n = endian_net_unsigned_int<int32_t>(n);

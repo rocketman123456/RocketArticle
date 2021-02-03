@@ -8,14 +8,19 @@ layout(location = 4) in float a_TilingFactor;
 
 out vec4 v_Color;
 out vec2 v_TexCoord;
-out flat float v_TexIndex;
+out float v_TexIndex;
 out float v_TilingFactor;
 
-struct PerFrameConstants
+uniform PerFrameConstants
 {
     mat4 viewMatrix;
     mat4 projectionMatrix;
 } PerFrame;
+
+struct PerBatchConstants
+{
+	mat4 modelMatrix;
+};
 
 void main()
 {
