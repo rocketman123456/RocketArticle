@@ -11,16 +11,20 @@ out vec2 v_TexCoord;
 out float v_TexIndex;
 out float v_TilingFactor;
 
-uniform PerFrameConstants
+struct PerFrameConstants
 {
     mat4 viewMatrix;
     mat4 projectionMatrix;
-} PerFrame;
+};
 
 struct PerBatchConstants
 {
 	mat4 modelMatrix;
 };
+
+uniform mat4 u_projectionMatrix;
+uniform mat4 u_viewMatrix;
+uniform mat4 u_modelMatrix;
 
 void main()
 {
@@ -28,5 +32,5 @@ void main()
 	v_TexCoord = a_TexCoord;
 	v_TexIndex = a_TexIndex;
 	v_TilingFactor = a_TilingFactor;
-	gl_Position = PerFrame.projectionMatrix * PerFrame.viewMatrix * vec4(a_Position, 1.0f);
+	gl_Position = u_projectionMatrix * u_viewMatrix * vec4(a_Position, 1.0f);
 }

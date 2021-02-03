@@ -12,6 +12,6 @@ namespace Rocket
 
 		const Matrix4f& GetProjection() const { return m_Projection; }
 	protected:
-		Matrix4f m_Projection = Matrix4f::Identity();
+		Matrix4f m_Projection = Matrix4f::Zero();
 	};
 }

@@ -23,6 +23,8 @@ namespace Rocket
 
         UniformData GetUniformBinding() final { return {}; }
 
+        int32_t GetLocation(const std::string& name);
+
 		bool SetInt32(const std::string& name, int32_t value) final;
         bool SetUInt32(const std::string& name, uint32_t value) final;
 		bool SetInt32Array(const std::string& name, int32_t* values, uint32_t count) final;

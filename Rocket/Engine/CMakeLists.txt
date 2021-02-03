@@ -21,7 +21,7 @@ add_library( RocketEngine
     Render/DispatchPass/BaseDispatchPass.cpp
     Render/DrawBasic/Texture.cpp
     Render/DrawPass/BaseDrawPass.cpp
-    Render/DrawSubPass/Draw2DSubPass.cpp
+    Render/DrawSubPass/Geometry2DSubPass.cpp
     Render/DrawSubPass/GeometrySubPass.cpp
     Render/DrawSubPass/GuiSubPass.cpp
     # Scene

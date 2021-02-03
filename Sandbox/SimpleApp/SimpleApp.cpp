@@ -72,11 +72,15 @@ namespace Rocket
         redSquare.AddComponent<SpriteRendererComponent>(Vector4f({ 1.0f, 0.0f, 0.0f, 1.0f }));
 
         auto camera = scene->CreateEntity("Camera A");
-        auto com = camera.AddComponent<CameraComponent>();
+        auto cam = camera.AddComponent<CameraComponent>();
+        cam.Primary = true;
+        cam.Camera.SetProjectionType(SceneCamera::ProjectionType::Orthographic);
+        cam.Camera.SetViewportSize(720, 1280);
+        cam.Camera.SetOrthographic(100.0f, -1.0f, 1000.0f);
 
         auto ret_1 = g_SceneManager->AddScene("first scene", scene);
         auto ret_2 = g_SceneManager->SetActiveScene("first scene");
-        scene->SetPrimaryCamera(&com.Camera);
+        scene->SetPrimaryCamera(&cam.Camera);
     }
 
     void SimpleApp::PostInitialize()

@@ -15,7 +15,6 @@ namespace Rocket
     {
         WindowProps prop;
 #if defined(PLATFORM_WINDOWS) || defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
-        //m_Window = Ref<WindowImplement>(new WindowImplement(prop));
         m_Window = CreateRef<WindowImplement>(prop);
 #else
 		RK_CORE_ASSERT(false, "Unknown platform!");

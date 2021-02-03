@@ -3,7 +3,7 @@
 
 namespace Rocket
 {
-    class Draw2DSubPass : implements BaseSubPass
+    class Geometry2DSubPass : implements BaseSubPass
     {
     public:
         void Draw(Frame& frame) final;

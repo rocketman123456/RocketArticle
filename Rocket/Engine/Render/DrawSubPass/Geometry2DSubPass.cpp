@@ -1,10 +1,10 @@
-#include "Render/DrawSubPass/Draw2DSubPass.h"
+#include "Render/DrawSubPass/Geometry2DSubPass.h"
 #include "Module/PipelineStateManager.h"
 #include "Module/GraphicsManager.h"
 
 namespace Rocket
 {
-    void Draw2DSubPass::Draw(Frame& frame)
+    void Geometry2DSubPass::Draw(Frame& frame)
     {
         auto& pPipelineState = g_PipelineStateManager->GetPipelineState("Draw2D");
 

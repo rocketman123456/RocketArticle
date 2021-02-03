@@ -2,7 +2,10 @@
 #include "OpenGL/OpenGLPipelineStateManager.h"
 #include "Module/WindowManager.h"
 #include "Module/Application.h"
+#include "Module/MemoryManager.h"
 #include "Scene/Component.h"
+#include "Scene/Entity.h"
+#include "Scene/Scene.h"
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
@@ -169,60 +172,11 @@ namespace Rocket
         ImGui_ImplGlfw_InitForOpenGL(m_WindowHandle, true);
         ImGui_ImplOpenGL3_Init("#version 410");
 
-        auto vertex_size = m_Draw2DContext.data.MaxVertices * sizeof(QuadVertex);
-        m_Draw2DContext.data.QuadVertexBuffer = Ref<VertexBuffer>(new OpenGLVertexBuffer(vertex_size));
-        m_Draw2DContext.data.QuadVertexBuffer->SetLayout({
-            { ShaderDataType::Vec3f, "a_Position" },
-            { ShaderDataType::Vec4f, "a_Color" },
-            { ShaderDataType::Vec2f, "a_TexCoord" },
-            { ShaderDataType::Float, "a_TexIndex" },
-            { ShaderDataType::Float, "a_TilingFactor" }
-            });
-        
-        m_Draw2DContext.data.QuadVertexArray = Ref<VertexArray>(new OpenGLVertexArray());
-        m_Draw2DContext.data.QuadVertexArray->AddVertexBuffer(m_Draw2DContext.data.QuadVertexBuffer);
-        m_Draw2DContext.data.QuadVertexBufferBase = new QuadVertex[m_Draw2DContext.data.MaxVertices];
-
-        uint32_t* quadIndices = new uint32_t[m_Draw2DContext.data.MaxIndices];
-
-        uint32_t offset = 0;
-        for (uint32_t i = 0; i < m_Draw2DContext.data.MaxIndices; i += 6)
-        {
-            quadIndices[i + 0] = offset + 0;
-            quadIndices[i + 1] = offset + 1;
-            quadIndices[i + 2] = offset + 2;
-
-            quadIndices[i + 3] = offset + 2;
-            quadIndices[i + 4] = offset + 3;
-            quadIndices[i + 5] = offset + 0;
-
-            offset += 4;
-        }
-
-        auto index_count = m_Draw2DContext.data.MaxIndices;
-        Ref<IndexBuffer> quadIB = Ref<IndexBuffer>(new OpenGLIndexBuffer(quadIndices, index_count));
-        m_Draw2DContext.data.QuadVertexArray->SetIndexBuffer(quadIB);
-        delete[] quadIndices;
-
-        m_Draw2DContext.data.WhiteTexture = Ref<Texture2D>(new OpenGLTexture2D(1, 1));
-        uint32_t whiteTextureData = 0xffffffff;
-        m_Draw2DContext.data.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
-
-        // Set first texture slot to 0
-        m_Draw2DContext.data.TextureSlots[0] = m_Draw2DContext.data.WhiteTexture;
-
-        m_Draw2DContext.data.QuadVertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
-        m_Draw2DContext.data.QuadVertexPositions[1] = { 0.5f, -0.5f, 0.0f, 1.0f };
-        m_Draw2DContext.data.QuadVertexPositions[2] = { 0.5f,  0.5f, 0.0f, 1.0f };
-        m_Draw2DContext.data.QuadVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
-
         return 0;
     }
 
     void OpenGLGraphicsManager::Finalize()
     {
-        delete[] m_Draw2DContext.data.QuadVertexBufferBase;
-
         // Cleanup
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
@@ -393,85 +347,6 @@ namespace Rocket
 
     void OpenGLGraphicsManager::DrawBatch(const Frame &frame)
     {
-        auto camera = m_CurrentScene->GetPrimaryCamera();
-        auto& trans = m_CurrentScene->GetPrimaryCameraTransform();
-        auto& project = camera->GetProjection();
-
-        m_CurrentShader->Bind();
-        m_CurrentShader->SetMatrix4f("PerFrame.projectionMatrix", project);
-        m_CurrentShader->SetMatrix4f("PerFrame.viewMatrix", trans.inverse());
-
-        StartBatch();
-
-        auto registery = m_CurrentScene->GetRegistry();
-        auto group = registery->group<TransformComponent>(entt::get<SpriteRendererComponent>);
-
-        for (auto entity : group)
-        {
-            auto [transform, sprite] = group.get<TransformComponent, SpriteRendererComponent>(entity);
-            DrawQuad(transform.GetTransform(), sprite.Color);
-        }
-
-        Flush();
-    }
-
-    void OpenGLGraphicsManager::StartBatch()
-    {
-        m_Draw2DContext.data.QuadIndexCount = 0;
-        m_Draw2DContext.data.QuadVertexBufferPtr = m_Draw2DContext.data.QuadVertexBufferBase;
-
-        m_Draw2DContext.data.TextureSlotIndex = 1;
-    }
-
-    void OpenGLGraphicsManager::Flush()
-    {
-        if (m_Draw2DContext.data.QuadIndexCount == 0)
-            return; // Nothing to draw
-
-        uint32_t dataSize = 
-            (uint32_t)((uint8_t*)m_Draw2DContext.data.QuadVertexBufferPtr 
-                - (uint8_t*)m_Draw2DContext.data.QuadVertexBufferBase);
-        m_Draw2DContext.data.QuadVertexBuffer->SetData(m_Draw2DContext.data.QuadVertexBufferBase, dataSize);
-
-        // Bind textures
-        for (uint32_t i = 0; i < m_Draw2DContext.data.TextureSlotIndex; i++)
-            m_Draw2DContext.data.TextureSlots[i]->Bind(i);
-
-        uint32_t count = m_Draw2DContext.data.QuadIndexCount;
-        glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        m_Draw2DContext.data.Stats.DrawCalls++;
-    }
-
-    void OpenGLGraphicsManager::DrawQuad(const Matrix4f& transform, const Vector4f& color)
-    {
-        constexpr size_t quadVertexCount = 4;
-        const float textureIndex = 0.0f; // White Texture
-        const Vector2f textureCoords[] = { 
-            { 0.0f, 0.0f },
-            { 1.0f, 0.0f }, 
-            { 1.0f, 1.0f }, 
-            { 0.0f, 1.0f } 
-        };
-        const float tilingFactor = 1.0f;
-
-        if (m_Draw2DContext.data.QuadIndexCount >= Renderer2DData::MaxIndices)
-            NextBatch();
-
-        for (size_t i = 0; i < quadVertexCount; i++)
-        {
-            auto pos = transform * m_Draw2DContext.data.QuadVertexPositions[i];
-            m_Draw2DContext.data.QuadVertexBufferPtr->Position = Vector3f({ pos[0], pos[1], pos[2] });
-            m_Draw2DContext.data.QuadVertexBufferPtr->Color = color;
-            m_Draw2DContext.data.QuadVertexBufferPtr->TexCoord = textureCoords[i];
-            m_Draw2DContext.data.QuadVertexBufferPtr->TexIndex = textureIndex;
-            m_Draw2DContext.data.QuadVertexBufferPtr->TilingFactor = tilingFactor;
-            m_Draw2DContext.data.QuadVertexBufferPtr++;
-        }
-
-        m_Draw2DContext.data.QuadIndexCount += 6;
-        m_Draw2DContext.data.Stats.QuadCount++;
     }
 
     void OpenGLGraphicsManager::DrawFullScreenQuad()
