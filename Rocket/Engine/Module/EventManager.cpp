@@ -9,6 +9,7 @@
 namespace Rocket
 {
     EventManager* EventManager::s_Instance = nullptr;
+    ElapseTimer* g_EventTimer;
 
     EventManager* GetEventManager()
     {
@@ -17,6 +18,9 @@ namespace Rocket
 
     int EventManager::Initialize()
     {
+        g_EventTimer = new Rocket::ElapseTimer();
+        g_EventTimer->InitTime();
+
         m_ActiveEventQueue = 0;
 
         m_WindowHandle = static_cast<GLFWwindow*>(g_WindowManager->GetNativeWindow());
@@ -49,7 +53,7 @@ namespace Rocket
 			//RK_EVENT_TRACE("glfwSetWindowRefreshCallback");
             WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
-            EventVarPtr ptr = Ref<Variant>(new Variant[1], [](Variant* v){ delete[]v; });//CREATE_EVENT(1);
+            EventVarPtr ptr = Ref<Variant>(new Variant[1], [](Variant* v){ delete[]v; });
             ptr.get()[0].type = Variant::TYPE_STRING_ID;
             ptr.get()[0].m_asStringId = EventHashTable::HashString("window_refresh");
             EventPtr event = CreateRef<Event>(ptr, 1);
@@ -61,7 +65,7 @@ namespace Rocket
             //RK_EVENT_TRACE("glfwSetFramebufferSizeCallback");
 			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
-            EventVarPtr ptr = Ref<Variant>(new Variant[3], [](Variant* v){ delete[]v; });//CREATE_EVENT(3);
+            EventVarPtr ptr = Ref<Variant>(new Variant[3], [](Variant* v){ delete[]v; });
             ptr.get()[0].type = Variant::TYPE_STRING_ID;
             ptr.get()[0].m_asStringId = EventHashTable::HashString("window_resize");
             ptr.get()[1].type = Variant::TYPE_INT32;
@@ -77,7 +81,7 @@ namespace Rocket
             //RK_EVENT_TRACE("glfwSetWindowCloseCallback");
 			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
-            EventVarPtr ptr = Ref<Variant>(new Variant[1], [](Variant* v){ delete[]v; });//CREATE_EVENT(1);
+            EventVarPtr ptr = Ref<Variant>(new Variant[1], [](Variant* v){ delete[]v; });
             ptr.get()[0].type = Variant::TYPE_STRING_ID;
             ptr.get()[0].m_asStringId = EventHashTable::HashString("window_close");
             EventPtr event = CreateRef<Event>(ptr, 1);
@@ -89,25 +93,30 @@ namespace Rocket
             //RK_EVENT_TRACE("glfwSetKeyCallback");
 			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
-            EventVarPtr ptr = Ref<Variant>(new Variant[2], [](Variant* v){ delete[]v; });//CREATE_EVENT(2);
+            EventVarPtr ptr = Ref<Variant>(new Variant[3], [](Variant* v){ delete[]v; });
             ptr.get()[0].type = Variant::TYPE_STRING_ID;
             ptr.get()[0].m_asStringId = 0;
             ptr.get()[1].type = Variant::TYPE_INT32;
             ptr.get()[1].m_asInt32 = scancode;
+            ptr.get()[2].type = Variant::TYPE_INT32;
+            ptr.get()[2].m_asInt32 = 0;
 
 			switch (action)
 			{
                 case GLFW_PRESS: {
                     ptr.get()[0].m_asStringId = EventHashTable::HashString("key_press");
+                    ptr.get()[2].m_asInt32 = 0;
                 } break;
                 case GLFW_RELEASE: {
                     ptr.get()[0].m_asStringId = EventHashTable::HashString("key_release");
+                    ptr.get()[2].m_asInt32 = 0;
                 } break;
                 case GLFW_REPEAT: {
                     ptr.get()[0].m_asStringId = EventHashTable::HashString("key_repeat");
+                    ptr.get()[2].m_asInt32 = 1;
                 } break;
 			}
-            EventPtr event = CreateRef<Event>(ptr, 2);
+            EventPtr event = CreateRef<Event>(ptr, 3);
             data.EventCallback(event);
 		});
 
@@ -115,7 +124,7 @@ namespace Rocket
             //RK_EVENT_TRACE("glfwSetCharCallback");
 			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
-            EventVarPtr ptr = Ref<Variant>(new Variant[2], [](Variant* v){ delete[]v; });//CREATE_EVENT(2);
+            EventVarPtr ptr = Ref<Variant>(new Variant[2], [](Variant* v){ delete[]v; });
             ptr.get()[0].type = Variant::TYPE_STRING_ID;
             ptr.get()[0].m_asStringId = EventHashTable::HashString("key_char_code");
             ptr.get()[1].type = Variant::TYPE_UINT32;
@@ -129,7 +138,7 @@ namespace Rocket
             //RK_EVENT_TRACE("glfwSetMouseButtonCallback");
 			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
-            EventVarPtr ptr = Ref<Variant>(new Variant[2], [](Variant* v){ delete[]v; });//CREATE_EVENT(2);
+            EventVarPtr ptr = Ref<Variant>(new Variant[2], [](Variant* v){ delete[]v; });
             ptr.get()[0].type = Variant::TYPE_STRING_ID;
             ptr.get()[0].m_asStringId = 0;
             ptr.get()[1].type = Variant::TYPE_INT32;
@@ -153,7 +162,7 @@ namespace Rocket
             //RK_EVENT_TRACE("glfwSetScrollCallback");
 			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
             
-            EventVarPtr ptr = Ref<Variant>(new Variant[3], [](Variant* v){ delete[]v; });//CREATE_EVENT(3);
+            EventVarPtr ptr = Ref<Variant>(new Variant[3], [](Variant* v){ delete[]v; });
             ptr.get()[0].type = Variant::TYPE_STRING_ID;
             ptr.get()[0].m_asStringId = EventHashTable::HashString("mouse_scroll");
             ptr.get()[1].type = Variant::TYPE_DOUBLE;
@@ -169,7 +178,7 @@ namespace Rocket
             //RK_EVENT_TRACE("glfwSetCursorPosCallback");
 			WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
-            EventVarPtr ptr = Ref<Variant>(new Variant[3], [](Variant* v){ delete[]v; });//CREATE_EVENT(3);
+            EventVarPtr ptr = Ref<Variant>(new Variant[3], [](Variant* v){ delete[]v; });
             ptr.get()[0].type = Variant::TYPE_STRING_ID;
             ptr.get()[0].m_asStringId = EventHashTable::HashString("mouse_move");
             ptr.get()[1].type = Variant::TYPE_DOUBLE;
@@ -184,23 +193,30 @@ namespace Rocket
 
     void EventManager::SetupListener()
     {
-        this->SetEventCallback(RK_BIND_EVENT_FN_CLASS(EventManager::OnEvent));
+        SetEventCallback(std::bind(&EventManager::OnEvent, this, std::placeholders::_1));
     }
 
     void EventManager::Finalize()
     {
+        delete g_EventTimer;
     }
 
     void EventManager::OnEvent(EventPtr& event)
     {
+        bool ret = false;
         RK_EVENT_TRACE("Callback Event {0}", *event);
-        TriggerEvent(event);
-        //QueueEvent(event);
+        if(event->GetEventType() == EventHashTable::HashString("window_close"))
+            ret = QueueEvent(event);
+        else
+            ret = TriggerEvent(event);
+        RK_EVENT_TRACE("On Event Callback Result : {}", ret);
     }
 
     void EventManager::Tick(Timestep ts)
     {
         PROFILE_BEGIN_CPU_SAMPLE(EventManagerUpdate, 0);
+
+        Rocket::g_EventTimer->MarkTimeThisTick();
 
         glfwPollEvents();
 
@@ -220,20 +236,16 @@ namespace Rocket
         float maxMs = currMs + maxMillis;
 
         // This section added to handle events from other threads.
-        // TODO : support multi-thread event handle
-        //EventPtr pRealtimeEvent;
-        //while (m_EventThreadQueue.try_pop(pRealtimeEvent))
-        //{
-        //    QueueEvent(pRealtimeEvent);
-        //    currMs = GetTickCount();
-        //    if (maxMillis != IEventManager::kINFINITE)
-        //    {
-        //        if (currMs >= maxMs)
-        //        {
-        //            RK_EVENT_ERROR("A realtime process is spamming the event manager!");
-        //        }
-        //    }
-        //}
+        EventPtr pRealtimeEvent;
+        while (m_EventThreadQueue.try_pop(pRealtimeEvent))
+        {
+            QueueEvent(pRealtimeEvent);
+            currMs = m_Timer.GetElapsedTime();
+            if (currMs >= maxMs)
+            {
+                RK_EVENT_WARN("A realtime process is spamming the event manager! {}", *pRealtimeEvent);
+            }
+        }
 
         // swap active queues and clear the new queue after the swap
         int queueToProcess = m_ActiveEventQueue;
@@ -300,6 +312,7 @@ namespace Rocket
         EventListenerList& eventListenerList = m_EventListener[type];  // this will find or create the entry
         for (auto it = eventListenerList.begin(); it != eventListenerList.end(); ++it)
         {
+            // Must use function pointer as listener
             if (eventDelegate == (*it))
             {
                 RK_EVENT_WARN("Attempting to double-register a delegate");
@@ -319,13 +332,12 @@ namespace Rocket
             EventListenerList& listeners = findIt->second;
             for (auto it = listeners.begin(); it != listeners.end(); ++it)
             {
+                // Must use function pointer as listener
                 if (eventDelegate == (*it))
                 {
                     listeners.erase(it);
                     RK_EVENT_INFO("Successfully removed delegate function from event type {0}", EventHashTable::GetStringFromId(type));
                     success = true;
-                    // we don't need to continue because it should be impossible 
-                    // for the same delegate function to be registered for the same event more than once
                     break;
                 }
             }
@@ -375,7 +387,7 @@ namespace Rocket
 
     bool EventManager::ThreadSafeQueueEvent(const EventPtr& event)
     {
-        m_EventThreadQueue.push_back(event);
+        m_EventThreadQueue.push(event);
         return true;
     }
 
@@ -393,8 +405,6 @@ namespace Rocket
             auto it = eventQueue.begin();
             while (it != eventQueue.end())
             {
-                // Removing an item from the queue will invalidate the iterator, so have it point to the next member.  All
-                // work inside this loop will be done using thisIt.
                 auto thisIt = it;
                 ++it;
 

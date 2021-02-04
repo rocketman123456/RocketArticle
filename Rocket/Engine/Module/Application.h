@@ -25,7 +25,6 @@ namespace Rocket
 
         void PushModule(IRuntimeModule* module);
 
-        virtual void TickModule(Timestep ts) final;
         virtual void Tick(Timestep ts) final;
 
         static Application& Get() { return *s_Instance; }
@@ -43,6 +42,7 @@ namespace Rocket
         // Config
         Ref<ConfigLoader> m_Config;
         std::string m_AssetPath;
+        
     private:
         static Application* s_Instance;
     };

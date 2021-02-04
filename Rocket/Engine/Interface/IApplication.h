@@ -19,8 +19,6 @@ namespace Rocket
         virtual int InitializeModule() = 0;
         virtual void PostInitializeModule() = 0;
         virtual void FinalizeModule() = 0;
-
-        virtual void TickModule(Timestep ts) = 0;
         
         bool IsRunning() { return m_IsRunning; }
         void SetRunningState(bool state) { m_IsRunning = state; }

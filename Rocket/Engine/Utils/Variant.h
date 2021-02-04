@@ -28,5 +28,10 @@ namespace Rocket
             void* m_asPointer;
             string_id m_asStringId;
         };
+
+        //void* operator new (size_t size);
+        //void* operator new[] (size_t size);
+        //void operator delete (void* pointerToDelete);
+        //void operator delete[] (void* arrayToDelete);
     };
 } // namespace Rocket

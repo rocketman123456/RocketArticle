@@ -3,8 +3,10 @@
 #include "Interface/IEvent.h"
 #include "Event/Event.h"
 #include "Utils/Timer.h"
+#include "Utils/ThreadSafeQueue.h"
 
 #include <entt/entt.hpp>
+#include <functional>
 #include <queue>
 #include <list>
 #include <map>
@@ -12,18 +14,21 @@
 struct GLFWwindow;
 constexpr uint16_t EVENTMANAGER_NUM_QUEUES = 2;
 
-#define REGISTER_DELEGATE_CLASS(f,x) EventListenerDelegate{entt::connect_arg<&f>, x}
-#define REGISTER_DELEGATE_FN(f) EventListenerDelegate{entt::connect_arg<&f>}
-
 namespace Rocket
 {
     using EventCallbackFn = std::function<void(EventPtr &)>;
     using EventListenerFnptr = bool(*)(EventPtr&);
     using EventListenerDelegate = entt::delegate<bool(EventPtr&)>;
+    // std::function cannot compare, so use entt
+    //using EventListenerDelegate = std::function<bool(EventPtr&)>;
     using EventListenerList = std::list<EventListenerDelegate>;
     using EventListenerMap = Map<EventType, EventListenerList>;
     using EventQueue = std::list<EventPtr>;
-    
+    using EventThreadQueue = ThreadSafeQueue<EventPtr>;
+
+#define REGISTER_DELEGATE_CLASS(f,x) EventListenerDelegate{entt::connect_arg<&f>, x}
+#define REGISTER_DELEGATE_FN(f) EventListenerDelegate{entt::connect_arg<&f>}
+
     class EventManager : implements IRuntimeModule
     {
     public:
@@ -46,41 +51,15 @@ namespace Rocket
 
         void OnEvent(EventPtr& event);
 
-        // Allow for processing of any queued messages, optionally specify a processing time limit so that the event 
-        // processing does not take too long. Note the danger of using this artificial limiter is that all messages 
-        // may not in fact get processed.
-        //
-        // returns true if all messages ready for processing were completed, false otherwise (e.g. timeout )
-        bool Update(uint64_t maxMillis = 100);
+        [[nodiscard]] bool Update(uint64_t maxMillis = 100);
+        [[nodiscard]] bool AddListener(const EventListenerDelegate& eventDelegate, const EventType& type);
+        [[nodiscard]] bool RemoveListener(const EventListenerDelegate& eventDelegate, const EventType& type);
+        [[nodiscard]] bool TriggerEvent(EventPtr& event) const;
+        [[nodiscard]] bool QueueEvent(const EventPtr& event);
+        [[nodiscard]] bool ThreadSafeQueueEvent(const EventPtr& event);
+        [[nodiscard]] bool AbortEvent(const EventType& type, bool allOfType = false);
 
-        // Registers a delegate function that will get called when the event type is triggered.  Returns true if 
-        // successful, false if not.
-        bool AddListener(const EventListenerDelegate& eventDelegate, const EventType& type);
-
-        // Removes a delegate / event type pairing from the internal tables.  Returns false if the pairing was not found.
-        bool RemoveListener(const EventListenerDelegate& eventDelegate, const EventType& type);
-
-        // Fire off event NOW.  This bypasses the queue entirely and immediately calls all delegate functions registered 
-        // for the event.
-        bool TriggerEvent(EventPtr& event) const;
-
-        // Fire off event.  This uses the queue and will call the delegate function on the next call to VTick(), assuming
-        // there's enough time.
-        bool QueueEvent(const EventPtr& event);
-        bool ThreadSafeQueueEvent(const EventPtr& event);
-
-        // Find the next-available instance of the named event type and remove it from the processing queue.  This 
-        // may be done up to the point that it is actively being processed ...  e.g.: is safe to happen during event
-        // processing itself.
-        //
-        // if allOfType is true, then all events of that type are cleared from the input queue.
-        //
-        // returns true if the event was found and removed, false otherwise
-        bool AbortEvent(const EventType& type, bool allOfType = false);
-
-        // Getter for the main global event manager.  This is the event manager that is used by the majority of the 
-        // engine, though you are free to define your own as long as you instantiate it with setAsGlobal set to false.
-        // It is not valid to have more than one global event manager.
+        // Getter for the main global event manager.
         static EventManager* Get(void);
 
     private:
@@ -102,11 +81,11 @@ namespace Rocket
 
         int32_t     m_ActiveEventQueue;
         EventQueue  m_EventQueue[2];
-        // TODO : use thread safe queue
-        EventQueue  m_EventThreadQueue;
+        EventThreadQueue m_EventThreadQueue;
         EventListenerMap m_EventListener;
         
         ElapseTimer    m_Timer;
+        
     private:
         static EventManager* s_Instance;
     };

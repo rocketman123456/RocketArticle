@@ -55,6 +55,9 @@ int main(int argc, char **argv)
     CurrentTime = Clock.now();
     LastTime = CurrentTime;
     
+    float CountTime = 0.0f;
+    int32_t CountFrame = 0;
+
     while (app->IsRunning())
     {
         PROFILE_SCOPE_CPU(MainLoop, 0);
@@ -66,12 +69,18 @@ int main(int argc, char **argv)
         Duration = (current - last) * 0.001f;
         //RK_TRACE("dt:{}", Duration);
 
+        CountFrame++;
+        CountTime += Duration;
+
+        if(CountTime >= 1000.0f)
+        {
+            //RK_TRACE("FPS : {}", CountFrame);
+            CountFrame = 0;
+            CountTime = 0.0f;
+        }
+
 	    PROFILE_BEGIN_CPU_SAMPLE(ApplicationUpdate, 0);
 	    app->Tick(Duration);
-	    PROFILE_END_CPU_SAMPLE();
-
-	    PROFILE_BEGIN_CPU_SAMPLE(ModuleUpdate, 0);
-	    app->TickModule(Duration);
 	    PROFILE_END_CPU_SAMPLE();
     }
     

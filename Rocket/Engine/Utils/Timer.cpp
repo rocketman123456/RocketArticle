@@ -2,8 +2,6 @@
 
 namespace Rocket
 {
-    ElapseTimer* g_GlobalTimer;
-
     void ElapseTimer::InitTime()
     {
         m_StartTimepoint = std::chrono::high_resolution_clock::now();

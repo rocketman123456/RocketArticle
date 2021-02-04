@@ -275,15 +275,6 @@ namespace Rocket
     
         if (pPipelineState->pipelineStateName == "Draw2D")
         {
-            // TODO : set this once
-            int32_t* samplers = new int32_t[m_Draw2DContext.data.MaxTextureSlots];
-            for (uint32_t i = 0; i < m_Draw2DContext.data.MaxTextureSlots; i++)
-                samplers[i] = i;
-            
-            m_CurrentShader->Bind();
-            m_CurrentShader->SetInt32Array("u_Textures", samplers, m_Draw2DContext.data.MaxTextureSlots);
-
-            delete[] samplers;
         }
     }
 

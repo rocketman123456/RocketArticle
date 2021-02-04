@@ -35,10 +35,10 @@ namespace Rocket
         inline bool GetSceneChange() const { return m_SceneChange; }
         inline void SetSceneChange(bool c) { m_SceneChange = c; }
 
-        void SetPrimaryCamera(Camera* camera) { m_PrimaryCamera = camera; }
-        void SetEditorCamera(Camera* camera) { m_EditorCamera = camera; }
-        Camera* GetPrimaryCamera() { return m_PrimaryCamera; }
-        Camera* GetEditorCamera() { return m_EditorCamera; }
+        void SetPrimaryCamera(Ref<Camera> camera) { m_PrimaryCamera = camera; }
+        void SetEditorCamera(Ref<Camera> camera) { m_EditorCamera = camera; }
+        Ref<Camera> GetPrimaryCamera() { return m_PrimaryCamera; }
+        Ref<Camera> GetEditorCamera() { return m_EditorCamera; }
         Matrix4f& GetPrimaryCameraTransform() { return m_PrimaryCameraTransform; }
         Matrix4f& GetEditorCameraTransform() { return m_EditorCameraTransform; }
 
@@ -54,8 +54,8 @@ namespace Rocket
 		entt::registry m_Registry;
         bool m_SceneChange = false;
 
-        Camera* m_PrimaryCamera = nullptr;
-        Camera* m_EditorCamera = nullptr;
+        Ref<Camera> m_PrimaryCamera = nullptr;
+        Ref<Camera> m_EditorCamera = nullptr;
         Matrix4f m_PrimaryCameraTransform;
         Matrix4f m_EditorCameraTransform;
 

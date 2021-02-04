@@ -14,9 +14,6 @@ namespace Rocket
 
     int Application::InitializeModule()
     {
-        Rocket::g_GlobalTimer = new Rocket::ElapseTimer();
-        Rocket::g_GlobalTimer->InitTime();
-
         int ret = 0;
         for (auto iter = m_Modules.begin(); iter != m_Modules.end(); iter++)
         {
@@ -40,8 +37,6 @@ namespace Rocket
             (*iter) = nullptr;
         }
         m_Modules.clear();
-
-        delete Rocket::g_GlobalTimer;
     }
 
     int Application::Initialize()
@@ -62,15 +57,12 @@ namespace Rocket
 
     void Application::Tick(Timestep ts)
     {
-        Rocket::g_GlobalTimer->MarkTimeThisTick();
-    }
-
-    void Application::TickModule(Timestep ts)
-    {
+	    PROFILE_BEGIN_CPU_SAMPLE(ModuleUpdate, 0);
         for (auto &module : m_Modules)
         {
             module->Tick(ts);
         }
+	    PROFILE_END_CPU_SAMPLE();
     }
 
     bool Application::OnWindowClose(EventPtr& e)
@@ -81,15 +73,14 @@ namespace Rocket
         return true;
     }
 
-    bool Application::OnWindowResize(EventPtr& e)
+    bool Application::OnWindowResize(EventPtr& event)
     {
         RK_CORE_TRACE("Application::OnWindowResize");
-        //auto event = static_cast<WindowResizeEvent*>(e.get());
-        //if (event->GetWidth() == 0 || event->GetHeight() == 0)
-        //{
-        //    m_Minimized = true;
-        //    return false;
-        //}
+        if (event->GetInt32(1) == 0 || event->GetInt32(2) == 0)
+        {
+            m_Minimized = true;
+            return false;
+        }
         m_Minimized = false;
         return false;
     }

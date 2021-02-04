@@ -16,11 +16,8 @@ namespace Rocket
 {
 	using EventVarPtr = Ref<Variant>;
 	using EventType = uint64_t;
-	//#define CREATE_EVENT(n) \
-	//	Ref<Variant>(\
-	//		new (RK_ALLOCATE_N(Variant, n)) Variant[n], \
-	//		RK_DELETER_N(Variant, n)\
-	//	)
+
+	extern ElapseTimer* g_EventTimer;
 
 	Interface IEvent
 	{
@@ -28,7 +25,7 @@ namespace Rocket
 		IEvent(const EventVarPtr& var, uint32_t count) : Var(var), Count(count)
 		{
 			RK_CORE_ASSERT(count > 0, "Event Var Count Error");
-			TimeStamp = g_GlobalTimer->GetExactTime();
+			TimeStamp = g_EventTimer->GetExactTime();
 		}
 		virtual ~IEvent() 
 		{
