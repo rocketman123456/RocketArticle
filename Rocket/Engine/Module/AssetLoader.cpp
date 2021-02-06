@@ -62,6 +62,12 @@ AssetFilePtr AssetLoader::OpenFile(const String& name, AssetOpenMode mode)
     case AssetOpenMode::RK_OPEN_BINARY:
         fp = fopen(fullPath.c_str(), "rb");
         break;
+    case AssetOpenMode::RK_WRITE_TEXT:
+        fp = fopen(fullPath.c_str(), "w");
+        break;
+    case AssetOpenMode::RK_WRITE_BINARY:
+        fp = fopen(fullPath.c_str(), "wb");
+        break;
     }
 
     if(fp)
@@ -129,7 +135,7 @@ Buffer AssetLoader::SyncOpenAndReadBinary(const String& filePath)
 
 bool AssetLoader::SyncOpenAndWriteText(const String& filePath, const Buffer& buf)
 {
-    AssetFilePtr fp = OpenFile(filePath, AssetOpenMode::RK_OPEN_TEXT);
+    AssetFilePtr fp = OpenFile(filePath, AssetOpenMode::RK_WRITE_TEXT);
     if(!fp)
     {
         RK_CORE_ERROR("Write Text to File Open File Error");
@@ -142,7 +148,7 @@ bool AssetLoader::SyncOpenAndWriteText(const String& filePath, const Buffer& buf
 
 bool AssetLoader::SyncOpenAndWriteBinary(const String& filePath, const Buffer& buf)
 {
-    AssetFilePtr fp = OpenFile(filePath, AssetOpenMode::RK_OPEN_TEXT);
+    AssetFilePtr fp = OpenFile(filePath, AssetOpenMode::RK_WRITE_BINARY);
     if(!fp)
     {
         RK_CORE_ERROR("Write Text to File Open File Error");

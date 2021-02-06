@@ -1,6 +1,6 @@
 #pragma once
 #include "Core/Core.h"
-#include <cstdint>
+#include "Module/MemoryManager.h"
 
 namespace Rocket
 {

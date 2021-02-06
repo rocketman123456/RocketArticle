@@ -5,6 +5,8 @@ add_library( RocketEngine
     # Core
     Core/EntryPoint.cpp
     Core/Log.cpp
+    # Graph
+    Graph/Graph.cpp
     # Module
     Module/Application.cpp
     Module/AssetLoader.cpp
@@ -35,8 +37,7 @@ add_library( RocketEngine
     Utils/Hashing.cpp
     Utils/Timer.cpp
     Utils/Variant.cpp
-    "Scene/Component/TagComponent.h"
-)
+ "Scene/Component/PlanarMesh.h")
 target_link_libraries( RocketEngine PRIVATE
     spdlog::spdlog_header_only
 )

@@ -18,7 +18,7 @@ namespace Rocket
         void Finalize() final;
         void Tick(Timestep ts) final;
 
-        [[nodiscard]] bool AddScene(const String& name, Ref<Scene> scene);
+        [[nodiscard]] bool AddScene(Ref<Scene> scene);
         [[nodiscard]] bool RemoveScene(const String& name);
         [[nodiscard]] Ref<Scene> GetActiveScene() { return m_ActiveScene; }
         [[nodiscard]] bool SetActiveScene(const String& name);

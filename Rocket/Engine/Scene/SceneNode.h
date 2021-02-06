@@ -1,69 +1,53 @@
 #pragma once
 #include "Core/Core.h"
-#include "Scene/Scene.h"
 #include "Scene/SceneComponent.h"
+#include "Scene/Component/TagName.h"
+#include "Scene/Component/Transform.h"
 #include "Utils/Hashing.h"
 
 #include <typeindex>
-#include <entt/entt.hpp>
 
 namespace Rocket
 {
-	Interface SceneNode
+	class SceneNode
 	{
 	public:
 		SceneNode();
-		SceneNode(entt::entity handle, Scene* scene);
+		SceneNode(const String& name);
 		SceneNode(const SceneNode& other) = default;
 		~SceneNode() = default;
 
-		template<typename T, typename... Args>
-		T& AddComponent(Args&&... args)
+		void SetParent(SceneNode& parent);
+		SceneNode* GetParent() const;
+		void AddChild(SceneNode& child);
+		const Vec<SceneNode*>& GetChildren() const;
+		void SetComponent(SceneComponent& component);
+		SceneComponent& GetComponent(const std::type_index index);
+		bool HasComponent(const std::type_index index);
+
+		template <class T>
+		inline T& GetComponent()
 		{
-			RK_CORE_ASSERT(!HasComponent<T>(), "Entity already has component!");
-			T& component = m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
-			m_Scene->OnComponentAdded<T>(*this, component);
-			return component;
+			return dynamic_cast<T&>(get_component(typeid(T)));
 		}
 
-		template<typename T>
-		T& GetComponent()
-		{
-			RK_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
-			return m_Scene->m_Registry.get<T>(m_EntityHandle);
-		}
-
-		template<typename T>
-		void RemoveComponent()
-		{
-			RK_CORE_ASSERT(HasComponent<T>(), "Entity does not have component!");
-			m_Scene->m_Registry.remove<T>(m_EntityHandle);
-		}
-
-		template<typename T>
+		template <class T>
 		bool HasComponent()
 		{
-			return m_Scene->m_Registry.has<T>(m_EntityHandle);
-		}
-
-		operator bool() const { return m_EntityHandle != entt::null; }
-		operator entt::entity() const { return m_EntityHandle; }
-		operator uint32_t() const { return (uint32_t)m_EntityHandle; }
-
-		bool operator==(const SceneNode& other) const
-		{
-			return m_EntityHandle == other.m_EntityHandle && m_Scene == other.m_Scene;
-		}
-
-		bool operator!=(const SceneNode& other) const
-		{
-			return !(*this == other);
+			return HasComponent(typeid(T));
 		}
 
 		inline uint64_t GetId() const { return m_Id; }
+		inline Transform& GetTransform() { return m_Transform; }
+		inline String& GetTagName() { return m_Tag.TagStr; }
 	protected:
 		uint64_t m_Id;
-		entt::entity m_EntityHandle{ entt::null };
-		Scene* m_Scene = nullptr;
+
+		TagName m_Tag;
+		Transform m_Transform;
+
+		SceneNode* m_Parent{ nullptr };
+		Vec<SceneNode*> m_Children;
+		UMap<std::type_index, SceneComponent*> m_Components;
 	};
 }

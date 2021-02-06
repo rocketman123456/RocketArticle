@@ -18,6 +18,8 @@ namespace Rocket
         {
             RK_OPEN_TEXT = 0,    /// Open In Text Mode
             RK_OPEN_BINARY = 1,  /// Open In Binary Mode
+            RK_WRITE_TEXT,       /// Write In Text Mode
+            RK_WRITE_BINARY,     /// Write In Binary Mode
         };
 
         enum class AssetSeekBase

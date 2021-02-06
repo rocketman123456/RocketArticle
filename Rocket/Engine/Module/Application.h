@@ -1,6 +1,7 @@
 #pragma once
 #include "Interface/IApplication.h"
 #include "Interface/IEvent.h"
+#include "Module/MemoryManager.h"
 
 namespace Rocket
 {

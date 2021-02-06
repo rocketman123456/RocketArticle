@@ -3,6 +3,7 @@
 
 namespace Rocket
 {
+	// TODO : implements SceneSerializer
     class SceneSerializer
 	{
 	public:

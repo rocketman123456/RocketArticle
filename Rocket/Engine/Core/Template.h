@@ -3,9 +3,12 @@
 #include <memory>
 #include <vector>
 #include <map>
+#include <set>
 #include <unordered_map>
+#include <unordered_set>
 #include <list>
 #include <string>
+#include <queue>
 
 namespace Rocket
 {
@@ -26,14 +29,13 @@ namespace Rocket
 	template <typename T>
 	using List = std::list<T>;
 
+	template <typename T>
+	using Queue = std::queue<T>;
+
+	template <typename T>
+	using Set = std::set<T>;
+	template <typename T>
+	using USet = std::unordered_set<T>;
+
 	using String = std::string;
-
-	template <typename T>
-	using Scope = std::unique_ptr<T>;
-
-	template <typename T>
-	using Ref = std::shared_ptr<T>;
-
-	template <typename T>
-	using StoreRef = std::weak_ptr<T>;
 } // namespace Rocket

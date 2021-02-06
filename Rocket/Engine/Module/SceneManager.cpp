@@ -37,13 +37,13 @@ bool SceneManager::SetActiveScene(const String& name)
     return true;
 }
 
-bool SceneManager::AddScene(const String& name, Ref<Scene> scene)
+bool SceneManager::AddScene(Ref<Scene> scene)
 {
-    auto id = SceneHashTable::HashString(name);
+    auto id = SceneHashTable::HashString(scene->GetName());
     auto findIt = m_SceneList.find(id);
     if (findIt != m_SceneList.end())
     {
-        RK_CORE_WARN("Add Scene Twice With Same Name : {}", name);
+        RK_CORE_WARN("Add Scene Twice With Same Name : {}", scene->GetName());
         return false;
     }
     m_SceneList[id] = scene;

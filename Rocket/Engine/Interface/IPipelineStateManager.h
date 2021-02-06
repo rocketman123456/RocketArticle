@@ -1,16 +1,18 @@
 #pragma once
 #include "Core/Core.h"
 #include "Interface/IRuntimeModule.h"
+#include "Module/MemoryManager.h"
 
 namespace Rocket
 {
-    ENUM(DEPTH_TEST_MODE){NONE, LARGE, LARGE_EQUAL, EQUAL, LESS_EQUAL, LESS, NOT_EQUAL, NEVER, ALWAYS};
-    ENUM(STENCIL_TEST_MODE){NONE};
-    ENUM(CULL_FACE_MODE){NONE, FRONT, BACK};
-    ENUM(PIPELINE_TYPE){GRAPHIC, COMPUTE};
-    ENUM(PIPELINE_FLAG){NONE, SHADOW, DEBUG_DRAW};
-    ENUM(PIXEL_FORMAT){INVALID, BGRA8UNORM};
-    enum A2V_TYPES {A2V_TYPES_NONE, A2V_TYPES_FULL, A2V_TYPES_SIMPLE, A2V_TYPES_POS_ONLY, A2V_TYPES_CUBE};
+    ENUM(DEPTH_TEST_MODE) { NONE, LARGE, LARGE_EQUAL, EQUAL, LESS_EQUAL, LESS, NOT_EQUAL, NEVER, ALWAYS };
+    ENUM(STENCIL_TEST_MODE) { NONE };
+    ENUM(CULL_FACE_MODE) { NONE, FRONT, BACK };
+    ENUM(PIPELINE_TYPE) { GRAPHIC, COMPUTE };
+    ENUM(PIPELINE_FLAG) { NONE, SHADOW, DEBUG_DRAW };
+    ENUM(PIXEL_FORMAT) { INVALID, BGRA8UNORM };
+    ENUM(RENDER_FORMAT) { INVALID, PLANAR, SPATIAL };
+    ENUM(A2V_TYPES) { A2V_TYPES_NONE, A2V_TYPES_FULL, A2V_TYPES_SIMPLE, A2V_TYPES_POS_ONLY, A2V_TYPES_CUBE };
 
     struct PipelineState
     {
@@ -45,6 +47,6 @@ namespace Rocket
         virtual void UnregisterPipelineState(PipelineState & pipelineState) = 0;
         virtual void Clear() = 0;
 
-        [[nodiscard]] virtual const Ref<PipelineState> GetPipelineState(const std::string& name) const = 0;
+        [[nodiscard]] virtual const Ref<PipelineState> GetPipelineState(const String& name) const = 0;
     };
 }

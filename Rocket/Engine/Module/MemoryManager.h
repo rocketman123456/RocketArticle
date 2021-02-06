@@ -4,6 +4,8 @@
 #include "Common/BlockAllocator.h"
 #include "Utils/Portable.h"
 
+#include <functional>
+
 namespace Rocket
 {
     ENUM(MemoryType){CPU = "CPU"_i32, GPU = "GPU"_i32};
@@ -61,26 +63,51 @@ namespace Rocket
 #define RK_ALLOCATE(sz) g_MemoryManager->Allocate(sz)
 #define RK_ALLOCATE_CLASS(T) g_MemoryManager->Allocate(sizeof(T))
 #define RK_DELETE(T,p) g_MemoryManager->Delete<T>(p)
-#define RK_DELETER(T) [](T* x){ RK_DELETE(T,x); }
 #define RK_FREE(p,n) g_MemoryManager->Free(p, n)
+
+    template<typename T>
+    class deleter
+    {
+    public:
+        deleter() = default;
+        deleter(const deleter& other) { RK_CORE_TRACE("Copy deleter."); }
+        deleter(deleter&& other) { RK_CORE_TRACE("Move deleter."); }
+        deleter& operator=(const deleter&) { RK_CORE_TRACE("Copy assign deleter."); return *this; }
+        deleter& operator=(deleter&&) { RK_CORE_TRACE("Move assign deleter."); return *this; }
+
+        void operator() (T* ptr)
+        {
+            RK_CORE_TRACE("Start of deleter function.");
+            RK_DELETE(T, ptr);
+            ptr = nullptr;
+            RK_CORE_TRACE("End of deleter function.");
+        }
+    };
+
+    template <typename T>
+    using Scope = std::unique_ptr<T, std::function<void(T*)>>;
+
+    template <typename T>
+    using Ref = std::shared_ptr<T>;
+
+    template <typename T>
+    using StoreRef = std::weak_ptr<T>;
+
+    template <typename T, typename... Arguments>
+    constexpr Ref<T> CreateRef(Arguments ... args)
+    {
+        Ref<T> ptr = Ref<T>(
+            new (RK_ALLOCATE_CLASS(T)) T(args...), [](T* ptr) { RK_DELETE(T, ptr); }
+        );
+        return std::move(ptr);
+    }
 
     template <typename T, typename... Arguments>
 	constexpr Scope<T> CreateScope(Arguments ... args)
 	{
-		return std::unique_ptr<T>(
-            new (RK_ALLOCATE_CLASS(T)) T(args...), 
-            RK_DELETER(T)
+        Scope<T> ptr = Scope<T>(
+            new (RK_ALLOCATE_CLASS(T)) T(args...), [](T* ptr) { RK_DELETE(T, ptr); }
         );
-		//return std::make_unique<T>(std::forward<Args>(args)...);
-	}
-
-    template <typename T, typename... Arguments>
-	constexpr Ref<T> CreateRef(Arguments ... args)
-	{
-		return std::shared_ptr<T>(
-            new (RK_ALLOCATE_CLASS(T)) T(args...), 
-            RK_DELETER(T)
-        );
-		//return std::make_shared<T>(std::forward<Args>(args)...);
+        return std::move(ptr);
 	}
 }

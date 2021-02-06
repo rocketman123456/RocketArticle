@@ -26,11 +26,10 @@ namespace Rocket
 		return out;
 	}
 
-    static void SerializeEntity(YAML::Emitter& out, Entity& entity)
+    static void SerializeNode(YAML::Emitter& out, SceneNode& node)
     {
-        //uint32_t id = entity;
         out << YAML::BeginMap; // Entity
-		//out << YAML::Key << "Entity" << YAML::Value << HashFunction::Hash<uint32_t>(id);
+		out << YAML::Key << "SceneNode" << YAML::Value << node.GetId();
 
 		out << YAML::EndMap; // Entity
     }
@@ -40,7 +39,7 @@ namespace Rocket
         YAML::Emitter out;
 		out << YAML::BeginMap;
 		out << YAML::Key << "Scene" << YAML::Value << m_Scene->GetName();
-		out << YAML::Key << "Entities" << YAML::Value << YAML::BeginSeq;
+		out << YAML::Key << "SceneNodes" << YAML::Value << YAML::BeginSeq;
 
 		out << YAML::EndSeq;
 		out << YAML::EndMap;
@@ -62,13 +61,13 @@ namespace Rocket
 		String sceneName = data["Scene"].as<String>();
 		RK_CORE_TRACE("Deserializing scene '{0}'", sceneName);
 
-		auto entities = data["Entities"];
-		if (!entities)
+		auto nodes = data["SceneNodes"];
+		if (!nodes)
 			return false;
 
-		for (auto entity : entities)
+		for (auto node : nodes)
 		{
-			uint64_t uuid = entity["Entity"].as<uint64_t>();
+			uint64_t uuid = node["SceneNode"].as<uint64_t>();
 		}
 
 		return true;

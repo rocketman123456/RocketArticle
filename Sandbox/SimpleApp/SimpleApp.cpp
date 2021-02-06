@@ -62,10 +62,10 @@ namespace Rocket
 
     void SimpleApp::PreInitialize()
     {
-        Ref<Scene> scene = Ref<Scene>(new Scene());
+        Ref<Scene> scene = CreateRef<Scene>("Test Scene");
 
-        auto ret_1 = g_SceneManager->AddScene("first scene", scene);
-        auto ret_2 = g_SceneManager->SetActiveScene("first scene");
+        auto ret_1 = g_SceneManager->AddScene(scene);
+        auto ret_2 = g_SceneManager->SetActiveScene("Test Scene");
     }
 
     void SimpleApp::PostInitialize()

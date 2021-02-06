@@ -1,5 +1,6 @@
 #pragma once
 #include "Interface/IRuntimeModule.h"
+#include "Module/MemoryManager.h"
 #include "Common/ConfigLoader.h"
 
 namespace Rocket
