@@ -10,108 +10,107 @@
 //#define VS_PASSTHROUGH_SOURCE_FILE "passthrough.vert"
 //#define PS_TEXTURE_SOURCE_FILE "texture.frag"
 
-namespace Rocket
-{
-    bool PipelineStateManager::RegisterPipelineState(PipelineState& pipelineState)
-    {
-        PipelineState* pPipelineState;
-        pPipelineState = &pipelineState;
-        if (InitializePipelineState(&pPipelineState))
-        {
-            m_pipelineStates.emplace(pipelineState.pipelineStateName, pPipelineState);
-            return true;
-        }
-        return false;
-    }
+using namespace Rocket;
 
-    void PipelineStateManager::UnregisterPipelineState(PipelineState& pipelineState)
+bool PipelineStateManager::RegisterPipelineState(PipelineState& pipelineState)
+{
+    PipelineState* pPipelineState;
+    pPipelineState = &pipelineState;
+    if (InitializePipelineState(&pPipelineState))
     {
-        const auto& it = m_pipelineStates.find(pipelineState.pipelineStateName);
+        m_pipelineStates.emplace(pipelineState.pipelineStateName, pPipelineState);
+        return true;
+    }
+    return false;
+}
+
+void PipelineStateManager::UnregisterPipelineState(PipelineState& pipelineState)
+{
+    const auto& it = m_pipelineStates.find(pipelineState.pipelineStateName);
+    if (it != m_pipelineStates.end())
+    {
+        DestroyPipelineState(*it->second);
+    }
+    m_pipelineStates.erase(it);
+}
+
+void PipelineStateManager::Clear()
+{
+    for (auto it = m_pipelineStates.begin(); it != m_pipelineStates.end(); it++)
+    {
         if (it != m_pipelineStates.end())
         {
             DestroyPipelineState(*it->second);
         }
-        m_pipelineStates.erase(it);
     }
+    m_pipelineStates.clear();
 
-    void PipelineStateManager::Clear()
+    RK_GRAPHICS_ASSERT(m_pipelineStates.empty(), "Pipeline State Manager Clear ERROR");
+    RK_GRAPHICS_INFO("Pipeline State Manager Clear has been called. ");
+}
+
+const Ref<PipelineState> PipelineStateManager::GetPipelineState(const String& name) const
+{
+    const auto& it = m_pipelineStates.find(name);
+    if (it != m_pipelineStates.end())
     {
-        for (auto it = m_pipelineStates.begin(); it != m_pipelineStates.end(); it++)
-        {
-            if (it != m_pipelineStates.end())
-            {
-                DestroyPipelineState(*it->second);
-            }
-        }
-        m_pipelineStates.clear();
-
-        RK_GRAPHICS_ASSERT(m_pipelineStates.empty(), "Pipeline State Manager Clear ERROR");
-        RK_GRAPHICS_INFO("Pipeline State Manager Clear has been called. ");
+        return it->second;
     }
-
-    const Ref<PipelineState> PipelineStateManager::GetPipelineState(const std::string& name) const
+    else
     {
-        const auto& it = m_pipelineStates.find(name);
-        if (it != m_pipelineStates.end())
-        {
-            return it->second;
-        }
-        else
-        {
-            RK_GRAPHICS_ASSERT(!m_pipelineStates.empty(), "Cannot Find Required Pipeline State");
-            return m_pipelineStates.begin()->second;
-        }
+        RK_GRAPHICS_ASSERT(!m_pipelineStates.empty(), "Cannot Find Required Pipeline State");
+        return m_pipelineStates.begin()->second;
     }
+}
 
-    int PipelineStateManager::Initialize()
-    {
-        auto config = g_Application->GetConfig();
+int PipelineStateManager::Initialize()
+{
+    auto config = g_Application->GetConfig();
 
-        PipelineState pipelineState;
-        pipelineState.pipelineStateName = "Basic";
-        pipelineState.pipelineType = PIPELINE_TYPE::GRAPHIC;
-        pipelineState.vertexShaderName = VS_BASIC_SOURCE_FILE;
-        pipelineState.pixelShaderName = PS_BASIC_SOURCE_FILE;
-        pipelineState.depthTestMode = DEPTH_TEST_MODE::LESS_EQUAL;
-        pipelineState.bDepthWrite = true;
-        pipelineState.stencilTestMode = STENCIL_TEST_MODE::NONE;
-        pipelineState.cullFaceMode = CULL_FACE_MODE::BACK;
-        pipelineState.sampleCount = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
-        pipelineState.a2vType = A2V_TYPES::A2V_TYPES_FULL;
-        pipelineState.flag = PIPELINE_FLAG::NONE;
-        RegisterPipelineState(pipelineState);
+    PipelineState pipelineState;
+    pipelineState.pipelineStateName = "Basic";
+    pipelineState.pipelineType = PIPELINE_TYPE::GRAPHIC;
+    pipelineState.vertexShaderName = VS_BASIC_SOURCE_FILE;
+    pipelineState.pixelShaderName = PS_BASIC_SOURCE_FILE;
+    pipelineState.depthTestMode = DEPTH_TEST_MODE::LESS_EQUAL;
+    pipelineState.bDepthWrite = true;
+    pipelineState.stencilTestMode = STENCIL_TEST_MODE::NONE;
+    pipelineState.cullFaceMode = CULL_FACE_MODE::BACK;
+    pipelineState.sampleCount = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
+    pipelineState.a2vType = A2V_TYPES::A2V_TYPES_FULL;
+    pipelineState.flag = PIPELINE_FLAG::NONE;
+    RegisterPipelineState(pipelineState);
 
-        pipelineState.pipelineStateName = "Draw2D";
-        pipelineState.pipelineType = PIPELINE_TYPE::GRAPHIC;
-        pipelineState.vertexShaderName = VS_DRAW2D_SOURCE_FILE;
-        pipelineState.pixelShaderName = PS_DRAW2D_SOURCE_FILE;
-        pipelineState.depthTestMode = DEPTH_TEST_MODE::LESS_EQUAL;
-        pipelineState.bDepthWrite = true;
-        pipelineState.stencilTestMode = STENCIL_TEST_MODE::NONE;
-        pipelineState.cullFaceMode = CULL_FACE_MODE::BACK;
-        pipelineState.sampleCount = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
-        pipelineState.a2vType = A2V_TYPES::A2V_TYPES_FULL;
-        pipelineState.flag = PIPELINE_FLAG::NONE;
-        RegisterPipelineState(pipelineState);
+    pipelineState.pipelineStateName = "Draw2D";
+    pipelineState.pipelineType = PIPELINE_TYPE::GRAPHIC;
+    pipelineState.vertexShaderName = VS_DRAW2D_SOURCE_FILE;
+    pipelineState.pixelShaderName = PS_DRAW2D_SOURCE_FILE;
+    pipelineState.depthTestMode = DEPTH_TEST_MODE::LESS_EQUAL;
+    pipelineState.bDepthWrite = true;
+    pipelineState.stencilTestMode = STENCIL_TEST_MODE::NONE;
+    pipelineState.cullFaceMode = CULL_FACE_MODE::BACK;
+    pipelineState.sampleCount = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
+    pipelineState.a2vType = A2V_TYPES::A2V_TYPES_FULL;
+    pipelineState.flag = PIPELINE_FLAG::NONE;
+    RegisterPipelineState(pipelineState);
 
-        //pipelineState.pipelineStateName = "Texture Debug Draw";
-        //pipelineState.vertexShaderName = VS_PASSTHROUGH_SOURCE_FILE;
-        //pipelineState.pixelShaderName = PS_TEXTURE_SOURCE_FILE;
-        //pipelineState.cullFaceMode = CULL_FACE_MODE::BACK;
-        //pipelineState.a2vType = A2V_TYPES::A2V_TYPES_SIMPLE;
-        //pipelineState.depthTestMode = DEPTH_TEST_MODE::ALWAYS;
-        //pipelineState.bDepthWrite = true;
-        //pipelineState.pixelFormat = PIXEL_FORMAT::BGRA8UNORM;
-        //pipelineState.sampleCount = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
-        //pipelineState.flag = PIPELINE_FLAG::DEBUG_DRAW;
-        //RegisterPipelineState(pipelineState);
+    //pipelineState.pipelineStateName = "Texture Debug Draw";
+    //pipelineState.vertexShaderName = VS_PASSTHROUGH_SOURCE_FILE;
+    //pipelineState.pixelShaderName = PS_TEXTURE_SOURCE_FILE;
+    //pipelineState.cullFaceMode = CULL_FACE_MODE::BACK;
+    //pipelineState.a2vType = A2V_TYPES::A2V_TYPES_SIMPLE;
+    //pipelineState.depthTestMode = DEPTH_TEST_MODE::ALWAYS;
+    //pipelineState.bDepthWrite = true;
+    //pipelineState.pixelFormat = PIXEL_FORMAT::BGRA8UNORM;
+    //pipelineState.sampleCount = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
+    //pipelineState.flag = PIPELINE_FLAG::DEBUG_DRAW;
+    //RegisterPipelineState(pipelineState);
 
-        RK_GRAPHICS_INFO("Pipeline State Manager Initialized. Add [{}] Pipelines", m_pipelineStates.size());
-        return 0;
-    }
+    RK_GRAPHICS_INFO("Pipeline State Manager Initialized. Add [{}] Pipelines", m_pipelineStates.size());
+    return 0;
+}
 
-    void PipelineStateManager::Finalize() 
-    { 
-        Clear(); 
-    }
+void PipelineStateManager::Finalize() 
+{ 
+    Clear(); 
 }

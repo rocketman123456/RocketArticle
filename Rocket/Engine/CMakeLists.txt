@@ -28,12 +28,14 @@ add_library( RocketEngine
     Scene/EditorCamera.cpp
     Scene/Scene.cpp
     Scene/SceneCamera.cpp
+    Scene/SceneNode.cpp
     Scene/SceneComponent.cpp
     Scene/SceneSerializer.cpp
     # Utils
     Utils/Hashing.cpp
     Utils/Timer.cpp
     Utils/Variant.cpp
+    "Scene/Component/TagComponent.h"
 )
 target_link_libraries( RocketEngine PRIVATE
     spdlog::spdlog_header_only

@@ -13,7 +13,7 @@ int main(int argc, char **argv)
     Ref<CommandParser> Parser = Ref<CommandParser>(new CommandParser(argc, argv));
     RK_CORE_INFO("CommandParser : {0}", Parser->ToString());
 
-    std::string command;
+    String command;
     if(argc > 1)
         command = Parser->GetCommand(1);
     else
@@ -47,27 +47,17 @@ int main(int argc, char **argv)
     }
     app->PostInitialize();
 
-    std::chrono::steady_clock Clock;
-    std::chrono::time_point<std::chrono::steady_clock> CurrentTime;
-    std::chrono::time_point<std::chrono::steady_clock> LastTime;
-    float Duration;
-
-    CurrentTime = Clock.now();
-    LastTime = CurrentTime;
-    
     float CountTime = 0.0f;
     int32_t CountFrame = 0;
+
+    ElapseTimer Timer;
+    Timer.Start();
 
     while (app->IsRunning())
     {
         PROFILE_SCOPE_CPU(MainLoop, 0);
 
-        LastTime = CurrentTime;
-        CurrentTime = Clock.now();
-        auto last = std::chrono::time_point_cast<std::chrono::microseconds>(LastTime).time_since_epoch().count();
-        auto current = std::chrono::time_point_cast<std::chrono::microseconds>(CurrentTime).time_since_epoch().count();
-        Duration = (current - last) * 0.001f;
-        //RK_TRACE("dt:{}", Duration);
+        double Duration = Timer.GetTickTime();
 
         CountFrame++;
         CountTime += Duration;

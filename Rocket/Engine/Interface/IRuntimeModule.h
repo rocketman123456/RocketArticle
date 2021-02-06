@@ -17,7 +17,7 @@ namespace Rocket
 
         // For Debug
         [[nodiscard]] virtual const char* GetName() const = 0;
-        [[nodiscard]] virtual std::string ToString() const { return GetName(); }
+        [[nodiscard]] virtual String ToString() const { return GetName(); }
     };
 
 #define RUNTIME_MODULE_TYPE(type) \

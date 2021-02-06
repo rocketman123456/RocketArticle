@@ -57,6 +57,14 @@ configure_file (
     "${PROJECT_SOURCE_DIR}/RKConfig.h.in"
     "${PROJECT_SOURCE_DIR}/Rocket/Engine/RKConfig.h"
 )
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set(WARNINGS "-Werror")
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(WARNINGS "-Werror")
+elseif(MSVC)
+    set(WARNINGS "/WX" "/W4")
+endif()
 #### Project Definition #############################
 
 #### Project Packages ###############################
@@ -65,14 +73,12 @@ find_package(yaml-cpp CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(Eigen3 CONFIG REQUIRED)
 find_package(Bullet CONFIG REQUIRED)
-#find_package(unofficial-box2d CONFIG REQUIRED)
 find_package(OpenAL CONFIG REQUIRED)
 find_package(SndFile CONFIG REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
-#find_package(tinyobjloader CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
-#find_package(glad CONFIG REQUIRED)
+#find_package(unofficial-box2d CONFIG REQUIRED)
 #find_package(glslang CONFIG REQUIRED)
 if(Vulkan)
     find_package(Vulkan REQUIRED)
@@ -95,8 +101,10 @@ message(STATUS "###################################")
 #### Project Includes ###############################
 include_directories(
     ${PROJECT_SOURCE_DIR}/Thirdparty/stb_image
-    ${PROJECT_SOURCE_DIR}/Thirdparty/crossguid/include
     ${PROJECT_SOURCE_DIR}/Thirdparty/imgui
+    ${PROJECT_SOURCE_DIR}/Thirdparty/tinyobjloader
+    ${PROJECT_SOURCE_DIR}/Thirdparty/tinygltf
+    ${PROJECT_SOURCE_DIR}/Thirdparty/crossguid/include
     ${PROJECT_SOURCE_DIR}/Thirdparty/glad/include
     ${EIGEN3_INCLUDE_DIRS}
     ${BULLET_INCLUDE_DIRS}

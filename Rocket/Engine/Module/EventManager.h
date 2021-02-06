@@ -51,13 +51,13 @@ namespace Rocket
 
         void OnEvent(EventPtr& event);
 
-        [[nodiscard]] bool Update(uint64_t maxMillis = 100);
-        [[nodiscard]] bool AddListener(const EventListenerDelegate& eventDelegate, const EventType& type);
-        [[nodiscard]] bool RemoveListener(const EventListenerDelegate& eventDelegate, const EventType& type);
-        [[nodiscard]] bool TriggerEvent(EventPtr& event) const;
-        [[nodiscard]] bool QueueEvent(const EventPtr& event);
-        [[nodiscard]] bool ThreadSafeQueueEvent(const EventPtr& event);
-        [[nodiscard]] bool AbortEvent(const EventType& type, bool allOfType = false);
+        [[maybe_unused]] bool Update(uint64_t maxMillis = 100);
+        [[maybe_unused]] bool AddListener(const EventListenerDelegate& eventDelegate, const EventType& type);
+        [[maybe_unused]] bool RemoveListener(const EventListenerDelegate& eventDelegate, const EventType& type);
+        [[maybe_unused]] bool TriggerEvent(EventPtr& event) const;
+        [[maybe_unused]] bool QueueEvent(const EventPtr& event);
+        [[maybe_unused]] bool ThreadSafeQueueEvent(const EventPtr& event);
+        [[maybe_unused]] bool AbortEvent(const EventType& type, bool allOfType = false);
 
         // Getter for the main global event manager.
         static EventManager* Get(void);

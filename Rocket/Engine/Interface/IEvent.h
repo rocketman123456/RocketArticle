@@ -9,8 +9,6 @@
 #include <optional>
 #include <functional>
 #include <sstream>
-#include <memory>
-#include <vector>
 
 namespace Rocket
 {
@@ -33,16 +31,16 @@ namespace Rocket
 		}
 
 		[[nodiscard]] virtual EventType GetEventType() const { return Var.get()[0].m_asStringId; }
-		[[nodiscard]] virtual const std::string& GetName() const { return EventHashTable::GetStringFromId(GetEventType()); }
-		[[nodiscard]] virtual const std::string& ToString() const { return GetName(); }
+		[[nodiscard]] virtual const String& GetName() const { return EventHashTable::GetStringFromId(GetEventType()); }
+		[[nodiscard]] virtual const String& ToString() const { return GetName(); }
 
-		[[nodiscard]] int32_t GetInt32(int index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asInt32; }
-		[[nodiscard]] uint32_t GetUInt32(int index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asUInt32; }
-		[[nodiscard]] float GetFloat(int index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asFloat; }
-		[[nodiscard]] double GetDouble(int index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asDouble; }
-		[[nodiscard]] bool GetBool(int index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asBool; }
-		[[nodiscard]] void* GetPointer(int index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asPointer; }
-		[[nodiscard]] string_id GetStringId(int index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asStringId; }
+		[[nodiscard]] int32_t GetInt32(uint32_t index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asInt32; }
+		[[nodiscard]] uint32_t GetUInt32(uint32_t index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asUInt32; }
+		[[nodiscard]] float GetFloat(uint32_t index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asFloat; }
+		[[nodiscard]] double GetDouble(uint32_t index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asDouble; }
+		[[nodiscard]] bool GetBool(uint32_t index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asBool; }
+		[[nodiscard]] void* GetPointer(uint32_t index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asPointer; }
+		[[nodiscard]] string_id GetStringId(uint32_t index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asStringId; }
 
 		bool Handled = false;
 		double TimeStamp = 0.0f;

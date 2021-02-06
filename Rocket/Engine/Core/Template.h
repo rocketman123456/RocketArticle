@@ -4,6 +4,8 @@
 #include <vector>
 #include <map>
 #include <unordered_map>
+#include <list>
+#include <string>
 
 namespace Rocket
 {
@@ -20,6 +22,11 @@ namespace Rocket
 	using Map = std::map<T1, T2>;
 	template <typename T1, typename T2>
 	using UMap = std::unordered_map<T1, T2>;
+
+	template <typename T>
+	using List = std::list<T>;
+
+	using String = std::string;
 
 	template <typename T>
 	using Scope = std::unique_ptr<T>;

@@ -18,14 +18,14 @@ namespace Rocket {
         void UnregisterPipelineState(PipelineState& pipelineState) override;
         void Clear() override;
 
-        const Ref<PipelineState> GetPipelineState(const std::string& name) const final;
+        const Ref<PipelineState> GetPipelineState(const String& name) const final;
 
     protected:
         virtual bool InitializePipelineState(PipelineState** ppPipelineState) { return true; }
         virtual void DestroyPipelineState(PipelineState& pipelineState) {}
 
     protected:
-        Map<std::string, Ref<PipelineState>> m_pipelineStates;
+        Map<String, Ref<PipelineState>> m_pipelineStates;
     };
 
     PipelineStateManager* GetPipelineStateManager();

@@ -9,8 +9,6 @@
 #include "Module/SceneManager.h"
 
 #include "Scene/Scene.h"
-#include "Scene/Entity.h"
-#include "Scene/Component.h"
 
 namespace Rocket
 {

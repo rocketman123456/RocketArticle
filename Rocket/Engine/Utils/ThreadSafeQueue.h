@@ -8,7 +8,8 @@ namespace Rocket
     class ThreadSafeQueue
     {
     private:
-        mutable std::mutex mut;//需要声明为mutable
+        //需要声明为mutable
+        mutable std::mutex mut;
         std::queue<T> data_queue;
         std::condition_variable data_cond;
     public:

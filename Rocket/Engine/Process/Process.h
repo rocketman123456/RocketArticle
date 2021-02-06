@@ -4,8 +4,8 @@
 namespace Rocket
 {
     class Process;
-    typedef Ref<Process> StrongProcessPtr;
-    typedef StoreRef<Process> WeakProcessPtr;
+    using StrongProcessPtr = Ref<Process>;
+    using WeakProcessPtr = StoreRef<Process>;
 
     //---------------------------------------------------------------------------------------------------------------------
     // Process class

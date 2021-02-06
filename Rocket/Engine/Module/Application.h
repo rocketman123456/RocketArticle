@@ -41,7 +41,7 @@ namespace Rocket
         Vec<IRuntimeModule*> m_Modules;
         // Config
         Ref<ConfigLoader> m_Config;
-        std::string m_AssetPath;
+        String m_AssetPath;
         
     private:
         static Application* s_Instance;

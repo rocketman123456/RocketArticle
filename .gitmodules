@@ -49,3 +49,9 @@
 [submodule "Thirdparty/ImGuizmo"]
 	path = Thirdparty/ImGuizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo.git
+[submodule "Thirdparty/tinygltf"]
+	path = Thirdparty/tinygltf
+	url = https://github.com/syoyo/tinygltf.git
+[submodule "Thirdparty/nlohmann-json"]
+	path = Thirdparty/nlohmann-json
+	url = https://github.com/nlohmann/json

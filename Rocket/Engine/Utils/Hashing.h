@@ -40,35 +40,20 @@ namespace Rocket
 
 #define DeclareHashTable \
     public:\
-        [[nodiscard]] static uint64_t HashString(const std::string& str);\
-        [[nodiscard]] static const std::string& GetStringFromId(uint64_t id);\
+        [[nodiscard]] static uint64_t HashString(const String& str);\
+        [[nodiscard]] static const String& GetStringFromId(uint64_t id);\
     protected:\
-        static UMap<uint64_t, std::string> IdStringMap;
+        static UMap<uint64_t, String> IdStringMap;
+
 #define ImplementHashTable(class_name) \
-    UMap<uint64_t, std::string> class_name::IdStringMap;\
-    uint64_t class_name::HashString(const std::string& str)\
-    {\
-        uint64_t result = _HashString_(str, IdStringMap);\
-        return result;\
-    }\
-    const std::string& class_name::GetStringFromId(uint64_t id)\
-    {\
-        auto& result = _GetStringFromId_(id, IdStringMap);\
-        return result;\
-    }
+    UMap<uint64_t, String> class_name::IdStringMap;\
+    uint64_t class_name::HashString(const String& str)\
+    { uint64_t result = _HashString_(str, IdStringMap); return result; }\
+    const String& class_name::GetStringFromId(uint64_t id)\
+    { auto& result = _GetStringFromId_(id, IdStringMap); return result; }
 
-    class EventHashTable
-    {
-        DeclareHashTable;
-    };
-
-    class AssetHashTable
-    {
-        DeclareHashTable;
-    };
-
-    class GraphicsHashTable
-    {
-        DeclareHashTable;
-    };
+    class EventHashTable { DeclareHashTable; };
+    class AssetHashTable { DeclareHashTable; };
+    class GraphicsHashTable { DeclareHashTable; };
+    class SceneHashTable { DeclareHashTable; };
 }

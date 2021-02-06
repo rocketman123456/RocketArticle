@@ -9,7 +9,7 @@ namespace Rocket
 	{
 	public:
 		OpenGLTexture2D(uint32_t width, uint32_t height);
-		OpenGLTexture2D(const std::string& path);
+		OpenGLTexture2D(const String& path);
 		virtual ~OpenGLTexture2D();
 
 		uint32_t GetWidth() const final { return m_Width; }
@@ -27,7 +27,7 @@ namespace Rocket
 		}
 
 	private:
-		std::string m_Path;
+		String m_Path;
 		uint32_t m_Width, m_Height;
 		uint32_t m_RendererID;
 		GLenum m_InternalFormat, m_DataFormat;

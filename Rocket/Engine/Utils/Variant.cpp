@@ -1,25 +1,24 @@
 #include "Utils/Variant.h"
 #include "Module/MemoryManager.h"
 
-namespace Rocket
+using namespace Rocket;
+
+void* Variant::operator new(std::size_t sz)
 {
-    //void∗ Variant::operator new (size_t size) 
-    //{
-    //    return g_MemoryManager.Allocate(size);
-    //}
+    return g_MemoryManager->Allocate(sz);
+}
 
-    //void∗ Variant::operator new[ ] (size_t size)
-    //{
-    //    return  g_MemoryManager.Allocate(size);
-    //}
+void* Variant::operator new[](std::size_t sz)
+{
+    return g_MemoryManager->Allocate(sz);
+}
 
-    //void Variant::operator delete (void∗ pointerToDelete)
-    //{
-    //    g_MemoryManager.Free(pointerToDelete);
-    //}
+void Variant::operator delete(void* ptr, std::size_t sz)
+{
+    g_MemoryManager->Free(ptr, sz);
+}
 
-    //void Variant::operator delete[ ] (void∗ arrayToDelete)
-    //{
-    //    g_MemoryManager.free(arrayToDelete);
-    //}
+void Variant::operator delete[](void* ptr, std::size_t sz)
+{
+    g_MemoryManager->Free(ptr, sz);
 }

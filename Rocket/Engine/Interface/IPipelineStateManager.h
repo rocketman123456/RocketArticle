@@ -16,16 +16,16 @@ namespace Rocket
     {
         virtual ~PipelineState() = default;
 
-        std::string         pipelineStateName;
+        String              pipelineStateName;
         PIPELINE_TYPE       pipelineType{PIPELINE_TYPE::GRAPHIC};
 
-        std::string         vertexShaderName;
-        std::string         pixelShaderName;
-        std::string         computeShaderName;
-        std::string         geometryShaderName;
-        std::string         tessControlShaderName;
-        std::string         tessEvaluateShaderName;
-        std::string         meshShaderName;
+        String              vertexShaderName;
+        String              pixelShaderName;
+        String              computeShaderName;
+        String              geometryShaderName;
+        String              tessControlShaderName;
+        String              tessEvaluateShaderName;
+        String              meshShaderName;
 
         DEPTH_TEST_MODE     depthTestMode{DEPTH_TEST_MODE::ALWAYS};
         bool                bDepthWrite{true};
