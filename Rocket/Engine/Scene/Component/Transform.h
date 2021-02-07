@@ -4,32 +4,40 @@
 
 namespace Rocket
 {
+	class SceneNode;
+
 	class Transform : implements SceneComponent
 	{
 	public:
 		COMPONENT(Transform);
 	public:
-		Transform() = default;
 		Transform(const Transform&) = default;
-		Transform(const Matrix4f& mat) : TransformMat(mat) {}
+		Transform(SceneNode& node) : m_Node(node) {}
+		Transform(const Matrix4f& mat, SceneNode& node) : m_WorldTransform(mat), m_Node(node) {}
+		virtual ~Transform() = default;
 
-		Vector3f& GetPosition() { return Position; }
-		Quaternionf& GetRotation() { return Rotation; }
-		Vector3f& GetScale() { return Position; }
-		Matrix4f& GetTransform() { return TransformMat; }
+		SceneNode& GetNode();
 
-		void SetPosition(const Vector3f& vec) { Position = vec; Invalidate(); }
-		void SetRotation(const Quaternionf& rot) { Rotation = rot; Invalidate();}
-		void SetScale(const Vector3f& vec) { Position = vec; Invalidate();}
-		void SetTransform(const Matrix4f& mat) { TransformMat = mat; Invalidate();}
+		Vector3f& GetTranslation() { return m_Translation; }
+		Quaternionf& GetOrientation() { return m_Orientation; }
+		Vector3f& GetScale() { return m_Translation; }
+		Matrix4f& GetTransform() { return m_WorldTransform; }
+		void SetTranslation(const Vector3f& vec) { m_Translation = vec; Invalidate(); }
+		void SetOrientation(const Quaternionf& rot) { m_Orientation = rot; Invalidate();}
+		void SetScale(const Vector3f& vec) { m_Translation = vec; Invalidate();}
+		void SetTransform(const Matrix4f& mat);
+
+		Matrix4f GetWorldMatrix();
 
 		void Invalidate() { UpdateMatrix = false; }
-		
 	private:
+		void UpdateTransform();		
+	private:
+		SceneNode& m_Node;
 		bool UpdateMatrix = false;
-		Vector3f Position = Vector3f::Zero();
-		Vector3f Scale = Vector3f::Zero();
-		Quaternionf Rotation = Quaternionf(Matrix3f::Identity());
-		Matrix4f TransformMat = Matrix4f::Zero();
+		Vector3f m_Translation = { 0.0f, 0.0f, 0.0f };
+		Vector3f m_Scale = { 1.0f, 1.0f, 1.0f };
+		Quaternionf m_Orientation = Quaternionf::Identity();
+		Matrix4f m_WorldTransform = Matrix4f::Identity();
 	};
 }

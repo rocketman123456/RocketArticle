@@ -22,20 +22,20 @@ namespace Rocket
 		void AddChild(SceneNode& child);
 		const Vec<SceneNode*>& GetChildren() const;
 		void SetComponent(SceneComponent& component);
-		SceneComponent& GetComponent(const std::type_index index);
-		bool HasComponent(const std::type_index index);
 
 		template <class T>
 		inline T& GetComponent()
 		{
-			return dynamic_cast<T&>(get_component(typeid(T)));
+			return dynamic_cast<T&>(GetComponent(typeid(T)));
 		}
+		SceneComponent& GetComponent(const std::type_index index);
 
 		template <class T>
 		bool HasComponent()
 		{
 			return HasComponent(typeid(T));
 		}
+		bool HasComponent(const std::type_index index);
 
 		inline uint64_t GetId() const { return m_Id; }
 		inline Transform& GetTransform() { return m_Transform; }

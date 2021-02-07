@@ -37,7 +37,7 @@ add_library( RocketEngine
     Utils/Hashing.cpp
     Utils/Timer.cpp
     Utils/Variant.cpp
- "Scene/Component/PlanarMesh.h")
+ "Scene/Component/PlanarMesh.h" "Module/AudioManager.h" "Module/AudioManager.cpp" "Scene/Component/Transform.cpp")
 target_link_libraries( RocketEngine PRIVATE
     spdlog::spdlog_header_only
 )

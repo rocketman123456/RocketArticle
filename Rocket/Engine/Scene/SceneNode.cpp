@@ -5,14 +5,14 @@
 using namespace xg;
 using namespace Rocket;
 
-SceneNode::SceneNode()
+SceneNode::SceneNode() : m_Transform(*this)
 {
 	auto id = newGuid();
 	m_Id = std::hash<Guid>{}(id);
 	m_Tag.TagStr = id.str();
 }
 
-SceneNode::SceneNode(const String& name)
+SceneNode::SceneNode(const String& name) : m_Transform(*this)
 {
 	auto id = newGuid();
 	m_Id = std::hash<Guid>{}(id);
