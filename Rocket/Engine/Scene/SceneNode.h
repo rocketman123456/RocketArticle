@@ -14,7 +14,6 @@ namespace Rocket
 	public:
 		SceneNode();
 		SceneNode(const String& name);
-		SceneNode(const SceneNode& other) = default;
 		~SceneNode() = default;
 
 		void SetParent(SceneNode& parent);

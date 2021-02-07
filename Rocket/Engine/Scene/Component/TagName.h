@@ -9,8 +9,9 @@ namespace Rocket
         COMPONENT(TagName);
     public:
         TagName() = default;
-        TagName(const TagName&) = default;
-        TagName(const std::string & tag) : TagStr(tag) {}
-        std::string TagStr;
+        TagName(const String& tag) : TagStr(tag) {}
+        virtual ~TagName() = default;
+
+        String TagStr;
     };
 }

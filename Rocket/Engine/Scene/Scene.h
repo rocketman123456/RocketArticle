@@ -38,12 +38,12 @@ namespace Rocket
 		SceneNode& GetRootNode();
 
 		template <class T>
-		void SetComponents(Vec<std::unique_ptr<T>>&& components)
+		void SetComponents(Vec<Scope<T>>&& components)
 		{
-			Vec<Scope<Component>> result(components.size());
+			Vec<Scope<SceneComponent>> result(components.size());
 			std::transform(components.begin(), components.end(), result.begin(),
-				[](Scope<T>& component) -> Scope<Component> {
-					return Scope<Component>(std::move(component));
+				[](Scope<T>& component) -> Scope<SceneComponent> {
+					return Scope<SceneComponent>(std::move(component));
 				});
 			SetComponents(typeid(T), std::move(result));
 		}
@@ -65,7 +65,7 @@ namespace Rocket
 
 				result.resize(scene_components.size());
 				std::transform(scene_components.begin(), scene_components.end(), result.begin(),
-					[](const Scope<Component>& component) -> T* {
+					[](const Scope<SceneComponent>& component) -> T* {
 						return dynamic_cast<T*>(component.get());
 					});
 			}

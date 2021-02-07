@@ -1,8 +1,8 @@
 #include "Module/EventManager.h"
 #include "Module/WindowManager.h"
 #include "Module/Application.h"
-#include "Module/GraphicsManager.h"
-#include "Common/Mallocator.h"
+//#include "Module/GraphicsManager.h"
+//#include "Common/Mallocator.h"
 
 #include <GLFW/glfw3.h>
 

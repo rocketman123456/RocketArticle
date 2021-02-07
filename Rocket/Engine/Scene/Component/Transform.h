@@ -11,7 +11,6 @@ namespace Rocket
 	public:
 		COMPONENT(Transform);
 	public:
-		Transform(const Transform&) = default;
 		Transform(SceneNode& node) : m_Node(node) {}
 		Transform(const Matrix4f& mat, SceneNode& node) : m_WorldTransform(mat), m_Node(node) {}
 		virtual ~Transform() = default;

@@ -9,6 +9,7 @@
 #include <list>
 #include <string>
 #include <queue>
+#include <array>
 
 namespace Rocket
 {
@@ -25,6 +26,9 @@ namespace Rocket
 	using Map = std::map<T1, T2>;
 	template <typename T1, typename T2>
 	using UMap = std::unordered_map<T1, T2>;
+
+	template <typename T1, auto T2>
+	using Array = std::array<T1, T2>;
 
 	template <typename T>
 	using List = std::list<T>;

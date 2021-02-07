@@ -25,6 +25,9 @@ namespace Rocket
     using Quaternionf = Eigen::Quaternionf;
     using Quaterniond = Eigen::Quaterniond;
 
+    using AngleAxisf = Eigen::AngleAxisf;
+    using AngleAxisd = Eigen::AngleAxisd;
+
     using Point2D = Eigen::Vector2f;
     using Point2DPtr = Ref<Point2D>;
     using Point2DList = Vec<Point2DPtr>;
