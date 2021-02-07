@@ -1,7 +1,7 @@
 #pragma once
-#include "Scene/SceneComponent.h"
-#include "Common/GeomMath.h"
+#include "Scene/Component/Mesh.h"
 #include "Render/DrawBasic/Texture.h"
+#include "Common/GeomMath.h"
 
 namespace Rocket
 {
@@ -19,7 +19,7 @@ namespace Rocket
         uint32_t index[6];  // 12 bytes
     };
 
-    class PlanarMesh : implements SceneComponent
+    class PlanarMesh : implements Mesh
     {
     public:
         COMPONENT(PlanarMesh);
