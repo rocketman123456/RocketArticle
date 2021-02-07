@@ -6,10 +6,7 @@
 
 using namespace Rocket;
 
-WindowManager* Rocket::GetWindowManager()
-{
-    return new WindowManager();
-}
+WindowManager* Rocket::GetWindowManager() { return new WindowManager(); }
 
 int WindowManager::Initialize()
 {

@@ -10,6 +10,7 @@ add_library( RocketEngine
     # Module
     Module/Application.cpp
     Module/AssetLoader.cpp
+    Module/AudioManager.cpp
     Module/EventManager.cpp
     Module/GraphicsManager.cpp
     Module/MemoryManager.cpp
@@ -27,6 +28,8 @@ add_library( RocketEngine
     Render/DrawSubPass/GeometrySubPass.cpp
     Render/DrawSubPass/GuiSubPass.cpp
     # Scene
+    Scene/Component/Transform.cpp
+    Scene/Component/PlanarMesh.cpp
     Scene/EditorCamera.cpp
     Scene/Scene.cpp
     Scene/SceneCamera.cpp
@@ -37,7 +40,7 @@ add_library( RocketEngine
     Utils/Hashing.cpp
     Utils/Timer.cpp
     Utils/Variant.cpp
- "Scene/Component/PlanarMesh.h" "Module/AudioManager.h" "Module/AudioManager.cpp" "Scene/Component/Transform.cpp")
+)
 target_link_libraries( RocketEngine PRIVATE
     spdlog::spdlog_header_only
 )

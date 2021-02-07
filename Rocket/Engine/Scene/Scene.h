@@ -6,6 +6,8 @@
 #include "Scene/SceneComponent.h"
 #include "Scene/SceneNode.h"
 
+#include "Scene/Component/PlanarMesh.h"
+
 namespace Rocket
 {
     ENUM(SceneState) { Play = 0, Editor };
@@ -25,31 +27,12 @@ namespace Rocket
 		void SetRenderTarget();
 		void GetRenderTarget();
 
-		inline void SetName(const String& new_name) { m_Name = new_name; }
-        inline const String& GetName() const { return m_Name; }
-        inline uint32_t GetViewWidth() const { return m_ViewportWidth; }
-        inline uint32_t GetViewHeight() const { return m_ViewportHeight; }
-        inline bool GetSceneChange() const { return m_SceneChange; }
-        inline void SetSceneChange(bool change) { m_SceneChange = change; }
-
-        SceneState GetSceneState() { return m_State; }
-        void SetPrimaryCamera(Ref<Camera> camera) { m_PrimaryCamera = camera; }
-        void SetEditorCamera(Ref<Camera> camera) { m_EditorCamera = camera; }
-        Ref<Camera> GetPrimaryCamera() { return m_PrimaryCamera; }
-        Ref<Camera> GetEditorCamera() { return m_EditorCamera; }
-        Matrix4f& GetPrimaryCameraTransform() { return m_PrimaryCameraTransform; }
-        Matrix4f& GetEditorCameraTransform() { return m_EditorCameraTransform; }
-
 		void SetNodes(Vec<Scope<SceneNode>>&& nodes);
 		void AddNode(Scope<SceneNode>&& node);
 		void AddChild(SceneNode& child);
 		void AddComponent(Scope<SceneComponent>&& component);
 		void AddComponent(Scope<SceneComponent>&& component, SceneNode& node);
-		Scope<SceneComponent> GetModel(uint32_t index = 0);
 
-		void SetComponents(const std::type_index& type_info, Vec<Scope<SceneComponent>>&& components);
-		const Vec<Scope<SceneComponent>>& GetComponents(const std::type_index& type_info) const;
-		bool HasComponent(const std::type_index& type_info) const;
 		SceneNode* FindNode(const String& name);
 		void SetRootNode(SceneNode& node);
 		SceneNode& GetRootNode();
@@ -64,6 +47,7 @@ namespace Rocket
 				});
 			SetComponents(typeid(T), std::move(result));
 		}
+		void SetComponents(const std::type_index& type_info, Vec<Scope<SceneComponent>>&& components);
 
 		template <class T>
 		void ClearComponents()
@@ -88,24 +72,40 @@ namespace Rocket
 
 			return result;
 		}
+		const Vec<Scope<SceneComponent>>& GetComponents(const std::type_index& type_info) const;
 
 		template <class T>
 		bool HasComponent() const
 		{
 			return HasComponent(typeid(T));
 		}
+		bool HasComponent(const std::type_index& type_info) const;
 
+		inline void SetName(const String& new_name) { m_Name = new_name; }
+		inline const String& GetName() const { return m_Name; }
+		inline uint32_t GetViewWidth() const { return m_ViewportWidth; }
+		inline uint32_t GetViewHeight() const { return m_ViewportHeight; }
+		inline bool GetSceneChange() const { return m_SceneChange; }
+		inline void SetSceneChange(bool change) { m_SceneChange = change; }
+
+		SceneState GetSceneState() { return m_State; }
+		//void SetPrimaryCamera(Ref<Camera> camera) { m_PrimaryCamera = camera; }
+		//void SetEditorCamera(Ref<Camera> camera) { m_EditorCamera = camera; }
+		//Ref<Camera> GetPrimaryCamera() { return m_PrimaryCamera; }
+		//Ref<Camera> GetEditorCamera() { return m_EditorCamera; }
+		//Matrix4f& GetPrimaryCameraTransform() { return m_PrimaryCameraTransform; }
+		//Matrix4f& GetEditorCameraTransform() { return m_EditorCameraTransform; }
 	private:
+		//Matrix4f m_PrimaryCameraTransform = Matrix4f::Identity();
+		//Matrix4f m_EditorCameraTransform = Matrix4f::Identity();
+		//Ref<Camera> m_PrimaryCamera = nullptr;
+		//Ref<Camera> m_EditorCamera = nullptr;
+
         String m_Name;
 		uint32_t m_ViewportWidth = 0;
         uint32_t m_ViewportHeight = 0;
         SceneState m_State = SceneState::Play;
         bool m_SceneChange = false;
-
-        Ref<Camera> m_PrimaryCamera = nullptr;
-        Ref<Camera> m_EditorCamera = nullptr;
-        Matrix4f m_PrimaryCameraTransform = Matrix4f::Identity();
-        Matrix4f m_EditorCameraTransform = Matrix4f::Identity();
 
         SceneNode* m_Root = nullptr;
         Vec<Scope<SceneNode>> m_Nodes;

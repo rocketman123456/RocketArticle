@@ -9,10 +9,7 @@
 
 using namespace Rocket;
 
-PipelineStateManager* Rocket::GetPipelineStateManager()
-{
-    return new OpenGLPipelineStateManager();
-}
+PipelineStateManager* Rocket::GetPipelineStateManager() { return new OpenGLPipelineStateManager(); }
 
 using ShaderSourceList = Vec<std::pair<GLenum, String>>;
 

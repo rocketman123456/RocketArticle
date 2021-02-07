@@ -60,10 +60,17 @@ namespace Rocket
     MemoryManager* GetMemoryManager();
     extern MemoryManager* g_MemoryManager;
 
+#if defined(USE_MEMORY_MANAGER)
 #define RK_ALLOCATE(sz) g_MemoryManager->Allocate(sz)
 #define RK_ALLOCATE_CLASS(T) g_MemoryManager->Allocate(sizeof(T))
 #define RK_DELETE(T,p) g_MemoryManager->Delete<T>(p)
 #define RK_FREE(p,n) g_MemoryManager->Free(p, n)
+#else
+#define RK_ALLOCATE(sz)
+#define RK_ALLOCATE_CLASS(T)
+#define RK_DELETE(T,p)
+#define RK_FREE(p,n)
+#endif
 
     template<typename T>
     class deleter
@@ -85,7 +92,8 @@ namespace Rocket
     };
 
     template <typename T>
-    using Scope = std::unique_ptr<T, std::function<void(T*)>>;
+    //using Scope = std::unique_ptr<T, std::function<void(T*)>>;
+    using Scope = std::unique_ptr<T>;
 
     template <typename T>
     using Ref = std::shared_ptr<T>;
@@ -97,7 +105,7 @@ namespace Rocket
     constexpr Ref<T> CreateRef(Arguments ... args)
     {
         Ref<T> ptr = Ref<T>(
-            new (RK_ALLOCATE_CLASS(T)) T(args...), [](T* ptr) { RK_DELETE(T, ptr); }
+            new T(args...) //new (RK_ALLOCATE_CLASS(T)) T(args...)//, [](T* ptr) { RK_DELETE(T, ptr); }
         );
         return std::move(ptr);
     }
@@ -106,7 +114,7 @@ namespace Rocket
 	constexpr Scope<T> CreateScope(Arguments ... args)
 	{
         Scope<T> ptr = Scope<T>(
-            new (RK_ALLOCATE_CLASS(T)) T(args...), [](T* ptr) { RK_DELETE(T, ptr); }
+            new T(args...) //new (RK_ALLOCATE_CLASS(T)) T(args...)//, [](T* ptr) { RK_DELETE(T, ptr); }
         );
         return std::move(ptr);
 	}

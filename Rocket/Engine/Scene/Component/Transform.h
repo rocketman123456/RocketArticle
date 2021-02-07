@@ -31,13 +31,14 @@ namespace Rocket
 
 		void Invalidate() { UpdateMatrix = false; }
 	private:
-		void UpdateTransform();		
+		void UpdateTransform();
 	private:
+		// TODO : fix eigen3 matrix aligement issue in memory manager
+		Matrix4f m_WorldTransform = Matrix4f::Identity();
+		Quaternionf m_Orientation = Quaternionf::Identity();
+		Vector3f m_Translation = Vector3f({ 0.0f, 0.0f, 0.0f });
+		Vector3f m_Scale = Vector3f({ 1.0f, 1.0f, 1.0f });
 		SceneNode& m_Node;
 		bool UpdateMatrix = false;
-		Vector3f m_Translation = { 0.0f, 0.0f, 0.0f };
-		Vector3f m_Scale = { 1.0f, 1.0f, 1.0f };
-		Quaternionf m_Orientation = Quaternionf::Identity();
-		Matrix4f m_WorldTransform = Matrix4f::Identity();
 	};
 }

@@ -2,6 +2,11 @@
 #include "Core/Core.h"
 #include "Interface/IRuntimeModule.h"
 #include "Module/MemoryManager.h"
+#include "Render/DrawBasic/BufferLayout.h"
+#include "Render/DrawBasic/FrameBuffer.h"
+#include "Render/DrawBasic/VertexArray.h"
+#include "Render/DrawBasic/VertexBuffer.h"
+#include "Render/DrawBasic/IndexBuffer.h"
 
 namespace Rocket
 {

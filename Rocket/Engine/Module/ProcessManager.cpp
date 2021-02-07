@@ -2,10 +2,7 @@
 
 using namespace Rocket;
 
-ProcessManager* Rocket::GetProcessManager()
-{
-    return new ProcessManager();
-}
+ProcessManager* Rocket::GetProcessManager() { return new ProcessManager(); }
 
 int ProcessManager::Initialize()
 {

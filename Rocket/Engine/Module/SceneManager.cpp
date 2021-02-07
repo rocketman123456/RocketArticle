@@ -3,10 +3,7 @@
 
 using namespace Rocket;
 
-SceneManager* Rocket::GetSceneManager()
-{
-    return new SceneManager();
-}
+SceneManager* Rocket::GetSceneManager() { return new SceneManager(); }
 
 int SceneManager::Initialize()
 {
@@ -20,7 +17,8 @@ void SceneManager::SceneManager::Finalize()
 
 void SceneManager::Tick(Timestep ts)
 {
-    m_ActiveScene->OnUpdateRuntime(ts);
+    if(m_ActiveScene)
+        m_ActiveScene->OnUpdateRuntime(ts);
 }
 
 bool SceneManager::SetActiveScene(const String& name)

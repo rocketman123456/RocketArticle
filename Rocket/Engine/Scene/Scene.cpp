@@ -55,13 +55,6 @@ void Scene::AddComponent(Scope<SceneComponent>&& component, SceneNode& node)
 	}
 }
 
-Scope<SceneComponent> Scene::GetModel(uint32_t index)
-{
-	//auto meshes = std::move(m_Components.at(typeid(SubMesh)));
-	//return std::move(meshes.at(index));
-	return Scope<SceneComponent>();
-}
-
 void Scene::SetComponents(const std::type_index& type_info, Vec<Scope<SceneComponent>>&& components)
 {
 	m_Components[type_info] = std::move(components);

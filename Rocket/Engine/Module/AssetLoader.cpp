@@ -4,10 +4,7 @@
 
 using namespace Rocket;
 
-AssetLoader* Rocket::GetAssetLoader()
-{
-    return new AssetLoader();
-}
+AssetLoader* Rocket::GetAssetLoader() { return new AssetLoader(); }
 
 int AssetLoader::Initialize()
 {

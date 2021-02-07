@@ -1,6 +1,7 @@
 #include "SimpleApp.h"
 #include "Module/MemoryManager.h"
 #include "Module/AssetLoader.h"
+#include "Module/AudioManager.h"
 #include "Module/WindowManager.h"
 #include "Module/GraphicsManager.h"
 #include "Module/PipelineStateManager.h"
@@ -9,12 +10,15 @@
 #include "Module/SceneManager.h"
 
 #include "Scene/Scene.h"
+#include "Scene/SceneNode.h"
+#include "Scene/Component/Transform.h"
 
 namespace Rocket
 {
     Application* g_Application;
     MemoryManager* g_MemoryManager;
     AssetLoader* g_AssetLoader;
+    AudioManager* g_AudioManager;
     WindowManager* g_WindowManager;
     PipelineStateManager* g_PipelineStateManager;
     GraphicsManager* g_GraphicsManager;
@@ -33,6 +37,7 @@ namespace Rocket
         g_MemoryManager = GetMemoryManager();
         g_AssetLoader = GetAssetLoader();
         g_ProcessManager = GetProcessManager();
+        g_AudioManager = GetAudioManager();
         g_SceneManager = GetSceneManager();
         g_WindowManager = GetWindowManager();
         g_GraphicsManager = GetGraphicsManager();
@@ -42,6 +47,7 @@ namespace Rocket
         PushModule(g_MemoryManager);
         PushModule(g_AssetLoader);
         PushModule(g_ProcessManager);
+        PushModule(g_AudioManager);
         PushModule(g_SceneManager);
         PushModule(g_WindowManager);
         PushModule(g_GraphicsManager);
@@ -63,6 +69,7 @@ namespace Rocket
     void SimpleApp::PreInitialize()
     {
         Ref<Scene> scene = CreateRef<Scene>("Test Scene");
+        Scope<SceneNode> node = CreateScope<SceneNode>("Test Node");
 
         auto ret_1 = g_SceneManager->AddScene(scene);
         auto ret_2 = g_SceneManager->SetActiveScene("Test Scene");

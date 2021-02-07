@@ -11,10 +11,7 @@ using namespace Rocket;
 EventManager* EventManager::s_Instance = nullptr;
 ElapseTimer* Rocket::g_EventTimer;
 
-EventManager* Rocket::GetEventManager()
-{
-    return new EventManager(true);
-}
+EventManager* Rocket::GetEventManager() { return new EventManager(true); }
 
 int EventManager::Initialize()
 {
