@@ -27,16 +27,18 @@ add_library( RocketEngine
     Render/DrawSubPass/Geometry2DSubPass.cpp
     Render/DrawSubPass/GeometrySubPass.cpp
     Render/DrawSubPass/GuiSubPass.cpp
+    Render/DrawSubPass/SkyBoxSubPass.cpp
     # Scene
     Scene/Component/Transform.cpp
     Scene/Component/PlanarMesh.cpp
-    Scene/EditorCamera.cpp
+    Scene/Component/EditorCamera.cpp
+    Scene/Component/SceneCamera.cpp
     Scene/Scene.cpp
-    Scene/SceneCamera.cpp
     Scene/SceneNode.cpp
     Scene/SceneComponent.cpp
     Scene/SceneSerializer.cpp
     # Utils
+    Utils/GenerateName.cpp
     Utils/Hashing.cpp
     Utils/Timer.cpp
     Utils/Variant.cpp

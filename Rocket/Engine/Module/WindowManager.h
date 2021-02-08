@@ -1,6 +1,7 @@
 #pragma once
 #include "Interface/IRuntimeModule.h"
 #include "Common/Window.h"
+#include "Event/Event.h"
 
 namespace Rocket
 {
@@ -15,6 +16,11 @@ namespace Rocket
         virtual void Finalize() final;
 
         virtual void Tick(Timestep ts) final {}
+
+        bool OnWindowResize(EventPtr& e);
+
+        uint32_t GetWindowWidth() { return m_Window->GetWidth(); }
+        uint32_t GetWindowHeight() { return m_Window->GetHeight(); }
 
         const Ref<Window> GetWindow() { return m_Window; }
         void* GetNativeWindow() { return m_Window->GetNativeWindow(); }

@@ -11,5 +11,7 @@ void Geometry2DSubPass::Draw(Frame& frame)
     // Set the color shader as the current shader program and set the matrices
     // that it will use for rendering.
     g_GraphicsManager->SetPipelineState(pPipelineState, frame);
+    g_GraphicsManager->BeginFrameBuffer(frame);
     g_GraphicsManager->DrawBatch(frame);
+    g_GraphicsManager->EndFrameBuffer(frame);
 }

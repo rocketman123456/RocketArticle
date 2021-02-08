@@ -7,8 +7,8 @@ namespace Rocket
     struct WindowProps
 	{
 		String Title;
-		uint32_t Width;
-		uint32_t Height;
+		int32_t Width;
+		int32_t Height;
 
 		WindowProps(const String& title = "Rocket Engine",
 					uint32_t width = 1280,
@@ -26,6 +26,8 @@ namespace Rocket
         virtual void Initialize() = 0;
         virtual void Finalize() = 0;
 
+		void SetWidth(uint32_t w) { m_Props.Width = w; }
+		void SetHeight(uint32_t h) { m_Props.Height = h; }
 		uint32_t GetWidth() const { return m_Props.Width; }
 		uint32_t GetHeight() const { return m_Props.Height; }
 

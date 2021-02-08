@@ -12,9 +12,9 @@ static GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
 	case ShaderDataType::Vec2f: return GL_FLOAT;
 	case ShaderDataType::Vec3f: return GL_FLOAT;
 	case ShaderDataType::Vec4f: return GL_FLOAT;
-	case ShaderDataType::Mat2: return GL_FLOAT;
-	case ShaderDataType::Mat3: return GL_FLOAT;
-	case ShaderDataType::Mat4: return GL_FLOAT;
+	case ShaderDataType::Mat2f: return GL_FLOAT;
+	case ShaderDataType::Mat3f: return GL_FLOAT;
+	case ShaderDataType::Mat4f: return GL_FLOAT;
 	case ShaderDataType::Int: return GL_INT;
 	case ShaderDataType::Vec2i: return GL_INT;
 	case ShaderDataType::Vec3i: return GL_INT;
@@ -76,8 +76,9 @@ inline void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBu
 			m_VertexBufferIndex++;
 			break;
 		}
-		case ShaderDataType::Mat3:
-		case ShaderDataType::Mat4:
+		case ShaderDataType::Mat2f:
+		case ShaderDataType::Mat3f:
+		case ShaderDataType::Mat4f:
 		{
 			uint8_t count = element.GetComponentCount();
 			for (uint8_t i = 0; i < count; i++)

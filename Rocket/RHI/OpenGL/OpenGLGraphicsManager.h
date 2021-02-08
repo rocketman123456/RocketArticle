@@ -1,8 +1,11 @@
 #pragma once
 #include "Module/GraphicsManager.h"
+#include "OpenGL/OpenGLPipelineStateManager.h"
+#include "OpenGL/OpenGLFrameBuffer.h"
 #include "OpenGL/OpenGLVertexArray.h"
 #include "OpenGL/OpenGLVertexBuffer.h"
 #include "OpenGL/OpenGLIndexBuffer.h"
+#include "OpenGL/OpenGLUniformBuffer.h"
 #include "OpenGL/OpenGLShader.h"
 #include "OpenGL/OpenGLTexture.h"
 
@@ -27,11 +30,15 @@ namespace Rocket
         void DrawBatch(const Frame& frame) final;
         void DrawFullScreenQuad() final;
 
-        void BeginFrame(const Frame& frame) override;
-        void EndFrame(const Frame& frame) override;
+        void BeginFrame(const Frame& frame) final;
+        void EndFrame(const Frame& frame) final;
 
-        void SetPerFrameConstants(const DrawFrameContext& context);
-        void SetPerBatchConstants(const DrawBatchContext& context);
+        void BeginFrameBuffer(const Frame& frame) final;
+        void EndFrameBuffer(const Frame& frame) final;
+
+        void SetPerFrameConstants(const DrawFrameContext& context) final;
+        void SetLightInfo(const DrawFrameContext& context) final;
+        void SetPerBatchConstants(const DrawBatchContext& context) final;
 
         void BeginScene(const Scene& scene) final;
         void EndScene() final;
@@ -52,29 +59,22 @@ namespace Rocket
         bool OnWindowResize(EventPtr& e) final;
 
     protected:
-        void StartBatch();
-        void Flush();
-        void NextBatch()
-        {
-            Flush();
-            StartBatch();
-        }
-        void DrawQuad(const Matrix4f& transform, const Vector4f& color);
-
-    protected:
         void SwapBuffers() final;
         bool Resize(int32_t width, int32_t height);
 
     private:
         GLFWwindow* m_WindowHandle = nullptr;
         bool m_VSync = true;
-
-        struct OpenGL2DBatchContext : public DrawBatchContext
-        {
-        };
+        int32_t m_Width;
+        int32_t m_Height;
 
         struct OpenGLDrawBatchContext : public DrawBatchContext
         {
+            Ref<OpenGLVertexArray> VAO;
+            Vec<Ref<Texture2D>>* Textures;
+            uint32_t Mode = 0;
+            uint32_t Type = 0;
+            uint32_t MaxTextures = 0;
         };
 
         struct DebugDrawBatchContext : public OpenGLDrawBatchContext
@@ -83,6 +83,7 @@ namespace Rocket
             Matrix4f trans;
         };
 
-        OpenGL2DBatchContext m_Draw2DContext;
+        OpenGLDrawBatchContext m_DrawContext;
+        OpenGLDrawBatchContext m_DebugContext;
     };
 }

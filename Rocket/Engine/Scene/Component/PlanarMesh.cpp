@@ -2,22 +2,12 @@
 
 using namespace Rocket;
 
-PlanarMesh::PlanarMesh()
-{
-    m_QuadVertexPositions[0] = Vector4f(-0.5f, -0.5f, 0.0f, 1.0f);
-    m_QuadVertexPositions[1] = Vector4f( 0.5f, -0.5f, 0.0f, 1.0f);
-    m_QuadVertexPositions[2] = Vector4f( 0.5f,  0.5f, 0.0f, 1.0f);
-    m_QuadVertexPositions[3] = Vector4f(-0.5f,  0.5f, 0.0f, 1.0f);
-}
-
-PlanarMesh::PlanarMesh(const String& name)
-    : m_Name(name)
-{
-    m_QuadVertexPositions[0] = Vector4f(-0.5f, -0.5f, 0.0f, 1.0f);
-    m_QuadVertexPositions[1] = Vector4f( 0.5f, -0.5f, 0.0f, 1.0f);
-    m_QuadVertexPositions[2] = Vector4f( 0.5f,  0.5f, 0.0f, 1.0f);
-    m_QuadVertexPositions[3] = Vector4f(-0.5f,  0.5f, 0.0f, 1.0f);
-}
+Vector4f PlanarMesh::s_QuadVertexPositions[4] = {
+    Vector4f(-0.5f, -0.5f, 0.0f, 1.0f),
+    Vector4f( 0.5f, -0.5f, 0.0f, 1.0f),
+    Vector4f( 0.5f,  0.5f, 0.0f, 1.0f),
+    Vector4f(-0.5f,  0.5f, 0.0f, 1.0f)
+};
 
 void PlanarMesh::AddQuad(const Vector2f& position, const Vector2f& size, const Vector4f& color)
 {
@@ -91,8 +81,103 @@ void PlanarMesh::AddRotatedQuad(const Vector3f& position, const Vector2f& size, 
 
 void PlanarMesh::AddQuad(const Matrix4f& transform, const Vector4f& color)
 {
+    constexpr size_t quadVertexCount = 4;
+    const float textureIndex = 0.0f; // White Texture
+    const Vector2f textureCoords[] = { 
+        Vector2f(0.0f, 0.0f),
+        Vector2f(1.0f, 0.0f),
+        Vector2f(1.0f, 1.0f),
+        Vector2f(0.0f, 1.0f),
+    };
+    const float tilingFactor = 1.0f;
+
+    QuadIndex index;
+
+    index = m_IndexOffset + 0; m_Index.push_back(index);
+    index = m_IndexOffset + 1; m_Index.push_back(index);
+    index = m_IndexOffset + 2; m_Index.push_back(index);
+
+    index = m_IndexOffset + 2; m_Index.push_back(index);
+    index = m_IndexOffset + 3; m_Index.push_back(index);
+    index = m_IndexOffset + 0; m_Index.push_back(index);
+
+    m_IndexOffset += 4;
+
+    for (size_t i = 0; i < quadVertexCount; i++)
+    {
+        QuadVertex vertex;
+        Vector4f vec = transform * s_QuadVertexPositions[i];
+        vertex.Position = Vector3f(vec[0], vec[1], vec[2]);
+        vertex.Color = color;
+        vertex.TexCoord = textureCoords[i];
+        vertex.TexIndex = textureIndex;
+        vertex.TilingFactor = tilingFactor;
+        m_Vertex.push_back(vertex);
+    }
+
+    m_VertexCount += 1;
+    m_IndexCount += 6;
+    m_MeshChange = true;
 }
 
 void PlanarMesh::AddQuad(const Matrix4f& transform, const Ref<Texture2D>& texture, float tilingFactor, const Vector4f& tintColor)
 {
+    constexpr size_t quadVertexCount = 4;
+    const Vector2f textureCoords[] = { 
+        Vector2f(0.0f, 0.0f),
+        Vector2f(1.0f, 0.0f),
+        Vector2f(1.0f, 1.0f),
+        Vector2f(0.0f, 1.0f),
+    };
+
+    float textureIndex = 0.0f;
+    for (uint32_t i = 1; i < m_TextureSlotIndex; i++)
+    {
+        if (*m_TextureSlots[i] == *texture)
+        {
+            textureIndex = (float)i;
+            break;
+        }
+    }
+
+    if (textureIndex == 0.0f)
+    {
+        if(m_TextureSlotIndex >= m_MaxTexture)
+        {
+            RK_GRAPHICS_WARN("Planar Mesh TextureSlotIndex >= MaxTexture");
+            return;
+        }
+        textureIndex = (float)m_TextureSlotIndex;
+        m_TextureSlots[m_TextureSlotIndex] = texture;
+        //m_TextureSlots.push_back(texture);
+        m_TextureSlotIndex++;
+    }
+
+    QuadIndex index;
+
+    index = m_IndexOffset + 0; m_Index.push_back(index);
+    index = m_IndexOffset + 1; m_Index.push_back(index);
+    index = m_IndexOffset + 2; m_Index.push_back(index);
+
+    index = m_IndexOffset + 2; m_Index.push_back(index);
+    index = m_IndexOffset + 3; m_Index.push_back(index);
+    index = m_IndexOffset + 0; m_Index.push_back(index);
+
+    m_IndexOffset += 4;
+
+    for (size_t i = 0; i < quadVertexCount; i++)
+    {
+        QuadVertex vertex;
+        Vector4f vec = transform * s_QuadVertexPositions[i];
+        vertex.Position = Vector3f(vec[0], vec[1], vec[2]);
+        vertex.Color = tintColor;
+        vertex.TexCoord = textureCoords[i];
+        vertex.TexIndex = textureIndex;
+        vertex.TilingFactor = tilingFactor;
+        m_Vertex.push_back(vertex);
+    }
+
+    m_VertexCount += 1;
+    m_IndexCount += 6;
+    m_MeshChange = true;
 }

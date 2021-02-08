@@ -6,6 +6,7 @@ add_library( RendererOpenGL
     OpenGLVertexArray.cpp
     OpenGLVertexBuffer.cpp
     OpenGLIndexBuffer.cpp
+    OpenGLUniformBuffer.cpp
     OpenGLFrameBuffer.cpp
     OpenGLTexture.cpp
 )

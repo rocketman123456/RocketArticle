@@ -1,5 +1,5 @@
 #pragma once
-#include "Scene/Camera.h"
+#include "Scene/Component/Camera.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -8,10 +8,13 @@ namespace Rocket
 {
     class SceneCamera : implements Camera
     {
+	public:
+		COMPONENT(SceneCamera);
     public:
-		enum class ProjectionType { Perspective = 0, Orthographic = 1 };
+		ENUM(ProjectionType) { Perspective = 0, Orthographic = 1 };
 	public:
 		SceneCamera();
+		SceneCamera(const Matrix4f& projection) : Camera(projection) {}
 		virtual ~SceneCamera() = default;
 
 		void SetPerspective(float verticalFOV, float nearClip, float farClip);

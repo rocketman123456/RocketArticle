@@ -11,7 +11,11 @@
 
 #include "Scene/Scene.h"
 #include "Scene/SceneNode.h"
+#include "Scene/Component/EditorCamera.h"
+#include "Scene/Component/SceneCamera.h"
+#include "Scene/Component/PlanarMesh.h"
 #include "Scene/Component/Transform.h"
+
 
 namespace Rocket
 {
@@ -64,12 +68,38 @@ namespace Rocket
         ret = g_EventManager->AddListener(
             REGISTER_DELEGATE_CLASS(GraphicsManager::OnWindowResize, *g_GraphicsManager), 
             EventHashTable::HashString("window_resize"));
+        ret = g_EventManager->AddListener(
+            REGISTER_DELEGATE_CLASS(WindowManager::OnWindowResize, *g_WindowManager), 
+            EventHashTable::HashString("window_resize"));
+        RK_CORE_ASSERT(ret, "Application PostInitializeModule Failed");
     }
 
     void SimpleApp::PreInitialize()
     {
         Ref<Scene> scene = CreateRef<Scene>("Test Scene");
-        Scope<SceneNode> node = CreateScope<SceneNode>("Test Node");
+        Scope<SceneNode> root_node = CreateScope<SceneNode>("Root Node");
+        Scope<SceneNode> cam_node = CreateScope<SceneNode>("Camera Node");
+        Scope<SceneNode> mesh_node = CreateScope<SceneNode>("Mesh Node");
+
+        Ref<SceneCamera> cam = CreateRef<SceneCamera>();
+        cam->SetProjectionType(SceneCamera::ProjectionType::Orthographic);
+        auto width = g_WindowManager->GetWindowWidth();
+        auto height = g_WindowManager->GetWindowHeight();
+        cam->SetOrthographic(10.0f, -1.0f, 1.0f);
+
+        Scope<PlanarMesh> mesh = CreateScope<PlanarMesh>("Mesh Component");
+        mesh->AddQuad(Vector3f(0, 0, 0), Vector2f(1, 1), Vector4f(1, 0, 0, 1));
+
+        scene->SetPrimaryCamera(cam);
+        scene->SetPrimaryCameraTransform(Matrix4f::Identity());
+
+        root_node->AddChild(*cam_node);
+        root_node->AddChild(*mesh_node);
+
+        Vec<Scope<SceneComponent>> mesh_components;
+        mesh_components.push_back(std::move(mesh));
+        scene->AddNode(std::move(root_node));
+        scene->SetComponents(mesh->GetType(), std::move(mesh_components));
 
         auto ret_1 = g_SceneManager->AddScene(scene);
         auto ret_2 = g_SceneManager->SetActiveScene("Test Scene");

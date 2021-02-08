@@ -2,7 +2,9 @@
 #include "Render/DrawPass/BaseDrawPass.h"
 #include "Render/DrawSubPass/Geometry2DSubPass.h"
 #include "Render/DrawSubPass/GeometrySubPass.h"
+#include "Render/DrawSubPass/SkyBoxSubPass.h"
 #include "Render/DrawSubPass/GuiSubPass.h"
+#include "Module/MemoryManager.h"
 
 namespace Rocket
 {
@@ -11,10 +13,10 @@ namespace Rocket
     public:
         ForwardGeometryPass()
         {
-            //m_DrawSubPasses.push_back(std::make_shared<GeometrySubPass>());
-            m_DrawSubPasses.push_back(std::make_shared<Geometry2DSubPass>());
-            //m_DrawSubPasses.push_back(std::make_shared<SkyBoxSubPass>());
-            m_DrawSubPasses.push_back(std::make_shared<GuiSubPass>());
+            m_DrawSubPasses.push_back(CreateRef<Geometry2DSubPass>());
+            m_DrawSubPasses.push_back(CreateRef<GeometrySubPass>());
+            m_DrawSubPasses.push_back(CreateRef<SkyBoxSubPass>());
+            m_DrawSubPasses.push_back(CreateRef<GuiSubPass>());
         }
     };
 }

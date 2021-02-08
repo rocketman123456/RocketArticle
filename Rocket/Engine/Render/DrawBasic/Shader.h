@@ -9,7 +9,6 @@ namespace Rocket
 
 	struct UniformData
 	{
-
 	};
 
     Interface Shader

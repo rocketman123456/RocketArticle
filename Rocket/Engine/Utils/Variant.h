@@ -29,9 +29,9 @@ namespace Rocket
             string_id m_asStringId;
         };
 
-        static void* operator new(std::size_t sz);
-        static void* operator new[](std::size_t sz);
-        static void operator delete(void* ptr, std::size_t sz);
-        static void operator delete[](void* ptr, std::size_t sz);
+        //static void* operator new(std::size_t sz);
+        //static void* operator new[](std::size_t sz);
+        //static void operator delete(void* ptr, std::size_t sz);
+        //static void operator delete[](void* ptr, std::size_t sz);
     };
 } // namespace Rocket

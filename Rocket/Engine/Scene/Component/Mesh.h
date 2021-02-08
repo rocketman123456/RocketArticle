@@ -3,7 +3,7 @@
 
 namespace Rocket
 {
-    class Mesh : implements SceneComponent
+    Interface Mesh : implements SceneComponent
     {
     public:
         virtual ~Mesh() = default;

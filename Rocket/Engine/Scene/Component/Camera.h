@@ -1,9 +1,10 @@
 #pragma once
 #include "Common/GeomMath.h"
+#include "Scene/SceneComponent.h"
 
 namespace Rocket
 {
-    class Camera
+    Interface Camera : implements SceneComponent
 	{
 	public:
 		Camera() = default;

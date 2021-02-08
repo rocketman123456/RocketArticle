@@ -8,6 +8,30 @@ using namespace Rocket;
 
 int GraphicsManager::Initialize()
 {
+    // Get Max Frame In Flight
+    auto& config = g_Application->GetConfig();
+    m_MaxFrameInFlight = config->GetConfigInfo<uint32_t>("Graphics", "max_frame_in_flight");
+
+    // Init Frames Data
+    m_Frames.resize(m_MaxFrameInFlight);
+    for(size_t i = 0; i < m_MaxFrameInFlight; ++i)
+    {
+        m_Frames = {};
+    }
+
+    // Init UBOs
+    m_uboDrawFrameConstant.resize(m_MaxFrameInFlight);
+    m_uboLightInfo.resize(m_MaxFrameInFlight);
+    m_uboDrawBatchConstant.resize(m_MaxFrameInFlight);
+    m_uboShadowMatricesConstant.resize(m_MaxFrameInFlight);
+    for(size_t i = 0; i < m_MaxFrameInFlight; ++i)
+    {
+        m_uboDrawFrameConstant[i] = nullptr;
+        m_uboLightInfo[i] = nullptr;
+        m_uboDrawBatchConstant[i] = nullptr;
+        m_uboShadowMatricesConstant[i] = nullptr;
+    }
+
     // Add Draw Pass
     m_DrawPasses.push_back(std::make_shared<ForwardGeometryPass>());
 
@@ -55,6 +79,12 @@ void GraphicsManager::UpdateConstants()
 
 void GraphicsManager::CalculateCameraMatrix()
 {
+    auto& scene = g_SceneManager->GetActiveScene();
+    auto& camera = scene->GetPrimaryCamera();
+    
+    m_Frames[m_nFrameIndex].frameContext.projectionMatrix = camera->GetProjection();
+    m_Frames[m_nFrameIndex].frameContext.viewMatrix = scene->GetPrimaryCameraTransform().inverse();
+    m_Frames[m_nFrameIndex].frameContext.camPos = scene->GetPrimaryCameraTransform().block<4, 1>(0, 3);
 }
 
 void GraphicsManager::CalculateLights()
@@ -92,7 +122,7 @@ void GraphicsManager::BeginScene(const Scene& scene)
 
     auto config = g_Application->GetConfig();
 
-    for (int32_t i = 0; i < MAX_FRAME_IN_FLIGHT; i++)
+    for (int32_t i = 1; i < m_MaxFrameInFlight; i++)
     {
         m_Frames[i] = m_Frames[0];
         m_Frames[i].frameIndex = i;
@@ -101,6 +131,11 @@ void GraphicsManager::BeginScene(const Scene& scene)
 
 void GraphicsManager::EndScene()
 {
+    for (int i = 0; i < m_Frames.size(); i++)
+    {
+        auto &batchContexts = m_Frames[i].batchContexts;
+        batchContexts.clear();
+    }
 }
 
 void GraphicsManager::BeginFrame(const Frame& frame) 
@@ -109,7 +144,23 @@ void GraphicsManager::BeginFrame(const Frame& frame)
 
 void GraphicsManager::EndFrame(const Frame& frame) 
 { 
-    m_nFrameIndex = (m_nFrameIndex + 1) % MAX_FRAME_IN_FLIGHT; 
+    m_nFrameIndex = (m_nFrameIndex + 1) % m_MaxFrameInFlight; 
+}
+
+void GraphicsManager::BeginFrameBuffer(const Frame& frame) 
+{
+    if(m_CurrentFrameBuffer)
+    {
+        m_CurrentFrameBuffer->Bind();
+    }
+}
+
+void GraphicsManager::EndFrameBuffer(const Frame& frame) 
+{
+    if(m_CurrentFrameBuffer)
+    {
+        m_CurrentFrameBuffer->Unbind();
+    }
 }
 
 void GraphicsManager::DrawEdgeList(const EdgeList& edges, const Vector3f& color)

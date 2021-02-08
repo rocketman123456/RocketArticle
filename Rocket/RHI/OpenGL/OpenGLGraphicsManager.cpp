@@ -1,11 +1,10 @@
 #include "OpenGL/OpenGLGraphicsManager.h"
-#include "OpenGL/OpenGLPipelineStateManager.h"
 #include "Module/WindowManager.h"
 #include "Module/Application.h"
 #include "Module/MemoryManager.h"
-//#include "Scene/Component.h"
-//#include "Scene/Entity.h"
+
 #include "Scene/Scene.h"
+#include "Scene/Component/PlanarMesh.h"
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
@@ -202,8 +201,9 @@ void OpenGLGraphicsManager::Tick(Timestep ts)
 
 void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineState, const Frame &frame)
 {
+    m_CurrentPipelineState = pipelineState;
     const Ref<const OpenGLPipelineState> pPipelineState =
-        std::dynamic_pointer_cast<const OpenGLPipelineState>(pipelineState);
+        std::dynamic_pointer_cast<const OpenGLPipelineState>(m_CurrentPipelineState);
     m_CurrentShader = pPipelineState->shaderProgram;
 
     // Set the color shader as the current shader program and set the matrices
@@ -251,7 +251,7 @@ void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineS
         assert(0);
     }
 
-    if (pipelineState->bDepthWrite)
+    if (pipelineState->depthWriteMode)
         glDepthMask(GL_TRUE);
     else
         glDepthMask(GL_FALSE);
@@ -272,20 +272,55 @@ void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineS
     default:
         assert(0);
     }
-    
-    if (pPipelineState->pipelineStateName == "Draw2D")
+
+    if(pipelineState->renderTarget != RENDER_TARGET::NONE)
     {
+        auto it = m_FrameBuffers.find(pipelineState->renderTargetName);
+        if(it == m_FrameBuffers.end())
+        {
+            m_CurrentFrameBuffer = CreateRef<OpenGLFrameBuffer>(pipelineState->frameBufferInfo);
+            m_FrameBuffers[pipelineState->renderTargetName] = m_CurrentFrameBuffer;
+        }
+        else
+        {
+            m_CurrentFrameBuffer = it->second;
+        }
     }
+    else
+    {
+        m_CurrentFrameBuffer = nullptr;
+    }
+}
+
+void OpenGLGraphicsManager::SetPerFrameConstants(const DrawFrameContext& context)
+{
+    if(!m_uboDrawFrameConstant[m_nFrameIndex])
+    {
+        m_uboDrawFrameConstant[m_nFrameIndex] = CreateRef<OpenGLUniformBuffer>(sizeof(PerFrameConstants), DRAW_TYPE::DYNAMIC);
+    }
+    auto constant = static_cast<PerFrameConstants>(context);
+    m_uboDrawFrameConstant[m_nFrameIndex]->SetSubData(&constant, 0, sizeof(PerFrameConstants));
+}
+
+void OpenGLGraphicsManager::SetLightInfo(const DrawFrameContext& context)
+{
+    //if(!m_uboLightInfo[m_nFrameIndex])
+    //{
+    //    m_uboLightInfo[m_nFrameIndex] = CreateRef<OpenGLUniformBuffer>(sizeof(LightInfo), DRAW_TYPE::DYNAMIC);
+    //}
+    //auto constant = static_cast<LightInfo>(context.lightInfo);
+    //m_uboLightInfo[m_nFrameIndex]->SetSubData(&constant, 0, sizeof(PerBatchConstants));
 }
 
 void OpenGLGraphicsManager::BeginFrame(const Frame &frame)
 {
     // Set the color to clear the screen to.
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
     // Clear the screen and depth buffer.
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     SetPerFrameConstants(frame.frameContext);
+    SetLightInfo(frame.frameContext);
 
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -313,28 +348,141 @@ void OpenGLGraphicsManager::EndFrame(const Frame &frame)
 void OpenGLGraphicsManager::BeginScene(const Scene& scene)
 { 
     GraphicsManager::BeginScene(scene);
+    
+    if(!m_CurrentScene)
+    {
+        RK_GRAPHICS_INFO("No Active Scene");
+        return;
+    }
+
+    auto planar_meshes = m_CurrentScene->GetComponents<PlanarMesh>();
+    for(auto mesh : planar_meshes)
+    {
+        auto dbc = CreateRef<OpenGLDrawBatchContext>();
+        auto vertex = mesh->GetVertex();
+        auto index = mesh->GetIndex();
+        dbc->VAO = CreateRef<OpenGLVertexArray>();
+        auto vbo = CreateRef<OpenGLVertexBuffer>(vertex.size());
+        vbo->SetLayout({
+            { ShaderDataType::Vec3f, "a_Position" },
+            { ShaderDataType::Vec4f, "a_Color" },
+            { ShaderDataType::Vec2f, "a_TexCoord" },
+            { ShaderDataType::Float, "a_TexIndex" },
+            { ShaderDataType::Float, "a_TilingFactor" }
+        });
+        vbo->SetData(vertex.data() , vertex.size() * sizeof(QuadVertex));
+        auto ibo = CreateRef<OpenGLIndexBuffer>(index.data(), index.size());
+        dbc->VAO->AddVertexBuffer(vbo);
+        dbc->VAO->SetIndexBuffer(ibo);
+        dbc->Textures = &mesh->GetTexture();
+        
+        // TODO : use real model matrix
+        dbc->modelMatrix = Matrix4f::Identity();
+
+        uint32_t mode;
+        // TODO : set draw element type and mode
+        //        mode = GL_POINTS;
+        //        mode = GL_LINES;
+        //        mode = GL_LINE_STRIP;
+        //        mode = GL_TRIANGLES;
+        //        mode = GL_TRIANGLE_STRIP;
+        //        mode = GL_TRIANGLE_FAN;
+        //
+        //        type = GL_UNSIGNED_BYTE;
+        //        type = GL_UNSIGNED_SHORT;
+        //        type = GL_UNSIGNED_INT;
+        dbc->Mode = GL_TRIANGLES;
+        dbc->Type = GL_UNSIGNED_INT;
+        dbc->MaxTextures = mesh->GetTextureCount();
+
+        for (int32_t n = 0; n < m_MaxFrameInFlight; n++)
+        {
+            m_Frames[n].batchContexts.push_back(dbc);
+        }
+    }
 }
 
 void OpenGLGraphicsManager::EndScene()
 {
-    for (int i = 0; i < m_Frames.size(); i++)
-    {
-        auto &batchContexts = m_Frames[i].batchContexts;
-        batchContexts.clear();
-    }
     GraphicsManager::EndScene();
 }
 
-void OpenGLGraphicsManager::SetPerFrameConstants(const DrawFrameContext& context)
+void OpenGLGraphicsManager::BeginFrameBuffer(const Frame& frame)
 {
+    GraphicsManager::BeginFrameBuffer(frame);
+    if(m_CurrentFrameBuffer)
+    {
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+
+    // Link Uniform Buffer
+    uint32_t shader_id = m_CurrentShader->GetRenderId();
+    // Set PerFrameConstants
+    uint32_t frame_block_index = glGetUniformBlockIndex(shader_id, "PerFrameConstants");
+    if(frame_block_index != GL_INVALID_INDEX)
+    {
+        int32_t blockSize;
+        glGetActiveUniformBlockiv(shader_id, frame_block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
+        assert(blockSize >= sizeof(PerFrameConstants));
+        uint32_t ubo_frame = m_uboDrawFrameConstant[m_nFrameIndex]->GetRenderID();
+        glUniformBlockBinding(shader_id, frame_block_index, 0);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo_frame);
+    }
+
+    // TODO : remove fixed 16
+    int32_t samplers[16];
+    for (uint32_t i = 0; i < 16; i++)
+        samplers[i] = i;
+    m_CurrentShader->SetInt32Array("u_Textures", samplers, 16);
+}
+
+void OpenGLGraphicsManager::EndFrameBuffer(const Frame& frame)
+{
+    GraphicsManager::EndFrameBuffer(frame);
 }
 
 void OpenGLGraphicsManager::SetPerBatchConstants(const DrawBatchContext &context)
 {
+    //if(!m_uboDrawBatchConstant[m_nFrameIndex])
+    //{
+    //    m_uboDrawBatchConstant[m_nFrameIndex] = CreateRef<OpenGLUniformBuffer>(sizeof(PerBatchConstants), DRAW_TYPE::DYNAMIC);
+    //}
+    //auto constant = static_cast<PerBatchConstants>(context);
+    //m_uboDrawBatchConstant[m_nFrameIndex]->SetSubData(&constant, 0, sizeof(PerBatchConstants));
+//
+    //uint32_t shader_id = m_CurrentShader->GetRenderId();
+    //uint32_t frame_block_index = glGetUniformBlockIndex(shader_id, "PerBatchConstants");
+    //// Set PerBatchConstants
+    //if(frame_block_index != GL_INVALID_INDEX)
+    //{
+    //    int32_t blockSize;
+    //    glGetActiveUniformBlockiv(shader_id, frame_block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
+    //    assert(blockSize >= sizeof(PerBatchConstants));
+    //    uint32_t ubo_batch = m_uboDrawBatchConstant[m_nFrameIndex]->GetRenderID();
+    //    glUniformBlockBinding(shader_id, frame_block_index, 1);
+    //    glBindBufferBase(GL_UNIFORM_BUFFER, 1, ubo_batch);
+    //}
+
+    m_CurrentShader->SetMatrix4f("u_modelMatrix", context.modelMatrix);
 }
 
 void OpenGLGraphicsManager::DrawBatch(const Frame &frame)
 {
+    for(auto& pDbc : frame.batchContexts)
+    {
+        SetPerBatchConstants(*pDbc);
+        const auto& dbc = dynamic_cast<const OpenGLDrawBatchContext&>(*pDbc);
+
+        for(int i = 0; i < dbc.MaxTextures; ++i)
+        {
+            (*dbc.Textures)[i]->Bind(i);
+        }
+
+        uint32_t count = dbc.VAO->GetIndexBuffer()->GetCount();
+        dbc.VAO->Bind();
+        glDrawElements(dbc.Mode, count, dbc.Type, nullptr);
+    }
 }
 
 void OpenGLGraphicsManager::DrawFullScreenQuad()
@@ -390,15 +538,23 @@ void OpenGLGraphicsManager::SwapBuffers()
 bool OpenGLGraphicsManager::Resize(int32_t width, int32_t height)
 {
     glViewport(0, 0, width, height);
+    //for(auto it : m_FrameBuffers)
+    //{
+    //    it.second->Resize(width, height);
+    //}
     return false;
 }
 
 bool OpenGLGraphicsManager::OnWindowResize(EventPtr& e)
 {
-    int32_t width = e->GetInt32(1);
-    int32_t height = e->GetInt32(2);
-    return Resize(width, height);
+    m_Width = e->GetInt32(1);
+    m_Height = e->GetInt32(2);
+    return Resize(m_Width, m_Height);
 }
+
+//------------------------------------------------------------
+//-- Debug ---------------------------------------------------
+//------------------------------------------------------------
 
 void OpenGLGraphicsManager::DrawPoint(const Point3D &point, const Vector3f &color)
 {

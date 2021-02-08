@@ -9,7 +9,7 @@
 
 namespace Rocket
 {
-    struct texture_id
+    struct TextureId
     {
         intptr_t texture{-1};
         uint32_t width{0};
@@ -19,22 +19,23 @@ namespace Rocket
         float    mipmap{0.0f};
     };
 
-    struct material_textures
+    struct MaterialTextures
     {
-        texture_id diffuseMap;
-        texture_id normalMap;
-        texture_id metallicMap;
-        texture_id roughnessMap;
-        texture_id aoMap;
-        texture_id heightMap;
+        TextureId diffuseMap;
+        TextureId normalMap;
+        TextureId metallicMap;
+        TextureId roughnessMap;
+        TextureId aoMap;
+        TextureId heightMap;
     };
 
     struct PerFrameConstants
     {
         Matrix4f viewMatrix;        // 64 bytes
         Matrix4f projectionMatrix;  // 64 bytes
-        Vector4f camPos;              // 16 bytes
-    };
+        Vector4f camPos;            // 16 bytes
+        int32_t  numLights;         // 4 bytes
+    };                              // total 148 bytes
 
     struct PerBatchConstants
     {

@@ -1,6 +1,37 @@
 #include "Render/DrawBasic/Texture.h"
+#include "Module/MemoryManager.h"
+
+#if defined(RK_OPENGL)
+#include "OpenGL/OpenGLTexture.h"
+#elif defined(RK_VULKAN)
+#include "Vulkan/VulkanTexture.h"
+#elif defined(RK_METAL)
+#include "Metal/MetalTexture.h"
+#endif
 
 using namespace Rocket;
+
+Ref<Texture2D> Texture2D::Create(uint32_t width, uint32_t height)
+{
+#if defined(RK_OPENGL)
+    return CreateRef<OpenGLTexture2D>(width, height);
+#elif defined(RK_VULKAN)
+    return CreateRef<VulkanTexture2D>(width, height);
+#elif defined(RK_METAL)
+    return CreateRef<MetalTexture2D>(width, height);
+#endif
+}
+
+Ref<Texture2D> Texture2D::Create(const String& path)
+{
+#if defined(RK_OPENGL)
+    return CreateRef<OpenGLTexture2D>(path);
+#elif defined(RK_VULKAN)
+    return CreateRef<VulkanTexture2D>(path);
+#elif defined(RK_METAL)
+    return CreateRef<MetalTexture2D>(path);
+#endif
+}
 
 SubTexture2D::SubTexture2D(const Ref<Texture2D>& texture, const Vector2f& min, const Vector2f& max)
     : m_Texture(texture)

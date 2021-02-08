@@ -1,8 +1,9 @@
 #include "Module/PipelineStateManager.h"
 #include "Module/Application.h"
+#include "Module/WindowManager.h"
 
-#define VS_BASIC_SOURCE_FILE "basic.vert"
-#define PS_BASIC_SOURCE_FILE "basic.frag"
+//#define VS_BASIC_SOURCE_FILE "basic.vert"
+//#define PS_BASIC_SOURCE_FILE "basic.frag"
 #define VS_DRAW2D_SOURCE_FILE "draw2d.vert"
 #define PS_DRAW2D_SOURCE_FILE "draw2d.frag"
 //#define DEBUG_VS_SHADER_SOURCE_FILE "debug.vert"
@@ -65,46 +66,42 @@ const Ref<PipelineState> PipelineStateManager::GetPipelineState(const String& na
 
 int PipelineStateManager::Initialize()
 {
-    auto config = g_Application->GetConfig();
+    auto& config = g_Application->GetConfig();
+    auto& window = g_WindowManager->GetWindow();
 
     PipelineState pipelineState;
-    pipelineState.pipelineStateName = "Basic";
-    pipelineState.pipelineType = PIPELINE_TYPE::GRAPHIC;
-    pipelineState.vertexShaderName = VS_BASIC_SOURCE_FILE;
-    pipelineState.pixelShaderName = PS_BASIC_SOURCE_FILE;
-    pipelineState.depthTestMode = DEPTH_TEST_MODE::LESS_EQUAL;
-    pipelineState.bDepthWrite = true;
-    pipelineState.stencilTestMode = STENCIL_TEST_MODE::NONE;
-    pipelineState.cullFaceMode = CULL_FACE_MODE::BACK;
-    pipelineState.sampleCount = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
-    pipelineState.a2vType = A2V_TYPES::A2V_TYPES_FULL;
-    pipelineState.flag = PIPELINE_FLAG::NONE;
-    RegisterPipelineState(pipelineState);
 
     pipelineState.pipelineStateName = "Draw2D";
     pipelineState.pipelineType = PIPELINE_TYPE::GRAPHIC;
+    pipelineState.pipelineTarget = PIPELINE_TARGET::PLANAR;
     pipelineState.vertexShaderName = VS_DRAW2D_SOURCE_FILE;
     pipelineState.pixelShaderName = PS_DRAW2D_SOURCE_FILE;
+    pipelineState.bufferLayout.SetLayout({
+        { ShaderDataType::Vec3f, "a_Position" },
+        { ShaderDataType::Vec4f, "a_Color" },
+        { ShaderDataType::Vec2f, "a_TexCoord" },
+        { ShaderDataType::Float, "a_TexIndex" },
+        { ShaderDataType::Float, "a_TilingFactor" }
+    });
     pipelineState.depthTestMode = DEPTH_TEST_MODE::LESS_EQUAL;
-    pipelineState.bDepthWrite = true;
+    pipelineState.depthWriteMode = true;
     pipelineState.stencilTestMode = STENCIL_TEST_MODE::NONE;
     pipelineState.cullFaceMode = CULL_FACE_MODE::BACK;
+    pipelineState.pixelFormat = PIXEL_FORMAT::BGRA8UNORM;
     pipelineState.sampleCount = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
     pipelineState.a2vType = A2V_TYPES::A2V_TYPES_FULL;
     pipelineState.flag = PIPELINE_FLAG::NONE;
+    pipelineState.renderTarget = RENDER_TARGET::NONE;//RENDER_TARGET::RENDER_FRAMEBUFFER;
+    pipelineState.renderTargetName = "Draw2D Buffer";
+    pipelineState.frameBufferInfo.ColorWidth = window->GetWidth();
+    pipelineState.frameBufferInfo.ColorHeight = window->GetHeight();
+    pipelineState.frameBufferInfo.DepthWidth = window->GetWidth();
+    pipelineState.frameBufferInfo.DepthHeight = window->GetHeight();
+    pipelineState.frameBufferInfo.Samples = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
+    pipelineState.frameBufferInfo.SwapChainTarget = false;
+    pipelineState.frameBufferInfo.ColorAttachment = { FramebufferTextureFormat::RGBA8 };
+    pipelineState.frameBufferInfo.DepthAttachment = FramebufferTextureFormat::DEPTH24STENCIL8;
     RegisterPipelineState(pipelineState);
-
-    //pipelineState.pipelineStateName = "Texture Debug Draw";
-    //pipelineState.vertexShaderName = VS_PASSTHROUGH_SOURCE_FILE;
-    //pipelineState.pixelShaderName = PS_TEXTURE_SOURCE_FILE;
-    //pipelineState.cullFaceMode = CULL_FACE_MODE::BACK;
-    //pipelineState.a2vType = A2V_TYPES::A2V_TYPES_SIMPLE;
-    //pipelineState.depthTestMode = DEPTH_TEST_MODE::ALWAYS;
-    //pipelineState.bDepthWrite = true;
-    //pipelineState.pixelFormat = PIXEL_FORMAT::BGRA8UNORM;
-    //pipelineState.sampleCount = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
-    //pipelineState.flag = PIPELINE_FLAG::DEBUG_DRAW;
-    //RegisterPipelineState(pipelineState);
 
     RK_GRAPHICS_INFO("Pipeline State Manager Initialized. Add [{}] Pipelines", m_pipelineStates.size());
     return 0;

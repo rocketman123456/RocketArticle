@@ -14,18 +14,29 @@ namespace Rocket
 		float TilingFactor; // 4 bytes
 	};                      // total 44 bytes
 
-    struct QuadIndex
-    {
-        uint32_t index[6];  // 12 bytes
-    };
+    using QuadIndex = uint32_t;
 
+    // This is mainly for debug and develop purpose
     class PlanarMesh : implements Mesh
     {
     public:
         COMPONENT(PlanarMesh);
     public:
-        PlanarMesh();
-        PlanarMesh(const String& name);
+        static const uint32_t m_MaxTexture = 16;
+        static Vector4f s_QuadVertexPositions[4];
+    public:
+        PlanarMesh(const String& name) : m_Name(name) 
+        { 
+            Ref<Texture2D> WhiteTexture = Texture2D::Create(1, 1);
+            uint32_t whiteTextureData = 0xffffffff;
+            WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
+            m_TextureSlots.resize(m_MaxTexture);
+            for(int i = 0; i < m_MaxTexture; ++i)
+            {
+                m_TextureSlots[i] = nullptr;
+            }
+            m_TextureSlots[0] = WhiteTexture;
+        }
         virtual ~PlanarMesh() = default;
 
         void AddQuad(const Vector2f& position, const Vector2f& size, const Vector4f& color);
@@ -44,15 +55,21 @@ namespace Rocket
         Vec<QuadVertex>& GetVertex() { return m_Vertex; }
         Vec<QuadIndex>& GetIndex() { return m_Index; }
         Vec<Ref<Texture2D>>& GetTexture() { return m_TextureSlots; }
+        void Invalidate() { m_MeshChange = false; }
+        bool GetChangeState() { return m_MeshChange; }
+        void SetChangeState(bool state) { m_MeshChange = state; }
+        uint32_t GetTextureCount() { return m_TextureCount; }
     private:
-        String m_Name;
-        Vector4f m_QuadVertexPositions[4];
-        Vec<QuadVertex> m_Vertex;
-        Vec<QuadIndex> m_Index;
-        Vec<Ref<Texture2D>> m_TextureSlots;
         uint32_t m_TextureSlotIndex = 1;
         uint32_t m_VertexCount = 0;
         uint32_t m_IndexCount = 0;
+        uint32_t m_IndexOffset = 0;
         uint32_t m_TextureCount = 0;
+        bool     m_MeshChange = false;
+
+        String m_Name;
+        Vec<QuadVertex> m_Vertex;
+        Vec<QuadIndex> m_Index;
+        Vec<Ref<Texture2D>> m_TextureSlots;
     };
 }

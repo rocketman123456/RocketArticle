@@ -1,11 +1,11 @@
 #pragma once
 #include "Core/Core.h"
 #include "Utils/Timestep.h"
-#include "Scene/EditorCamera.h"
-#include "Scene/SceneCamera.h"
 #include "Scene/SceneComponent.h"
 #include "Scene/SceneNode.h"
 
+#include "Scene/Component/SceneCamera.h"
+#include "Scene/Component/EditorCamera.h"
 #include "Scene/Component/PlanarMesh.h"
 
 namespace Rocket
@@ -89,23 +89,27 @@ namespace Rocket
 		inline void SetSceneChange(bool change) { m_SceneChange = change; }
 
 		SceneState GetSceneState() { return m_State; }
-		//void SetPrimaryCamera(Ref<Camera> camera) { m_PrimaryCamera = camera; }
-		//void SetEditorCamera(Ref<Camera> camera) { m_EditorCamera = camera; }
-		//Ref<Camera> GetPrimaryCamera() { return m_PrimaryCamera; }
-		//Ref<Camera> GetEditorCamera() { return m_EditorCamera; }
-		//Matrix4f& GetPrimaryCameraTransform() { return m_PrimaryCameraTransform; }
-		//Matrix4f& GetEditorCameraTransform() { return m_EditorCameraTransform; }
-	private:
-		//Matrix4f m_PrimaryCameraTransform = Matrix4f::Identity();
-		//Matrix4f m_EditorCameraTransform = Matrix4f::Identity();
-		//Ref<Camera> m_PrimaryCamera = nullptr;
-		//Ref<Camera> m_EditorCamera = nullptr;
 
+		// For Debug
+		void SetPrimaryCamera(const Ref<SceneCamera>& camera) { m_PrimaryCamera = camera; }
+		void SetEditorCamera(const Ref<EditorCamera>& camera) { m_EditorCamera = camera; }
+		Ref<SceneCamera>& GetPrimaryCamera() { return m_PrimaryCamera; }
+		Ref<EditorCamera>& GetEditorCamera() { return m_EditorCamera; }
+		void SetPrimaryCameraTransform(const Matrix4f& mat) { m_PrimaryCameraTransform = mat; }
+		void SetEditorCameraTransform(const Matrix4f& mat) { m_EditorCameraTransform = mat; }
+		Matrix4f& GetPrimaryCameraTransform() { return m_PrimaryCameraTransform; }
+		Matrix4f& GetEditorCameraTransform() { return m_EditorCameraTransform; }
+	private:
         String m_Name;
 		uint32_t m_ViewportWidth = 0;
         uint32_t m_ViewportHeight = 0;
         SceneState m_State = SceneState::Play;
         bool m_SceneChange = false;
+
+		Matrix4f m_PrimaryCameraTransform = Matrix4f::Identity();
+		Matrix4f m_EditorCameraTransform = Matrix4f::Identity();
+		Ref<SceneCamera> m_PrimaryCamera = nullptr;
+		Ref<EditorCamera> m_EditorCamera = nullptr;
 
         SceneNode* m_Root = nullptr;
         Vec<Scope<SceneNode>> m_Nodes;

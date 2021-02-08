@@ -5,7 +5,7 @@ namespace Rocket
 {
     enum class ShaderDataType : uint32_t
 	{
-		None = 0, Float, Vec2f, Vec3f, Vec4f, Mat2, Mat3, Mat4, Int, Vec2i, Vec3i, Vec4i, Bool
+		None = 0, Float, Vec2f, Vec3f, Vec4f, Mat2f, Mat3f, Mat4f, Int, Vec2i, Vec3i, Vec4i, Bool
 	};
 
 	static uint32_t ShaderDataTypeSize(ShaderDataType type)
@@ -16,9 +16,9 @@ namespace Rocket
         case ShaderDataType::Vec2f:    return 4 * 2;
         case ShaderDataType::Vec3f:    return 4 * 3;
         case ShaderDataType::Vec4f:    return 4 * 4;
-		case ShaderDataType::Mat2:     return 4 * 2 * 2;
-        case ShaderDataType::Mat3:     return 4 * 3 * 3;
-        case ShaderDataType::Mat4:     return 4 * 4 * 4;
+		case ShaderDataType::Mat2f:    return 4 * 2 * 2;
+        case ShaderDataType::Mat3f:    return 4 * 3 * 3;
+        case ShaderDataType::Mat4f:    return 4 * 4 * 4;
         case ShaderDataType::Int:      return 4;
         case ShaderDataType::Vec2i:    return 4 * 2;
         case ShaderDataType::Vec3i:    return 4 * 3;
@@ -49,9 +49,9 @@ namespace Rocket
             case ShaderDataType::Vec2f:   return 2;
             case ShaderDataType::Vec3f:   return 3;
             case ShaderDataType::Vec4f:   return 4;
-			case ShaderDataType::Mat2:    return 3; // 2 * float2
-            case ShaderDataType::Mat3:    return 3; // 3 * float3
-            case ShaderDataType::Mat4:    return 4; // 4 * float4
+			case ShaderDataType::Mat2f:   return 3; // 2 * float2
+            case ShaderDataType::Mat3f:   return 3; // 3 * float3
+            case ShaderDataType::Mat4f:   return 4; // 4 * float4
             case ShaderDataType::Int:     return 1;
             case ShaderDataType::Vec2i:   return 2;
             case ShaderDataType::Vec3i:   return 3;
@@ -71,6 +71,7 @@ namespace Rocket
 
 		uint32_t GetStride() const { return m_Stride; }
 		const Vec<BufferElement>& GetElements() const { return m_Elements; }
+		void SetLayout(std::initializer_list<BufferElement> elements) { m_Elements = elements; }
 
 		Vec<BufferElement>::iterator begin() { return m_Elements.begin(); }
 		Vec<BufferElement>::iterator end() { return m_Elements.end(); }

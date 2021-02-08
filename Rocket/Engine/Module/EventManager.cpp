@@ -201,12 +201,12 @@ void EventManager::Finalize()
 void EventManager::OnEvent(EventPtr& event)
 {
     bool ret = false;
-    RK_EVENT_TRACE("Callback Event {0}", *event);
+    //RK_EVENT_TRACE("Callback Event {0}", *event);
     if(event->GetEventType() == EventHashTable::HashString("window_close"))
         ret = QueueEvent(event);
     else
         ret = TriggerEvent(event);
-    RK_EVENT_TRACE("On Event Callback Result : {}", ret);
+    //RK_EVENT_TRACE("On Event Callback Result : {}", ret);
 }
 
 void EventManager::Tick(Timestep ts)

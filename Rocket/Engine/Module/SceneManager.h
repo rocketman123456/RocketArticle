@@ -20,7 +20,7 @@ namespace Rocket
 
         [[nodiscard]] bool AddScene(Ref<Scene> scene);
         [[nodiscard]] bool RemoveScene(const String& name);
-        [[nodiscard]] Ref<Scene> GetActiveScene() { return m_ActiveScene; }
+        [[nodiscard]] Ref<Scene>& GetActiveScene() { return m_ActiveScene; }
         [[nodiscard]] bool SetActiveScene(const String& name);
     private:
         UMap<uint64_t, Ref<Scene>> m_SceneList;

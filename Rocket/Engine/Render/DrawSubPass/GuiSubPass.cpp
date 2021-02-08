@@ -28,7 +28,7 @@ void GuiSubPass::Draw(Frame& frame)
         
         {
             ImGui::Begin("Hello, world!");
-            ImGui::Text("This is some useful text.");
+            //ImGui::Text("This is some useful text.");
             ImGui::Text("FPS : %d", m_FPS);
             ImGui::End();
         }

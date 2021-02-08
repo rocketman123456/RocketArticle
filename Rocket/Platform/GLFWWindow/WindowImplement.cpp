@@ -45,6 +45,9 @@ void WindowImplement::Initialize()
 
 	m_Window = glfwCreateWindow((int)m_Props.Width, (int)m_Props.Height, m_Props.Title.c_str(), nullptr, nullptr);
 	++s_GLFWWindowCount;
+
+	// Get Frame Buffer Size
+	glfwGetFramebufferSize(m_Window, &m_Props.Width, &m_Props.Height);
 }
 
 void WindowImplement::Finalize()

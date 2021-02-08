@@ -3,14 +3,14 @@
 #include "Interface/IDrawPass.h"
 #include "Interface/IDispatchPass.h"
 #include "Interface/IPipelineStateManager.h"
-#include "Interface/IEvent.h"
 #include "Common/GeomMath.h"
-#include "Scene/Scene.h"
+#include "Render/FrameStructure.h"
 #include "Render/DrawBasic/Shader.h"
-
-#include <map>
-
-#define MAX_FRAME_IN_FLIGHT 2
+#include "Render/DrawBasic/FrameBuffer.h"
+#include "Render/DrawBasic/VertexArray.h"
+#include "Render/DrawBasic/UniformBuffer.h"
+#include "Event/Event.h"
+#include "Scene/Scene.h"
 
 namespace Rocket
 {
@@ -26,7 +26,7 @@ namespace Rocket
 
         virtual void Tick(Timestep ts) override;
 
-        virtual void SetPipelineState(const Ref<PipelineState> &pipelineState, const Frame &frame) {}
+        virtual void SetPipelineState(const Ref<PipelineState>& pipelineState, const Frame& frame) = 0;
 
         virtual void BeginPass(const Frame& frame) {}
         virtual void EndPass(const Frame& frame) {}
@@ -36,6 +36,13 @@ namespace Rocket
 
         virtual void BeginFrame(const Frame& frame);
         virtual void EndFrame(const Frame& frame);
+
+        virtual void BeginFrameBuffer(const Frame& frame);
+        virtual void EndFrameBuffer(const Frame& frame);
+
+        virtual void SetPerFrameConstants(const DrawFrameContext& context) = 0;
+        virtual void SetPerBatchConstants(const DrawBatchContext& context) = 0;
+        virtual void SetLightInfo(const DrawFrameContext& context) = 0;
 
         virtual void BeginScene(const Scene& scene);
         virtual void EndScene();
@@ -82,14 +89,24 @@ namespace Rocket
 
     protected:
         uint32_t m_nFrameIndex;
-        std::array<Frame, MAX_FRAME_IN_FLIGHT> m_Frames;
+        uint32_t m_MaxFrameInFlight;
+
+        Vec<Frame> m_Frames;
+        Vec<Ref<UniformBuffer>> m_uboDrawFrameConstant;
+        Vec<Ref<UniformBuffer>> m_uboLightInfo;
+        Vec<Ref<UniformBuffer>> m_uboDrawBatchConstant;
+        Vec<Ref<UniformBuffer>> m_uboShadowMatricesConstant;
 
         Vec<Ref<IDispatchPass>> m_InitPasses;
         Vec<Ref<IDispatchPass>> m_DispatchPasses;
         Vec<Ref<IDrawPass>> m_DrawPasses;
 
+        Map<String, Ref<FrameBuffer>> m_FrameBuffers;
+
+        Ref<PipelineState> m_CurrentPipelineState = nullptr;
         Ref<Scene> m_CurrentScene = nullptr;
         Ref<Shader> m_CurrentShader = nullptr;
+        Ref<FrameBuffer> m_CurrentFrameBuffer = nullptr;
     };
 
     GraphicsManager *GetGraphicsManager();

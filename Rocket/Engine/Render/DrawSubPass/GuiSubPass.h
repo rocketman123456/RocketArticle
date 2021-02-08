@@ -8,6 +8,7 @@ namespace Rocket
     {
     public:
         GuiSubPass() { m_Timer.Start(); }
+        virtual ~GuiSubPass() = default;
         void Draw(Frame& frame) final;
     private:
         float m_CountTime = 0.0f;
