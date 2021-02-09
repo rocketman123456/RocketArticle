@@ -1,6 +1,6 @@
 #version 410 core
-layout (triangles) in;
-layout (triangle_strip, max_vertices = 3) out;
+layout (points) in;
+layout (points, max_vertices = 1) out;
 
 in VS_OUT
 {
@@ -28,7 +28,7 @@ void OutputPoint(int index)
 void main()
 {
 	OutputPoint(0);
-	OutputPoint(1);
-	OutputPoint(2);
+	//OutputPoint(1);
+	//OutputPoint(2);
 	EndPrimitive();
 }

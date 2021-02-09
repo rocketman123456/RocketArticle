@@ -77,7 +77,7 @@ int PipelineStateManager::Initialize()
     pipelineState.pipelineTarget = PIPELINE_TARGET::PLANAR;
     pipelineState.vertexShaderName = VS_DRAW2D_SOURCE_FILE;
     pipelineState.pixelShaderName = PS_DRAW2D_SOURCE_FILE;
-    //pipelineState.geometryShaderName = GS_DRAW2D_SOURCE_FILE;
+    pipelineState.geometryShaderName = GS_DRAW2D_SOURCE_FILE;
     pipelineState.bufferLayout.SetLayout({
         { ShaderDataType::Vec3f, "a_Position" },
         { ShaderDataType::Vec4f, "a_Color" },
