@@ -47,14 +47,18 @@ void GraphicsManager::Finalize()
 void GraphicsManager::Tick(Timestep ts)
 {
     auto scene = g_SceneManager->GetActiveScene();
-    if (!m_CurrentScene || m_CurrentScene->GetSceneChange() || m_CurrentScene != scene)
+    if(!scene)
+    {
+        RK_GRAPHICS_WARN("No Active Scene");
+    }
+    else if (!m_CurrentScene || m_CurrentScene->GetSceneChange() || m_CurrentScene != scene)
     {
         EndScene();
         m_CurrentScene = g_SceneManager->GetActiveScene();
         BeginScene(*m_CurrentScene);
         m_CurrentScene->SetSceneChange(false);
     }
-        
+    
     UpdateConstants();
 
     BeginFrame(m_Frames[m_nFrameIndex]);
@@ -70,7 +74,8 @@ void GraphicsManager::UpdateConstants()
 
     for (auto& pDbc : frame.batchContexts)
     {
-        // Update Scene Data
+        // TODO : implements scene update
+        //m_CurrentScene->Update();
     }
 
     CalculateCameraMatrix();
@@ -135,6 +140,25 @@ void GraphicsManager::EndScene()
     {
         auto &batchContexts = m_Frames[i].batchContexts;
         batchContexts.clear();
+    }
+
+    // Clear Buffers
+    m_uboDrawFrameConstant.clear();
+    m_uboLightInfo.clear();
+    m_uboDrawBatchConstant.clear();
+    m_uboShadowMatricesConstant.clear();
+
+    // Regenerate Buffers
+    m_uboDrawFrameConstant.resize(m_MaxFrameInFlight);
+    m_uboLightInfo.resize(m_MaxFrameInFlight);
+    m_uboDrawBatchConstant.resize(m_MaxFrameInFlight);
+    m_uboShadowMatricesConstant.resize(m_MaxFrameInFlight);
+    for(size_t i = 0; i < m_MaxFrameInFlight; ++i)
+    {
+        m_uboDrawFrameConstant[i] = nullptr;
+        m_uboLightInfo[i] = nullptr;
+        m_uboDrawBatchConstant[i] = nullptr;
+        m_uboShadowMatricesConstant[i] = nullptr;
     }
 }
 

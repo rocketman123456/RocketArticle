@@ -273,6 +273,7 @@ void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineS
         assert(0);
     }
 
+    // Set Frame Buffer
     if(pipelineState->renderTarget != RENDER_TARGET::NONE)
     {
         auto it = m_FrameBuffers.find(pipelineState->renderTargetName);
@@ -419,15 +420,15 @@ void OpenGLGraphicsManager::BeginFrameBuffer(const Frame& frame)
     // Link Uniform Buffer
     uint32_t shader_id = m_CurrentShader->GetRenderId();
     // Set PerFrameConstants
-    uint32_t frame_block_index = glGetUniformBlockIndex(shader_id, "PerFrameConstants");
+    uint32_t frame_block_index = glGetUniformBlockIndex(shader_id, "PerFrame");
     if(frame_block_index != GL_INVALID_INDEX)
     {
         int32_t blockSize;
         glGetActiveUniformBlockiv(shader_id, frame_block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
         assert(blockSize >= sizeof(PerFrameConstants));
         uint32_t ubo_frame = m_uboDrawFrameConstant[m_nFrameIndex]->GetRenderID();
-        glUniformBlockBinding(shader_id, frame_block_index, 0);
-        glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo_frame);
+        glUniformBlockBinding(shader_id, frame_block_index, 2);
+        glBindBufferBase(GL_UNIFORM_BUFFER, 2, ubo_frame);
     }
 
     // TODO : remove fixed 16

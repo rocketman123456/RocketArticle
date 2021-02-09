@@ -79,6 +79,8 @@ namespace Rocket
         void DrawBox(const Vector3f &bbMin, const Vector3f &bbMax, const Vector3f &color);
         void DrawBox(const Vector3f &bbMin, const Vector3f &bbMax, const Matrix4f &trans, const Vector3f &color);
 
+        Ref<FrameBuffer> GetFrameBuffer(const String& name) { return m_FrameBuffers.at(name); }
+
     protected:
         virtual void SwapBuffers() = 0;
 
