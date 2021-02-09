@@ -16,7 +16,7 @@ int GraphicsManager::Initialize()
     m_Frames.resize(m_MaxFrameInFlight);
     for(size_t i = 0; i < m_MaxFrameInFlight; ++i)
     {
-        m_Frames = {};
+        m_Frames[i] = Frame();
     }
 
     // Init UBOs
@@ -127,7 +127,7 @@ void GraphicsManager::BeginScene(const Scene& scene)
 
     auto config = g_Application->GetConfig();
 
-    for (int32_t i = 1; i < m_MaxFrameInFlight; i++)
+    for (uint32_t i = 0; i < m_MaxFrameInFlight; i++)
     {
         m_Frames[i] = m_Frames[0];
         m_Frames[i].frameIndex = i;
@@ -171,19 +171,16 @@ void GraphicsManager::EndFrame(const Frame& frame)
     m_nFrameIndex = (m_nFrameIndex + 1) % m_MaxFrameInFlight; 
 }
 
-void GraphicsManager::BeginFrameBuffer(const Frame& frame) 
-{
-    if(m_CurrentFrameBuffer)
+Ref<FrameBuffer> GraphicsManager::GetFrameBuffer(const String& name)
+{ 
+    auto it = m_FrameBuffers.find(name);
+    if (it == m_FrameBuffers.end())
     {
-        m_CurrentFrameBuffer->Bind();
+        return nullptr;
     }
-}
-
-void GraphicsManager::EndFrameBuffer(const Frame& frame) 
-{
-    if(m_CurrentFrameBuffer)
+    else
     {
-        m_CurrentFrameBuffer->Unbind();
+        return it->second;
     }
 }
 

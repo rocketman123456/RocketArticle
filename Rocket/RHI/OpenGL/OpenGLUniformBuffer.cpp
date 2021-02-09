@@ -58,3 +58,9 @@ void OpenGLUniformBuffer::SetSubData(void* data, uint32_t start, uint32_t size)
     glBufferSubData(GL_UNIFORM_BUFFER, start, size, data); 
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
+
+void OpenGLUniformBuffer::BindShader(uint32_t shader_id, uint32_t block_index, uint32_t poss)
+{
+    glUniformBlockBinding(shader_id, block_index, 1);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_RendererID);
+}

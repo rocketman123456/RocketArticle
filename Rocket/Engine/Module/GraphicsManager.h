@@ -37,8 +37,8 @@ namespace Rocket
         virtual void BeginFrame(const Frame& frame);
         virtual void EndFrame(const Frame& frame);
 
-        virtual void BeginFrameBuffer(const Frame& frame);
-        virtual void EndFrameBuffer(const Frame& frame);
+        virtual void BeginFrameBuffer(const Frame& frame) {}
+        virtual void EndFrameBuffer(const Frame& frame) {}
 
         virtual void SetPerFrameConstants(const DrawFrameContext& context) = 0;
         virtual void SetPerBatchConstants(const DrawBatchContext& context) = 0;
@@ -79,7 +79,7 @@ namespace Rocket
         void DrawBox(const Vector3f &bbMin, const Vector3f &bbMax, const Vector3f &color);
         void DrawBox(const Vector3f &bbMin, const Vector3f &bbMax, const Matrix4f &trans, const Vector3f &color);
 
-        Ref<FrameBuffer> GetFrameBuffer(const String& name) { return m_FrameBuffers.at(name); }
+        Ref<FrameBuffer> GetFrameBuffer(const String& name);
 
     protected:
         virtual void SwapBuffers() = 0;
@@ -103,7 +103,7 @@ namespace Rocket
         Vec<Ref<IDispatchPass>> m_DispatchPasses;
         Vec<Ref<IDrawPass>> m_DrawPasses;
 
-        Map<String, Ref<FrameBuffer>> m_FrameBuffers;
+        UMap<String, Ref<FrameBuffer>> m_FrameBuffers;
 
         Ref<PipelineState> m_CurrentPipelineState = nullptr;
         Ref<Scene> m_CurrentScene = nullptr;

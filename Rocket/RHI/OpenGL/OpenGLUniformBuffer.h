@@ -13,7 +13,8 @@ namespace Rocket
         void Unbind() final;
         void SetData(void* data) final;
         void SetSubData(void* data, uint32_t start, uint32_t size) final;
-
+        
+        void BindShader(uint32_t shader_id, uint32_t block_index, uint32_t pos) final;
         uint32_t GetRenderID() const final { return m_RendererID; }
 
     private:

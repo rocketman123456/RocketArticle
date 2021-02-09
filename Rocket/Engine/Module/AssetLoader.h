@@ -14,7 +14,7 @@ namespace Rocket
     class AssetLoader : implements IRuntimeModule
     {
     public:
-        enum class AssetOpenMode
+        ENUM(AssetOpenMode)
         {
             RK_OPEN_TEXT = 0,    /// Open In Text Mode
             RK_OPEN_BINARY = 1,  /// Open In Binary Mode
@@ -22,11 +22,18 @@ namespace Rocket
             RK_WRITE_BINARY,     /// Write In Binary Mode
         };
 
-        enum class AssetSeekBase
+        ENUM(AssetSeekBase)
         {
             RK_SEEK_SET = 0,  /// SEEK_SET
             RK_SEEK_CUR = 1,  /// SEEK_CUR
             RK_SEEK_END = 2   /// SEEK_END
+        };
+
+        ENUM(AssetType)
+        {
+            RK_NORMAL = 0,
+            RK_PICTURE,
+            RK_AUDIO
         };
         
         RUNTIME_MODULE_TYPE(AssetLoader);

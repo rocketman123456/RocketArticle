@@ -1,5 +1,8 @@
 #include "Scene/Component/PlanarMesh.h"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 using namespace Rocket;
 
 Vector4f PlanarMesh::s_QuadVertexPositions[4] = {

@@ -16,6 +16,7 @@
 #include "Scene/Component/PlanarMesh.h"
 #include "Scene/Component/Transform.h"
 
+#include <random>
 
 namespace Rocket
 {
@@ -85,13 +86,19 @@ namespace Rocket
         cam->SetProjectionType(SceneCamera::ProjectionType::Orthographic);
         auto width = g_WindowManager->GetWindowWidth();
         auto height = g_WindowManager->GetWindowHeight();
+        cam->SetViewportSize(width, height);
         cam->SetOrthographic(10.0f, -1.0f, 1.0f);
 
+        std::default_random_engine e;
+        std::uniform_int_distribution<unsigned> u(0, 254);
         Scope<PlanarMesh> mesh = CreateScope<PlanarMesh>("Mesh Component");
-        mesh->AddQuad(Vector3f(0, 0, 0), Vector2f(1, 1), Vector4f(1, 0, 0, 1));
-        mesh->AddQuad(Vector3f(1, 0, 0), Vector2f(1, 1), Vector4f(1, 0, 0, 1));
-        mesh->AddQuad(Vector3f(0, 1, 0), Vector2f(1, 1), Vector4f(1, 0, 0, 1));
-        mesh->AddQuad(Vector3f(1, 1, 0), Vector2f(1, 1), Vector4f(1, 0, 0, 1));
+        for (int i = -50; i < 50; ++i)
+        {
+            for (int j = -50; j < 50; ++j)
+            {
+                mesh->AddQuad(Vector3f(i, j, 0), Vector2f(1, 1), Vector4f(float(u(e))/255.0f, float(u(e)) / 255.0f, float(u(e)) / 255.0f, 1.0f));
+            }
+        }
 
         scene->SetPrimaryCamera(cam);
         scene->SetPrimaryCameraTransform(Matrix4f::Identity());

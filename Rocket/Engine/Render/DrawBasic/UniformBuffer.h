@@ -17,6 +17,7 @@ namespace Rocket
         virtual void SetData(void* data) = 0;
         virtual void SetSubData(void* data, uint32_t start, uint32_t size) = 0;
 
+        virtual void BindShader(uint32_t shader_id, uint32_t block_index,uint32_t pos) = 0;
         virtual uint32_t GetRenderID() const = 0;
     };
 }

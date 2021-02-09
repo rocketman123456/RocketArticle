@@ -35,7 +35,7 @@ void SceneCamera::RecalculateProjection()
 {
 	if (m_ProjectionType == ProjectionType::Perspective)
 	{
-		float range = tan((m_PerspectiveFOV / 2.0f / 180.0f * M_PI)) * m_OrthographicNear;	
+		float range = tanf((m_PerspectiveFOV * 0.5f / 180.0f * M_PI)) * m_OrthographicNear;	
 		float left = -range * m_AspectRatio;
 		float right = range * m_AspectRatio;
 		float bottom = -range;

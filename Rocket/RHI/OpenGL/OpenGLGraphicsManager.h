@@ -79,8 +79,8 @@ namespace Rocket
 
         struct DebugDrawBatchContext : public OpenGLDrawBatchContext
         {
-            Vector3f color;
-            Matrix4f trans;
+            Vector3f Color;
+            Matrix4f Trans;
         };
 
         OpenGLDrawBatchContext m_DrawContext;

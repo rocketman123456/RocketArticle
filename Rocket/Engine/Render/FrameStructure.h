@@ -29,6 +29,8 @@ namespace Rocket
         TextureId heightMap;
     };
 
+#pragma pack(push)
+#pragma pack(1)
     struct PerFrameConstants
     {
         Matrix4f viewMatrix;        // 64 bytes
@@ -36,6 +38,7 @@ namespace Rocket
         Vector4f camPos;            // 16 bytes
         int32_t  numLights;         // 4 bytes
     };                              // total 148 bytes
+#pragma pack(pop)
 
     struct PerBatchConstants
     {

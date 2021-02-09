@@ -3,7 +3,7 @@
 
 namespace Rocket
 {
-	ENUM(FramebufferTextureFormat) { None = 0, RGB8, RGBA8, RGBA16, RGB16F, RGBA16F, DEPTH24, DEPTH24STENCIL8 };
+	ENUM(FramebufferTextureFormat) { NONE = 0, RGB8, RGBA8, RGBA16, RGB16F, RGBA16F, DEPTH24, DEPTH24STENCIL8 };
 
 	struct FramebufferSpecification
 	{
@@ -16,7 +16,7 @@ namespace Rocket
 		bool SwapChainTarget = false;
 
 		Vec<FramebufferTextureFormat> ColorAttachment = {};
-		FramebufferTextureFormat DepthAttachment = FramebufferTextureFormat::None;
+		FramebufferTextureFormat DepthAttachment = FramebufferTextureFormat::NONE;
 	};
 
 	Interface FrameBuffer

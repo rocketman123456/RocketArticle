@@ -31,6 +31,7 @@ void OpenGLFrameBuffer::Invalidate()
 			glDeleteTextures(1, &m_DepthAttachment);
 		m_ColorAttachments.clear();
 		m_DepthAttachment = 0;
+		m_RendererID = 0;
 	}
 
 	// Gen Frame Buffer
@@ -109,14 +110,14 @@ void OpenGLFrameBuffer::Invalidate()
 			}
 			m_ColorSpecifications.push_back(GL_COLOR_ATTACHMENT0 + i);
 		}
+
+		if (m_ColorSpecifications.size() >= 1)
+		{
+			glDrawBuffers(m_ColorSpecifications.size(), m_ColorSpecifications.data());
+		}
 	}
 
-	if(m_ColorSpecifications.size() > 1)
-	{
-		glDrawBuffers(m_ColorSpecifications.size(), m_ColorSpecifications.data());
-	}
-
-	if(m_Specification.DepthAttachment != FramebufferTextureFormat::None)
+	if(m_Specification.DepthAttachment != FramebufferTextureFormat::NONE)
 	{
 		glGenRenderbuffers(1, &m_DepthAttachment);
 		glBindRenderbuffer(GL_RENDERBUFFER, m_DepthAttachment);
@@ -130,7 +131,7 @@ void OpenGLFrameBuffer::Invalidate()
 				break;
 			case FramebufferTextureFormat::DEPTH24STENCIL8:
 				glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_Specification.Samples, GL_DEPTH24_STENCIL8, m_Specification.DepthWidth, m_Specification.DepthHeight);
-				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH24_STENCIL8, GL_RENDERBUFFER, m_DepthAttachment);
+				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_DepthAttachment);
 				break;
 			default:
 				RK_GRAPHICS_ERROR("Frame Buffer Depth Stencil Attachment Format Error");
@@ -147,7 +148,7 @@ void OpenGLFrameBuffer::Invalidate()
 				break;
 			case FramebufferTextureFormat::DEPTH24STENCIL8:
 				glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_Specification.DepthWidth, m_Specification.DepthHeight);
-				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH24_STENCIL8, GL_RENDERBUFFER, m_DepthAttachment);
+				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_DepthAttachment);
 				break;
 			default:
 				RK_GRAPHICS_ERROR("Frame Buffer Depth Stencil Attachment Format Error");

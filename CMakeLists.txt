@@ -100,7 +100,7 @@ message(STATUS "###################################")
 
 #### Project Includes ###############################
 include_directories(
-    ${PROJECT_SOURCE_DIR}/Thirdparty/stb_image
+    ${PROJECT_SOURCE_DIR}/Thirdparty/stb
     ${PROJECT_SOURCE_DIR}/Thirdparty/imgui
     ${PROJECT_SOURCE_DIR}/Thirdparty/tinyobjloader
     ${PROJECT_SOURCE_DIR}/Thirdparty/tinygltf

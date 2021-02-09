@@ -5,6 +5,7 @@
 //#define VS_BASIC_SOURCE_FILE "basic.vert"
 //#define PS_BASIC_SOURCE_FILE "basic.frag"
 #define VS_DRAW2D_SOURCE_FILE "draw2d.vert"
+#define GS_DRAW2D_SOURCE_FILE "draw2d.geom"
 #define PS_DRAW2D_SOURCE_FILE "draw2d.frag"
 //#define DEBUG_VS_SHADER_SOURCE_FILE "debug.vert"
 //#define DEBUG_PS_SHADER_SOURCE_FILE "debug.frag"
@@ -76,6 +77,7 @@ int PipelineStateManager::Initialize()
     pipelineState.pipelineTarget = PIPELINE_TARGET::PLANAR;
     pipelineState.vertexShaderName = VS_DRAW2D_SOURCE_FILE;
     pipelineState.pixelShaderName = PS_DRAW2D_SOURCE_FILE;
+    //pipelineState.geometryShaderName = GS_DRAW2D_SOURCE_FILE;
     pipelineState.bufferLayout.SetLayout({
         { ShaderDataType::Vec3f, "a_Position" },
         { ShaderDataType::Vec4f, "a_Color" },
@@ -85,22 +87,27 @@ int PipelineStateManager::Initialize()
     });
     pipelineState.depthTestMode = DEPTH_TEST_MODE::LESS_EQUAL;
     pipelineState.depthWriteMode = true;
+    pipelineState.blenderMode = BLENDER_MODE::ONE_MINUS_SRC_ALPHA;
     pipelineState.stencilTestMode = STENCIL_TEST_MODE::NONE;
     pipelineState.cullFaceMode = CULL_FACE_MODE::BACK;
     pipelineState.pixelFormat = PIXEL_FORMAT::BGRA8UNORM;
     pipelineState.sampleCount = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
     pipelineState.a2vType = A2V_TYPES::A2V_TYPES_FULL;
     pipelineState.flag = PIPELINE_FLAG::NONE;
-    pipelineState.renderTarget = RENDER_TARGET::RENDER_FRAMEBUFFER;
+    //pipelineState.renderTarget = RENDER_TARGET::RENDER_FRAMEBUFFER;
+    pipelineState.renderTarget = RENDER_TARGET::NONE;
     pipelineState.renderTargetName = "Draw2D Buffer";
     pipelineState.frameBufferInfo.ColorWidth = window->GetWidth();
     pipelineState.frameBufferInfo.ColorHeight = window->GetHeight();
+    pipelineState.frameBufferInfo.ColorAttachment = { 
+        FramebufferTextureFormat::RGBA8
+    };
     pipelineState.frameBufferInfo.DepthWidth = window->GetWidth();
     pipelineState.frameBufferInfo.DepthHeight = window->GetHeight();
+    pipelineState.frameBufferInfo.DepthAttachment = FramebufferTextureFormat::DEPTH24;
+    //pipelineState.frameBufferInfo.DepthAttachment = FramebufferTextureFormat::NONE;
     pipelineState.frameBufferInfo.Samples = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
     pipelineState.frameBufferInfo.SwapChainTarget = false;
-    pipelineState.frameBufferInfo.ColorAttachment = { FramebufferTextureFormat::RGBA8 };
-    pipelineState.frameBufferInfo.DepthAttachment = FramebufferTextureFormat::DEPTH24STENCIL8;
     RegisterPipelineState(pipelineState);
 
     RK_GRAPHICS_INFO("Pipeline State Manager Initialized. Add [{}] Pipelines", m_pipelineStates.size());

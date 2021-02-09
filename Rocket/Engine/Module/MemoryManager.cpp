@@ -83,11 +83,11 @@ void MemoryManager::Tick(Timestep ts)
 
     if (count >= 1000.0f)
     {
-        RK_CORE_TRACE("Memory Manager Info:");
-        for (auto info : m_mapMemoryAllocationInfo)
-        {
-            RK_CORE_TRACE("{}\t{}:{}", info.first, info.second.PageMemoryType, info.second.PageSize);
-        }
+        //RK_CORE_TRACE("Memory Manager Info:");
+        //for (auto info : m_mapMemoryAllocationInfo)
+        //{
+        //    RK_CORE_TRACE("{}\t{}:{}", info.first, info.second.PageMemoryType, info.second.PageSize);
+        //}
         count = 0.0f;
     }
     else

@@ -13,6 +13,7 @@ namespace Rocket
     ENUM(PIPELINE_TYPE) { GRAPHIC, COMPUTE };
     ENUM(PIPELINE_TARGET) { INVALID, PLANAR, SPATIAL };
     ENUM(DEPTH_TEST_MODE) { NONE, LARGE, LARGE_EQUAL, EQUAL, LESS_EQUAL, LESS, NOT_EQUAL, NEVER, ALWAYS };
+    ENUM(BLENDER_MODE) { NONE, ONE_MINUS_SRC_ALPHA };
     ENUM(STENCIL_TEST_MODE) { NONE };
     ENUM(CULL_FACE_MODE) { NONE, FRONT, BACK };
     ENUM(PIXEL_FORMAT) { INVALID, BGRA8UNORM };
@@ -40,6 +41,7 @@ namespace Rocket
 
         DEPTH_TEST_MODE             depthTestMode{DEPTH_TEST_MODE::ALWAYS};
         bool                        depthWriteMode{true};
+        BLENDER_MODE                blenderMode{ BLENDER_MODE::NONE };
         STENCIL_TEST_MODE           stencilTestMode{STENCIL_TEST_MODE::NONE};
         CULL_FACE_MODE              cullFaceMode{CULL_FACE_MODE::BACK};
         PIXEL_FORMAT                pixelFormat{PIXEL_FORMAT::BGRA8UNORM};

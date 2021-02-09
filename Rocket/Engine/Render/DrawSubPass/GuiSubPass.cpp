@@ -29,15 +29,18 @@ void GuiSubPass::Draw(Frame& frame)
         
         {
             ImGui::Begin("Hello, world!");
-            
+
             auto frame_buffer = g_GraphicsManager->GetFrameBuffer("Draw2D Buffer");
-            uint32_t texture_id = frame_buffer->GetColorAttachmentRendererID(0);
-            if(texture_id)
+            if (frame_buffer)
             {
-                auto spec = frame_buffer->GetSpecification();
-                float width = spec.ColorWidth;
-                float height = spec.ColorHeight;
-                ImGui::Image(reinterpret_cast<void*>(texture_id), ImVec2{width, height}, ImVec2{0, 1}, ImVec2{1, 0});
+                uint32_t texture_id = frame_buffer->GetColorAttachmentRendererID(0);
+                if (texture_id)
+                {
+                    auto spec = frame_buffer->GetSpecification();
+                    float width = spec.ColorWidth;
+                    float height = spec.ColorHeight;
+                    ImGui::Image(reinterpret_cast<void*>(texture_id), ImVec2{ width, height }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+                }
             }
             
             ImGui::Text("FPS : %d", m_FPS);
