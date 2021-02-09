@@ -89,6 +89,9 @@ namespace Rocket
 
         Scope<PlanarMesh> mesh = CreateScope<PlanarMesh>("Mesh Component");
         mesh->AddQuad(Vector3f(0, 0, 0), Vector2f(1, 1), Vector4f(1, 0, 0, 1));
+        mesh->AddQuad(Vector3f(1, 0, 0), Vector2f(1, 1), Vector4f(1, 0, 0, 1));
+        mesh->AddQuad(Vector3f(0, 1, 0), Vector2f(1, 1), Vector4f(1, 0, 0, 1));
+        mesh->AddQuad(Vector3f(1, 1, 0), Vector2f(1, 1), Vector4f(1, 0, 0, 1));
 
         scene->SetPrimaryCamera(cam);
         scene->SetPrimaryCameraTransform(Matrix4f::Identity());
