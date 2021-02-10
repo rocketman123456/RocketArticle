@@ -1,9 +1,9 @@
 message(STATUS "Add Thirdparty")
 
 add_library( stb_image stb_image.cpp)
+add_library( glad glad/src/glad.c )
 #add_library( tiny_gltf tiny_gltf.cpp )
 #add_library( tinyobjloader tinyobjloader/tiny_obj_loader.cc )
-add_library( glad glad/src/glad.c )
 
 add_library( imgui
     imgui/imgui.cpp

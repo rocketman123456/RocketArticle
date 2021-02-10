@@ -27,8 +27,8 @@ int GraphicsManager::Initialize()
     for(size_t i = 0; i < m_MaxFrameInFlight; ++i)
     {
         m_uboDrawFrameConstant[i] = nullptr;
-        m_uboLightInfo[i] = nullptr;
         m_uboDrawBatchConstant[i] = nullptr;
+        m_uboLightInfo[i] = nullptr;
         m_uboShadowMatricesConstant[i] = nullptr;
     }
 

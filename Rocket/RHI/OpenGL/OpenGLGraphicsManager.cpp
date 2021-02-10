@@ -136,6 +136,15 @@ int OpenGLGraphicsManager::Initialize()
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, GL_FALSE);
     }
 
+    // Init UBOs
+    for(size_t i = 0; i < m_MaxFrameInFlight; ++i)
+    {
+        m_uboDrawFrameConstant[i] = CreateRef<OpenGLUniformBuffer>(sizeof(PerFrameConstants), DRAW_TYPE::STATIC);;
+        m_uboDrawBatchConstant[i] = CreateRef<OpenGLUniformBuffer>(sizeof(PerBatchConstants), DRAW_TYPE::STATIC);;
+        m_uboLightInfo[i] = nullptr;
+        m_uboShadowMatricesConstant[i] = nullptr;
+    }
+
     // ImGui Init
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -333,10 +342,6 @@ void OpenGLGraphicsManager::BeginFrame(const Frame &frame)
 
 void OpenGLGraphicsManager::SetPerFrameConstants(const DrawFrameContext& context)
 {
-    if (!m_uboDrawFrameConstant[m_nFrameIndex])
-    {
-        m_uboDrawFrameConstant[m_nFrameIndex] = CreateRef<OpenGLUniformBuffer>(sizeof(PerFrameConstants), DRAW_TYPE::STATIC);
-    }
     auto constant = static_cast<PerFrameConstants>(context);
     m_uboDrawFrameConstant[m_nFrameIndex]->SetSubData(&constant, 0, sizeof(PerFrameConstants));
 }

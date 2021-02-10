@@ -77,7 +77,7 @@ int PipelineStateManager::Initialize()
     pipelineState.pipelineTarget = PIPELINE_TARGET::PLANAR;
     pipelineState.vertexShaderName = VS_DRAW2D_SOURCE_FILE;
     pipelineState.pixelShaderName = PS_DRAW2D_SOURCE_FILE;
-    //pipelineState.geometryShaderName = GS_DRAW2D_SOURCE_FILE;
+    pipelineState.geometryShaderName = GS_DRAW2D_SOURCE_FILE;
     pipelineState.bufferLayout.SetLayout({
         { ShaderDataType::Vec3f, "a_Position" },
         { ShaderDataType::Vec4f, "a_Color" },
@@ -94,7 +94,7 @@ int PipelineStateManager::Initialize()
     pipelineState.sampleCount = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
     pipelineState.a2vType = A2V_TYPES::A2V_TYPES_FULL;
     pipelineState.flag = PIPELINE_FLAG::NONE;
-    //pipelineState.renderTarget = RENDER_TARGET::RENDER_FRAMEBUFFER;
+    pipelineState.renderTarget = RENDER_TARGET::RENDER_FRAMEBUFFER;
     pipelineState.renderTargetName = "Draw2D Buffer";
     pipelineState.frameBufferInfo.ColorWidth = window->GetWidth();
     pipelineState.frameBufferInfo.ColorHeight = window->GetHeight();

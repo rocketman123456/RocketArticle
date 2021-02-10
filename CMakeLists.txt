@@ -154,22 +154,22 @@ add_subdirectory( Rocket )
 
 if(PROFILE)
     set( ENGINE_LIBRARY
-        ${Threads_LIBS} crossguid glfw3 glad stb_image imgui openal sndfile spdlog yaml-cpp Remotery
+        ${Threads_LIBS} crossguid glfw3 glad stb_image imgui sndfile spdlog Remotery
         CACHE STRING ""
     )
 else()
     set( ENGINE_LIBRARY
-        ${Threads_LIBS} crossguid glfw3 glad stb_image imgui openal sndfile spdlog yaml-cpp
+        ${Threads_LIBS} crossguid glfw3 glad stb_image imgui sndfile spdlog
         CACHE STRING ""
     )
 endif()
 
 if(Apple)
-    set(ENGINE_PLATFORM_LIBRARY PlatformWindow CACHE STRING "")
+    set(ENGINE_PLATFORM_LIBRARY PlatformWindow openal yaml-cpp CACHE STRING "")
 elseif(Linux)
-    set(ENGINE_PLATFORM_LIBRARY PlatformWindow CACHE STRING "")
+    set(ENGINE_PLATFORM_LIBRARY PlatformWindow openal yaml-cpp CACHE STRING "")
 elseif(Windows)
-    set(ENGINE_PLATFORM_LIBRARY PlatformWindow CACHE STRING "")
+    set(ENGINE_PLATFORM_LIBRARY PlatformWindow OpenAL32 libyaml-cppmd CACHE STRING "")
 endif()
 
 if(OpenGL)
