@@ -206,10 +206,6 @@ void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineS
         std::dynamic_pointer_cast<const OpenGLPipelineState>(m_CurrentPipelineState);
     m_CurrentShader = pPipelineState->shaderProgram;
 
-    // Set the color shader as the current shader program and set the matrices
-    // that it will use for rendering.
-    m_CurrentShader->Bind();
-
     // Set Frame Buffer
     if (pipelineState->renderTarget != RENDER_TARGET::NONE)
     {
@@ -231,10 +227,12 @@ void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineS
 
     if(m_CurrentFrameBuffer)
     {
-        m_CurrentFrameBuffer->Bind();
-        glClearColor(0.2f, 0.3f, 0.2f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        m_CurrentFrameBuffer->Bind(FrameBufferBindMode::DRAW_FRAMEBUFFER);
     }
+
+    // Set the color shader as the current shader program and set the matrices
+    // that it will use for rendering.
+    m_CurrentShader->Bind();
 
     switch (pipelineState->depthTestMode)
     {
@@ -311,9 +309,31 @@ void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineS
     }
 }
 
+void OpenGLGraphicsManager::BeginFrame(const Frame &frame)
+{
+    // Set the color to clear the screen to.
+    glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
+    // Clear the screen and depth buffer.
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    for (auto it = m_FrameBuffers.begin(); it != m_FrameBuffers.end(); ++it)
+    {
+        it->second->Bind(FrameBufferBindMode::FRAMEBUFFER);
+        glClearColor(0.2f, 0.3f, 0.2f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        it->second->Unbind();
+    }
+
+    SetPerFrameConstants(frame.frameContext);
+    SetLightInfo(frame.frameContext);
+
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+}
+
 void OpenGLGraphicsManager::SetPerFrameConstants(const DrawFrameContext& context)
 {
-    if(!m_uboDrawFrameConstant[m_nFrameIndex])
+    if (!m_uboDrawFrameConstant[m_nFrameIndex])
     {
         m_uboDrawFrameConstant[m_nFrameIndex] = CreateRef<OpenGLUniformBuffer>(sizeof(PerFrameConstants), DRAW_TYPE::STATIC);
     }
@@ -323,20 +343,6 @@ void OpenGLGraphicsManager::SetPerFrameConstants(const DrawFrameContext& context
 
 void OpenGLGraphicsManager::SetLightInfo(const DrawFrameContext& context)
 {
-}
-
-void OpenGLGraphicsManager::BeginFrame(const Frame &frame)
-{
-    // Set the color to clear the screen to.
-    glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
-    // Clear the screen and depth buffer.
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    SetPerFrameConstants(frame.frameContext);
-    SetLightInfo(frame.frameContext);
-
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
 }
 
 void OpenGLGraphicsManager::EndFrame(const Frame &frame)
@@ -383,7 +389,6 @@ void OpenGLGraphicsManager::BeginScene(const Scene& scene)
             { ShaderDataType::Vec2f, "a_TexCoord" },
             { ShaderDataType::Float, "a_TexIndex" },
             { ShaderDataType::Float, "a_TilingFactor" },
-            { ShaderDataType::Int, "a_Padding" }
         });
         vbo->SetData(vertex.data() , vertex.size() * sizeof(QuadVertex));
         auto ibo = CreateRef<OpenGLIndexBuffer>(index.data(), index.size());
@@ -424,9 +429,8 @@ void OpenGLGraphicsManager::EndScene()
 
 void OpenGLGraphicsManager::BeginFrameBuffer(const Frame& frame)
 {
-    // Link Uniform Buffer
-    uint32_t shader_id = m_CurrentShader->GetRenderId();
     // Set PerFrameConstants
+    uint32_t shader_id = m_CurrentShader->GetRenderId();
     uint32_t frame_block_index = glGetUniformBlockIndex(shader_id, "PerFrameConstants");
     if(frame_block_index != GL_INVALID_INDEX)
     {
@@ -434,7 +438,7 @@ void OpenGLGraphicsManager::BeginFrameBuffer(const Frame& frame)
         glGetActiveUniformBlockiv(shader_id, frame_block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
         //RK_CORE_INFO("Size of PerFrameConstants {}", sizeof(PerFrameConstants));
         assert(blockSize >= sizeof(PerFrameConstants));
-        m_uboDrawFrameConstant[m_nFrameIndex]->BindShader(shader_id, frame_block_index, 1);
+        m_uboDrawFrameConstant[m_nFrameIndex]->BindShader(shader_id, frame_block_index, 0);
     }
 
     // TODO : remove fixed 16
@@ -461,15 +465,15 @@ void OpenGLGraphicsManager::SetPerBatchConstants(const DrawBatchContext &context
     auto constant = static_cast<PerBatchConstants>(context);
     m_uboDrawBatchConstant[m_nFrameIndex]->SetSubData(&constant, 0, sizeof(PerBatchConstants));
     
+    // Set PerBatchConstants
     uint32_t shader_id = m_CurrentShader->GetRenderId();
     uint32_t frame_block_index = glGetUniformBlockIndex(shader_id, "PerBatchConstants");
-    // Set PerBatchConstants
     if(frame_block_index != GL_INVALID_INDEX)
     {
         int32_t blockSize;
         glGetActiveUniformBlockiv(shader_id, frame_block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
         assert(blockSize >= sizeof(PerBatchConstants));
-        m_uboDrawBatchConstant[m_nFrameIndex]->BindShader(shader_id, frame_block_index, 8);
+        m_uboDrawBatchConstant[m_nFrameIndex]->BindShader(shader_id, frame_block_index, 1);
     }
 }
 
@@ -490,11 +494,6 @@ void OpenGLGraphicsManager::DrawBatch(const Frame &frame)
         uint32_t count = dbc.VAO->GetIndexBuffer()->GetCount();
         dbc.VAO->Bind();
         glDrawElements(dbc.Mode, count, dbc.Type, nullptr);
-
-        for (GLenum err; (err = glGetError()) != GL_NO_ERROR;)
-        {
-            RK_GRAPHICS_ERROR("OpenGL Error {}", err);
-        }
     }
 
     EndFrameBuffer(frame);
@@ -553,10 +552,6 @@ void OpenGLGraphicsManager::SwapBuffers()
 bool OpenGLGraphicsManager::Resize(int32_t width, int32_t height)
 {
     glViewport(0, 0, width, height);
-    //for(auto it : m_FrameBuffers)
-    //{
-    //    it.second->Resize(width, height);
-    //}
     return false;
 }
 

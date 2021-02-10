@@ -76,8 +76,8 @@ find_package(Bullet CONFIG REQUIRED)
 find_package(OpenAL CONFIG REQUIRED)
 find_package(SndFile CONFIG REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
-find_package(glm CONFIG REQUIRED)
-find_package(spdlog CONFIG REQUIRED)
+#find_package(glm CONFIG REQUIRED)
+#find_package(spdlog CONFIG REQUIRED)
 #find_package(unofficial-box2d CONFIG REQUIRED)
 #find_package(glslang CONFIG REQUIRED)
 if(Vulkan)
@@ -102,10 +102,13 @@ message(STATUS "###################################")
 include_directories(
     ${PROJECT_SOURCE_DIR}/Thirdparty/stb
     ${PROJECT_SOURCE_DIR}/Thirdparty/imgui
+    ${PROJECT_SOURCE_DIR}/Thirdparty/glm
     ${PROJECT_SOURCE_DIR}/Thirdparty/tinyobjloader
     ${PROJECT_SOURCE_DIR}/Thirdparty/tinygltf
     ${PROJECT_SOURCE_DIR}/Thirdparty/crossguid/include
     ${PROJECT_SOURCE_DIR}/Thirdparty/glad/include
+    #${PROJECT_SOURCE_DIR}/Thirdparty/yaml-cpp/include
+    ${PROJECT_SOURCE_DIR}/Thirdparty/spdlog/include
     ${EIGEN3_INCLUDE_DIRS}
     ${BULLET_INCLUDE_DIRS}
     ${OPENAL_INCLUDE_DIRS}
@@ -135,21 +138,19 @@ add_subdirectory( Rocket )
 if(PROFILE)
     set( ENGINE_LIBRARY
         ${Threads_LIBS}
-        glfw yaml-cpp glm 
+        glfw yaml-cpp imgui stb_image crossguid glad Remotery
         Eigen3::Eigen EnTT::EnTT
         spdlog::spdlog spdlog::spdlog_header_only
         OpenAL::OpenAL SndFile::sndfile
-        imgui stb_image crossguid glad Remotery
         CACHE STRING ""
     )
 else()
     set( ENGINE_LIBRARY
         ${Threads_LIBS}
-        glfw yaml-cpp glm 
+        glfw yaml-cpp imgui stb_image crossguid glad
         Eigen3::Eigen EnTT::EnTT
         spdlog::spdlog spdlog::spdlog_header_only
         OpenAL::OpenAL SndFile::sndfile
-        imgui stb_image crossguid glad
         CACHE STRING ""
     )
 endif()

@@ -31,4 +31,5 @@ void main()
 		case 15: texColor *= texture(u_Textures[15], v_TexCoord * v_TilingFactor); break;
 	}
 	color = texColor;
+	//color = vec4(1.0, 1.0, 0.0, 1.0);
 }

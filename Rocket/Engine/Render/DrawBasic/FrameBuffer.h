@@ -3,7 +3,8 @@
 
 namespace Rocket
 {
-	ENUM(FramebufferTextureFormat) { NONE = 0, RGB8, RGBA8, RGBA16, RGB16F, RGBA16F, DEPTH24, DEPTH24STENCIL8 };
+	ENUM(FrameBufferTextureFormat) { NONE = 0, RGB8, RGBA8, RGBA16, RGB16F, RGBA16F, DEPTH24, DEPTH24STENCIL8 };
+	ENUM(FrameBufferBindMode) { FRAMEBUFFER = 0, READ_FRAMEBUFFER, DRAW_FRAMEBUFFER };
 
 	struct FramebufferSpecification
 	{
@@ -15,8 +16,8 @@ namespace Rocket
 
 		bool SwapChainTarget = false;
 
-		Vec<FramebufferTextureFormat> ColorAttachment = {};
-		FramebufferTextureFormat DepthAttachment = FramebufferTextureFormat::NONE;
+		Vec<FrameBufferTextureFormat> ColorAttachment = {};
+		FrameBufferTextureFormat DepthAttachment = FrameBufferTextureFormat::NONE;
 	};
 
 	Interface FrameBuffer
@@ -24,7 +25,7 @@ namespace Rocket
 	public:
 		virtual ~FrameBuffer() = default;
 
-		virtual void Bind() = 0;
+		virtual void Bind(FrameBufferBindMode mode) = 0;
 		virtual void Unbind() = 0;
 
 		virtual void Resize(uint32_t width, uint32_t height) = 0;

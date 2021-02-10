@@ -11,7 +11,7 @@ namespace Rocket
 
 		void Invalidate();
 
-		void Bind() final;
+		void Bind(FrameBufferBindMode mode) final;
 		void Unbind() final;
 
 		void Resize(uint32_t width, uint32_t height) final;

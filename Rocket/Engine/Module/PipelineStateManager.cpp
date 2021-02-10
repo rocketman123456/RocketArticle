@@ -84,7 +84,6 @@ int PipelineStateManager::Initialize()
         { ShaderDataType::Vec2f, "a_TexCoord" },
         { ShaderDataType::Float, "a_TexIndex" },
         { ShaderDataType::Float, "a_TilingFactor" },
-        { ShaderDataType::Int, "a_Padding" }
     });
     pipelineState.depthTestMode = DEPTH_TEST_MODE::LESS_EQUAL;
     pipelineState.depthWriteMode = true;
@@ -96,16 +95,15 @@ int PipelineStateManager::Initialize()
     pipelineState.a2vType = A2V_TYPES::A2V_TYPES_FULL;
     pipelineState.flag = PIPELINE_FLAG::NONE;
     //pipelineState.renderTarget = RENDER_TARGET::RENDER_FRAMEBUFFER;
-    pipelineState.renderTarget = RENDER_TARGET::NONE;
     pipelineState.renderTargetName = "Draw2D Buffer";
     pipelineState.frameBufferInfo.ColorWidth = window->GetWidth();
     pipelineState.frameBufferInfo.ColorHeight = window->GetHeight();
     pipelineState.frameBufferInfo.ColorAttachment = { 
-        FramebufferTextureFormat::RGBA8
+        FrameBufferTextureFormat::RGBA8
     };
     pipelineState.frameBufferInfo.DepthWidth = window->GetWidth();
     pipelineState.frameBufferInfo.DepthHeight = window->GetHeight();
-    pipelineState.frameBufferInfo.DepthAttachment = FramebufferTextureFormat::DEPTH24;
+    pipelineState.frameBufferInfo.DepthAttachment = FrameBufferTextureFormat::DEPTH24;
     //pipelineState.frameBufferInfo.DepthAttachment = FramebufferTextureFormat::NONE;
     pipelineState.frameBufferInfo.Samples = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
     pipelineState.frameBufferInfo.SwapChainTarget = false;

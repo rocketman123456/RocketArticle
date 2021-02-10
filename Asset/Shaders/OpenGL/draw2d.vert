@@ -4,7 +4,6 @@ layout(location = 1) in vec4 a_Color;
 layout(location = 2) in vec2 a_TexCoord;
 layout(location = 3) in float a_TexIndex;
 layout(location = 4) in float a_TilingFactor;
-layout(location = 5) in int a_Padding;
 
 layout(std140) uniform PerFrameConstants
 {
@@ -12,8 +11,7 @@ layout(std140) uniform PerFrameConstants
     mat4 projectionMatrix;	// 64 bytes
     vec4 camPos;            // 16 bytes
     int  numLights;         // 4 bytes
-	int  padding[3];		// 12 bytes
-} PerFrame;					// total 160 bytes
+} PerFrame;					// total 148 bytes
 
 layout(std140) uniform PerBatchConstants
 {
