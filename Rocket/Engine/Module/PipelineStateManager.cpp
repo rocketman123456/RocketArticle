@@ -77,13 +77,14 @@ int PipelineStateManager::Initialize()
     pipelineState.pipelineTarget = PIPELINE_TARGET::PLANAR;
     pipelineState.vertexShaderName = VS_DRAW2D_SOURCE_FILE;
     pipelineState.pixelShaderName = PS_DRAW2D_SOURCE_FILE;
-    pipelineState.geometryShaderName = GS_DRAW2D_SOURCE_FILE;
+    //pipelineState.geometryShaderName = GS_DRAW2D_SOURCE_FILE;
     pipelineState.bufferLayout.SetLayout({
         { ShaderDataType::Vec3f, "a_Position" },
         { ShaderDataType::Vec4f, "a_Color" },
         { ShaderDataType::Vec2f, "a_TexCoord" },
         { ShaderDataType::Float, "a_TexIndex" },
-        { ShaderDataType::Float, "a_TilingFactor" }
+        { ShaderDataType::Float, "a_TilingFactor" },
+        { ShaderDataType::Int, "a_Padding" }
     });
     pipelineState.depthTestMode = DEPTH_TEST_MODE::LESS_EQUAL;
     pipelineState.depthWriteMode = true;

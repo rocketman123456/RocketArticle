@@ -153,6 +153,7 @@ void GraphicsManager::EndScene()
     m_uboLightInfo.resize(m_MaxFrameInFlight);
     m_uboDrawBatchConstant.resize(m_MaxFrameInFlight);
     m_uboShadowMatricesConstant.resize(m_MaxFrameInFlight);
+    
     for(size_t i = 0; i < m_MaxFrameInFlight; ++i)
     {
         m_uboDrawFrameConstant[i] = nullptr;
@@ -160,6 +161,10 @@ void GraphicsManager::EndScene()
         m_uboDrawBatchConstant[i] = nullptr;
         m_uboShadowMatricesConstant[i] = nullptr;
     }
+
+    m_CurrentScene = nullptr;
+    m_CurrentShader = nullptr;
+    m_CurrentFrameBuffer = nullptr;
 }
 
 void GraphicsManager::BeginFrame(const Frame& frame) 

@@ -229,7 +229,12 @@ void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineS
         m_CurrentFrameBuffer = nullptr;
     }
 
-    BeginFrameBuffer(frame);
+    if(m_CurrentFrameBuffer)
+    {
+        m_CurrentFrameBuffer->Bind();
+        glClearColor(0.2f, 0.3f, 0.2f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
 
     switch (pipelineState->depthTestMode)
     {
@@ -370,14 +375,15 @@ void OpenGLGraphicsManager::BeginScene(const Scene& scene)
         auto vertex = mesh->GetVertex();
         auto index = mesh->GetIndex();
         dbc->VAO = CreateRef<OpenGLVertexArray>();
-        //RK_GRAPHICS_INFO("Size of QuadVertex {}", sizeof(QuadVertex));
+        RK_GRAPHICS_INFO("Size of QuadVertex {}", sizeof(QuadVertex));
         auto vbo = CreateRef<OpenGLVertexBuffer>(vertex.size() * sizeof(QuadVertex));
         vbo->SetLayout({
             { ShaderDataType::Vec3f, "a_Position" },
             { ShaderDataType::Vec4f, "a_Color" },
             { ShaderDataType::Vec2f, "a_TexCoord" },
             { ShaderDataType::Float, "a_TexIndex" },
-            { ShaderDataType::Float, "a_TilingFactor" }
+            { ShaderDataType::Float, "a_TilingFactor" },
+            { ShaderDataType::Int, "a_Padding" }
         });
         vbo->SetData(vertex.data() , vertex.size() * sizeof(QuadVertex));
         auto ibo = CreateRef<OpenGLIndexBuffer>(index.data(), index.size());
@@ -418,17 +424,6 @@ void OpenGLGraphicsManager::EndScene()
 
 void OpenGLGraphicsManager::BeginFrameBuffer(const Frame& frame)
 {
-    if(m_CurrentFrameBuffer)
-    {
-        m_CurrentFrameBuffer->Bind();
-        glClearColor(0.2f, 0.3f, 0.2f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    }
-    else
-    {
-        //glViewport(0, 0, width, height);
-    }
-
     // Link Uniform Buffer
     uint32_t shader_id = m_CurrentShader->GetRenderId();
     // Set PerFrameConstants
@@ -440,9 +435,6 @@ void OpenGLGraphicsManager::BeginFrameBuffer(const Frame& frame)
         //RK_CORE_INFO("Size of PerFrameConstants {}", sizeof(PerFrameConstants));
         assert(blockSize >= sizeof(PerFrameConstants));
         m_uboDrawFrameConstant[m_nFrameIndex]->BindShader(shader_id, frame_block_index, 1);
-        //uint32_t ubo_frame = m_uboDrawFrameConstant[m_nFrameIndex]->GetRenderID();
-        //glUniformBlockBinding(shader_id, frame_block_index, 1);
-        //glBindBufferBase(GL_UNIFORM_BUFFER, 1, ubo_frame);
     }
 
     // TODO : remove fixed 16
@@ -478,19 +470,13 @@ void OpenGLGraphicsManager::SetPerBatchConstants(const DrawBatchContext &context
         glGetActiveUniformBlockiv(shader_id, frame_block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
         assert(blockSize >= sizeof(PerBatchConstants));
         m_uboDrawBatchConstant[m_nFrameIndex]->BindShader(shader_id, frame_block_index, 8);
-        //uint32_t ubo_batch = m_uboDrawBatchConstant[m_nFrameIndex]->GetRenderID();
-        //glUniformBlockBinding(shader_id, frame_block_index, 10);
-        //glBindBufferBase(GL_UNIFORM_BUFFER, 10, ubo_batch);
     }
 }
 
 void OpenGLGraphicsManager::DrawBatch(const Frame &frame)
 {
-    //for (GLenum err; (err = glGetError()) != GL_NO_ERROR;)
-    //{
-    //    RK_GRAPHICS_ERROR("OpenGL Error {}", err);
-    //}
-
+    BeginFrameBuffer(frame);
+    
     for(auto& pDbc : frame.batchContexts)
     {
         SetPerBatchConstants(*pDbc);
@@ -504,12 +490,12 @@ void OpenGLGraphicsManager::DrawBatch(const Frame &frame)
         uint32_t count = dbc.VAO->GetIndexBuffer()->GetCount();
         dbc.VAO->Bind();
         glDrawElements(dbc.Mode, count, dbc.Type, nullptr);
-    }
 
-    //for (GLenum err; (err = glGetError()) != GL_NO_ERROR;)
-    //{
-    //    RK_GRAPHICS_ERROR("OpenGL Error {}", err);
-    //}
+        for (GLenum err; (err = glGetError()) != GL_NO_ERROR;)
+        {
+            RK_GRAPHICS_ERROR("OpenGL Error {}", err);
+        }
+    }
 
     EndFrameBuffer(frame);
 }
