@@ -154,23 +154,32 @@ add_subdirectory( Rocket )
 
 if(PROFILE)
     set( ENGINE_LIBRARY
-        ${Threads_LIBS} crossguid glfw3 glad stb_image imgui sndfile spdlog Remotery
-        CACHE STRING ""
+        ${Threads_LIBS} glfw3 glad stb_image imgui sndfile tinyobjloader Remotery CACHE STRING ""
     )
 else()
     set( ENGINE_LIBRARY
-        ${Threads_LIBS} crossguid glfw3 glad stb_image imgui sndfile spdlog
-        CACHE STRING ""
+        ${Threads_LIBS}  glfw3 glad stb_image imgui sndfile tinyobjloader CACHE STRING ""
     )
 endif()
 
-if(Apple)
-    set(ENGINE_PLATFORM_LIBRARY PlatformWindow openal yaml-cpp CACHE STRING "")
-elseif(Linux)
-    set(ENGINE_PLATFORM_LIBRARY PlatformWindow openal yaml-cpp CACHE STRING "")
-elseif(Windows)
-    set(ENGINE_PLATFORM_LIBRARY PlatformWindow OpenAL32 libyaml-cppmd CACHE STRING "")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if(Apple)
+        set(ENGINE_PLATFORM_LIBRARY PlatformWindow spdlog crossguid openal yaml-cpp CACHE STRING "")
+    elseif(Linux)
+        set(ENGINE_PLATFORM_LIBRARY PlatformWindow spdlog crossguid openal yaml-cpp CACHE STRING "")
+    elseif(Windows)
+        set(ENGINE_PLATFORM_LIBRARY PlatformWindow spdlogd crossguid-dgb OpenAL32 libyaml-cppmdd CACHE STRING "")
+    endif()
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+    if(Apple)
+        set(ENGINE_PLATFORM_LIBRARY PlatformWindow spdlog crossguid openal yaml-cpp CACHE STRING "")
+    elseif(Linux)
+        set(ENGINE_PLATFORM_LIBRARY PlatformWindow spdlog crossguid openal yaml-cpp CACHE STRING "")
+    elseif(Windows)
+        set(ENGINE_PLATFORM_LIBRARY PlatformWindow spdlog crossguid OpenAL32 libyaml-cppmd CACHE STRING "")
+    endif()
 endif()
+
 
 if(OpenGL)
     set(ENGINE_RENDER_LIBRARY RendererOpenGL CACHE STRING "")
