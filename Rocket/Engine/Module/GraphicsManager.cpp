@@ -143,24 +143,24 @@ void GraphicsManager::EndScene()
     }
 
     // Clear Buffers
-    m_uboDrawFrameConstant.clear();
-    m_uboLightInfo.clear();
-    m_uboDrawBatchConstant.clear();
-    m_uboShadowMatricesConstant.clear();
+    //m_uboDrawFrameConstant.clear();
+    //m_uboLightInfo.clear();
+    //m_uboDrawBatchConstant.clear();
+    //m_uboShadowMatricesConstant.clear();
 
     // Regenerate Buffers
-    m_uboDrawFrameConstant.resize(m_MaxFrameInFlight);
-    m_uboLightInfo.resize(m_MaxFrameInFlight);
-    m_uboDrawBatchConstant.resize(m_MaxFrameInFlight);
-    m_uboShadowMatricesConstant.resize(m_MaxFrameInFlight);
+    //m_uboDrawFrameConstant.resize(m_MaxFrameInFlight);
+    //m_uboLightInfo.resize(m_MaxFrameInFlight);
+    //m_uboDrawBatchConstant.resize(m_MaxFrameInFlight);
+    //m_uboShadowMatricesConstant.resize(m_MaxFrameInFlight);
     
-    for(size_t i = 0; i < m_MaxFrameInFlight; ++i)
-    {
-        m_uboDrawFrameConstant[i] = nullptr;
-        m_uboLightInfo[i] = nullptr;
-        m_uboDrawBatchConstant[i] = nullptr;
-        m_uboShadowMatricesConstant[i] = nullptr;
-    }
+    //for(size_t i = 0; i < m_MaxFrameInFlight; ++i)
+    //{
+    //    m_uboDrawFrameConstant[i] = nullptr;
+    //    m_uboLightInfo[i] = nullptr;
+    //    m_uboDrawBatchConstant[i] = nullptr;
+    //    m_uboShadowMatricesConstant[i] = nullptr;
+    //}
 
     m_CurrentScene = nullptr;
     m_CurrentShader = nullptr;

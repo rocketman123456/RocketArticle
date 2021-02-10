@@ -463,10 +463,6 @@ void OpenGLGraphicsManager::EndFrameBuffer(const Frame& frame)
 
 void OpenGLGraphicsManager::SetPerBatchConstants(const DrawBatchContext &context)
 {
-    if(!m_uboDrawBatchConstant[m_nFrameIndex])
-    {
-        m_uboDrawBatchConstant[m_nFrameIndex] = CreateRef<OpenGLUniformBuffer>(sizeof(PerBatchConstants), DRAW_TYPE::STATIC);
-    }
     auto constant = static_cast<PerBatchConstants>(context);
     m_uboDrawBatchConstant[m_nFrameIndex]->SetSubData(&constant, 0, sizeof(PerBatchConstants));
     
