@@ -43,6 +43,6 @@ add_library( RocketEngine
     Utils/Timer.cpp
     Utils/Variant.cpp
 )
-target_link_libraries( RocketEngine PRIVATE
-    spdlog::spdlog_header_only
-)
+#target_link_libraries( RocketEngine PRIVATE
+#    spdlog::spdlog_header_only
+#)

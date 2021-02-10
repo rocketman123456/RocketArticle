@@ -14,6 +14,14 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17)
 
+if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+    set(CMAKE_TOOLCHAIN_FILE /home/developer/Program/vcpkg/scripts/buildsystems/vcpkg.cmake CACHE STRING "Vcpkg toolchain file")
+elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
+    set(CMAKE_TOOLCHAIN_FILE C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake CACHE STRING "Vcpkg toolchain file")
+elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+    set(CMAKE_TOOLCHAIN_FILE /Users/developer/Program/vcpkg/scripts/buildsystems/vcpkg.cmake CACHE STRING "Vcpkg toolchain file")
+endif ()
+
 project( Rocket )
 #### Project Language Config ########################
 
@@ -76,8 +84,8 @@ find_package(Bullet CONFIG REQUIRED)
 find_package(OpenAL CONFIG REQUIRED)
 find_package(SndFile CONFIG REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
-#find_package(glm CONFIG REQUIRED)
 #find_package(spdlog CONFIG REQUIRED)
+#find_package(glm CONFIG REQUIRED)
 #find_package(unofficial-box2d CONFIG REQUIRED)
 #find_package(glslang CONFIG REQUIRED)
 if(Vulkan)
@@ -113,6 +121,10 @@ include_directories(
     ${BULLET_INCLUDE_DIRS}
     ${OPENAL_INCLUDE_DIRS}
     ${SNDFILE_INCLUDE_DIRS}
+    #${SPDLOG_INCLUDE_DIRS}
+    ${YAML_CPP_INCLUDE_DIRS}
+    ${GLFW_INCLUDE_DIRS}
+    ${ENTT_INCLUDE_DIRS}
 )
 include_directories(
     ${PROJECT_SOURCE_DIR}/Rocket/Engine
@@ -139,18 +151,16 @@ if(PROFILE)
     set( ENGINE_LIBRARY
         ${Threads_LIBS}
         glfw yaml-cpp imgui stb_image crossguid glad Remotery
-        Eigen3::Eigen EnTT::EnTT
+        Eigen3::Eigen EnTT::EnTT OpenAL::OpenAL SndFile::sndfile
         spdlog::spdlog spdlog::spdlog_header_only
-        OpenAL::OpenAL SndFile::sndfile
         CACHE STRING ""
     )
 else()
     set( ENGINE_LIBRARY
         ${Threads_LIBS}
         glfw yaml-cpp imgui stb_image crossguid glad
-        Eigen3::Eigen EnTT::EnTT
+        Eigen3::Eigen EnTT::EnTT OpenAL::OpenAL SndFile::sndfile
         spdlog::spdlog spdlog::spdlog_header_only
-        OpenAL::OpenAL SndFile::sndfile
         CACHE STRING ""
     )
 endif()
