@@ -78,12 +78,12 @@ endif()
 #### Project Packages ###############################
 find_package(Threads REQUIRED)
 #find_package(yaml-cpp CONFIG REQUIRED)
-find_package(glfw3 CONFIG REQUIRED)
-find_package(Eigen3 CONFIG REQUIRED)
-find_package(Bullet CONFIG REQUIRED)
-find_package(OpenAL CONFIG REQUIRED)
-find_package(SndFile CONFIG REQUIRED)
-find_package(EnTT CONFIG REQUIRED)
+#find_package(glfw3 CONFIG REQUIRED)
+#find_package(Eigen3 CONFIG REQUIRED)
+#find_package(Bullet CONFIG REQUIRED)
+#find_package(OpenAL CONFIG REQUIRED)
+#find_package(SndFile CONFIG REQUIRED)
+#find_package(EnTT CONFIG REQUIRED)
 #find_package(spdlog CONFIG REQUIRED)
 #find_package(glm CONFIG REQUIRED)
 #find_package(unofficial-box2d CONFIG REQUIRED)
@@ -108,23 +108,25 @@ message(STATUS "###################################")
 
 #### Project Includes ###############################
 include_directories(
+    ${PROJECT_SOURCE_DIR}/External/${CMAKE_SYSTEM_NAME}/include
+    ${PROJECT_SOURCE_DIR}/External/${CMAKE_SYSTEM_NAME}/include/eigen3
     ${PROJECT_SOURCE_DIR}/Thirdparty/stb
     ${PROJECT_SOURCE_DIR}/Thirdparty/imgui
-    ${PROJECT_SOURCE_DIR}/Thirdparty/glm
-    ${PROJECT_SOURCE_DIR}/Thirdparty/tinyobjloader
-    ${PROJECT_SOURCE_DIR}/Thirdparty/tinygltf
-    ${PROJECT_SOURCE_DIR}/Thirdparty/crossguid/include
+    #${PROJECT_SOURCE_DIR}/Thirdparty/glm
+    #${PROJECT_SOURCE_DIR}/Thirdparty/tinyobjloader
+    #${PROJECT_SOURCE_DIR}/Thirdparty/tinygltf
+    #${PROJECT_SOURCE_DIR}/Thirdparty/crossguid/include
     ${PROJECT_SOURCE_DIR}/Thirdparty/glad/include
-    ${PROJECT_SOURCE_DIR}/Thirdparty/yaml-cpp/include
-    ${PROJECT_SOURCE_DIR}/Thirdparty/spdlog/include
-    ${EIGEN3_INCLUDE_DIRS}
-    ${BULLET_INCLUDE_DIRS}
-    ${OPENAL_INCLUDE_DIRS}
-    ${SNDFILE_INCLUDE_DIRS}
+    #${PROJECT_SOURCE_DIR}/Thirdparty/yaml-cpp/include
+    #${PROJECT_SOURCE_DIR}/Thirdparty/spdlog/include
+    #${EIGEN3_INCLUDE_DIRS}
+    #${BULLET_INCLUDE_DIRS}
+    #${OPENAL_INCLUDE_DIRS}
+    #${SNDFILE_INCLUDE_DIRS}
     #${SPDLOG_INCLUDE_DIRS}
     #${YAML_CPP_INCLUDE_DIRS}
-    ${GLFW_INCLUDE_DIRS}
-    ${ENTT_INCLUDE_DIRS}
+    #${GLFW_INCLUDE_DIRS}
+    #${ENTT_INCLUDE_DIRS}
 )
 include_directories(
     ${PROJECT_SOURCE_DIR}/Rocket/Engine
@@ -141,6 +143,9 @@ if(PROFILE)
         ${PROJECT_SOURCE_DIR}/Thirdparty/Remotery/lib
     )
 endif()
+link_directories(
+    ${PROJECT_SOURCE_DIR}/External/${CMAKE_SYSTEM_NAME}/lib
+)
 #### Project Includes ###############################
 
 #### Project Sources ################################
@@ -149,18 +154,12 @@ add_subdirectory( Rocket )
 
 if(PROFILE)
     set( ENGINE_LIBRARY
-        ${Threads_LIBS}
-        glfw yaml-cpp imgui stb_image crossguid glad Remotery
-        Eigen3::Eigen EnTT::EnTT OpenAL::OpenAL SndFile::sndfile
-        spdlog::spdlog spdlog::spdlog_header_only
+        ${Threads_LIBS} crossguid glfw3 glad stb_image imgui openal sndfile spdlog yaml-cpp Remotery
         CACHE STRING ""
     )
 else()
     set( ENGINE_LIBRARY
-        ${Threads_LIBS}
-        glfw yaml-cpp imgui stb_image crossguid glad
-        Eigen3::Eigen EnTT::EnTT OpenAL::OpenAL SndFile::sndfile
-        spdlog::spdlog spdlog::spdlog_header_only
+        ${Threads_LIBS} crossguid glfw3 glad stb_image imgui openal sndfile spdlog yaml-cpp
         CACHE STRING ""
     )
 endif()
