@@ -77,7 +77,7 @@ endif()
 
 #### Project Packages ###############################
 find_package(Threads REQUIRED)
-find_package(yaml-cpp CONFIG REQUIRED)
+#find_package(yaml-cpp CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(Eigen3 CONFIG REQUIRED)
 find_package(Bullet CONFIG REQUIRED)
@@ -115,14 +115,14 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/Thirdparty/tinygltf
     ${PROJECT_SOURCE_DIR}/Thirdparty/crossguid/include
     ${PROJECT_SOURCE_DIR}/Thirdparty/glad/include
-    #${PROJECT_SOURCE_DIR}/Thirdparty/yaml-cpp/include
+    ${PROJECT_SOURCE_DIR}/Thirdparty/yaml-cpp/include
     ${PROJECT_SOURCE_DIR}/Thirdparty/spdlog/include
     ${EIGEN3_INCLUDE_DIRS}
     ${BULLET_INCLUDE_DIRS}
     ${OPENAL_INCLUDE_DIRS}
     ${SNDFILE_INCLUDE_DIRS}
     #${SPDLOG_INCLUDE_DIRS}
-    ${YAML_CPP_INCLUDE_DIRS}
+    #${YAML_CPP_INCLUDE_DIRS}
     ${GLFW_INCLUDE_DIRS}
     ${ENTT_INCLUDE_DIRS}
 )

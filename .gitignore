@@ -36,6 +36,8 @@ out/
 build/
 .vs/
 .VSCodeCounter/
+External/
+Thirdparty/build/
 Rocket/GEEngine/RKConfig.h
 imgui.ini
 *.DS_Store

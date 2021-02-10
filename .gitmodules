@@ -64,3 +64,6 @@
 [submodule "Thirdparty/stb"]
 	path = Thirdparty/stb
 	url = https://github.com/nothings/stb.git
+[submodule "Thirdparty/entt"]
+	path = Thirdparty/entt
+	url = https://github.com/skypjack/entt.git

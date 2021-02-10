@@ -50,6 +50,6 @@ endif()
 target_compile_options(crossguid PRIVATE ${WARNINGS})
 
 #add_subdirectory( taskflow )
-add_subdirectory( spdlog )
+#add_subdirectory( spdlog )
 #add_subdirectory( yaml-cpp )
 #add_subdirectory( FiberTaskingLib )
