@@ -275,7 +275,6 @@ void OpenGLGraphicsManager::BeginScene(const Scene& scene)
 
         // TODO : use real model matrix
         dbc->modelMatrix = Matrix4f::Identity();
-
         // TODO : set draw element type and mode
         //  mode = GL_POINTS;
         //  mode = GL_LINES;
@@ -340,12 +339,15 @@ void OpenGLGraphicsManager::SetLightInfo(const DrawFrameContext& context)
 void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineState, const Frame &frame)
 {
     m_CurrentPipelineState = pipelineState;
-    const Ref<const OpenGLPipelineState> pPipelineState =
-        std::dynamic_pointer_cast<const OpenGLPipelineState>(m_CurrentPipelineState);
+    const Ref<const OpenGLPipelineState> pPipelineState = std::dynamic_pointer_cast<const OpenGLPipelineState>(m_CurrentPipelineState);
     m_CurrentShader = pPipelineState->shaderProgram;
 
     // Set Frame Buffer
-    if (pipelineState->renderTarget != RENDER_TARGET::NONE)
+    if (pipelineState->renderTarget == RENDER_TARGET::NONE)
+    {
+        m_CurrentFrameBuffer = nullptr;
+    }
+    else
     {
         auto it = m_FrameBuffers.find(pipelineState->renderTargetName);
         if (it == m_FrameBuffers.end())
@@ -358,16 +360,11 @@ void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineS
             m_CurrentFrameBuffer = it->second;
         }
     }
-    else
-    {
-        m_CurrentFrameBuffer = nullptr;
-    }
 
     if(m_CurrentFrameBuffer)
     {
         m_CurrentFrameBuffer->Bind(FrameBufferBindMode::FRAMEBUFFER);
     }
-    //glfwMakeContextCurrent(m_WindowHandle);
 
     // Set the color shader
     m_CurrentShader->Bind();
@@ -402,6 +399,7 @@ void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineS
         samplers[i] = i;
     m_CurrentShader->SetInt32Array("u_Textures", samplers, 16);
 
+    // Set OpenGL State
     switch (pipelineState->depthTestMode)
     {
     case DEPTH_TEST_MODE::NONE:
@@ -477,14 +475,14 @@ void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineS
     }
 }
 
+void OpenGLGraphicsManager::BeginFrameBuffer(const Frame& frame)
+{
+}
+
 void OpenGLGraphicsManager::SetPerBatchConstants(const DrawBatchContext &context)
 {
     auto constant = static_cast<PerBatchConstants>(context);
     m_uboDrawBatchConstant[m_nFrameIndex]->SetSubData(&constant, 0, sizeof(PerBatchConstants));
-}
-
-void OpenGLGraphicsManager::BeginFrameBuffer(const Frame& frame)
-{
 }
 
 void OpenGLGraphicsManager::DrawBatch(const Frame &frame)
