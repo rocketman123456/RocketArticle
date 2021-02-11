@@ -494,13 +494,15 @@ void OpenGLGraphicsManager::DrawBatch(const Frame &frame)
         SetPerBatchConstants(*pDbc);
         const auto& dbc = dynamic_cast<const OpenGLDrawBatchContext&>(*pDbc);
 
+        dbc.VAO->Bind();
+
         for(int i = 0; i < dbc.MaxTextures; ++i)
         {
             (*dbc.Textures)[i]->Bind(i);
         }
 
-        dbc.VAO->Bind();
         glDrawElements(dbc.Mode, dbc.Count, dbc.Type, nullptr);
+        //glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     EndFrameBuffer(frame);

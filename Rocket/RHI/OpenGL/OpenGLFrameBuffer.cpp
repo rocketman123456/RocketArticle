@@ -117,6 +117,10 @@ void OpenGLFrameBuffer::Invalidate()
 		{
 			glDrawBuffers(m_ColorSpecifications.size(), m_ColorSpecifications.data());
 		}
+		else
+		{
+			glDrawBuffer(GL_NONE);
+		}
 	}
 
 	if(m_Specification.DepthAttachment != FrameBufferTextureFormat::NONE)

@@ -20,6 +20,7 @@ namespace Rocket
     ENUM(PIPELINE_FLAG) { NONE, SHADOW, DEBUG_DRAW };
     ENUM(A2V_TYPES) { A2V_TYPES_NONE, A2V_TYPES_FULL, A2V_TYPES_SIMPLE, A2V_TYPES_POS_ONLY, A2V_TYPES_CUBE };
     ENUM(RENDER_TARGET) { NONE, RENDER_FRAMEBUFFER };
+    ENUM(RENDER_TYPE) { STATIC, DYNAMIC };
 
     struct PipelineState
     {
@@ -50,6 +51,7 @@ namespace Rocket
         A2V_TYPES                   a2vType{A2V_TYPES::A2V_TYPES_NONE};
         PIPELINE_FLAG               flag;
 
+        RENDER_TYPE                 renderType{RENDER_TYPE::STATIC};
         RENDER_TARGET               renderTarget{RENDER_TARGET::NONE};
         String                      renderTargetName;
         FramebufferSpecification    frameBufferInfo;

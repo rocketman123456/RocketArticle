@@ -29,6 +29,7 @@ void GuiSubPass::Draw(Frame& frame)
         
         {
             ImGui::Begin("Hello, world!");
+            ImGui::Text("FPS : %d", m_FPS);
 
             auto frame_buffer = g_GraphicsManager->GetFrameBuffer("Draw2D Buffer");
             if (frame_buffer)
@@ -43,7 +44,6 @@ void GuiSubPass::Draw(Frame& frame)
                 }
             }
             
-            ImGui::Text("FPS : %d", m_FPS);
             ImGui::End();
         }
 
