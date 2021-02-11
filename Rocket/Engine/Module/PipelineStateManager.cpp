@@ -104,7 +104,6 @@ int PipelineStateManager::Initialize()
     pipelineState.frameBufferInfo.DepthWidth = window->GetWidth();
     pipelineState.frameBufferInfo.DepthHeight = window->GetHeight();
     pipelineState.frameBufferInfo.DepthAttachment = FrameBufferTextureFormat::DEPTH24;
-    //pipelineState.frameBufferInfo.DepthAttachment = FramebufferTextureFormat::NONE;
     pipelineState.frameBufferInfo.Samples = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
     pipelineState.frameBufferInfo.SwapChainTarget = false;
     RegisterPipelineState(pipelineState);

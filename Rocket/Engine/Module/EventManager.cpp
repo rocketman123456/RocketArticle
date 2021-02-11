@@ -62,14 +62,16 @@ void EventManager::SetupCallback()
         //RK_EVENT_TRACE("glfwSetFramebufferSizeCallback");
 		WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
-        EventVarPtr ptr = Ref<Variant>(new Variant[3], [](Variant* v){ delete[]v; });
+        EventVarPtr ptr = Ref<Variant>(new Variant[4], [](Variant* v){ delete[]v; });
         ptr.get()[0].type = Variant::TYPE_STRING_ID;
         ptr.get()[0].m_asStringId = EventHashTable::HashString("window_resize");
         ptr.get()[1].type = Variant::TYPE_INT32;
         ptr.get()[1].m_asInt32 = width;
         ptr.get()[2].type = Variant::TYPE_INT32;
         ptr.get()[2].m_asInt32 = height;
-        EventPtr event = CreateRef<Event>(ptr, 3);
+        ptr.get()[3].type = Variant::TYPE_INT32;
+        ptr.get()[3].m_asInt32 = 0;
+        EventPtr event = CreateRef<Event>(ptr, 4);
 
 		data.EventCallback(event);
 	});

@@ -16,7 +16,7 @@ namespace Rocket
 
 		void* GetNativeWindow() const final { return m_Window; }
 	private:
-        WindowProps m_Props;
+        //WindowProps m_Props;
 		GLFWwindow* m_Window;
 	};
 }

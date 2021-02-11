@@ -22,8 +22,8 @@ namespace Rocket
 		const FramebufferSpecification& GetSpecification() const final { return m_Specification; }
 	private:
 		uint32_t m_RendererID = 0;
-		Vec<uint32_t> m_ColorSpecifications;
-		Vec<uint32_t> m_ColorAttachments = {0};
+		Vec<uint32_t> m_ColorSpecifications = {};
+		Vec<uint32_t> m_ColorAttachments = {};
 		uint32_t m_DepthAttachment = 0;
 		FramebufferSpecification m_Specification;
 	};

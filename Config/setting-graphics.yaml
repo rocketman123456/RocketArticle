@@ -1,6 +1,6 @@
 window_title: Rocket-Engine
-window_width: 1280
-window_height: 720
+window_width: 1600
+window_height: 900
 max_frame_in_flight: 2
 shadow_map_width: 512
 shadow_map_height: 512

@@ -98,7 +98,38 @@ static void OpenGLMessageCallback(unsigned source, unsigned type, unsigned id,
     }
 }
 
-GraphicsManager * Rocket::GetGraphicsManager() { return new OpenGLGraphicsManager(); }
+static void CheckForGLErrors()
+{
+    GLenum error = glGetError();
+    switch (error) {
+    case GL_NO_ERROR:
+        return;
+        break;
+    case GL_INVALID_ENUM:
+        RK_GRAPHICS_ERROR("Invalid enum!");
+        break;
+    case GL_INVALID_VALUE:
+        RK_GRAPHICS_ERROR("Invalid value!");
+        break;
+    case GL_INVALID_OPERATION:
+        RK_GRAPHICS_ERROR("Invalid operation!");
+        break;
+    case GL_STACK_OVERFLOW:
+        RK_GRAPHICS_ERROR("Stack overflow!");
+        break;
+    case GL_STACK_UNDERFLOW:
+        RK_GRAPHICS_ERROR("Stack underflow!");
+        break;
+    case GL_OUT_OF_MEMORY:
+        RK_GRAPHICS_ERROR("Out Of memory!");
+        break;
+    default:
+        RK_GRAPHICS_ERROR("Unknown error!");
+        break;
+    }
+}
+
+GraphicsManager* Rocket::GetGraphicsManager() { return new OpenGLGraphicsManager(); }
 
 int OpenGLGraphicsManager::Initialize()
 {
@@ -108,7 +139,7 @@ int OpenGLGraphicsManager::Initialize()
     if(ret != 0)
         return ret;
 
-    m_WindowHandle = static_cast<GLFWwindow *>(g_WindowManager->GetNativeWindow());
+    m_WindowHandle = static_cast<GLFWwindow*>(g_WindowManager->GetNativeWindow());
 
     glfwMakeContextCurrent(m_WindowHandle);
     int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
@@ -150,10 +181,10 @@ int OpenGLGraphicsManager::Initialize()
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;        // Enable Gamepad Controls
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;   // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;    // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;       // Enable Docking
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;     // Enable Multi-Viewport / Platform Windows
     //io.ConfigViewportsNoAutoMerge = true;
     //io.ConfigViewportsNoTaskBarIcon = true;
 
@@ -208,6 +239,104 @@ void OpenGLGraphicsManager::Tick(Timestep ts)
     //PROFILE_END_OPENGL();
 }
 
+void OpenGLGraphicsManager::BeginScene(const Scene& scene)
+{
+    GraphicsManager::BeginScene(scene);
+
+    if (!m_CurrentScene)
+    {
+        RK_GRAPHICS_INFO("No Active Scene");
+        return;
+    }
+
+    auto planar_meshes = m_CurrentScene->GetComponents<PlanarMesh>();
+    for (auto mesh : planar_meshes)
+    {
+        auto dbc = CreateRef<OpenGLDrawBatchContext>();
+        auto vertex = mesh->GetVertex();
+        auto index = mesh->GetIndex();
+        dbc->VAO = CreateRef<OpenGLVertexArray>();
+        //RK_GRAPHICS_INFO("Size of QuadVertex {}", sizeof(QuadVertex));
+        auto vbo = CreateRef<OpenGLVertexBuffer>(vertex.size() * sizeof(QuadVertex));
+        vbo->SetLayout({
+            { ShaderDataType::Vec3f, "a_Position" },
+            { ShaderDataType::Vec4f, "a_Color" },
+            { ShaderDataType::Vec2f, "a_TexCoord" },
+            { ShaderDataType::Float, "a_TexIndex" },
+            { ShaderDataType::Float, "a_TilingFactor" },
+            });
+        vbo->SetData(vertex.data(), vertex.size() * sizeof(QuadVertex));
+        auto ibo = CreateRef<OpenGLIndexBuffer>(index.data(), index.size());
+        dbc->VAO->AddVertexBuffer(vbo);
+        dbc->VAO->SetIndexBuffer(ibo);
+        dbc->Count = ibo->GetCount();
+        dbc->Textures = &(mesh->GetTexture());
+        dbc->MaxTextures = mesh->GetTextureCount();
+
+        // TODO : use real model matrix
+        dbc->modelMatrix = Matrix4f::Identity();
+
+        // TODO : set draw element type and mode
+        //  mode = GL_POINTS;
+        //  mode = GL_LINES;
+        //  mode = GL_LINE_STRIP;
+        //  mode = GL_TRIANGLES;
+        //  mode = GL_TRIANGLE_STRIP;
+        //  mode = GL_TRIANGLE_FAN;
+        dbc->Mode = GL_TRIANGLES;
+        //  type = GL_UNSIGNED_BYTE;
+        //  type = GL_UNSIGNED_SHORT;
+        //  type = GL_UNSIGNED_INT;
+        dbc->Type = GL_UNSIGNED_INT;
+
+        for (int32_t n = 0; n < m_MaxFrameInFlight; n++)
+        {
+            m_Frames[n].batchContexts.push_back(dbc);
+        }
+    }
+}
+
+void OpenGLGraphicsManager::EndScene()
+{
+    GraphicsManager::EndScene();
+}
+
+void OpenGLGraphicsManager::BeginFrame(const Frame& frame)
+{
+    // Set the color to clear the screen to.
+    glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
+    // Clear the screen and depth buffer.
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    // clear frame buffers
+    for (auto it = m_FrameBuffers.begin(); it != m_FrameBuffers.end(); ++it)
+    {
+        it->second->Bind(FrameBufferBindMode::FRAMEBUFFER);
+        glClearColor(0.2f, 0.3f, 0.2f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        it->second->Unbind();
+    }
+
+    SetPerFrameConstants(frame.frameContext);
+    SetLightInfo(frame.frameContext);
+
+    // TODO : move this function into standard pipeline
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+}
+
+void OpenGLGraphicsManager::SetPerFrameConstants(const DrawFrameContext& context)
+{
+    auto constant = static_cast<PerFrameConstants>(context);
+    m_uboDrawFrameConstant[m_nFrameIndex]->SetSubData(&constant, 0, sizeof(PerFrameConstants));
+}
+
+void OpenGLGraphicsManager::SetLightInfo(const DrawFrameContext& context)
+{
+    //auto constant = static_cast<PerFrameConstants>(context);
+    //m_uboLightInfo[m_nFrameIndex]->SetSubData(&constant, 0, sizeof(LightInfo));
+}
+
 void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineState, const Frame &frame)
 {
     m_CurrentPipelineState = pipelineState;
@@ -236,12 +365,42 @@ void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineS
 
     if(m_CurrentFrameBuffer)
     {
-        m_CurrentFrameBuffer->Bind(FrameBufferBindMode::DRAW_FRAMEBUFFER);
+        m_CurrentFrameBuffer->Bind(FrameBufferBindMode::FRAMEBUFFER);
+    }
+    //glfwMakeContextCurrent(m_WindowHandle);
+
+    // Set the color shader
+    m_CurrentShader->Bind();
+
+    // Bind PerFrameConstants
+    uint32_t shader_id = m_CurrentShader->GetRenderId();
+    uint32_t frame_block_index = glGetUniformBlockIndex(shader_id, "PerFrameConstants");
+    if (frame_block_index != GL_INVALID_INDEX)
+    {
+        int32_t blockSize;
+        glGetActiveUniformBlockiv(shader_id, frame_block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
+        //RK_CORE_INFO("Size of PerFrameConstants {}", sizeof(PerFrameConstants));
+        assert(blockSize >= sizeof(PerFrameConstants));
+        m_uboDrawFrameConstant[m_nFrameIndex]->BindShader(shader_id, frame_block_index, 0);
     }
 
-    // Set the color shader as the current shader program and set the matrices
-    // that it will use for rendering.
-    m_CurrentShader->Bind();
+    // Bind PerBatchConstants
+    shader_id = m_CurrentShader->GetRenderId();
+    frame_block_index = glGetUniformBlockIndex(shader_id, "PerBatchConstants");
+    if (frame_block_index != GL_INVALID_INDEX)
+    {
+        int32_t blockSize;
+        glGetActiveUniformBlockiv(shader_id, frame_block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
+        //RK_CORE_INFO("Size of PerBatchConstants {}", sizeof(PerBatchConstants));
+        assert(blockSize >= sizeof(PerBatchConstants));
+        m_uboDrawBatchConstant[m_nFrameIndex]->BindShader(shader_id, frame_block_index, 1);
+    }
+
+    // TODO : remove fixed 16
+    int32_t samplers[16];
+    for (uint32_t i = 0; i < 16; i++)
+        samplers[i] = i;
+    m_CurrentShader->SetInt32Array("u_Textures", samplers, 16);
 
     switch (pipelineState->depthTestMode)
     {
@@ -318,164 +477,14 @@ void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineS
     }
 }
 
-void OpenGLGraphicsManager::BeginFrame(const Frame &frame)
-{
-    // Set the color to clear the screen to.
-    glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
-    // Clear the screen and depth buffer.
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    for (auto it = m_FrameBuffers.begin(); it != m_FrameBuffers.end(); ++it)
-    {
-        it->second->Bind(FrameBufferBindMode::FRAMEBUFFER);
-        glClearColor(0.2f, 0.3f, 0.2f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        it->second->Unbind();
-    }
-
-    SetPerFrameConstants(frame.frameContext);
-    SetLightInfo(frame.frameContext);
-
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-}
-
-void OpenGLGraphicsManager::SetPerFrameConstants(const DrawFrameContext& context)
-{
-    auto constant = static_cast<PerFrameConstants>(context);
-    m_uboDrawFrameConstant[m_nFrameIndex]->SetSubData(&constant, 0, sizeof(PerFrameConstants));
-}
-
-void OpenGLGraphicsManager::SetLightInfo(const DrawFrameContext& context)
-{
-}
-
-void OpenGLGraphicsManager::EndFrame(const Frame &frame)
-{
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-    // Update and Render additional Platform Windows
-    // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
-    //  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-    {
-        GLFWwindow* backup_current_context = glfwGetCurrentContext();
-        ImGui::UpdatePlatformWindows();
-        ImGui::RenderPlatformWindowsDefault();
-        glfwMakeContextCurrent(backup_current_context);
-    }
-
-    GraphicsManager::EndFrame(frame);
-}
-
-void OpenGLGraphicsManager::BeginScene(const Scene& scene)
-{ 
-    GraphicsManager::BeginScene(scene);
-    
-    if(!m_CurrentScene)
-    {
-        RK_GRAPHICS_INFO("No Active Scene");
-        return;
-    }
-
-    auto planar_meshes = m_CurrentScene->GetComponents<PlanarMesh>();
-    for(auto mesh : planar_meshes)
-    {
-        auto dbc = CreateRef<OpenGLDrawBatchContext>();
-        auto vertex = mesh->GetVertex();
-        auto index = mesh->GetIndex();
-        dbc->VAO = CreateRef<OpenGLVertexArray>();
-        RK_GRAPHICS_INFO("Size of QuadVertex {}", sizeof(QuadVertex));
-        auto vbo = CreateRef<OpenGLVertexBuffer>(vertex.size() * sizeof(QuadVertex));
-        vbo->SetLayout({
-            { ShaderDataType::Vec3f, "a_Position" },
-            { ShaderDataType::Vec4f, "a_Color" },
-            { ShaderDataType::Vec2f, "a_TexCoord" },
-            { ShaderDataType::Float, "a_TexIndex" },
-            { ShaderDataType::Float, "a_TilingFactor" },
-        });
-        vbo->SetData(vertex.data() , vertex.size() * sizeof(QuadVertex));
-        auto ibo = CreateRef<OpenGLIndexBuffer>(index.data(), index.size());
-        dbc->VAO->AddVertexBuffer(vbo);
-        dbc->VAO->SetIndexBuffer(ibo);
-        dbc->Textures = &mesh->GetTexture();
-        
-        // TODO : use real model matrix
-        dbc->modelMatrix = Matrix4f::Identity();
-
-        //uint32_t mode;
-        // TODO : set draw element type and mode
-        //  mode = GL_POINTS;
-        //  mode = GL_LINES;
-        //  mode = GL_LINE_STRIP;
-        //  mode = GL_TRIANGLES;
-        //  mode = GL_TRIANGLE_STRIP;
-        //  mode = GL_TRIANGLE_FAN;
-        //
-        //  type = GL_UNSIGNED_BYTE;
-        //  type = GL_UNSIGNED_SHORT;
-        //  type = GL_UNSIGNED_INT;
-        dbc->Mode = GL_TRIANGLES;
-        dbc->Type = GL_UNSIGNED_INT;
-        dbc->MaxTextures = mesh->GetTextureCount();
-
-        for (int32_t n = 0; n < m_MaxFrameInFlight; n++)
-        {
-            m_Frames[n].batchContexts.push_back(dbc);
-        }
-    }
-}
-
-void OpenGLGraphicsManager::EndScene()
-{
-    GraphicsManager::EndScene();
-}
-
-void OpenGLGraphicsManager::BeginFrameBuffer(const Frame& frame)
-{
-    // Set PerFrameConstants
-    uint32_t shader_id = m_CurrentShader->GetRenderId();
-    uint32_t frame_block_index = glGetUniformBlockIndex(shader_id, "PerFrameConstants");
-    if(frame_block_index != GL_INVALID_INDEX)
-    {
-        int32_t blockSize;
-        glGetActiveUniformBlockiv(shader_id, frame_block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-        //RK_CORE_INFO("Size of PerFrameConstants {}", sizeof(PerFrameConstants));
-        assert(blockSize >= sizeof(PerFrameConstants));
-        m_uboDrawFrameConstant[m_nFrameIndex]->BindShader(shader_id, frame_block_index, 0);
-    }
-
-    // TODO : remove fixed 16
-    int32_t samplers[16];
-    for (uint32_t i = 0; i < 16; i++)
-        samplers[i] = i;
-    m_CurrentShader->SetInt32Array("u_Textures", samplers, 16);
-}
-
-void OpenGLGraphicsManager::EndFrameBuffer(const Frame& frame)
-{
-    if (m_CurrentFrameBuffer)
-    {
-        m_CurrentFrameBuffer->Unbind();
-    }
-}
-
 void OpenGLGraphicsManager::SetPerBatchConstants(const DrawBatchContext &context)
 {
     auto constant = static_cast<PerBatchConstants>(context);
     m_uboDrawBatchConstant[m_nFrameIndex]->SetSubData(&constant, 0, sizeof(PerBatchConstants));
-    
-    // Set PerBatchConstants
-    uint32_t shader_id = m_CurrentShader->GetRenderId();
-    uint32_t frame_block_index = glGetUniformBlockIndex(shader_id, "PerBatchConstants");
-    if(frame_block_index != GL_INVALID_INDEX)
-    {
-        int32_t blockSize;
-        glGetActiveUniformBlockiv(shader_id, frame_block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-        assert(blockSize >= sizeof(PerBatchConstants));
-        m_uboDrawBatchConstant[m_nFrameIndex]->BindShader(shader_id, frame_block_index, 1);
-    }
+}
+
+void OpenGLGraphicsManager::BeginFrameBuffer(const Frame& frame)
+{
 }
 
 void OpenGLGraphicsManager::DrawBatch(const Frame &frame)
@@ -492,12 +501,38 @@ void OpenGLGraphicsManager::DrawBatch(const Frame &frame)
             (*dbc.Textures)[i]->Bind(i);
         }
 
-        uint32_t count = dbc.VAO->GetIndexBuffer()->GetCount();
         dbc.VAO->Bind();
-        glDrawElements(dbc.Mode, count, dbc.Type, nullptr);
+        glDrawElements(dbc.Mode, dbc.Count, dbc.Type, nullptr);
     }
 
     EndFrameBuffer(frame);
+}
+
+void OpenGLGraphicsManager::EndFrameBuffer(const Frame& frame)
+{
+    if (m_CurrentFrameBuffer)
+    {
+        m_CurrentFrameBuffer->Unbind();
+    }
+}
+
+void OpenGLGraphicsManager::EndFrame(const Frame& frame)
+{
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+    // Update and Render additional Platform Windows
+    // (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
+    //  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        GLFWwindow* backup_current_context = glfwGetCurrentContext();
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+        glfwMakeContextCurrent(backup_current_context);
+    }
+
+    GraphicsManager::EndFrame(frame);
 }
 
 void OpenGLGraphicsManager::DrawFullScreenQuad()
@@ -558,9 +593,16 @@ bool OpenGLGraphicsManager::Resize(int32_t width, int32_t height)
 
 bool OpenGLGraphicsManager::OnWindowResize(EventPtr& e)
 {
-    m_Width = e->GetInt32(1);
-    m_Height = e->GetInt32(2);
-    return Resize(m_Width, m_Height);
+    if (e->GetInt32(3) == 0)
+    {
+        m_Width = e->GetInt32(1);
+        m_Height = e->GetInt32(2);
+        return Resize(m_Width, m_Height);
+    }
+    else
+    {
+        return false;
+    }
 }
 
 //------------------------------------------------------------

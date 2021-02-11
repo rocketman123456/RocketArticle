@@ -31,9 +31,9 @@ namespace Rocket
     public:
         PlanarMesh(const String& name) : m_Name(name) 
         { 
-            Ref<Texture2D> WhiteTexture = Texture2D::Create(1, 1);
-            uint32_t whiteTextureData = 0xffffffff;
-            WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
+            Ref<Texture2D> WhiteTexture = Texture2D::Create(2, 2);
+            uint32_t whiteTextureData[] = { 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff };
+            WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t) * 4);
             m_TextureSlots.resize(m_MaxTexture);
             for(int i = 0; i < m_MaxTexture; ++i)
             {
@@ -68,7 +68,7 @@ namespace Rocket
         uint32_t m_VertexCount = 0;
         uint32_t m_IndexCount = 0;
         uint32_t m_IndexOffset = 0;
-        uint32_t m_TextureCount = 0;
+        uint32_t m_TextureCount = 1; // default white texture
         bool     m_MeshChange = false;
 
         String m_Name;

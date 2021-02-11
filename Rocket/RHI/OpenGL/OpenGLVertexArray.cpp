@@ -101,6 +101,7 @@ inline void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBu
 	}
 
 	m_VertexBuffers.push_back(vertexBuffer);
+	glBindVertexArray(0);
 }
 
 inline void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
@@ -109,4 +110,5 @@ inline void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffe
 	indexBuffer->Bind();
 
 	m_IndexBuffer = indexBuffer;
+	glBindVertexArray(0);
 }

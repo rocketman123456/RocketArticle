@@ -74,6 +74,7 @@ namespace Rocket
             Vec<Ref<Texture2D>>* Textures;
             uint32_t Mode = 0;
             uint32_t Type = 0;
+            uint32_t Count = 0;
             uint32_t MaxTextures = 0;
         };
 

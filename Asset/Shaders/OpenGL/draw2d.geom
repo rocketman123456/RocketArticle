@@ -10,10 +10,10 @@ in VS_OUT
 	float v_TilingFactor;
 } gs_in[];
 
-out vec4 v_Color;
-out vec2 v_TexCoord;
-out float v_TexIndex;
-out float v_TilingFactor;
+layout(location = 0) out vec4 v_Color;
+layout(location = 1) out vec2 v_TexCoord;
+layout(location = 2) out float v_TexIndex;
+layout(location = 3) out float v_TilingFactor;
 
 void OutputPoint(int index)
 {

@@ -13,23 +13,24 @@ OpenGLFrameBuffer::OpenGLFrameBuffer(const FramebufferSpecification& spec) : m_S
 
 OpenGLFrameBuffer::~OpenGLFrameBuffer()
 {
-	glDeleteFramebuffers(1, &m_RendererID);
 	if(m_ColorAttachments.size() > 0)
 		glDeleteTextures(m_ColorAttachments.size(), m_ColorAttachments.data());
 	if(m_DepthAttachment)
 		glDeleteTextures(1, &m_DepthAttachment);
+	glDeleteFramebuffers(1, &m_RendererID);
 }
 
 void OpenGLFrameBuffer::Invalidate()
 {
 	if (m_RendererID)
 	{
-		glDeleteFramebuffers(1, &m_RendererID);
 		if(m_ColorAttachments.size() > 0)
 			glDeleteTextures(m_ColorAttachments.size(), m_ColorAttachments.data());
 		if(m_DepthAttachment)
 			glDeleteTextures(1, &m_DepthAttachment);
+		glDeleteFramebuffers(1, &m_RendererID);
 		m_ColorAttachments.clear();
+		m_ColorSpecifications.clear();
 		m_DepthAttachment = 0;
 		m_RendererID = 0;
 	}
@@ -102,16 +103,17 @@ void OpenGLFrameBuffer::Invalidate()
 				
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-				//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-				//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-				//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				glBindTexture(GL_TEXTURE_2D, 0);
 
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, m_ColorAttachments[i], 0);
 			}
 			m_ColorSpecifications.push_back(GL_COLOR_ATTACHMENT0 + i);
 		}
 
-		if (m_ColorSpecifications.size() >= 1)
+		if (m_ColorSpecifications.size() > 0)
 		{
 			glDrawBuffers(m_ColorSpecifications.size(), m_ColorSpecifications.data());
 		}

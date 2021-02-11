@@ -77,17 +77,6 @@ endif()
 
 #### Project Packages ###############################
 find_package(Threads REQUIRED)
-#find_package(yaml-cpp CONFIG REQUIRED)
-#find_package(glfw3 CONFIG REQUIRED)
-#find_package(Eigen3 CONFIG REQUIRED)
-#find_package(Bullet CONFIG REQUIRED)
-#find_package(OpenAL CONFIG REQUIRED)
-#find_package(SndFile CONFIG REQUIRED)
-#find_package(EnTT CONFIG REQUIRED)
-#find_package(spdlog CONFIG REQUIRED)
-#find_package(glm CONFIG REQUIRED)
-#find_package(unofficial-box2d CONFIG REQUIRED)
-#find_package(glslang CONFIG REQUIRED)
 if(Vulkan)
     find_package(Vulkan REQUIRED)
 endif()
@@ -112,21 +101,7 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/External/${CMAKE_SYSTEM_NAME}/include/eigen3
     ${PROJECT_SOURCE_DIR}/Thirdparty/stb
     ${PROJECT_SOURCE_DIR}/Thirdparty/imgui
-    #${PROJECT_SOURCE_DIR}/Thirdparty/glm
-    #${PROJECT_SOURCE_DIR}/Thirdparty/tinyobjloader
-    #${PROJECT_SOURCE_DIR}/Thirdparty/tinygltf
-    #${PROJECT_SOURCE_DIR}/Thirdparty/crossguid/include
     ${PROJECT_SOURCE_DIR}/Thirdparty/glad/include
-    #${PROJECT_SOURCE_DIR}/Thirdparty/yaml-cpp/include
-    #${PROJECT_SOURCE_DIR}/Thirdparty/spdlog/include
-    #${EIGEN3_INCLUDE_DIRS}
-    #${BULLET_INCLUDE_DIRS}
-    #${OPENAL_INCLUDE_DIRS}
-    #${SNDFILE_INCLUDE_DIRS}
-    #${SPDLOG_INCLUDE_DIRS}
-    #${YAML_CPP_INCLUDE_DIRS}
-    #${GLFW_INCLUDE_DIRS}
-    #${ENTT_INCLUDE_DIRS}
 )
 include_directories(
     ${PROJECT_SOURCE_DIR}/Rocket/Engine
@@ -179,7 +154,6 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
         set(ENGINE_PLATFORM_LIBRARY PlatformWindow spdlog crossguid OpenAL32 libyaml-cppmd CACHE STRING "")
     endif()
 endif()
-
 
 if(OpenGL)
     set(ENGINE_RENDER_LIBRARY RendererOpenGL CACHE STRING "")

@@ -87,7 +87,13 @@ namespace Rocket
         auto width = g_WindowManager->GetWindowWidth();
         auto height = g_WindowManager->GetWindowHeight();
         cam->SetViewportSize(width, height);
-        cam->SetOrthographic(10.0f, -1.0f, 1.0f);
+        cam->SetOrthographic(10.0f, -1.0f, 10.0f);
+
+        //cam->SetProjectionType(SceneCamera::ProjectionType::Perspective);
+        //auto width = g_WindowManager->GetWindowWidth();
+        //auto height = g_WindowManager->GetWindowHeight();
+        //cam->SetViewportSize(width, height);
+        //cam->SetPerspective(90.0f, 0.1f, 100.0f);
 
         std::default_random_engine e;
         std::uniform_int_distribution<unsigned> u(0, 254);

@@ -18,11 +18,6 @@ layout(std140) uniform PerBatchConstants
 	mat4 modelMatrix;		
 } PerBatch;
 
-//out vec4 v_Color;
-//out vec2 v_TexCoord;
-//out float v_TexIndex;
-//out float v_TilingFactor;
-
 out VS_OUT
 {
 	vec4 v_Color;
