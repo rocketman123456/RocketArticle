@@ -77,6 +77,9 @@ endif()
 
 #### Project Packages ###############################
 find_package(Threads REQUIRED)
+#if(openGL)
+#    find_package(OpenGL REQUIRED)
+#endif()
 if(Vulkan)
     find_package(Vulkan REQUIRED)
 endif()
@@ -133,7 +136,7 @@ if(PROFILE)
     )
 else()
     set( ENGINE_LIBRARY
-        ${Threads_LIBS}  glfw3 glad stb_image imgui sndfile tinyobjloader CACHE STRING ""
+        ${Threads_LIBS} glfw3 glad stb_image imgui sndfile tinyobjloader CACHE STRING ""
     )
 endif()
 
@@ -149,7 +152,7 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
     if(Apple)
         set(ENGINE_PLATFORM_LIBRARY PlatformWindow spdlog crossguid openal yaml-cpp CACHE STRING "")
     elseif(Linux)
-        set(ENGINE_PLATFORM_LIBRARY PlatformWindow spdlog crossguid openal yaml-cpp CACHE STRING "")
+        set(ENGINE_PLATFORM_LIBRARY PlatformWindow ${CMAKE_DL_LIBS} spdlog crossguid openal yaml-cpp CACHE STRING "")
     elseif(Windows)
         set(ENGINE_PLATFORM_LIBRARY PlatformWindow spdlog crossguid OpenAL32 libyaml-cppmd CACHE STRING "")
     endif()
