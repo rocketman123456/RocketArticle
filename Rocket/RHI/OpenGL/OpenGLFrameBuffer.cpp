@@ -47,6 +47,7 @@ void OpenGLFrameBuffer::Invalidate()
 		m_ColorSpecifications.resize(sz);
 
 		glGenTextures(sz, m_ColorAttachments.data());
+		//glActiveTexture(GL_TEXTURE0);
 
 		for (size_t i = 0; i < m_ColorAttachments.size(); i++)
 		{
@@ -74,10 +75,9 @@ void OpenGLFrameBuffer::Invalidate()
 					RK_GRAPHICS_ERROR("Frame Buffer Color Attachment Format Error");
 					break;
 				}
+				glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D_MULTISAMPLE, m_ColorAttachments[i], 0);
-			
-				glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 			}
 			else
 			{
@@ -104,7 +104,7 @@ void OpenGLFrameBuffer::Invalidate()
 					break;
 				}
 
-				glGenerateMipmap(GL_TEXTURE_2D);
+				//glGenerateMipmap(GL_TEXTURE_2D);
 				
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -112,9 +112,9 @@ void OpenGLFrameBuffer::Invalidate()
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, m_ColorAttachments[i], 0);
-
 				glBindTexture(GL_TEXTURE_2D, 0);
+
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, m_ColorAttachments[i], 0);
 			}
 			m_ColorSpecifications.push_back(GL_COLOR_ATTACHMENT0 + i);
 		}
@@ -133,6 +133,7 @@ void OpenGLFrameBuffer::Invalidate()
 	if(m_Specification.DepthAttachment != FrameBufferTextureFormat::NONE)
 	{
 		glGenTextures(1, &m_DepthAttachment);
+		//glActiveTexture(GL_TEXTURE0);
 
 		if (m_Specification.Samples > 1)
 		{
@@ -150,6 +151,8 @@ void OpenGLFrameBuffer::Invalidate()
 				break;
 			}
 
+			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+
 			switch (m_Specification.DepthAttachment)
 			{
 			case FrameBufferTextureFormat::DEPTH24:
@@ -162,8 +165,6 @@ void OpenGLFrameBuffer::Invalidate()
 				RK_GRAPHICS_ERROR("Frame Buffer Color Attachment Format Error");
 				break;
 			}
-
-			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 		}
 		else
 		{
@@ -181,13 +182,15 @@ void OpenGLFrameBuffer::Invalidate()
 				break;
 			}
 
-			glGenerateMipmap(GL_TEXTURE_2D);
+			//glGenerateMipmap(GL_TEXTURE_2D);
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+			glBindTexture(GL_TEXTURE_2D, 0);
 
 			switch (m_Specification.DepthAttachment)
 			{
@@ -201,8 +204,6 @@ void OpenGLFrameBuffer::Invalidate()
 				RK_GRAPHICS_ERROR("Frame Buffer Color Attachment Format Error");
 				break;
 			}
-
-			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 
 		// Bind Depth Render Buffer

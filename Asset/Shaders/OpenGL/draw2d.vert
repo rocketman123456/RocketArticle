@@ -5,6 +5,14 @@ layout(location = 2) in vec2 a_TexCoord;
 layout(location = 3) in float a_TexIndex;
 layout(location = 4) in float a_TilingFactor;
 
+out VS_OUT
+{
+	vec4 v_Color;
+	vec2 v_TexCoord;
+	float v_TexIndex;
+	float v_TilingFactor;
+} vs_out;
+
 layout(std140) uniform PerFrameConstants
 {
     mat4 viewMatrix;		// 64 bytes
@@ -17,14 +25,6 @@ layout(std140) uniform PerBatchConstants
 {
 	mat4 modelMatrix;		
 } PerBatch;
-
-out VS_OUT
-{
-	vec4 v_Color;
-	vec2 v_TexCoord;
-	float v_TexIndex;
-	float v_TilingFactor;
-} vs_out;
 
 void main()
 {

@@ -469,7 +469,7 @@ void OpenGLGraphicsManager::BeginFrameBuffer(const Frame& frame)
         m_uboDrawBatchConstant[m_nFrameIndex]->BindShader(shader_id, frame_block_index, 1);
     }
 
-    // TODO : remove fixed 16
+    // TODO : remove fixed 16, use graphics card capability
     int32_t samplers[16];
     for (uint32_t i = 0; i < 16; i++)
         samplers[i] = i;

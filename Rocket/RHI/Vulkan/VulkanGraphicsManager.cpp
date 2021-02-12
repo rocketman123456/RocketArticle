@@ -356,8 +356,9 @@ void VulkanGraphicsManager::createRenderPass()
 
 void VulkanGraphicsManager::createGraphicsPipeline()
 {
-    auto vertShaderCode = readFile(ProjectSourceDir + "/Asset/Shaders/Vulkan/vert_base.spv");
-    auto fragShaderCode = readFile(ProjectSourceDir + "/Asset/Shaders/Vulkan/frag_base.spv");
+    // TODO : use asset loader
+    auto vertShaderCode = readFile(ProjectSourceDir + "/Asset/Shaders/Vulkan/base_vert.spv");
+    auto fragShaderCode = readFile(ProjectSourceDir + "/Asset/Shaders/Vulkan/base_frag.spv");
 
     VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
     VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
@@ -862,6 +863,51 @@ void VulkanGraphicsManager::Tick(Timestep ts)
     SwapBuffers();
 }
 
+void Rocket::VulkanGraphicsManager::SetPipelineState(const Ref<PipelineState>& pipelineState, const Frame& frame)
+{
+}
+
+bool Rocket::VulkanGraphicsManager::OnWindowResize(EventPtr& e)
+{
+    return false;
+}
+
+void Rocket::VulkanGraphicsManager::DrawPoint(const Point3D& point, const Vector3f& color)
+{
+}
+
+void Rocket::VulkanGraphicsManager::DrawPointSet(const Point3DSet& point_set, const Vector3f& color)
+{
+}
+
+void Rocket::VulkanGraphicsManager::DrawPointSet(const Point3DSet& point_set, const Matrix4f& trans, const Vector3f& color)
+{
+}
+
+void Rocket::VulkanGraphicsManager::DrawLine(const Point3D& from, const Point3D& to, const Vector3f& color)
+{
+}
+
+void Rocket::VulkanGraphicsManager::DrawLine(const Point3DList& vertices, const Vector3f& color)
+{
+}
+
+void Rocket::VulkanGraphicsManager::DrawLine(const Point3DList& vertices, const Matrix4f& trans, const Vector3f& color)
+{
+}
+
+void Rocket::VulkanGraphicsManager::DrawTriangle(const Point3DList& vertices, const Vector3f& color)
+{
+}
+
+void Rocket::VulkanGraphicsManager::DrawTriangle(const Point3DList& vertices, const Matrix4f& trans, const Vector3f& color)
+{
+}
+
+void Rocket::VulkanGraphicsManager::DrawTriangleStrip(const Point3DList& vertices, const Vector3f& color)
+{
+}
+
 void VulkanGraphicsManager::drawFrame()
 {
     vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
@@ -928,5 +974,45 @@ void VulkanGraphicsManager::drawFrame()
 }
 
 void VulkanGraphicsManager::SwapBuffers()
+{
+}
+
+void Rocket::VulkanGraphicsManager::BeginFrame(const Frame& frame)
+{
+}
+
+void Rocket::VulkanGraphicsManager::EndFrame(const Frame& frame)
+{
+}
+
+void Rocket::VulkanGraphicsManager::BeginFrameBuffer(const Frame& frame)
+{
+}
+
+void Rocket::VulkanGraphicsManager::EndFrameBuffer(const Frame& frame)
+{
+}
+
+void Rocket::VulkanGraphicsManager::SetPerFrameConstants(const DrawFrameContext& context)
+{
+}
+
+void Rocket::VulkanGraphicsManager::SetPerBatchConstants(const DrawBatchContext& context)
+{
+}
+
+void Rocket::VulkanGraphicsManager::SetLightInfo(const DrawFrameContext& context)
+{
+}
+
+void Rocket::VulkanGraphicsManager::Present()
+{
+}
+
+void Rocket::VulkanGraphicsManager::DrawBatch(const Frame& frame)
+{
+}
+
+void Rocket::VulkanGraphicsManager::DrawFullScreenQuad()
 {
 }

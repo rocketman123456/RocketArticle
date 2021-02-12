@@ -38,6 +38,44 @@ namespace Rocket
         virtual void Finalize() final;
 
         virtual void Tick(Timestep ts) final;
+
+        void SetPipelineState(const Ref<PipelineState>& pipelineState, const Frame& frame) final;
+
+        void BeginPass(const Frame& frame) final {}
+        void EndPass(const Frame& frame) final {}
+
+        void BeginCompute() final {}
+        void EndCompute() final {}
+
+        void BeginFrame(const Frame& frame);
+        void EndFrame(const Frame& frame);
+
+        void BeginFrameBuffer(const Frame& frame) final;
+        void EndFrameBuffer(const Frame& frame) final;
+
+        void SetPerFrameConstants(const DrawFrameContext& context) final;
+        void SetPerBatchConstants(const DrawBatchContext& context) final;
+        void SetLightInfo(const DrawFrameContext& context) final;
+
+        void Present() final;
+
+        void DrawBatch(const Frame& frame) final;
+        void DrawFullScreenQuad() final;
+
+        bool OnWindowResize(EventPtr& e) final;
+
+        // For Debug
+        void DrawPoint(const Point3D& point, const Vector3f& color) final;
+        void DrawPointSet(const Point3DSet& point_set, const Vector3f& color) final;
+        void DrawPointSet(const Point3DSet& point_set, const Matrix4f& trans, const Vector3f& color) final;
+
+        void DrawLine(const Point3D& from, const Point3D& to, const Vector3f& color) final;
+        void DrawLine(const Point3DList& vertices, const Vector3f& color) final;
+        void DrawLine(const Point3DList& vertices, const Matrix4f& trans, const Vector3f& color) final;
+
+        void DrawTriangle(const Point3DList& vertices, const Vector3f& color) final;
+        void DrawTriangle(const Point3DList& vertices, const Matrix4f& trans, const Vector3f& color) final;
+        void DrawTriangleStrip(const Point3DList& vertices, const Vector3f& color) final;
         
     protected:
         virtual void SwapBuffers() final;

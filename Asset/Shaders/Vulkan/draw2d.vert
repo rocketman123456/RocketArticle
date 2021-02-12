@@ -1,4 +1,4 @@
-#version 410
+#version 450
 layout(location = 0) in vec4 a_Position;
 layout(location = 1) in vec4 a_Color;
 layout(location = 2) in vec2 a_TexCoord;
@@ -10,7 +10,7 @@ layout(location = 1) out vec2 v_TexCoord;
 layout(location = 2) out float v_TexIndex;
 layout(location = 3) out float v_TilingFactor;
 
-layout(std140) uniform PerFrameConstants
+layout(binding = 0) uniform PerFrameConstants
 {
     mat4 viewMatrix;		// 64 bytes
     mat4 projectionMatrix;	// 64 bytes
@@ -18,7 +18,7 @@ layout(std140) uniform PerFrameConstants
     ivec4 numLights;        // 16 bytes
 } PerFrame;					// total 160 bytes
 
-layout(std140) uniform PerBatchConstants
+layout(binding = 1) uniform PerBatchConstants
 {
 	mat4 modelMatrix;		
 } PerBatch;
