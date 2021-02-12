@@ -454,8 +454,7 @@ void OpenGLGraphicsManager::BeginFrameBuffer(const Frame& frame)
     {
         int32_t blockSize;
         glGetActiveUniformBlockiv(shader_id, frame_block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-        //RK_CORE_INFO("Size of PerFrameConstants {}", sizeof(PerFrameConstants));
-        assert(blockSize >= sizeof(PerFrameConstants));
+        RK_GRAPHICS_ASSERT(blockSize >= sizeof(PerFrameConstants), "PerFrameConstants Size Error");
         m_uboDrawFrameConstant[m_nFrameIndex]->BindShader(shader_id, frame_block_index, 0);
     }
 
@@ -466,8 +465,7 @@ void OpenGLGraphicsManager::BeginFrameBuffer(const Frame& frame)
     {
         int32_t blockSize;
         glGetActiveUniformBlockiv(shader_id, frame_block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-        //RK_CORE_INFO("Size of PerBatchConstants {}", sizeof(PerBatchConstants));
-        assert(blockSize >= sizeof(PerBatchConstants));
+        RK_GRAPHICS_ASSERT(blockSize >= sizeof(PerBatchConstants), "PerBatchConstants Size Error");
         m_uboDrawBatchConstant[m_nFrameIndex]->BindShader(shader_id, frame_block_index, 1);
     }
 
