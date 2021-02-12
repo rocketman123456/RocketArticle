@@ -17,7 +17,7 @@ namespace Rocket
         uint32_t depth{1};      // 4 bytes
         uint32_t index{0};      // 4 bytes
         float    mipmap{0.0f};  // 4 bytes
-        int32_t  padding;    // 4 bytes
+        int32_t  padding;       // 4 bytes
     };                          // total 32 bytes
 
     struct MaterialTextures
@@ -32,14 +32,28 @@ namespace Rocket
 
 #pragma pack(push)
 #pragma pack(4)
+    struct LightInfo
+    {
+        Matrix4f lightViewMatrix;                   // 64 bytes
+        Matrix4f lightProjectionMatrix;             // 64 bytes
+        Vector4f lightPosition;                     // 16 bytes
+        Vector4f lightColor;                        // 16 bytes
+        Vector4f lightDirection;                    // 16 bytes
+        Vector4f lightDistAttenCurveParams[2];      // 32 bytes
+        Vector4f lightAngleAttenCurveParams[2];     // 32 bytes
+    };                                              // total
+#pragma pack(pop)
+
+#pragma pack(push)
+#pragma pack(4)
     struct PerFrameConstants
     {
         Matrix4f viewMatrix;        // 64 bytes
         Matrix4f projectionMatrix;  // 64 bytes
         Vector4f camPos;            // 16 bytes
         int32_t  numLights;         // 4 bytes
-        //int32_t  padding[3];        // 12 bytes
-    };                              // total 148 bytes
+        int32_t  padding[3];        // 12 bytes
+    };                              // total 160 bytes
 #pragma pack(pop)
 
 #pragma pack(push)

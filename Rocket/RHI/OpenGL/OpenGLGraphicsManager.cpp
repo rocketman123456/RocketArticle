@@ -170,9 +170,9 @@ int OpenGLGraphicsManager::Initialize()
     // Init UBOs
     for(size_t i = 0; i < m_MaxFrameInFlight; ++i)
     {
-        m_uboDrawFrameConstant[i] = CreateRef<OpenGLUniformBuffer>(sizeof(PerFrameConstants), DRAW_TYPE::STATIC);;
-        m_uboDrawBatchConstant[i] = CreateRef<OpenGLUniformBuffer>(sizeof(PerBatchConstants), DRAW_TYPE::STATIC);;
-        m_uboLightInfo[i] = nullptr;
+        m_uboDrawFrameConstant[i] = CreateRef<OpenGLUniformBuffer>(sizeof(PerFrameConstants), DRAW_TYPE::STATIC);
+        m_uboDrawBatchConstant[i] = CreateRef<OpenGLUniformBuffer>(sizeof(PerBatchConstants), DRAW_TYPE::STATIC);
+        m_uboLightInfo[i] = CreateRef<OpenGLUniformBuffer>(sizeof(LightInfo), DRAW_TYPE::STATIC);;
         m_uboShadowMatricesConstant[i] = nullptr;
     }
 
@@ -202,12 +202,8 @@ int OpenGLGraphicsManager::Initialize()
     }
 
     // Load Fonts
-    //io.Fonts->AddFontDefault();
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
-        
+    io.Fonts->AddFontDefault();
+
     ImGui_ImplGlfw_InitForOpenGL(m_WindowHandle, true);
     ImGui_ImplOpenGL3_Init("#version 410");
 
@@ -259,12 +255,12 @@ void OpenGLGraphicsManager::BeginScene(const Scene& scene)
         //RK_GRAPHICS_INFO("Size of QuadVertex {}", sizeof(QuadVertex));
         auto vbo = CreateRef<OpenGLVertexBuffer>(vertex.size() * sizeof(QuadVertex));
         vbo->SetLayout({
-            { ShaderDataType::Vec3f, "a_Position" },
+            { ShaderDataType::Vec4f, "a_Position" },
             { ShaderDataType::Vec4f, "a_Color" },
             { ShaderDataType::Vec2f, "a_TexCoord" },
             { ShaderDataType::Float, "a_TexIndex" },
             { ShaderDataType::Float, "a_TilingFactor" },
-            });
+        });
         vbo->SetData(vertex.data(), vertex.size() * sizeof(QuadVertex));
         auto ibo = CreateRef<OpenGLIndexBuffer>(index.data(), index.size());
         dbc->VAO->AddVertexBuffer(vbo);
@@ -305,16 +301,7 @@ void OpenGLGraphicsManager::BeginFrame(const Frame& frame)
     // Set the color to clear the screen to.
     glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
     // Clear the screen and depth buffer.
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-    // clear frame buffers
-    for (auto it = m_FrameBuffers.begin(); it != m_FrameBuffers.end(); ++it)
-    {
-        it->second->Bind(FrameBufferBindMode::FRAMEBUFFER);
-        glClearColor(0.2f, 0.3f, 0.2f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        it->second->Unbind();
-    }
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     SetPerFrameConstants(frame.frameContext);
     SetLightInfo(frame.frameContext);
@@ -332,7 +319,7 @@ void OpenGLGraphicsManager::SetPerFrameConstants(const DrawFrameContext& context
 
 void OpenGLGraphicsManager::SetLightInfo(const DrawFrameContext& context)
 {
-    //auto constant = static_cast<PerFrameConstants>(context);
+    //auto constant = static_cast<PerFrameConstants>(context.lightInfo);
     //m_uboLightInfo[m_nFrameIndex]->SetSubData(&constant, 0, sizeof(LightInfo));
 }
 
@@ -361,43 +348,11 @@ void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineS
         }
     }
 
-    if(m_CurrentFrameBuffer)
+    // Bind Framebuffer
+    if (m_CurrentFrameBuffer)
     {
         m_CurrentFrameBuffer->Bind(FrameBufferBindMode::FRAMEBUFFER);
     }
-
-    // Set the color shader
-    m_CurrentShader->Bind();
-
-    // Bind PerFrameConstants
-    uint32_t shader_id = m_CurrentShader->GetRenderId();
-    uint32_t frame_block_index = glGetUniformBlockIndex(shader_id, "PerFrameConstants");
-    if (frame_block_index != GL_INVALID_INDEX)
-    {
-        int32_t blockSize;
-        glGetActiveUniformBlockiv(shader_id, frame_block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-        //RK_CORE_INFO("Size of PerFrameConstants {}", sizeof(PerFrameConstants));
-        assert(blockSize >= sizeof(PerFrameConstants));
-        m_uboDrawFrameConstant[m_nFrameIndex]->BindShader(shader_id, frame_block_index, 0);
-    }
-
-    // Bind PerBatchConstants
-    shader_id = m_CurrentShader->GetRenderId();
-    frame_block_index = glGetUniformBlockIndex(shader_id, "PerBatchConstants");
-    if (frame_block_index != GL_INVALID_INDEX)
-    {
-        int32_t blockSize;
-        glGetActiveUniformBlockiv(shader_id, frame_block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-        //RK_CORE_INFO("Size of PerBatchConstants {}", sizeof(PerBatchConstants));
-        assert(blockSize >= sizeof(PerBatchConstants));
-        m_uboDrawBatchConstant[m_nFrameIndex]->BindShader(shader_id, frame_block_index, 1);
-    }
-
-    // TODO : remove fixed 16
-    int32_t samplers[16];
-    for (uint32_t i = 0; i < 16; i++)
-        samplers[i] = i;
-    m_CurrentShader->SetInt32Array("u_Textures", samplers, 16);
 
     // Set OpenGL State
     switch (pipelineState->depthTestMode)
@@ -446,6 +401,7 @@ void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineS
     else
         glDepthMask(GL_FALSE);
 
+    // Set Blender Mode
     switch (pipelineState->blenderMode)
     {
     case BLENDER_MODE::NONE:
@@ -455,8 +411,13 @@ void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineS
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         break;
+    case BLENDER_MODE::ONE_MINUS_DST_ALPHA:
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA);
+        break;
     }
 
+    // Set Cullface Mode
     switch (pipelineState->cullFaceMode)
     {
     case CULL_FACE_MODE::NONE:
@@ -477,6 +438,44 @@ void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineS
 
 void OpenGLGraphicsManager::BeginFrameBuffer(const Frame& frame)
 {
+    if (m_CurrentFrameBuffer)
+    {
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+
+    // Set the color shader
+    m_CurrentShader->Bind();
+
+    // Bind PerFrameConstants
+    uint32_t shader_id = m_CurrentShader->GetRenderId();
+    uint32_t frame_block_index = glGetUniformBlockIndex(shader_id, "PerFrameConstants");
+    if (frame_block_index != GL_INVALID_INDEX)
+    {
+        int32_t blockSize;
+        glGetActiveUniformBlockiv(shader_id, frame_block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
+        //RK_CORE_INFO("Size of PerFrameConstants {}", sizeof(PerFrameConstants));
+        assert(blockSize >= sizeof(PerFrameConstants));
+        m_uboDrawFrameConstant[m_nFrameIndex]->BindShader(shader_id, frame_block_index, 0);
+    }
+
+    // Bind PerBatchConstants
+    shader_id = m_CurrentShader->GetRenderId();
+    frame_block_index = glGetUniformBlockIndex(shader_id, "PerBatchConstants");
+    if (frame_block_index != GL_INVALID_INDEX)
+    {
+        int32_t blockSize;
+        glGetActiveUniformBlockiv(shader_id, frame_block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
+        //RK_CORE_INFO("Size of PerBatchConstants {}", sizeof(PerBatchConstants));
+        assert(blockSize >= sizeof(PerBatchConstants));
+        m_uboDrawBatchConstant[m_nFrameIndex]->BindShader(shader_id, frame_block_index, 1);
+    }
+
+    // TODO : remove fixed 16
+    int32_t samplers[16];
+    for (uint32_t i = 0; i < 16; i++)
+        samplers[i] = i;
+    m_CurrentShader->SetInt32Array("u_Textures", samplers, 16);
 }
 
 void OpenGLGraphicsManager::SetPerBatchConstants(const DrawBatchContext &context)
@@ -488,7 +487,6 @@ void OpenGLGraphicsManager::SetPerBatchConstants(const DrawBatchContext &context
 void OpenGLGraphicsManager::DrawBatch(const Frame &frame)
 {
     BeginFrameBuffer(frame);
-    
     for(auto& pDbc : frame.batchContexts)
     {
         SetPerBatchConstants(*pDbc);
@@ -504,7 +502,6 @@ void OpenGLGraphicsManager::DrawBatch(const Frame &frame)
         glDrawElements(dbc.Mode, dbc.Count, dbc.Type, nullptr);
         //glBindTexture(GL_TEXTURE_2D, 0);
     }
-
     EndFrameBuffer(frame);
 }
 
@@ -533,6 +530,31 @@ void OpenGLGraphicsManager::EndFrame(const Frame& frame)
     }
 
     GraphicsManager::EndFrame(frame);
+}
+
+void OpenGLGraphicsManager::SwapBuffers()
+{
+    glfwSwapBuffers(m_WindowHandle);
+}
+
+bool OpenGLGraphicsManager::Resize(int32_t width, int32_t height)
+{
+    glViewport(0, 0, width, height);
+    return false;
+}
+
+bool OpenGLGraphicsManager::OnWindowResize(EventPtr& e)
+{
+    if (e->GetInt32(3) == 0)
+    {
+        m_Width = e->GetInt32(1);
+        m_Height = e->GetInt32(2);
+        return Resize(m_Width, m_Height);
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void OpenGLGraphicsManager::DrawFullScreenQuad()
@@ -578,31 +600,6 @@ void OpenGLGraphicsManager::DrawFullScreenQuad()
 
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(2, buffer_id);
-}
-
-void OpenGLGraphicsManager::SwapBuffers()
-{
-    glfwSwapBuffers(m_WindowHandle);
-}
-
-bool OpenGLGraphicsManager::Resize(int32_t width, int32_t height)
-{
-    glViewport(0, 0, width, height);
-    return false;
-}
-
-bool OpenGLGraphicsManager::OnWindowResize(EventPtr& e)
-{
-    if (e->GetInt32(3) == 0)
-    {
-        m_Width = e->GetInt32(1);
-        m_Height = e->GetInt32(2);
-        return Resize(m_Width, m_Height);
-    }
-    else
-    {
-        return false;
-    }
 }
 
 //------------------------------------------------------------

@@ -7,13 +7,14 @@
 #include "Render/DrawBasic/VertexArray.h"
 #include "Render/DrawBasic/VertexBuffer.h"
 #include "Render/DrawBasic/IndexBuffer.h"
+#include "Render/DrawBasic/Shader.h"
 
 namespace Rocket
 {
     ENUM(PIPELINE_TYPE) { GRAPHIC, COMPUTE };
     ENUM(PIPELINE_TARGET) { INVALID, PLANAR, SPATIAL };
     ENUM(DEPTH_TEST_MODE) { NONE, LARGE, LARGE_EQUAL, EQUAL, LESS_EQUAL, LESS, NOT_EQUAL, NEVER, ALWAYS };
-    ENUM(BLENDER_MODE) { NONE, ONE_MINUS_SRC_ALPHA };
+    ENUM(BLENDER_MODE) { NONE, ONE_MINUS_SRC_ALPHA, ONE_MINUS_DST_ALPHA };
     ENUM(STENCIL_TEST_MODE) { NONE };
     ENUM(CULL_FACE_MODE) { NONE, FRONT, BACK };
     ENUM(PIXEL_FORMAT) { INVALID, BGRA8UNORM };
@@ -26,35 +27,35 @@ namespace Rocket
     {
         virtual ~PipelineState() = default;
 
-        String                      pipelineStateName;
-        PIPELINE_TYPE               pipelineType{PIPELINE_TYPE::GRAPHIC};
-        PIPELINE_TARGET             pipelineTarget{PIPELINE_TARGET::INVALID};
+        String            pipelineStateName;
+        PIPELINE_TYPE     pipelineType{PIPELINE_TYPE::GRAPHIC};
+        PIPELINE_TARGET   pipelineTarget{PIPELINE_TARGET::INVALID};
 
-        String                      vertexShaderName;
-        String                      pixelShaderName;
-        String                      computeShaderName;
-        String                      geometryShaderName;
-        String                      tessControlShaderName;
-        String                      tessEvaluateShaderName;
-        String                      meshShaderName;
+        String            vertexShaderName;
+        String            pixelShaderName;
+        String            computeShaderName;
+        String            geometryShaderName;
+        String            tessControlShaderName;
+        String            tessEvaluateShaderName;
+        String            meshShaderName;
 
-        BufferLayout                bufferLayout;
+        DEPTH_TEST_MODE   depthTestMode{DEPTH_TEST_MODE::ALWAYS};
+        bool              depthWriteMode{true};
+        BLENDER_MODE      blenderMode{BLENDER_MODE::NONE};
+        STENCIL_TEST_MODE stencilTestMode{STENCIL_TEST_MODE::NONE};
+        CULL_FACE_MODE    cullFaceMode{CULL_FACE_MODE::BACK};
+        PIXEL_FORMAT      pixelFormat{PIXEL_FORMAT::BGRA8UNORM};
+        uint32_t          sampleCount{1};
 
-        DEPTH_TEST_MODE             depthTestMode{DEPTH_TEST_MODE::ALWAYS};
-        bool                        depthWriteMode{true};
-        BLENDER_MODE                blenderMode{ BLENDER_MODE::NONE };
-        STENCIL_TEST_MODE           stencilTestMode{STENCIL_TEST_MODE::NONE};
-        CULL_FACE_MODE              cullFaceMode{CULL_FACE_MODE::BACK};
-        PIXEL_FORMAT                pixelFormat{PIXEL_FORMAT::BGRA8UNORM};
-        uint32_t                    sampleCount{1};
+        A2V_TYPES         a2vType{A2V_TYPES::A2V_TYPES_NONE};
+        PIPELINE_FLAG     flag;
 
-        A2V_TYPES                   a2vType{A2V_TYPES::A2V_TYPES_NONE};
-        PIPELINE_FLAG               flag;
+        RENDER_TYPE       renderType{RENDER_TYPE::STATIC};
+        RENDER_TARGET     renderTarget{RENDER_TARGET::NONE};
+        String            renderTargetName;
+        FramebufferSpec   frameBufferInfo;
 
-        RENDER_TYPE                 renderType{RENDER_TYPE::STATIC};
-        RENDER_TARGET               renderTarget{RENDER_TARGET::NONE};
-        String                      renderTargetName;
-        FramebufferSpecification    frameBufferInfo;
+        Ref<Shader>       shaderProgram;
     };
 
     Interface IPipelineStateManager : inheritance IRuntimeModule

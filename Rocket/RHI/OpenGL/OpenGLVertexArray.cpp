@@ -47,7 +47,7 @@ inline void OpenGLVertexArray::Unbind() const
 inline void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)
 {
 	RK_GRAPHICS_ASSERT(vertexBuffer->GetLayout().GetElements().size(), "Vertex Buffer has no layout!");
-		
+
 	glBindVertexArray(m_RendererID);
 	vertexBuffer->Bind();
 
@@ -108,7 +108,6 @@ inline void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffe
 {
 	glBindVertexArray(m_RendererID);
 	indexBuffer->Bind();
-
 	m_IndexBuffer = indexBuffer;
 	glBindVertexArray(0);
 }

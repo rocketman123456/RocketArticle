@@ -109,8 +109,7 @@ void PlanarMesh::AddQuad(const Matrix4f& transform, const Vector4f& color)
     for (size_t i = 0; i < quadVertexCount; i++)
     {
         QuadVertex vertex;
-        Vector4f vec = transform * s_QuadVertexPositions[i];
-        vertex.Position = Vector3f(vec[0], vec[1], vec[2]);
+        vertex.Position = transform * s_QuadVertexPositions[i];
         vertex.Color = color;
         vertex.TexCoord = textureCoords[i];
         vertex.TexIndex = textureIndex;
@@ -171,8 +170,7 @@ void PlanarMesh::AddQuad(const Matrix4f& transform, const Ref<Texture2D>& textur
     for (size_t i = 0; i < quadVertexCount; i++)
     {
         QuadVertex vertex;
-        Vector4f vec = transform * s_QuadVertexPositions[i];
-        vertex.Position = Vector3f(vec[0], vec[1], vec[2]);
+        vertex.Position = transform * s_QuadVertexPositions[i];
         vertex.Color = tintColor;
         vertex.TexCoord = textureCoords[i];
         vertex.TexIndex = textureIndex;

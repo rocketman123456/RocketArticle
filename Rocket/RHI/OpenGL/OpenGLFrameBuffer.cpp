@@ -6,7 +6,7 @@ using namespace Rocket;
 
 static const uint32_t s_MaxFramebufferSize = 8192;
 
-OpenGLFrameBuffer::OpenGLFrameBuffer(const FramebufferSpecification& spec) : m_Specification(spec)
+OpenGLFrameBuffer::OpenGLFrameBuffer(const FramebufferSpec& spec) : m_Specification(spec)
 {
 	Invalidate();
 }
@@ -39,6 +39,7 @@ void OpenGLFrameBuffer::Invalidate()
 	glGenFramebuffers(1, &m_RendererID);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 	
+	// Bind Color Texture
 	if (m_Specification.ColorAttachment.size())
 	{
 		auto sz = m_Specification.ColorAttachment.size();
@@ -75,6 +76,8 @@ void OpenGLFrameBuffer::Invalidate()
 				}
 
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D_MULTISAMPLE, m_ColorAttachments[i], 0);
+			
+				glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 			}
 			else
 			{
@@ -100,15 +103,18 @@ void OpenGLFrameBuffer::Invalidate()
 					RK_GRAPHICS_ERROR("Frame Buffer Color Attachment Format Error");
 					break;
 				}
+
+				glGenerateMipmap(GL_TEXTURE_2D);
 				
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-				glBindTexture(GL_TEXTURE_2D, 0);
 
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, m_ColorAttachments[i], 0);
+
+				glBindTexture(GL_TEXTURE_2D, 0);
 			}
 			m_ColorSpecifications.push_back(GL_COLOR_ATTACHMENT0 + i);
 		}
@@ -123,44 +129,119 @@ void OpenGLFrameBuffer::Invalidate()
 		}
 	}
 
+	// Bind Depth Texture
 	if(m_Specification.DepthAttachment != FrameBufferTextureFormat::NONE)
 	{
-		glGenRenderbuffers(1, &m_DepthAttachment);
-		glBindRenderbuffer(GL_RENDERBUFFER, m_DepthAttachment);
-		if(m_Specification.Samples > 1)
+		glGenTextures(1, &m_DepthAttachment);
+
+		if (m_Specification.Samples > 1)
 		{
-			switch(m_Specification.DepthAttachment)
+			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_DepthAttachment);
+			switch (m_Specification.DepthAttachment)
 			{
 			case FrameBufferTextureFormat::DEPTH24:
-				glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_Specification.Samples, GL_DEPTH_COMPONENT, m_Specification.DepthWidth, m_Specification.DepthHeight);
-				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_DepthAttachment);
+				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.Samples, GL_RGB8, m_Specification.DepthWidth, m_Specification.DepthHeight, GL_TRUE);
 				break;
 			case FrameBufferTextureFormat::DEPTH24STENCIL8:
-				glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_Specification.Samples, GL_DEPTH24_STENCIL8, m_Specification.DepthWidth, m_Specification.DepthHeight);
-				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_DepthAttachment);
+				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.Samples, GL_RGBA8, m_Specification.DepthWidth, m_Specification.DepthHeight, GL_TRUE);
 				break;
 			default:
-				RK_GRAPHICS_ERROR("Frame Buffer Depth Stencil Attachment Format Error");
+				RK_GRAPHICS_ERROR("Frame Buffer Color Attachment Format Error");
 				break;
 			}
+
+			switch (m_Specification.DepthAttachment)
+			{
+			case FrameBufferTextureFormat::DEPTH24:
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, m_DepthAttachment, 0);
+				break;
+			case FrameBufferTextureFormat::DEPTH24STENCIL8:
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, m_DepthAttachment, 0);
+				break;
+			default:
+				RK_GRAPHICS_ERROR("Frame Buffer Color Attachment Format Error");
+				break;
+			}
+
+			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 		}
 		else
 		{
-			switch(m_Specification.DepthAttachment)
+			glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
+			switch (m_Specification.DepthAttachment)
 			{
 			case FrameBufferTextureFormat::DEPTH24:
-				glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_Specification.DepthWidth, m_Specification.DepthHeight);
-				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_DepthAttachment);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_Specification.ColorWidth, m_Specification.ColorHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
 				break;
 			case FrameBufferTextureFormat::DEPTH24STENCIL8:
-				glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_Specification.DepthWidth, m_Specification.DepthHeight);
-				glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_DepthAttachment);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_STENCIL_ATTACHMENT, m_Specification.ColorWidth, m_Specification.ColorHeight, 0, GL_DEPTH_STENCIL_ATTACHMENT, GL_UNSIGNED_BYTE, NULL);
 				break;
 			default:
-				RK_GRAPHICS_ERROR("Frame Buffer Depth Stencil Attachment Format Error");
+				RK_GRAPHICS_ERROR("Frame Buffer Color Attachment Format Error");
 				break;
 			}
+
+			glGenerateMipmap(GL_TEXTURE_2D);
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+			switch (m_Specification.DepthAttachment)
+			{
+			case FrameBufferTextureFormat::DEPTH24:
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachment, 0); 
+				break;
+			case FrameBufferTextureFormat::DEPTH24STENCIL8:
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachment, 0);
+				break;
+			default:
+				RK_GRAPHICS_ERROR("Frame Buffer Color Attachment Format Error");
+				break;
+			}
+
+			glBindTexture(GL_TEXTURE_2D, 0);
 		}
+
+		// Bind Depth Render Buffer
+		//glGenRenderbuffers(1, &m_DepthAttachment);
+		//glBindRenderbuffer(GL_RENDERBUFFER, m_DepthAttachment);
+		//if(m_Specification.Samples > 1)
+		//{
+		//	switch(m_Specification.DepthAttachment)
+		//	{
+		//	case FrameBufferTextureFormat::DEPTH24:
+		//		glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_Specification.Samples, GL_DEPTH_COMPONENT, m_Specification.DepthWidth, m_Specification.DepthHeight);
+		//		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_DepthAttachment);
+		//		break;
+		//	case FrameBufferTextureFormat::DEPTH24STENCIL8:
+		//		glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_Specification.Samples, GL_DEPTH24_STENCIL8, m_Specification.DepthWidth, m_Specification.DepthHeight);
+		//		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_DepthAttachment);
+		//		break;
+		//	default:
+		//		RK_GRAPHICS_ERROR("Frame Buffer Depth Stencil Attachment Format Error");
+		//		break;
+		//	}
+		//}
+		//else
+		//{
+		//	switch(m_Specification.DepthAttachment)
+		//	{
+		//	case FrameBufferTextureFormat::DEPTH24:
+		//		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_Specification.DepthWidth, m_Specification.DepthHeight);
+		//		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_DepthAttachment);
+		//		break;
+		//	case FrameBufferTextureFormat::DEPTH24STENCIL8:
+		//		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_Specification.DepthWidth, m_Specification.DepthHeight);
+		//		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_DepthAttachment);
+		//		break;
+		//	default:
+		//		RK_GRAPHICS_ERROR("Frame Buffer Depth Stencil Attachment Format Error");
+		//		break;
+		//	}
+		//}
 	}
 
 	RK_GRAPHICS_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer is incomplete!");
@@ -181,6 +262,7 @@ void OpenGLFrameBuffer::Bind(FrameBufferBindMode mode)
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, m_RendererID);
 		break;
 	}
+
 	glViewport(0, 0, m_Specification.ColorWidth, m_Specification.ColorHeight);
 }
 

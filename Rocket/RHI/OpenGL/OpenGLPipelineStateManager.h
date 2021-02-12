@@ -6,7 +6,6 @@ namespace Rocket
 {
     struct OpenGLPipelineState : public PipelineState
     {
-        Ref<OpenGLShader> shaderProgram;
         OpenGLPipelineState(PipelineState& rhs) : PipelineState(rhs) {}
         OpenGLPipelineState(PipelineState&& rhs) : PipelineState(std::move(rhs)) {}
     };

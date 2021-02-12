@@ -9,13 +9,12 @@ namespace Rocket
 #pragma pack(4)
     struct QuadVertex
 	{
-		Vector3f Position;  // 12 bytes
+		Vector4f Position;  // 16 bytes
 		Vector4f Color;     // 16 bytes
 		Vector2f TexCoord;  // 8 bytes
 		float TexIndex;     // 4 bytes
 		float TilingFactor; // 4 bytes
-        //int32_t Padding[1];  // 4 bytes
-	};                      // total 44 bytes
+	};                      // total 48 bytes
 #pragma pack(pop)
 
     using QuadIndex = uint32_t;

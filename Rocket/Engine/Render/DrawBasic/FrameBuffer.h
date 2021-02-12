@@ -6,7 +6,7 @@ namespace Rocket
 	ENUM(FrameBufferTextureFormat) { NONE = 0, RGB8, RGBA8, RGBA16, RGB16F, RGBA16F, DEPTH24, DEPTH24STENCIL8 };
 	ENUM(FrameBufferBindMode) { FRAMEBUFFER = 0, READ_FRAMEBUFFER, DRAW_FRAMEBUFFER };
 
-	struct FramebufferSpecification
+	struct FramebufferSpec
 	{
 		uint32_t ColorWidth = 0;
 		uint32_t ColorHeight = 0;
@@ -33,6 +33,6 @@ namespace Rocket
 		virtual uint32_t GetColorAttachmentRendererID(uint32_t index) const = 0;
 		virtual uint32_t GetDepthAttachmentRendererID() const = 0;
 
-		virtual const FramebufferSpecification& GetSpecification() const = 0;
+		virtual const FramebufferSpec& GetSpecification() const = 0;
 	};
 }
