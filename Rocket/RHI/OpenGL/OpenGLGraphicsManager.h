@@ -59,7 +59,7 @@ namespace Rocket
         bool OnWindowResize(EventPtr& e) final;
 
     protected:
-        void SwapBuffers() final;
+        void SwapBuffers();
         bool Resize(int32_t width, int32_t height);
 
     private:

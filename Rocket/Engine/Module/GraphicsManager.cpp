@@ -33,7 +33,7 @@ int GraphicsManager::Initialize()
     }
 
     // Add Draw Pass
-    m_DrawPasses.push_back(std::make_shared<ForwardGeometryPass>());
+    //m_DrawPasses.push_back(std::make_shared<ForwardGeometryPass>());
 
     InitConstants();
     return 0;

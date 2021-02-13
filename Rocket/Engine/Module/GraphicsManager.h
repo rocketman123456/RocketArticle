@@ -82,7 +82,6 @@ namespace Rocket
         Ref<FrameBuffer> GetFrameBuffer(const String& name);
 
     protected:
-        virtual void SwapBuffers() = 0;
 
         void InitConstants() {}
         void UpdateConstants();

@@ -2,13 +2,12 @@
 #include "Core/Core.h"
 #include "Common/GeomMath.h"
 
-#include <crossguid/guid.hpp>
-#include <vector>
-
 #define MAX_LIGHTS 100
 
 namespace Rocket
 {
+#pragma pack(push)
+#pragma pack(4)
     struct TextureId
     {
         intptr_t texture{-1};   // 8 bytes
@@ -19,7 +18,10 @@ namespace Rocket
         float    mipmap{0.0f};  // 4 bytes
         int32_t  padding;       // 4 bytes
     };                          // total 32 bytes
+#pragma pack(pop)
 
+#pragma pack(push)
+#pragma pack(4)
     struct MaterialTextures
     {
         TextureId diffuseMap;   // 32 bytes
@@ -29,6 +31,7 @@ namespace Rocket
         TextureId aoMap;        // 32 bytes
         TextureId heightMap;    // 32 bytes
     };                          // total 192 bytes
+#pragma pack(pop)
 
 #pragma pack(push)
 #pragma pack(4)

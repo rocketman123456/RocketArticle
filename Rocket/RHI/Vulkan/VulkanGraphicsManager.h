@@ -1,8 +1,8 @@
 #pragma once
 #include "Module/GraphicsManager.h"
+#include "Common/Buffer.h"
 
 #include <vulkan/vulkan.hpp>
-#include <vector>
 #include <optional>
 #include <set>
 
@@ -77,9 +77,7 @@ namespace Rocket
         void DrawTriangle(const Point3DList& vertices, const Matrix4f& trans, const Vector3f& color) final;
         void DrawTriangleStrip(const Point3DList& vertices, const Vector3f& color) final;
         
-    protected:
-        virtual void SwapBuffers() final;
-
+    private:
         void drawFrame();
 
         void createInstance();
@@ -109,7 +107,7 @@ namespace Rocket
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
         SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
         bool checkValidationLayerSupport();
-        VkShaderModule createShaderModule(const Vec<char>& code);
+        VkShaderModule createShaderModule(const Buffer& code);
 
     private:
         bool m_VSync = true;

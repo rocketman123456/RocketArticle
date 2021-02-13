@@ -1,6 +1,6 @@
-mkdir -p Thirdparty\build\shaderc
-pushd Thirdparty/shaderc
-./utils/git-sync-deps
+mkdir Thirdparty\build\shaderc
+pushd Thirdparty\shaderc
+.\utils\git-sync-deps
 popd
 pushd Thirdparty\build\shaderc
 del \S \Q *
