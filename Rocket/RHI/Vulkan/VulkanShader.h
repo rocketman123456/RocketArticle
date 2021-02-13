@@ -1,27 +1,21 @@
-#pragma once
 #include "Render/DrawBasic/Shader.h"
 #include "Utils/Hashing.h"
 
 namespace Rocket
 {
-    class OpenGLShader : implements Shader
+    class VullkanShader : implements Shader
     {
     public:
-        OpenGLShader(const String& name) : m_NameId(AssetHashTable::HashString(name)) {}
-        OpenGLShader(uint32_t shader, const String& name) : m_RendererId(shader), m_NameId(AssetHashTable::HashString(name)) {}
-        OpenGLShader(const OpenGLShader& rhs) = default;
-        OpenGLShader(OpenGLShader&& rhs) = default;
-        virtual ~OpenGLShader() = default;
+        VullkanShader();
+        virtual ~VullkanShader();
 
         bool Initialize(const ShaderSourceList& list) final;
-        void Finalize() final;
+		void Finalize() final;
 
         void Bind() const final;
 		void Unbind() const final;
 
-        UniformData GetUniformBinding() final { return {}; }
-
-        int32_t GetLocation(const String& name);
+		UniformData GetUniformBinding() final { return {}; }
 
 		bool SetInt32(const String& name, int32_t value) final;
         bool SetUInt32(const String& name, uint32_t value) final;
@@ -39,10 +33,10 @@ namespace Rocket
 		bool SetMatrix3f(const String& name, const Matrix3f& value) final;
 		bool SetMatrix4f(const String& name, const Matrix4f& value) final;
 
-        const String& GetName() const final { return AssetHashTable::GetStringFromId(m_NameId); }
-        uint32_t GetRenderId() final { return m_RendererId; }
+        const String& GetName() const { return AssetHashTable::GetStringFromId(m_NameId); }
+		uint32_t GetRenderId() { return m_RendererId; }
     private:
-        uint32_t m_RendererId;
         uint64_t m_NameId;
+        uint32_t m_RendererId;
     };
 }
