@@ -19,8 +19,6 @@ namespace Rocket
         void Bind() const final;
 		void Unbind() const final;
 
-        UniformData GetUniformBinding() final { return {}; }
-
         int32_t GetLocation(const String& name);
 
 		bool SetInt32(const String& name, int32_t value) final;
