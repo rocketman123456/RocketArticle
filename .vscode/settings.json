@@ -1,7 +1,4 @@
 {
-    "cmake.configureSettings": {
-        "CMAKE_TOOLCHAIN_FILE": "/Users/developer/Program/vcpkg/scripts/buildsystems/vcpkg.cmake"
-    },
     "files.associations": {
         "array": "cpp",
         "atomic": "cpp",
@@ -116,7 +113,12 @@
         "stack": "cpp",
         "span": "cpp",
         "typeindex": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "orderingmethods": "cpp",
+        "nonlinearoptimization": "cpp",
+        "core": "cpp",
+        "any": "cpp",
+        "scoped_allocator": "cpp"
     },
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

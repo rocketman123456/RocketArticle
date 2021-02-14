@@ -11,9 +11,9 @@ namespace Rocket
         virtual ~GuiSubPass() = default;
         void Draw(Frame& frame) final;
     private:
-        float m_CountTime = 0.0f;
+        double m_CountTime = 0.0f;
         int32_t m_CountFrame = 0;
-        int32_t m_FPS = 0.0;
+        int32_t m_FPS = 0;
         ElapseTimer m_Timer;
     };
 }

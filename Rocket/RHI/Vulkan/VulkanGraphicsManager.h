@@ -101,36 +101,65 @@ namespace Rocket
         bool m_VSync = true;
         GLFWwindow* m_WindowHandle = nullptr;
 
-        VkInstance instance;
-        VkDebugUtilsMessengerEXT debugMessenger;
-        VkSurfaceKHR surface;
+        VkInstance m_Instance;
+        VkDebugUtilsMessengerEXT m_DebugMessenger;
+        VkSurfaceKHR m_Surface;
 
-        VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-        VkDevice device;
+        VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
+        VkDevice m_Device;
 
-        VkQueue graphicsQueue;
-        VkQueue presentQueue;
+        VkQueue m_GraphicsQueue;
+        VkQueue m_PresentQueue;
 
-        VkSwapchainKHR swapChain;
-        Vec<VkImage> swapChainImages;
-        VkFormat swapChainImageFormat;
-        VkExtent2D swapChainExtent;
-        Vec<VkImageView> swapChainImageViews;
-        Vec<VkFramebuffer> swapChainFramebuffers;
+        VkSwapchainKHR m_SwapChain;
+        Vec<VkImage> m_SwapChainImages;
+        VkFormat m_SwapChainImageFormat;
+        VkExtent2D m_SwapChainExtent;
+        Vec<VkImageView> m_SwapChainImageViews;
+        Vec<VkFramebuffer> m_SwapChainFramebuffers;
 
-        VkRenderPass renderPass;
-        VkPipelineLayout pipelineLayout;
-        VkPipeline graphicsPipeline;
+        VkRenderPass m_RenderPass;
+        VkDescriptorSetLayout m_DescriptorSetLayout;
+        VkPipelineLayout m_PipelineLayout;
+        VkPipeline m_GraphicsPipeline;
 
-        VkCommandPool commandPool;
-        Vec<VkCommandBuffer> commandBuffers;
+        VkCommandPool m_CommandPool;
 
-        Vec<VkSemaphore> imageAvailableSemaphores;
-        Vec<VkSemaphore> renderFinishedSemaphores;
-        Vec<VkFence> inFlightFences;
-        Vec<VkFence> imagesInFlight;
-        size_t currentFrame = 0;
+        VkImage m_ColorImage;
+        VkDeviceMemory m_ColorImageMemory;
+        VkImageView m_ColorImageView;
 
-        bool framebufferResized = false;
+        VkImage m_DepthImage;
+        VkDeviceMemory m_DepthImageMemory;
+        VkImageView m_DepthImageView;
+
+        uint32_t m_MipLevels;
+        VkImage m_TextureImage;
+        VkDeviceMemory m_TextureImageMemory;
+        VkImageView m_TextureImageView;
+        VkSampler m_TextureSampler;
+
+        //Vec<Vertex> m_Vertices;
+        //Vec<uint32_t> m_Indices;
+        VkBuffer m_VertexBuffer;
+        VkDeviceMemory m_VertexBufferMemory;
+        VkBuffer m_IndexBuffer;
+        VkDeviceMemory m_IndexBufferMemory;
+
+        Vec<VkBuffer> m_UniformBuffers;
+        Vec<VkDeviceMemory> m_UniformBuffersMemory;
+
+        VkDescriptorPool m_DescriptorPool;
+        Vec<VkDescriptorSet> m_DescriptorSets;
+
+        Vec<VkCommandBuffer> m_CommandBuffers;
+
+        Vec<VkSemaphore> m_ImageAvailableSemaphores;
+        Vec<VkSemaphore> m_RenderFinishedSemaphores;
+        Vec<VkFence> m_InFlightFences;
+        Vec<VkFence> m_ImagesInFlight;
+        size_t m_CurrentFrame = 0;
+
+        bool m_FramebufferResized = false;
     };
 }
