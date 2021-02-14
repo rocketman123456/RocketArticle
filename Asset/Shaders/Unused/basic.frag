@@ -1,15 +1,13 @@
 #version 450
-layout(location = 0) out vec4 color;
+#extension GL_ARB_separate_shader_objects : enable
 
-layout(location = 0) in vec4 v_Color;
-layout(location = 1) in vec2 v_TexCoord;
-layout(location = 2) in float v_TexIndex;
-layout(location = 3) in float v_TilingFactor;
+layout(binding = 1) uniform sampler2D texSampler;
 
-layout(binding = 3) uniform sampler2D u_Textures[16];
+layout(location = 0) in vec3 fragColor;
+layout(location = 1) in vec2 fragTexCoord;
 
-void main()
-{
-	vec4 texColor = v_Color;
-	color = texColor;
+layout(location = 0) out vec4 outColor;
+
+void main() {
+    outColor = texture(texSampler, fragTexCoord);
 }

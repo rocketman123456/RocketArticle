@@ -6,7 +6,7 @@ layout(location = 1) in vec2 v_TexCoord;
 layout(location = 2) in float v_TexIndex;
 layout(location = 3) in float v_TilingFactor;
 
-layout(binding = 3) uniform sampler2D u_Textures[16];
+layout(binding = 2) uniform sampler2D u_Textures[16];
 
 void main()
 {

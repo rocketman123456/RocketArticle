@@ -37,7 +37,7 @@ namespace Rocket
         virtual const String& GetName() const = 0;
 		virtual const String& ToString() const { return GetName(); }
 
-		virtual uint32_t GetRenderId() = 0;
+		virtual uint32_t GetRenderId() const = 0;
     };
 
     inline std::ostream& operator<<(std::ostream& os, const Shader& s)

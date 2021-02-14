@@ -2,15 +2,15 @@
 #include "Module/Application.h"
 #include "Module/WindowManager.h"
 
-//#define VS_BASIC_SOURCE_FILE "basic.vert"
-//#define PS_BASIC_SOURCE_FILE "basic.frag"
+#define VS_BASIC_SOURCE_FILE "basic.vert"
+#define PS_BASIC_SOURCE_FILE "basic.frag"
 #define VS_DRAW2D_SOURCE_FILE "draw2d.vert"
 #define GS_DRAW2D_SOURCE_FILE "draw2d.geom"
 #define PS_DRAW2D_SOURCE_FILE "draw2d.frag"
-//#define DEBUG_VS_SHADER_SOURCE_FILE "debug.vert"
-//#define DEBUG_PS_SHADER_SOURCE_FILE "debug.frag"
-//#define VS_PASSTHROUGH_SOURCE_FILE "passthrough.vert"
-//#define PS_TEXTURE_SOURCE_FILE "texture.frag"
+#define DEBUG_VS_SHADER_SOURCE_FILE "debug.vert"
+#define DEBUG_PS_SHADER_SOURCE_FILE "debug.frag"
+#define VS_SCREEN_SOURCE_FILE "screen.vert"
+#define PS_SCREEN_SOURCE_FILE "screen.frag"
 
 using namespace Rocket;
 
@@ -61,7 +61,7 @@ const Ref<PipelineState> PipelineStateManager::GetPipelineState(const String& na
     else
     {
         RK_GRAPHICS_ASSERT(!m_pipelineStates.empty(), "Cannot Find Required Pipeline State");
-        return m_pipelineStates.begin()->second;
+        return nullptr;
     }
 }
 
@@ -100,6 +100,25 @@ int PipelineStateManager::Initialize()
     pipelineState.frameBufferInfo.DepthAttachment = FrameBufferTextureFormat::DEPTH24;
     pipelineState.frameBufferInfo.Samples = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
     pipelineState.frameBufferInfo.SwapChainTarget = false;
+    RegisterPipelineState(pipelineState);
+
+    pipelineState.pipelineStateName = "Screen";
+    pipelineState.pipelineType = PIPELINE_TYPE::GRAPHIC;
+    pipelineState.pipelineTarget = PIPELINE_TARGET::PLANAR;
+    pipelineState.vertexShaderName = VS_SCREEN_SOURCE_FILE;
+    pipelineState.pixelShaderName = PS_SCREEN_SOURCE_FILE;
+    pipelineState.geometryShaderName = GS_DRAW2D_SOURCE_FILE;
+    pipelineState.depthTestMode = DEPTH_TEST_MODE::LESS_EQUAL;
+    pipelineState.depthWriteMode = true;
+    pipelineState.blenderMode = BLENDER_MODE::ONE_MINUS_SRC_ALPHA;
+    pipelineState.stencilTestMode = STENCIL_TEST_MODE::NONE;
+    pipelineState.cullFaceMode = CULL_FACE_MODE::BACK;
+    pipelineState.pixelFormat = PIXEL_FORMAT::BGRA8UNORM;
+    pipelineState.sampleCount = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
+    pipelineState.a2vType = A2V_TYPES::A2V_TYPES_FULL;
+    pipelineState.flag = PIPELINE_FLAG::NONE;
+    pipelineState.renderType = RENDER_TYPE::STATIC;
+    pipelineState.renderTarget = RENDER_TARGET::NONE;
     RegisterPipelineState(pipelineState);
 
     RK_GRAPHICS_INFO("Pipeline State Manager Initialized. Add [{}] Pipelines", m_pipelineStates.size());

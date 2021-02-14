@@ -34,7 +34,7 @@ namespace Rocket
 #pragma pack(pop)
 
 #pragma pack(push)
-#pragma pack(4)
+#pragma pack(16)
     struct LightInfo
     {
         Matrix4f lightViewMatrix;                   // 64 bytes
@@ -44,11 +44,11 @@ namespace Rocket
         Vector4f lightDirection;                    // 16 bytes
         Vector4f lightDistAttenCurveParams[2];      // 32 bytes
         Vector4f lightAngleAttenCurveParams[2];     // 32 bytes
-    };                                              // total
+    };                                              // total 240 bytes
 #pragma pack(pop)
 
 #pragma pack(push)
-#pragma pack(4)
+#pragma pack(16)
     struct PerFrameConstants
     {
         Matrix4f viewMatrix;        // 64 bytes
@@ -60,7 +60,7 @@ namespace Rocket
 #pragma pack(pop)
 
 #pragma pack(push)
-#pragma pack(4)
+#pragma pack(16)
     struct PerBatchConstants
     {
         Matrix4f modelMatrix;  // 64 bytes

@@ -47,8 +47,8 @@ namespace Rocket
         void BeginCompute() final {}
         void EndCompute() final {}
 
-        void BeginFrame(const Frame& frame);
-        void EndFrame(const Frame& frame);
+        void BeginFrame(const Frame& frame) final;
+        void EndFrame(const Frame& frame) final;
 
         void BeginFrameBuffer(const Frame& frame) final;
         void EndFrameBuffer(const Frame& frame) final;
@@ -96,18 +96,6 @@ namespace Rocket
 
         void cleanupSwapChain();
         void recreateSwapChain();
-
-        Vec<const char*> getRequiredExtensions();
-        void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
-        bool isDeviceSuitable(VkPhysicalDevice device);
-        bool checkDeviceExtensionSupport(VkPhysicalDevice device);
-        QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
-        VkSurfaceFormatKHR chooseSwapSurfaceFormat(const Vec<VkSurfaceFormatKHR>& availableFormats);
-        VkPresentModeKHR chooseSwapPresentMode(const Vec<VkPresentModeKHR>& availablePresentModes);
-        VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
-        SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
-        bool checkValidationLayerSupport();
-        VkShaderModule createShaderModule(const Buffer& code);
 
     private:
         bool m_VSync = true;

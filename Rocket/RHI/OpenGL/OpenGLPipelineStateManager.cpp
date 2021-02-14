@@ -1,6 +1,5 @@
 #include "OpenGL/OpenGLPipelineStateManager.h"
-#include "Module/Application.h"
-#include "Module/AssetLoader.h"
+#include "Module/MemoryManager.h"
 
 #include <glad/glad.h>
 #include <fstream>
@@ -44,7 +43,7 @@ bool OpenGLPipelineStateManager::InitializePipelineState(PipelineState** ppPipel
     }
 
     auto name = pnew_state->pipelineStateName + " Shader";
-    pnew_state->shaderProgram = Ref<OpenGLShader>(new OpenGLShader(name));
+    pnew_state->shaderProgram = CreateRef<OpenGLShader>(name);
     bool result = pnew_state->shaderProgram->Initialize(list);
     *ppPipelineState = pnew_state;
         

@@ -11,31 +11,31 @@ namespace Rocket
 {
     using AssetFilePtr = void*;
 
+    ENUM(AssetOpenMode)
+    {
+        RK_OPEN_TEXT = 0,    /// Open In Text Mode
+        RK_OPEN_BINARY = 1,  /// Open In Binary Mode
+        RK_WRITE_TEXT,       /// Write In Text Mode
+        RK_WRITE_BINARY,     /// Write In Binary Mode
+    };
+
+    ENUM(AssetSeekBase)
+    {
+        RK_SEEK_SET = 0,  /// SEEK_SET
+        RK_SEEK_CUR = 1,  /// SEEK_CUR
+        RK_SEEK_END = 2   /// SEEK_END
+    };
+
+    ENUM(AssetType)
+    {
+        RK_NORMAL = 0,
+        RK_PICTURE,
+        RK_AUDIO
+    };
+
     class AssetLoader : implements IRuntimeModule
     {
     public:
-        ENUM(AssetOpenMode)
-        {
-            RK_OPEN_TEXT = 0,    /// Open In Text Mode
-            RK_OPEN_BINARY = 1,  /// Open In Binary Mode
-            RK_WRITE_TEXT,       /// Write In Text Mode
-            RK_WRITE_BINARY,     /// Write In Binary Mode
-        };
-
-        ENUM(AssetSeekBase)
-        {
-            RK_SEEK_SET = 0,  /// SEEK_SET
-            RK_SEEK_CUR = 1,  /// SEEK_CUR
-            RK_SEEK_END = 2   /// SEEK_END
-        };
-
-        ENUM(AssetType)
-        {
-            RK_NORMAL = 0,
-            RK_PICTURE,
-            RK_AUDIO
-        };
-        
         RUNTIME_MODULE_TYPE(AssetLoader);
         AssetLoader() = default;
         virtual ~AssetLoader() = default;
@@ -44,6 +44,11 @@ namespace Rocket
         void Finalize() final;
 
         void Tick(Timestep ts) final;
+
+        virtual AssetFilePtr SyncOpenAndReadTexture(const String& filePath, int32_t* width, int32_t* height, int32_t* channels);
+        virtual void SyncCloseTexture(AssetFilePtr data);
+        virtual void SyncOpenAndReadAudio(const String& filePath, uint32_t* buffer);
+        virtual void SyncCloseAudio(uint32_t* buffer);
 
         virtual AssetFilePtr OpenFile(const String& name, AssetOpenMode mode);
         virtual Buffer SyncOpenAndReadText(const String& filePath);
@@ -56,8 +61,8 @@ namespace Rocket
         virtual size_t GetSize(const AssetFilePtr& fp);
         virtual int32_t Seek(AssetFilePtr fp, long offset, AssetSeekBase where);
 
-        String SyncOpenAndReadTextFileToString(const String& fileName);
-        bool SyncOpenAndWriteStringToTextFile(const String& fileName, const String& content);
+        virtual String SyncOpenAndReadTextFileToString(const String& fileName);
+        virtual bool SyncOpenAndWriteStringToTextFile(const String& fileName, const String& content);
 
     private:
         String m_AssetPath;
