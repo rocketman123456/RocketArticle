@@ -76,26 +76,40 @@ namespace Rocket
         void DrawTriangle(const Point3DList& vertices, const Vector3f& color) final;
         void DrawTriangle(const Point3DList& vertices, const Matrix4f& trans, const Vector3f& color) final;
         void DrawTriangleStrip(const Point3DList& vertices, const Vector3f& color) final;
+
+        VkDevice& GetDevice() { return m_Device; }
+        VkPhysicalDevice& GetPhysicalDevice()  { m_PhysicalDevice; }
         
     private:
-        void drawFrame();
+        void DrawFrame();
 
-        void createInstance();
-        void setupDebugMessenger();
-        void createSurface();
-        void pickPhysicalDevice();
-        void createLogicalDevice();
-        void createSwapChain();
-        void createImageViews();
-        void createRenderPass();
-        void createGraphicsPipeline();
-        void createFramebuffers();
-        void createCommandPool();
-        void createCommandBuffers();
-        void createSyncObjects();
+        void CreateInstance();
+        void SetupDebugMessenger();
+        void CreateSurface();
+        void PickPhysicalDevice();
+        void CreateLogicalDevice();
+        void CreateSwapChain();
+        void CreateImageViews();
+        void CreateRenderPass();
+        void CreateDescriptorSetLayout();
+        void CreateGraphicsPipeline();
+        void CreateCommandPool();
+        void CreateColorResources();
+        void CreateDepthResources();
+        void CreateFramebuffers();
+        void CreateTextureImage(); // TODO
+        void CreateTextureImageView(); // TODO
+        void CreateTextureSampler(); // TODO
+        void CreateVertexBuffer(); // TODO
+        void CreateIndexBuffer(); // TODO
+        void CreateUniformBuffers(); // TODO
+        void CreateDescriptorPool(); // TODO
+        void CreateDescriptorSets(); // TODO
+        void CreateCommandBuffers();
+        void CreateSyncObjects();
 
-        void cleanupSwapChain();
-        void recreateSwapChain();
+        void CleanupSwapChain();
+        void RecreateSwapChain();
 
     private:
         bool m_VSync = true;
@@ -106,6 +120,7 @@ namespace Rocket
         VkSurfaceKHR m_Surface;
 
         VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
+        VkSampleCountFlagBits m_MsaaSamples = VK_SAMPLE_COUNT_1_BIT;
         VkDevice m_Device;
 
         VkQueue m_GraphicsQueue;
@@ -162,4 +177,28 @@ namespace Rocket
 
         bool m_FramebufferResized = false;
     };
+
+//--------------------------------------------------------------------//
+//--- Helper Function ------------------------------------------------//
+//--------------------------------------------------------------------//
+
+    bool CheckValidationLayerSupport();
+    Vec<const char*> GetRequiredExtensions();
+    void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+    bool IsDeviceSuitable(const VkPhysicalDevice& device, const VkSurfaceKHR& surface);
+    bool CheckDeviceExtensionSupport(const VkPhysicalDevice& device);
+    QueueFamilyIndices FindQueueFamilies(const VkPhysicalDevice& device, const VkSurfaceKHR& surface);
+    VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const Vec<VkSurfaceFormatKHR>& availableFormats);
+    VkPresentModeKHR ChooseSwapPresentMode(const Vec<VkPresentModeKHR>& availablePresentModes);
+    VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow* window_handle);
+    SwapChainSupportDetails QuerySwapChainSupport(const VkPhysicalDevice& device, const VkSurfaceKHR& surface);
+    VkShaderModule CreateShaderModule(const Buffer& code, const VkDevice& device);
+    uint32_t FindMemoryType(const VkPhysicalDevice& device, uint32_t typeFilter, VkMemoryPropertyFlags properties);
+    void CreateImage(const VkDevice& device, const VkPhysicalDevice& physicalDevice, uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
+    VkImageView CreateImageView(const VkDevice& device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
+    VkFormat FindSupportedFormat(const VkPhysicalDevice& physicalDevice, const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+    VkFormat FindDepthFormat(const VkPhysicalDevice& physicalDevice);
+    VkSampleCountFlagBits GetMaxUsableSampleCount(const VkPhysicalDevice& physicalDevice);
+    bool HasStencilComponent(VkFormat format);
+    void CreateBuffer(const VkDevice& device, const VkPhysicalDevice& physicalDevice, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 }

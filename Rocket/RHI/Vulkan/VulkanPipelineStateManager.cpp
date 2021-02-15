@@ -1,7 +1,9 @@
 #include "Vulkan/VulkanPipelineStateManager.h"
+#include "Vulkan/VulkanGraphicsManager.h"
 #include "Vulkan/VulkanShader.h"
 #include "Module/MemoryManager.h"
 
+#include <memory>
 #include <shaderc/shaderc.hpp>
 
 using namespace Rocket;
@@ -37,9 +39,10 @@ bool VulkanPipelineStateManager::InitializePipelineState(PipelineState** ppPipel
     if (!(*ppPipelineState)->tessEvaluateShaderName.empty()) {
         list.emplace_back(shaderc_glsl_tess_evaluation_shader, (*ppPipelineState)->tessEvaluateShaderName);
     }
-
-    auto name = pnew_state->pipelineStateName + " Shader";
-    pnew_state->shaderProgram = CreateRef<VulkanShader>(name);
+    VulkanGraphicsManager* vulkan_graphics_manager = dynamic_cast<VulkanGraphicsManager*>(g_GraphicsManager);
+    VkDevice device = vulkan_graphics_manager->GetDevice();
+    String name = pnew_state->pipelineStateName + " Shader";
+    pnew_state->shaderProgram = CreateRef<VulkanShader>(name, device);
     bool result = pnew_state->shaderProgram->Initialize(list);
     *ppPipelineState = pnew_state;
 

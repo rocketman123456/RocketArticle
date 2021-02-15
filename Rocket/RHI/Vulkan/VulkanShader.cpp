@@ -2,6 +2,8 @@
 #include "Module/Application.h"
 #include "Module/AssetLoader.h"
 
+#include <shaderc/shaderc.hpp>
+
 using namespace Rocket;
 
 // Returns GLSL shader source text after preprocessing.
@@ -95,6 +97,20 @@ static Vec<uint32_t> CompileFile(const String& source_name,
     return {module.cbegin(), module.cend()};
 }
 
+static VkShaderModule CreateShaderModule(const Vec<uint32_t>& code, const VkDevice& device)
+{
+    VkShaderModuleCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    createInfo.codeSize = code.size();
+    createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+
+    VkShaderModule shaderModule;
+    if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
+        RK_GRAPHICS_ERROR("failed to create shader module!");
+
+    return shaderModule;
+}
+
 bool VulkanShader::Initialize(const ShaderSourceList& list)
 {
     for (auto it = list.cbegin(); it != list.cend(); it++)
@@ -102,18 +118,49 @@ bool VulkanShader::Initialize(const ShaderSourceList& list)
         if (!it->second.empty())
         {
             auto config = g_Application->GetConfig();
-            auto full_path = ("Shaders/" + RenderAPI + "/" + it->second);
+            String full_path = String("Shaders/" + RenderAPI + "/" + it->second);
             RK_GRAPHICS_INFO("Load Shader File {}", full_path);
             String shaderBuffer = g_AssetLoader->SyncOpenAndReadTextFileToString(full_path);
             // Preprocessing
-            auto preprocessed = PreprocessShader("shader_src", (shaderc_shader_kind)it->first, shaderBuffer);
+            String preprocessed = PreprocessShader("shader_src", (shaderc_shader_kind)it->first, shaderBuffer);
             //RK_GRAPHICS_INFO("Compiled a vertex shader resulting in preprocessed text:\n {}", preprocessed);
             // Optimizing
-            auto assembly = CompileFileToAssembly("shader_preprocessed", (shaderc_shader_kind)it->first, preprocessed, true);
+            String assembly = CompileFileToAssembly("shader_preprocessed", (shaderc_shader_kind)it->first, preprocessed, true);
             //RK_GRAPHICS_INFO("Optimized SPIR-V assembly:\n {}", assembly);
             // Compile
-            auto spirv = CompileAssemblyToBinary(assembly, true);
+            Vec<uint32_t> spirv = CompileAssemblyToBinary(assembly, true);
             RK_GRAPHICS_INFO("Compiled to a binary module with {} words.", spirv.size());
+
+            VkShaderModule shader = CreateShaderModule(spirv, m_DeviceHandle);
+
+            VkPipelineShaderStageCreateInfo shaderStageInfo{};
+            shaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            shaderStageInfo.module = shader;
+            shaderStageInfo.pName = "main";
+            switch(it->first)
+            {
+            case shaderc_glsl_vertex_shader:
+                shaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+                break;
+            case shaderc_glsl_fragment_shader:
+                shaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+                break;
+            case shaderc_glsl_compute_shader:
+                shaderStageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+                break;
+            case shaderc_glsl_geometry_shader:
+                shaderStageInfo.stage = VK_SHADER_STAGE_GEOMETRY_BIT;
+                break;
+            case shaderc_glsl_tess_control_shader:
+                shaderStageInfo.stage = VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+                break;
+            case shaderc_glsl_tess_evaluation_shader:
+                shaderStageInfo.stage = VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+                break;
+            }
+
+            m_Shader.emplace_back(shader);
+            m_ShaderInfo.emplace_back(shaderStageInfo);
         }
     }
     return true;

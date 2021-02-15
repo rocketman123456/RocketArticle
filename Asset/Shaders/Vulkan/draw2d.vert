@@ -1,17 +1,19 @@
 #version 450
+#extension GL_ARB_separate_shader_objects : enable
+
 layout(location = 0) in vec4 a_Position;
 layout(location = 1) in vec4 a_Color;
 layout(location = 2) in vec2 a_TexCoord;
 layout(location = 3) in float a_TexIndex;
 layout(location = 4) in float a_TilingFactor;
 
-layout(location = 0) out VS_OUT
-{
-	vec4 v_Color;
-	vec2 v_TexCoord;
-	float v_TexIndex;
-	float v_TilingFactor;
-} vs_out;
+//layout(location = 0) out VS_OUT
+//{
+layout(location = 0) out vec4 v_Color;
+layout(location = 1) out vec2 v_TexCoord;
+layout(location = 2) out float v_TexIndex;
+layout(location = 3) out float v_TilingFactor;
+//} vs_out;
 
 layout(binding = 0) uniform PerFrameConstants
 {
@@ -28,9 +30,9 @@ layout(binding = 1) uniform PerBatchConstants
 
 void main()
 {
-	vs_out.v_Color = a_Color;
-	vs_out.v_TexCoord = a_TexCoord;
-	vs_out.v_TexIndex = a_TexIndex;
-	vs_out.v_TilingFactor = a_TilingFactor;
+	v_Color = a_Color;
+	v_TexCoord = a_TexCoord;
+	v_TexIndex = a_TexIndex;
+	v_TilingFactor = a_TilingFactor;
 	gl_Position = PerFrame.projectionMatrix * PerFrame.viewMatrix * PerBatch.modelMatrix * vec4(a_Position.xyz, 1.0f);
 }

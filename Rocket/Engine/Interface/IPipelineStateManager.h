@@ -39,6 +39,8 @@ namespace Rocket
         String            tessEvaluateShaderName;
         String            meshShaderName;
 
+        BufferLayout      bufferLayout;
+
         DEPTH_TEST_MODE   depthTestMode{DEPTH_TEST_MODE::ALWAYS};
         bool              depthWriteMode{true};
         BLENDER_MODE      blenderMode{BLENDER_MODE::NONE};
