@@ -4,7 +4,7 @@
 #if defined(RK_OPENGL)
 #include "OpenGL/OpenGLTexture.h"
 #elif defined(RK_VULKAN)
-//#include "Vulkan/VulkanTexture.h"
+#include "Vulkan/VulkanTexture.h"
 #elif defined(RK_METAL)
 //#include "Metal/MetalTexture.h"
 #endif
@@ -16,8 +16,7 @@ Ref<Texture2D> Texture2D::Create(uint32_t width, uint32_t height)
 #if defined(RK_OPENGL)
     return CreateRef<OpenGLTexture2D>(width, height);
 #elif defined(RK_VULKAN)
-    //return CreateRef<VulkanTexture2D>(width, height);
-    return nullptr;
+    return CreateRef<VulkanTexture2D>(width, height);
 #elif defined(RK_METAL)
     //return CreateRef<MetalTexture2D>(width, height);
     return nullptr;
@@ -29,8 +28,7 @@ Ref<Texture2D> Texture2D::Create(const String& path)
 #if defined(RK_OPENGL)
     return CreateRef<OpenGLTexture2D>(path);
 #elif defined(RK_VULKAN)
-    //return CreateRef<VulkanTexture2D>(path);
-    return nullptr;
+    return CreateRef<VulkanTexture2D>(path);
 #elif defined(RK_METAL)
     //return CreateRef<MetalTexture2D>(path);
     return nullptr;

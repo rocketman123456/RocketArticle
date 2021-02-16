@@ -45,7 +45,7 @@ namespace Rocket
 
         void Tick(Timestep ts) final;
 
-        virtual AssetFilePtr SyncOpenAndReadTexture(const String& filePath, int32_t* width, int32_t* height, int32_t* channels);
+        virtual AssetFilePtr SyncOpenAndReadTexture(const String& filePath, int32_t* width, int32_t* height, int32_t* channels, int32_t desired_channel = 0);
         virtual void SyncCloseTexture(AssetFilePtr data);
         virtual void SyncOpenAndReadAudio(const String& filePath, uint32_t* buffer);
         virtual void SyncCloseAudio(uint32_t* buffer);
@@ -63,6 +63,8 @@ namespace Rocket
 
         virtual String SyncOpenAndReadTextFileToString(const String& fileName);
         virtual bool SyncOpenAndWriteStringToTextFile(const String& fileName, const String& content);
+
+        const String& GetAssetPath() { return m_AssetPath; }
 
     private:
         String m_AssetPath;

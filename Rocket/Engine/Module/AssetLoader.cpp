@@ -27,13 +27,14 @@ void AssetLoader::Tick(Timestep ts)
 {
 }
 
-AssetFilePtr AssetLoader::SyncOpenAndReadTexture(const String& filePath, int32_t* width, int32_t* height, int32_t* channels)
+AssetFilePtr AssetLoader::SyncOpenAndReadTexture(const String& filePath, int32_t* width, int32_t* height, int32_t* channels, int32_t desired_channel)
 {
+    String fullPath = m_AssetPath + filePath;
+    RK_CORE_TRACE("Open Texture {}", fullPath);
     stbi_set_flip_vertically_on_load(1);
 	stbi_uc* data = nullptr;
-	{
-		data = stbi_load(filePath.c_str(), width, height, channels, 0);
-	}
+	data = stbi_load(fullPath.c_str(), width, height, channels, desired_channel);
+	RK_CORE_TRACE("Texture Info : width {}, height {}, channels {}", *width, *height, *channels);
     RK_CORE_ASSERT(data, "Failed to load image!");
     return data;
 }
@@ -45,6 +46,9 @@ void AssetLoader::SyncCloseTexture(AssetFilePtr data)
 
 void AssetLoader::SyncOpenAndReadAudio(const String& filename, uint32_t* buffer_in)
 {
+    String fullPath = m_AssetPath + filename;
+    RK_CORE_TRACE("Open Audio {}", fullPath);
+    
     ALuint buffer = 0;
     ALenum err, format;
     SNDFILE* sndfile;
@@ -54,15 +58,15 @@ void AssetLoader::SyncOpenAndReadAudio(const String& filename, uint32_t* buffer_
     ALsizei num_bytes;
 
     // Open the audio file and check that it's usable.
-    sndfile = sf_open(filename.c_str(), SFM_READ, &sfinfo);
+    sndfile = sf_open(fullPath.c_str(), SFM_READ, &sfinfo);
     if (!sndfile)
     {
-        RK_CORE_ERROR("Could not open audio in {0}: {1}", filename, sf_strerror(sndfile));
+        RK_CORE_ERROR("Could not open audio in {0}: {1}", fullPath, sf_strerror(sndfile));
         return;
     }
     if (sfinfo.frames < 1 || sfinfo.frames >(sf_count_t)(INT_MAX / sizeof(short)) / sfinfo.channels)
     {
-        RK_CORE_ERROR("Bad sample count in {0}", filename);
+        RK_CORE_ERROR("Bad sample count in {0}", fullPath);
         sf_close(sndfile);
         return;
     }
@@ -99,7 +103,7 @@ void AssetLoader::SyncOpenAndReadAudio(const String& filename, uint32_t* buffer_
     {
         free(membuf);
         sf_close(sndfile);
-        RK_CORE_ERROR("Failed to read samples in {0}", filename);
+        RK_CORE_ERROR("Failed to read samples in {0}", fullPath);
         return;
     }
     num_bytes = (ALsizei)(num_frames * sfinfo.channels) * (ALsizei)sizeof(short);

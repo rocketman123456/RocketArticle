@@ -1,32 +1,14 @@
 #pragma once
 #include "Module/GraphicsManager.h"
+#include "Vulkan/VulkanFunction.h"
 #include "Common/Buffer.h"
 
 #include <vulkan/vulkan.hpp>
-#include <optional>
-#include <set>
 
 struct GLFWwindow;
 
 namespace Rocket
-{
-    struct QueueFamilyIndices
-    {
-        std::optional<uint32_t> graphicsFamily;
-        std::optional<uint32_t> presentFamily;
-
-        bool isComplete() {
-            return graphicsFamily.has_value() && presentFamily.has_value();
-        }
-    };
-
-    struct SwapChainSupportDetails
-    {
-        VkSurfaceCapabilitiesKHR capabilities;
-        Vec<VkSurfaceFormatKHR> formats;
-        Vec<VkPresentModeKHR> presentModes;
-    };
-    
+{   
     class VulkanGraphicsManager : implements GraphicsManager
     {
     public:
@@ -97,19 +79,24 @@ namespace Rocket
         void CreateColorResources();
         void CreateDepthResources();
         void CreateFramebuffers();
-        void CreateTextureImage(); // TODO
-        void CreateTextureImageView(); // TODO
-        void CreateTextureSampler(); // TODO
-        void CreateVertexBuffer(); // TODO
-        void CreateIndexBuffer(); // TODO
-        void CreateUniformBuffers(); // TODO
-        void CreateDescriptorPool(); // TODO
-        void CreateDescriptorSets(); // TODO
+        void CreateTextureImage();
+        void CreateTextureImageView();
+        void CreateTextureSampler();
+
+        void LoadModel();
+
+        void CreateVertexBuffer();
+        void CreateIndexBuffer();
+        void CreateUniformBuffers();
+        void CreateDescriptorPool();
+        void CreateDescriptorSets();
         void CreateCommandBuffers();
         void CreateSyncObjects();
 
         void CleanupSwapChain();
         void RecreateSwapChain();
+
+        void UpdateUniformBuffer(uint32_t currentImage);
 
     private:
         bool m_VSync = true;
@@ -154,8 +141,8 @@ namespace Rocket
         VkImageView m_TextureImageView;
         VkSampler m_TextureSampler;
 
-        //Vec<Vertex> m_Vertices;
-        //Vec<uint32_t> m_Indices;
+        Vec<Vertex> m_Vertices;
+        Vec<uint32_t> m_Indices;
         VkBuffer m_VertexBuffer;
         VkDeviceMemory m_VertexBufferMemory;
         VkBuffer m_IndexBuffer;
@@ -177,28 +164,4 @@ namespace Rocket
 
         bool m_FramebufferResized = false;
     };
-
-//--------------------------------------------------------------------//
-//--- Helper Function ------------------------------------------------//
-//--------------------------------------------------------------------//
-
-    bool CheckValidationLayerSupport();
-    Vec<const char*> GetRequiredExtensions();
-    void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
-    bool IsDeviceSuitable(const VkPhysicalDevice& device, const VkSurfaceKHR& surface);
-    bool CheckDeviceExtensionSupport(const VkPhysicalDevice& device);
-    QueueFamilyIndices FindQueueFamilies(const VkPhysicalDevice& device, const VkSurfaceKHR& surface);
-    VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const Vec<VkSurfaceFormatKHR>& availableFormats);
-    VkPresentModeKHR ChooseSwapPresentMode(const Vec<VkPresentModeKHR>& availablePresentModes);
-    VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow* window_handle);
-    SwapChainSupportDetails QuerySwapChainSupport(const VkPhysicalDevice& device, const VkSurfaceKHR& surface);
-    VkShaderModule CreateShaderModule(const Buffer& code, const VkDevice& device);
-    uint32_t FindMemoryType(const VkPhysicalDevice& device, uint32_t typeFilter, VkMemoryPropertyFlags properties);
-    void CreateImage(const VkDevice& device, const VkPhysicalDevice& physicalDevice, uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
-    VkImageView CreateImageView(const VkDevice& device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
-    VkFormat FindSupportedFormat(const VkPhysicalDevice& physicalDevice, const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
-    VkFormat FindDepthFormat(const VkPhysicalDevice& physicalDevice);
-    VkSampleCountFlagBits GetMaxUsableSampleCount(const VkPhysicalDevice& physicalDevice);
-    bool HasStencilComponent(VkFormat format);
-    void CreateBuffer(const VkDevice& device, const VkPhysicalDevice& physicalDevice, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 }
