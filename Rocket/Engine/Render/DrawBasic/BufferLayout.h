@@ -32,14 +32,22 @@ namespace Rocket
 	{
 		String Name;
 		ShaderDataType Type;
-		uint32_t Size;
-		size_t Offset;
-		bool Normalized;
+		uint32_t Size = 0;
+		size_t Offset = 0;
+		bool Normalized = false;
+
+		uint32_t Index = 0;
+		uint32_t Binding = 0;
+		uint32_t Count = 0;
+		uint32_t ShaderStage = 0;
+		uint32_t UniformType = 0;
 
 		BufferElement() = default;
 
 		BufferElement(ShaderDataType type, const String& name, bool normalized = false)
-			: Name(name), Type(type), Size(ShaderDataTypeSize(type)), Offset(0), Normalized(normalized) {}
+			: Name(name), Type(type), Size(ShaderDataTypeSize(type)), Normalized(normalized) {}
+		BufferElement(const String& name, uint32_t binding, uint32_t count, uint32_t stage, uint32_t type, bool normalized = false)
+			: Name(name), Binding(binding), Count(count), ShaderStage(stage), UniformType(type), Normalized(normalized) {}
 
 		uint32_t GetComponentCount() const
 		{
@@ -80,11 +88,14 @@ namespace Rocket
 	private:
 		void CalculateOffsetsAndStride()
 		{
+			uint32_t index;
 			size_t offset = 0;
 			m_Stride = 0;
 			for (auto& element : m_Elements)
 			{
+				element.Index = index;
 				element.Offset = offset;
+				index += 1;
 				offset += element.Size;
 				m_Stride += element.Size;
 			}

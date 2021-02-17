@@ -40,6 +40,7 @@ namespace Rocket
         String            meshShaderName;
 
         BufferLayout      bufferLayout;
+        BufferLayout      uniformLayout;
 
         DEPTH_TEST_MODE   depthTestMode{DEPTH_TEST_MODE::ALWAYS};
         bool              depthWriteMode{true};

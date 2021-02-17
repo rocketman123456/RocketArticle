@@ -83,6 +83,7 @@ namespace Rocket
         Scope<SceneNode> mesh_node = CreateScope<SceneNode>("Mesh Node");
 
         Ref<SceneCamera> cam = CreateRef<SceneCamera>();
+
         cam->SetProjectionType(SceneCamera::ProjectionType::Orthographic);
         auto width = g_WindowManager->GetWindowWidth();
         auto height = g_WindowManager->GetWindowHeight();

@@ -77,13 +77,17 @@ int PipelineStateManager::Initialize()
     pipelineState.pipelineTarget = PIPELINE_TARGET::PLANAR;
     pipelineState.vertexShaderName = VS_DRAW2D_SOURCE_FILE;
     pipelineState.pixelShaderName = PS_DRAW2D_SOURCE_FILE;
-    //pipelineState.geometryShaderName = GS_DRAW2D_SOURCE_FILE;
     pipelineState.bufferLayout = {
         { ShaderDataType::Vec4f, "a_Position" },
         { ShaderDataType::Vec4f, "a_Color" },
         { ShaderDataType::Vec2f, "a_TexCoord" },
         { ShaderDataType::Float, "a_TexIndex" },
         { ShaderDataType::Float, "a_TilingFactor" },
+    };
+    pipelineState.uniformLayout = {
+        {"PerFrameConstants", 0, 1, 1, 6},
+        {"PerBatchConstants", 1, 1, 1, 6},
+        {"u_Textures", 2, 16, 16, 1},
     };
     pipelineState.depthTestMode = DEPTH_TEST_MODE::LESS_EQUAL;
     pipelineState.depthWriteMode = true;
@@ -114,7 +118,13 @@ int PipelineStateManager::Initialize()
     pipelineState.pipelineTarget = PIPELINE_TARGET::PLANAR;
     pipelineState.vertexShaderName = VS_SCREEN_SOURCE_FILE;
     pipelineState.pixelShaderName = PS_SCREEN_SOURCE_FILE;
-    pipelineState.geometryShaderName = GS_DRAW2D_SOURCE_FILE;
+    pipelineState.bufferLayout = {
+        { ShaderDataType::Vec2f, "a_Position" },
+        { ShaderDataType::Vec2f, "a_TexCoords" },
+    };
+    pipelineState.uniformLayout = {
+        {"screenTexture", 0, 1, 16, 1}
+    };
     pipelineState.depthTestMode = DEPTH_TEST_MODE::LESS_EQUAL;
     pipelineState.depthWriteMode = true;
     pipelineState.blenderMode = BLENDER_MODE::ONE_MINUS_SRC_ALPHA;
