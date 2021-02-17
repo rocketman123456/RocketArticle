@@ -1,4 +1,5 @@
 #include "Vulkan/VulkanShader.h"
+#include "Vulkan/VulkanFunction.h"
 #include "Module/Application.h"
 #include "Module/AssetLoader.h"
 
@@ -68,7 +69,7 @@ static Vec<uint32_t> CompileAssemblyToBinary(const String& source, bool optimize
     {
         RK_GRAPHICS_ERROR(result.GetErrorMessage());
         return Vec<uint32_t>();
-    }
+    } 
 
     return {result.cbegin(), result.cend()};
 }
@@ -97,20 +98,6 @@ static Vec<uint32_t> CompileFile(const String& source_name,
     return {module.cbegin(), module.cend()};
 }
 
-static VkShaderModule CreateShaderModule(const Vec<uint32_t>& code, const VkDevice& device)
-{
-    VkShaderModuleCreateInfo createInfo{};
-    createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    createInfo.codeSize = code.size();
-    createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
-
-    VkShaderModule shaderModule;
-    if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
-        RK_GRAPHICS_ERROR("failed to create shader module!");
-
-    return shaderModule;
-}
-
 bool VulkanShader::Initialize(const ShaderSourceList& list)
 {
     for (auto it = list.cbegin(); it != list.cend(); it++)
@@ -119,14 +106,14 @@ bool VulkanShader::Initialize(const ShaderSourceList& list)
         {
             auto config = g_Application->GetConfig();
             String full_path = String("Shaders/" + RenderAPI + "/" + it->second);
-            RK_GRAPHICS_INFO("Load Shader File {}", full_path);
+            
             String shaderBuffer = g_AssetLoader->SyncOpenAndReadTextFileToString(full_path);
             // Preprocessing
             String preprocessed = PreprocessShader("shader_src", (shaderc_shader_kind)it->first, shaderBuffer);
-            //RK_GRAPHICS_INFO("Compiled a vertex shader resulting in preprocessed text:\n {}", preprocessed);
+            //RK_GRAPHICS_TRACE("Compiled a vertex shader resulting in preprocessed text:\n {}", preprocessed);
             // Optimizing
             String assembly = CompileFileToAssembly("shader_preprocessed", (shaderc_shader_kind)it->first, preprocessed, true);
-            //RK_GRAPHICS_INFO("Optimized SPIR-V assembly:\n {}", assembly);
+            //RK_GRAPHICS_TRACE("Optimized SPIR-V assembly:\n {}", assembly);
             // Compile
             Vec<uint32_t> spirv = CompileAssemblyToBinary(assembly, true);
             RK_GRAPHICS_INFO("Compiled to a binary module with {} words.", spirv.size());
@@ -168,6 +155,10 @@ bool VulkanShader::Initialize(const ShaderSourceList& list)
 
 void VulkanShader::Finalize()
 {
+    for (auto shader : m_Shader)
+    {
+        vkDestroyShaderModule(m_DeviceHandle, shader, nullptr);
+    }
 }
 
 void VulkanShader::Bind() const

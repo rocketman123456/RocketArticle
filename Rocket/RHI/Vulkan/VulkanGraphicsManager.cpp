@@ -1,6 +1,7 @@
 #include "Vulkan/VulkanGraphicsManager.h"
 #include "Module/WindowManager.h"
 #include "Module/AssetLoader.h"
+#include "Module/Application.h"
 
 #include <GLFW/glfw3.h>
 #include <tiny_obj_loader.h>
@@ -44,6 +45,8 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT
 
 int VulkanGraphicsManager::Initialize()
 {
+    auto config = g_Application->GetConfig();
+
     bool ret = GraphicsManager::Initialize();
     if (ret)
     {
@@ -79,6 +82,7 @@ int VulkanGraphicsManager::Initialize()
     CreateDescriptorPool();
     CreateDescriptorSets();
     CreateCommandBuffers();
+
     CreateSyncObjects();
 
     return 0;
@@ -1022,10 +1026,6 @@ void VulkanGraphicsManager::CreateSyncObjects()
 void VulkanGraphicsManager::Tick(Timestep ts)
 {
     GraphicsManager::Tick(ts);
-
-    DrawFrame();
-
-    Present();
 }
 
 void VulkanGraphicsManager::UpdateUniformBuffer(uint32_t currentImage)
@@ -1047,14 +1047,17 @@ void VulkanGraphicsManager::UpdateUniformBuffer(uint32_t currentImage)
     vkUnmapMemory(m_Device, m_UniformBuffersMemory[currentImage]);
 }
 
-void VulkanGraphicsManager::DrawFrame()
+void VulkanGraphicsManager::SetPipelineState(const Ref<PipelineState>& pipelineState, const Frame& frame)
 {
-    //RK_GRAPHICS_TRACE("Begin Frame");
+}
+
+void VulkanGraphicsManager::BeginFrame(const Frame& frame)
+{
     // Begin Frame
     vkWaitForFences(m_Device, 1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT64_MAX);
+    //RK_GRAPHICS_TRACE("Begin Frame");
 
-    uint32_t imageIndex;
-    VkResult result = vkAcquireNextImageKHR(m_Device, m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphores[m_CurrentFrame], VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(m_Device, m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphores[m_CurrentFrame], VK_NULL_HANDLE, &m_CurrentImageIndex);
     //RK_GRAPHICS_TRACE("AcquireNextImage");
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
@@ -1067,31 +1070,28 @@ void VulkanGraphicsManager::DrawFrame()
         RK_GRAPHICS_ERROR("failed to acquire swap chain image!");
     }
 
-    UpdateUniformBuffer(imageIndex);
-    //RK_GRAPHICS_TRACE("UpdateUniformBuffer");
+    UpdateUniformBuffer(m_CurrentImageIndex);
+}
 
-    if (m_ImagesInFlight[imageIndex] != VK_NULL_HANDLE)
+void VulkanGraphicsManager::EndFrame(const Frame& frame)
+{
+    if (m_ImagesInFlight[m_CurrentImageIndex] != VK_NULL_HANDLE)
     {
-        vkWaitForFences(m_Device, 1, &m_ImagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+        vkWaitForFences(m_Device, 1, &m_ImagesInFlight[m_CurrentImageIndex], VK_TRUE, UINT64_MAX);
     }
-    m_ImagesInFlight[imageIndex] = m_InFlightFences[m_CurrentFrame];
+    m_ImagesInFlight[m_CurrentImageIndex] = m_InFlightFences[m_CurrentFrame];
     //RK_GRAPHICS_TRACE("WaitForFences");
 
+    VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-    VkSemaphore waitSemaphores[] = { m_ImageAvailableSemaphores[m_CurrentFrame] };
-    VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitSemaphores = &m_ImageAvailableSemaphores[m_CurrentFrame];
     submitInfo.pWaitDstStageMask = waitStages;
-
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &m_CommandBuffers[imageIndex];
-
-    VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphores[m_CurrentFrame] };
+    submitInfo.pCommandBuffers = &m_CommandBuffers[m_CurrentImageIndex];
     submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = signalSemaphores;
+    submitInfo.pSignalSemaphores = &m_RenderFinishedSemaphores[m_CurrentFrame];
 
     vkResetFences(m_Device, 1, &m_InFlightFences[m_CurrentFrame]);
     //RK_GRAPHICS_TRACE("ResetFences");
@@ -1100,47 +1100,6 @@ void VulkanGraphicsManager::DrawFrame()
     {
         RK_GRAPHICS_ERROR("failed to submit draw command buffer!");
     }
-    //RK_GRAPHICS_TRACE("QueueSubmit");
-
-    VkPresentInfoKHR presentInfo{};
-    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
-    presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores = signalSemaphores;
-
-    VkSwapchainKHR swapChains[] = { m_SwapChain };
-    presentInfo.swapchainCount = 1;
-    presentInfo.pSwapchains = swapChains;
-
-    presentInfo.pImageIndices = &imageIndex;
-
-    result = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
-    //RK_GRAPHICS_TRACE("QueuePresent");
-
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_FramebufferResized)
-    {
-        m_FramebufferResized = false;
-        RecreateSwapChain();
-    }
-    else if (result != VK_SUCCESS)
-    {
-        RK_GRAPHICS_ERROR("failed to present swap chain image!");
-    }
-
-    m_CurrentFrame = (m_CurrentFrame + 1) % m_MaxFrameInFlight;
-    //RK_GRAPHICS_TRACE("End Frame");
-}
-
-void VulkanGraphicsManager::SetPipelineState(const Ref<PipelineState>& pipelineState, const Frame& frame)
-{
-}
-
-void VulkanGraphicsManager::BeginFrame(const Frame& frame)
-{
-}
-
-void VulkanGraphicsManager::EndFrame(const Frame& frame)
-{
 }
 
 void VulkanGraphicsManager::BeginFrameBuffer(const Frame& frame)
@@ -1163,13 +1122,34 @@ void VulkanGraphicsManager::SetLightInfo(const DrawFrameContext& context)
 {
 }
 
-void VulkanGraphicsManager::Present()
-{
-    
-}
-
 void VulkanGraphicsManager::DrawBatch(const Frame& frame)
 {
+}
+
+void VulkanGraphicsManager::Present()
+{
+    VkPresentInfoKHR presentInfo{};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = &m_RenderFinishedSemaphores[m_CurrentFrame];
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = &m_SwapChain;
+    presentInfo.pImageIndices = &m_CurrentImageIndex;
+
+    VkResult result = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
+    //RK_GRAPHICS_TRACE("QueuePresent");
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_FramebufferResized)
+    {
+        m_FramebufferResized = false;
+        RecreateSwapChain();
+    }
+    else if (result != VK_SUCCESS)
+    {
+        RK_GRAPHICS_ERROR("failed to present swap chain image!");
+    }
+
+    m_CurrentFrame = (m_CurrentFrame + 1) % m_MaxFrameInFlight;
 }
 
 void VulkanGraphicsManager::DrawFullScreenQuad()
@@ -1178,6 +1158,7 @@ void VulkanGraphicsManager::DrawFullScreenQuad()
 
 bool VulkanGraphicsManager::OnWindowResize(EventPtr& e)
 {
+    m_FramebufferResized = true;
     return false;
 }
 

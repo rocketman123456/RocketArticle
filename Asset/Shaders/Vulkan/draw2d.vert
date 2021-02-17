@@ -7,13 +7,10 @@ layout(location = 2) in vec2 a_TexCoord;
 layout(location = 3) in float a_TexIndex;
 layout(location = 4) in float a_TilingFactor;
 
-//layout(location = 0) out VS_OUT
-//{
 layout(location = 0) out vec4 v_Color;
 layout(location = 1) out vec2 v_TexCoord;
 layout(location = 2) out float v_TexIndex;
 layout(location = 3) out float v_TilingFactor;
-//} vs_out;
 
 layout(binding = 0) uniform PerFrameConstants
 {

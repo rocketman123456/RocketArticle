@@ -235,6 +235,20 @@ VkShaderModule Rocket::CreateShaderModule(const Buffer& code, const VkDevice& de
     return shaderModule;
 }
 
+VkShaderModule Rocket::CreateShaderModule(const Vec<uint32_t>& code, const VkDevice& device)
+{
+    VkShaderModuleCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    createInfo.codeSize = code.size() * sizeof(uint32_t);
+    createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+
+    VkShaderModule shaderModule;
+    if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
+        RK_GRAPHICS_ERROR("failed to create shader module!");
+
+    return shaderModule;
+}
+
 uint32_t Rocket::FindMemoryType(const VkPhysicalDevice& physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties)
 {
     VkPhysicalDeviceMemoryProperties memProperties;
@@ -316,7 +330,7 @@ VkImageView Rocket::CreateImageView(const VkDevice& device, VkImage image, VkFor
 
 VkFormat Rocket::FindSupportedFormat(
     const VkPhysicalDevice& physicalDevice, 
-    const std::vector<VkFormat>& candidates, 
+    const Vec<VkFormat>& candidates, 
     VkImageTiling tiling, 
     VkFormatFeatureFlags features)
 {

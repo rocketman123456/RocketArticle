@@ -115,10 +115,11 @@ namespace Rocket
     VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow* window_handle);
     SwapChainSupportDetails QuerySwapChainSupport(const VkPhysicalDevice& device, const VkSurfaceKHR& surface);
     VkShaderModule CreateShaderModule(const Buffer& code, const VkDevice& device);
+    VkShaderModule CreateShaderModule(const Vec<uint32_t>& code, const VkDevice& device);
     uint32_t FindMemoryType(const VkPhysicalDevice& device, uint32_t typeFilter, VkMemoryPropertyFlags properties);
     void CreateImage(const VkDevice& device, const VkPhysicalDevice& physicalDevice, uint32_t width, uint32_t height, uint32_t mipLevels, VkSampleCountFlagBits numSamples, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory);
     VkImageView CreateImageView(const VkDevice& device, VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, uint32_t mipLevels);
-    VkFormat FindSupportedFormat(const VkPhysicalDevice& physicalDevice, const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+    VkFormat FindSupportedFormat(const VkPhysicalDevice& physicalDevice, const Vec<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
     VkFormat FindDepthFormat(const VkPhysicalDevice& physicalDevice);
     VkSampleCountFlagBits GetMaxUsableSampleCount(const VkPhysicalDevice& physicalDevice);
     bool HasStencilComponent(VkFormat format);

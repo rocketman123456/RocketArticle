@@ -151,6 +151,7 @@ int OpenGLGraphicsManager::Initialize()
     RK_GRAPHICS_INFO("  Version: {0}", glGetString(GL_VERSION));
 
     auto config = g_Application->GetConfig();
+    m_VSync = config->GetConfigInfo<bool>("Graphics", "vsync");
 
     if (m_VSync)
         glfwSwapInterval(1);
@@ -326,7 +327,7 @@ void OpenGLGraphicsManager::SetLightInfo(const DrawFrameContext& context)
 void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineState, const Frame &frame)
 {
     m_CurrentPipelineState = pipelineState;
-    const Ref<const OpenGLPipelineState> pPipelineState = std::dynamic_pointer_cast<const OpenGLPipelineState>(m_CurrentPipelineState);
+    const OpenGLPipelineState* pPipelineState = dynamic_cast<const OpenGLPipelineState*>(m_CurrentPipelineState.get());
     m_CurrentShader = pPipelineState->shaderProgram;
 
     // Set Frame Buffer

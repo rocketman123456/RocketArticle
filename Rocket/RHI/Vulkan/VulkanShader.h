@@ -65,11 +65,12 @@ namespace Rocket
     class VulkanShader : implements Shader
     {
     public:
-        VulkanShader(const String& name, const VkDevice& device) 
-            : m_NameId(AssetHashTable::HashString(name)), m_DeviceHandle(device) {}
+        VulkanShader(const String& name) : m_NameId(AssetHashTable::HashString(name)) {}
         VulkanShader(const VulkanShader& rhs) = default;
         VulkanShader(VulkanShader&& rhs) = default;
         virtual ~VulkanShader() = default;
+
+        void SetDevice(VkDevice& device) { m_DeviceHandle = device; }
 
         bool Initialize(const ShaderSourceList& list) final;
 		void Finalize() final;

@@ -59,12 +59,12 @@ namespace Rocket
         void DrawTriangle(const Point3DList& vertices, const Matrix4f& trans, const Vector3f& color) final;
         void DrawTriangleStrip(const Point3DList& vertices, const Vector3f& color) final;
 
-        VkDevice& GetDevice() { return m_Device; }
-        VkPhysicalDevice& GetPhysicalDevice()  { m_PhysicalDevice; }
+        // Getter
+        VkDevice GetDevice() { return m_Device; }
+        VkPhysicalDevice GetPhysicalDevice()  { return m_PhysicalDevice; }
+        VkSurfaceKHR GetSurface() { return m_Surface; }
         
     private:
-        void DrawFrame();
-
         void CreateInstance();
         void SetupDebugMessenger();
         void CreateSurface();
@@ -101,6 +101,7 @@ namespace Rocket
     private:
         bool m_VSync = true;
         GLFWwindow* m_WindowHandle = nullptr;
+        uint32_t m_CurrentImageIndex;
 
         VkInstance m_Instance;
         VkDebugUtilsMessengerEXT m_DebugMessenger;

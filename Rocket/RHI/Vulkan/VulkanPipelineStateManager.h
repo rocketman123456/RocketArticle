@@ -1,6 +1,6 @@
 #pragma once
 #include "Module/PipelineStateManager.h"
-#include "Module/PipelineStateManager.h"
+#include "Vulkan/VulkanFunction.h"
 
 namespace Rocket
 {
@@ -20,5 +20,11 @@ namespace Rocket
     protected:
         bool InitializePipelineState(PipelineState** ppPipelineState) final;
         void DestroyPipelineState(PipelineState& pipelineState) final;
+
+        VkDevice m_DeviceHandle;
+        VkRenderPass m_RenderPass;
+        VkDescriptorSetLayout m_DescriptorSetLayout;
+        VkPipelineLayout m_PipelineLayout;
+        VkPipeline m_GraphicsPipeline;
     };
 }
