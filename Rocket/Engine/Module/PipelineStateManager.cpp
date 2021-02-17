@@ -99,16 +99,17 @@ int PipelineStateManager::Initialize()
     pipelineState.a2vType = A2V_TYPES::A2V_TYPES_FULL;
     pipelineState.flag = PIPELINE_FLAG::NONE;
     pipelineState.renderType = RENDER_TYPE::STATIC;
-    pipelineState.renderTarget = RENDER_TARGET::RENDER_FRAMEBUFFER;
+    pipelineState.renderTarget = RENDER_TARGET::NONE;
+    //pipelineState.renderTarget = RENDER_TARGET::RENDER_FRAMEBUFFER;
     pipelineState.renderTargetName = "Draw2D Buffer";
     pipelineState.frameBufferInfo.ColorWidth = window->GetWidth();
     pipelineState.frameBufferInfo.ColorHeight = window->GetHeight();
     pipelineState.frameBufferInfo.ColorAttachment = { 
-        FrameBufferTextureFormat::RGBA8
+        FRAME_TEXTURE_FORMAT::RGBA8
     };
     pipelineState.frameBufferInfo.DepthWidth = window->GetWidth();
     pipelineState.frameBufferInfo.DepthHeight = window->GetHeight();
-    pipelineState.frameBufferInfo.DepthAttachment = FrameBufferTextureFormat::DEPTH24;
+    pipelineState.frameBufferInfo.DepthAttachment = FRAME_TEXTURE_FORMAT::DEPTH24;
     pipelineState.frameBufferInfo.Samples = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
     pipelineState.frameBufferInfo.SwapChainTarget = false;
     RegisterPipelineState(pipelineState);
