@@ -73,3 +73,6 @@
 [submodule "Thirdparty/shaderc"]
 	path = Thirdparty/shaderc
 	url = https://github.com/google/shaderc.git
+[submodule "Thirdparty/volk"]
+	path = Thirdparty/volk
+	url = https://github.com/zeux/volk.git
