@@ -1,5 +1,4 @@
 #include "Render/DrawBasic/Texture.h"
-#include "Module/MemoryManager.h"
 
 #if defined(RK_OPENGL)
 #include "OpenGL/OpenGLTexture.h"

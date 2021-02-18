@@ -1,7 +1,6 @@
 #include "Vulkan/VulkanPipelineStateManager.h"
 #include "Vulkan/VulkanGraphicsManager.h"
 #include "Vulkan/VulkanShader.h"
-#include "Module/MemoryManager.h"
 #include "Module/WindowManager.h"
 
 #include <memory>

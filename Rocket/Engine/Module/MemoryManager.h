@@ -90,32 +90,4 @@ namespace Rocket
             RK_CORE_TRACE("End of deleter function.");
         }
     };
-
-    template <typename T>
-    //using Scope = std::unique_ptr<T, std::function<void(T*)>>;
-    using Scope = std::unique_ptr<T>;
-
-    template <typename T>
-    using Ref = std::shared_ptr<T>;
-
-    template <typename T>
-    using StoreRef = std::weak_ptr<T>;
-
-    template <typename T, typename... Arguments>
-    constexpr Ref<T> CreateRef(Arguments ... args)
-    {
-        Ref<T> ptr = Ref<T>(
-            new T(args...) //new (RK_ALLOCATE_CLASS(T)) T(args...)//, [](T* ptr) { RK_DELETE(T, ptr); }
-        );
-        return std::move(ptr);
-    }
-
-    template <typename T, typename... Arguments>
-	constexpr Scope<T> CreateScope(Arguments ... args)
-	{
-        Scope<T> ptr = Scope<T>(
-            new T(args...) //new (RK_ALLOCATE_CLASS(T)) T(args...)//, [](T* ptr) { RK_DELETE(T, ptr); }
-        );
-        return std::move(ptr);
-	}
 }
