@@ -384,7 +384,7 @@ void VulkanGraphicsManager::CreateImageViews()
 
     for (size_t i = 0; i < m_SwapChainImages.size(); i++)
     {
-        m_SwapChainImageViews[i] = CreateImageView(m_Device, m_SwapChainImages[i], m_SwapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+        m_SwapChainImageViews[i] = CreateImageView(m_Device, m_SwapChainImages[i], m_SwapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT, 0, 1);
     }
 }
 
@@ -670,7 +670,7 @@ void VulkanGraphicsManager::CreateColorResources()
         m_ColorImage, 
         m_ColorImageMemory
     );
-    m_ColorImageView = CreateImageView(m_Device, m_ColorImage, colorFormat, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+    m_ColorImageView = CreateImageView(m_Device, m_ColorImage, colorFormat, VK_IMAGE_ASPECT_COLOR_BIT, 0, 1);
 }
 
 void VulkanGraphicsManager::CreateDepthResources()
@@ -691,7 +691,7 @@ void VulkanGraphicsManager::CreateDepthResources()
         m_DepthImage, 
         m_DepthImageMemory
     );
-    m_DepthImageView = CreateImageView(m_Device, m_DepthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
+    m_DepthImageView = CreateImageView(m_Device, m_DepthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1);
 }
 
 void VulkanGraphicsManager::CreateTextureImage()
@@ -739,7 +739,7 @@ void VulkanGraphicsManager::CreateTextureImage()
 
 void VulkanGraphicsManager::CreateTextureImageView()
 {
-    m_TextureImageView = CreateImageView(m_Device, m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, m_MipLevels);
+    m_TextureImageView = CreateImageView(m_Device, m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, 0, m_MipLevels);
 }
 
 void VulkanGraphicsManager::CreateTextureSampler()

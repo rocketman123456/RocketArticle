@@ -226,11 +226,11 @@ bool VulkanPipelineStateManager::InitializePipelineState(PipelineState** ppPipel
         renderPassInfo.pDependencies = &dependency;
     }
 
-    if (vkCreateRenderPass(pnew_state->m_DeviceHandle, &renderPassInfo, nullptr, &pnew_state->m_RenderPass) != VK_SUCCESS)
-    {
-        RK_GRAPHICS_ERROR("failed to create render pass!");
-        return false;
-    }
+    //if (vkCreateRenderPass(pnew_state->m_DeviceHandle, &renderPassInfo, nullptr, &pnew_state->m_RenderPass) != VK_SUCCESS)
+    //{
+    //    RK_GRAPHICS_ERROR("failed to create render pass!");
+    //    return false;
+    //}
 
     auto ubolayouts = pnew_state->uniformLayout;
 
@@ -251,12 +251,12 @@ bool VulkanPipelineStateManager::InitializePipelineState(PipelineState** ppPipel
     layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
     layoutInfo.pBindings = bindings.data();
 
-    if (vkCreateDescriptorSetLayout(pnew_state->m_DeviceHandle, &layoutInfo, nullptr, &pnew_state->m_DescriptorSetLayout) != VK_SUCCESS)
-    {
-        RK_GRAPHICS_ERROR("failed to create descriptor set layout!");
-        vkDestroyRenderPass(pnew_state->m_DeviceHandle, pnew_state->m_RenderPass, nullptr);
-        return false;
-    }
+    //if (vkCreateDescriptorSetLayout(pnew_state->m_DeviceHandle, &layoutInfo, nullptr, &pnew_state->m_DescriptorSetLayout) != VK_SUCCESS)
+    //{
+    //    RK_GRAPHICS_ERROR("failed to create descriptor set layout!");
+    //    vkDestroyRenderPass(pnew_state->m_DeviceHandle, pnew_state->m_RenderPass, nullptr);
+    //    return false;
+    //}
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -265,13 +265,13 @@ bool VulkanPipelineStateManager::InitializePipelineState(PipelineState** ppPipel
     pipelineLayoutInfo.pushConstantRangeCount = 0;
     pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
-    if (vkCreatePipelineLayout(pnew_state->m_DeviceHandle, &pipelineLayoutInfo, nullptr, &pnew_state->m_PipelineLayout) != VK_SUCCESS)
-    {
-        RK_GRAPHICS_ERROR("failed to create pipeline layout!");
-        vkDestroyRenderPass(pnew_state->m_DeviceHandle, pnew_state->m_RenderPass, nullptr);
-        vkDestroyDescriptorSetLayout(pnew_state->m_DeviceHandle, pnew_state->m_DescriptorSetLayout, nullptr);
-        return false;
-    }
+    //if (vkCreatePipelineLayout(pnew_state->m_DeviceHandle, &pipelineLayoutInfo, nullptr, &pnew_state->m_PipelineLayout) != VK_SUCCESS)
+    //{
+    //    RK_GRAPHICS_ERROR("failed to create pipeline layout!");
+    //    vkDestroyRenderPass(pnew_state->m_DeviceHandle, pnew_state->m_RenderPass, nullptr);
+    //    vkDestroyDescriptorSetLayout(pnew_state->m_DeviceHandle, pnew_state->m_DescriptorSetLayout, nullptr);
+    //    return false;
+    //}
     
     String name = pnew_state->pipelineStateName + " Shader";
     auto shaderProgram = CreateRef<VulkanShader>(name);
@@ -364,7 +364,6 @@ bool VulkanPipelineStateManager::InitializePipelineState(PipelineState** ppPipel
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineInfo.pNext = nullptr;
-    pipelineInfo.flags;
     pipelineInfo.stageCount = static_cast<uint32_t>(shaderProgram->GetShaderInfo().size());
     pipelineInfo.pStages = shaderProgram->GetShaderInfo().data();
     pipelineInfo.pVertexInputState = &vertexInputInfo;
@@ -380,16 +379,16 @@ bool VulkanPipelineStateManager::InitializePipelineState(PipelineState** ppPipel
     pipelineInfo.renderPass = pnew_state->m_RenderPass;
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-    pipelineInfo.basePipelineIndex;
 
-    if (vkCreateGraphicsPipelines(pnew_state->m_DeviceHandle, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pnew_state->m_GraphicsPipeline) != VK_SUCCESS)
-    {
-        RK_GRAPHICS_ERROR("failed to create graphics pipeline!");
-        vkDestroyPipelineLayout(pnew_state->m_DeviceHandle, pnew_state->m_PipelineLayout, nullptr);
-        vkDestroyRenderPass(pnew_state->m_DeviceHandle, pnew_state->m_RenderPass, nullptr);
-        vkDestroyDescriptorSetLayout(pnew_state->m_DeviceHandle, pnew_state->m_DescriptorSetLayout, nullptr);
-        return false;
-    }
+    //if (vkCreateGraphicsPipelines(pnew_state->m_DeviceHandle, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pnew_state->m_GraphicsPipeline) != VK_SUCCESS)
+    //{
+    //    RK_GRAPHICS_ERROR("failed to create graphics pipeline!");
+    //    shaderProgram->Finalize();
+    //    vkDestroyPipelineLayout(pnew_state->m_DeviceHandle, pnew_state->m_PipelineLayout, nullptr);
+    //    vkDestroyRenderPass(pnew_state->m_DeviceHandle, pnew_state->m_RenderPass, nullptr);
+    //    vkDestroyDescriptorSetLayout(pnew_state->m_DeviceHandle, pnew_state->m_DescriptorSetLayout, nullptr);
+    //    return false;
+    //}
 
     shaderProgram->Finalize();
 
@@ -402,8 +401,8 @@ void VulkanPipelineStateManager::DestroyPipelineState(PipelineState& pipelineSta
 {
     VulkanPipelineState* pPipelineState = dynamic_cast<VulkanPipelineState*>(&pipelineState);
 
-    vkDestroyPipeline(pPipelineState->m_DeviceHandle, pPipelineState->m_GraphicsPipeline, nullptr);
-    vkDestroyPipelineLayout(pPipelineState->m_DeviceHandle, pPipelineState->m_PipelineLayout, nullptr);
-    vkDestroyRenderPass(pPipelineState->m_DeviceHandle, pPipelineState->m_RenderPass, nullptr);
-    vkDestroyDescriptorSetLayout(pPipelineState->m_DeviceHandle, pPipelineState->m_DescriptorSetLayout, nullptr);
+    //vkDestroyPipeline(pPipelineState->m_DeviceHandle, pPipelineState->m_GraphicsPipeline, nullptr);
+    //vkDestroyPipelineLayout(pPipelineState->m_DeviceHandle, pPipelineState->m_PipelineLayout, nullptr);
+    //vkDestroyRenderPass(pPipelineState->m_DeviceHandle, pPipelineState->m_RenderPass, nullptr);
+    //vkDestroyDescriptorSetLayout(pPipelineState->m_DeviceHandle, pPipelineState->m_DescriptorSetLayout, nullptr);
 }
