@@ -73,9 +73,9 @@
 [submodule "Thirdparty/shaderc"]
 	path = Thirdparty/shaderc
 	url = https://github.com/google/shaderc.git
-[submodule "ThirdParty/fiber-job-system"]
-	path = ThirdParty/fiber-job-system
-	url = https://github.com/Freeeaky/fiber-job-system.git
 [submodule "Thirdparty/volk"]
 	path = Thirdparty/volk
 	url = https://github.com/zeux/volk.git
+[submodule "Thirdparty/fiber-job-system"]
+	path = Thirdparty/fiber-job-system
+	url = https://github.com/Freeeaky/fiber-job-system.git
