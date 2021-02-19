@@ -6,9 +6,7 @@
 
 namespace Rocket
 {
-#pragma pack(push)
-#pragma pack(4)
-    struct TextureId
+    struct alignas(16) TextureId
     {
         intptr_t texture{-1};   // 8 bytes
         uint32_t width{0};      // 4 bytes
@@ -18,11 +16,8 @@ namespace Rocket
         float    mipmap{0.0f};  // 4 bytes
         int32_t  padding;       // 4 bytes
     };                          // total 32 bytes
-#pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(4)
-    struct MaterialTextures
+    struct alignas(16) MaterialTextures
     {
         TextureId diffuseMap;   // 32 bytes
         TextureId normalMap;    // 32 bytes
@@ -31,11 +26,8 @@ namespace Rocket
         TextureId aoMap;        // 32 bytes
         TextureId heightMap;    // 32 bytes
     };                          // total 192 bytes
-#pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(16)
-    struct LightInfo
+    struct alignas(16) LightInfo
     {
         Matrix4f lightViewMatrix;                   // 64 bytes
         Matrix4f lightProjectionMatrix;             // 64 bytes
@@ -45,11 +37,8 @@ namespace Rocket
         Vector4f lightDistAttenCurveParams[2];      // 32 bytes
         Vector4f lightAngleAttenCurveParams[2];     // 32 bytes
     };                                              // total 240 bytes
-#pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(16)
-    struct PerFrameConstants
+    struct alignas(16) PerFrameConstants
     {
         Matrix4f viewMatrix;        // 64 bytes
         Matrix4f projectionMatrix;  // 64 bytes
@@ -57,15 +46,11 @@ namespace Rocket
         int32_t  numLights;         // 4 bytes
         int32_t  padding[3];        // 12 bytes
     };                              // total 160 bytes
-#pragma pack(pop)
 
-#pragma pack(push)
-#pragma pack(16)
-    struct PerBatchConstants
+    struct alignas(16) PerBatchConstants
     {
         Matrix4f modelMatrix;  // 64 bytes
     };
-#pragma pack(pop)
 
     struct DrawFrameContext : PerFrameConstants
     {

@@ -4,7 +4,6 @@
 #include "Render/DrawSubPass/GeometrySubPass.h"
 #include "Render/DrawSubPass/SkyBoxSubPass.h"
 #include "Render/DrawSubPass/GuiSubPass.h"
-#include "Module/MemoryManager.h"
 
 namespace Rocket
 {

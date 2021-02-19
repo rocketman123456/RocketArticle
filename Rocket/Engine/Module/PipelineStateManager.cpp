@@ -137,6 +137,17 @@ int PipelineStateManager::Initialize()
     pipelineState.flag = PIPELINE_FLAG::NONE;
     pipelineState.renderType = RENDER_TYPE::STATIC;
     pipelineState.renderTarget = RENDER_TARGET::NONE;
+    pipelineState.renderTargetName = "Screen Buffer";
+    pipelineState.frameBufferInfo.ColorWidth = window->GetWidth();
+    pipelineState.frameBufferInfo.ColorHeight = window->GetHeight();
+    pipelineState.frameBufferInfo.ColorAttachment = { 
+        FRAME_TEXTURE_FORMAT::RGBA8
+    };
+    pipelineState.frameBufferInfo.DepthWidth = window->GetWidth();
+    pipelineState.frameBufferInfo.DepthHeight = window->GetHeight();
+    pipelineState.frameBufferInfo.DepthAttachment = FRAME_TEXTURE_FORMAT::DEPTH24;
+    pipelineState.frameBufferInfo.Samples = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
+    pipelineState.frameBufferInfo.SwapChainTarget = false;
     RegisterPipelineState(pipelineState);
 
     RK_GRAPHICS_INFO("Pipeline State Manager Initialized. Add [{}] Pipelines", m_pipelineStates.size());

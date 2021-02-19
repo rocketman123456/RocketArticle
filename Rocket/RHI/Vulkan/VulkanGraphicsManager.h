@@ -3,7 +3,7 @@
 #include "Vulkan/VulkanFunction.h"
 #include "Common/Buffer.h"
 
-#include <vulkan/vulkan.hpp>
+#include <vulkan/vulkan.h>
 
 struct GLFWwindow;
 

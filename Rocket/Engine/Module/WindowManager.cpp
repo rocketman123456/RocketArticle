@@ -1,5 +1,4 @@
 #include "Module/WindowManager.h"
-#include "Module/MemoryManager.h"
 #include "Module/Application.h"
 #if defined(PLATFORM_WINDOWS) || defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
 #include "GLFWWindow/WindowImplement.h"

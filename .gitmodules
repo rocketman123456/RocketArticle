@@ -76,3 +76,6 @@
 [submodule "ThirdParty/fiber-job-system"]
 	path = ThirdParty/fiber-job-system
 	url = https://github.com/Freeeaky/fiber-job-system.git
+[submodule "Thirdparty/volk"]
+	path = Thirdparty/volk
+	url = https://github.com/zeux/volk.git

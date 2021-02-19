@@ -1,5 +1,4 @@
 #include "OpenGL/OpenGLPipelineStateManager.h"
-#include "Module/MemoryManager.h"
 
 #include <glad/glad.h>
 #include <fstream>
