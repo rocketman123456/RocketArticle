@@ -9,4 +9,5 @@ add_library( RendererVulkan
     VulkanFunction.cpp
     VulkanDevice.cpp
     VulkanSwapChain.cpp
- "VulkanPipeline.cpp")
+    VulkanPipeline.cpp
+)

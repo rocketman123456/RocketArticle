@@ -5,6 +5,7 @@ namespace Rocket
 {
     class BRDFGenerate : implements BaseDispatchPass
     {
+    public:
         void Dispatch(Frame& frame);
     };
 }

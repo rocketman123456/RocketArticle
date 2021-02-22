@@ -21,10 +21,15 @@ add_library( RocketEngine
     # Process
     Process/Process.cpp
     # Render
+    #   Dispatch
     Render/DispatchPass/BaseDispatchPass.cpp
     Render/DispatchPass/BRDFGenerate.cpp
+    Render/DispatchPass/SkyBoxGenerate.cpp
+    #   DrawBasic
     Render/DrawBasic/Texture.cpp
+    #   DrawPass
     Render/DrawPass/BaseDrawPass.cpp
+    #   DrawSubPass
     Render/DrawSubPass/Geometry2DSubPass.cpp
     Render/DrawSubPass/GeometrySubPass.cpp
     Render/DrawSubPass/GuiSubPass.cpp

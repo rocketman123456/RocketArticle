@@ -3,14 +3,22 @@
 #include "Module/SceneManager.h"
 #include "Render/DrawPass/ForwardGeometryPass.h"
 #include "Render/DispatchPass/BRDFGenerate.h"
+#include "Render/DispatchPass/SkyBoxGenerate.h"
 
 using namespace Rocket;
 
 int GraphicsManager::Initialize()
 {
+    // Add Init Pass
+    m_InitPasses.push_back(CreateRef<BRDFGenerate>());
+    m_InitPasses.push_back(CreateRef<SkyBoxGenerate>());
+
     // Get Max Frame In Flight
     auto& config = g_Application->GetConfig();
     m_MaxFrameInFlight = config->GetConfigInfo<uint32_t>("Graphics", "max_frame_in_flight");
+
+    // Add Draw Pass
+    m_DrawPasses.push_back(CreateRef<ForwardGeometryPass>());
 
     // Init Frames Data
     m_Frames.resize(m_MaxFrameInFlight);
@@ -31,12 +39,6 @@ int GraphicsManager::Initialize()
         m_uboLightInfo[i] = nullptr;
         m_uboShadowMatricesConstant[i] = nullptr;
     }
-
-    // Add Init Pass
-    m_InitPasses.push_back(CreateRef<BRDFGenerate>());
-
-    // Add Draw Pass
-    //m_DrawPasses.push_back(CreateRef<ForwardGeometryPass>());
 
     InitConstants();
     return 0;

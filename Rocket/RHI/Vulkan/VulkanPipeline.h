@@ -14,6 +14,7 @@ namespace Rocket
 		void Initialize();
 
 		void SetWindowHandle(GLFWwindow* handle) { windowHandle = handle; }
+		void SetMsaaSample(VkSampleCountFlagBits msaa) { msaaSamples = msaa; }
 
 		void CreateRenderPass();
 		void CreateDescriptorSetLayout();
@@ -23,7 +24,7 @@ namespace Rocket
 		VkDescriptorSetLayout descriptorSetLayout;
 		VkPipelineLayout pipelineLayout;
 		VkPipeline graphicsPipeline;
-		VkSampleCountFlagBits msaaSamples;
+		VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
 
 		VkInstance instance;
 		VkDevice device;

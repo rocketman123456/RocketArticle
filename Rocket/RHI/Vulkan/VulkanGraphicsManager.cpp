@@ -56,17 +56,18 @@ int VulkanGraphicsManager::Initialize()
 
     m_WindowHandle = static_cast<GLFWwindow*>(g_WindowManager->GetNativeWindow());
 
+    // Must be : 1, 2, 4, 8, 16, 32, 64
+    m_MsaaSamples = (VkSampleCountFlagBits)config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
+
     CreateInstance();
     SetupDebugMessenger();
     CreateSurface();
     PickPhysicalDevice();
+
     CreateLogicalDevice();
     CreateSwapChain();
-    //CreateImageViews();
-
-    //CreateRenderPass();
-    //CreateDescriptorSetLayout();
     CreateGraphicsPipeline();
+
     CreateCommandPool();
     CreateColorResources();
     CreateDepthResources();
@@ -270,7 +271,8 @@ void VulkanGraphicsManager::PickPhysicalDevice()
         {
             m_PhysicalDevice = device;
             // TODO : use config file
-            m_MsaaSamples = GetMaxUsableSampleCount(m_PhysicalDevice);
+            //m_MsaaSamples = GetMaxUsableSampleCount(m_PhysicalDevice);
+            m_MsaaSamples = VK_SAMPLE_COUNT_1_BIT;
             break;
         }
     }
@@ -294,12 +296,12 @@ void VulkanGraphicsManager::CreateLogicalDevice()
     Vec<const char*> enabledExtensions{};
     VkResult res = m_LogicalDevice->CreateLogicalDevice(enabledFeatures, enabledExtensions, enableValidationLayers, validationLayers);
     if (res != VK_SUCCESS) {
-        std::cerr << "Could not create Vulkan device!" << std::endl;
-        exit(res);
+        RK_GRAPHICS_ERROR("Could not create Vulkan device!");
     }
-    m_Device = m_LogicalDevice->logicalDevice;
 
+    m_Device = m_LogicalDevice->logicalDevice;
     vkGetDeviceQueue(m_Device, m_LogicalDevice->queueFamilyIndices.graphicsFamily.value(), 0, &m_GraphicsQueue);
+    vkGetDeviceQueue(m_Device, m_LogicalDevice->queueFamilyIndices.computeFamily.value(), 0, &m_ComputeQueue);
     vkGetDeviceQueue(m_Device, m_LogicalDevice->queueFamilyIndices.presentFamily.value(), 0, &m_PresentQueue);
 }
 
@@ -313,13 +315,13 @@ void VulkanGraphicsManager::CreateSwapChain()
     m_SwapChain = m_VulkanSwapChain->swapChain;
     m_SwapChainImages.clear();
     m_SwapChainImageViews.clear();
+    m_SwapChainImageFormat = m_VulkanSwapChain->colorFormat;
+    m_SwapChainExtent = m_VulkanSwapChain->extent;
     for (auto buffer : m_VulkanSwapChain->buffers)
     {
         m_SwapChainImages.push_back(buffer.image);
         m_SwapChainImageViews.push_back(buffer.view);
     }
-    m_SwapChainImageFormat = m_VulkanSwapChain->colorFormat;
-    m_SwapChainExtent = m_VulkanSwapChain->extent;
 }
 
 void VulkanGraphicsManager::CreateGraphicsPipeline()
@@ -330,6 +332,7 @@ void VulkanGraphicsManager::CreateGraphicsPipeline()
 
     m_VulkanPipeline = CreateRef<VulkanPipeline>();
     m_VulkanPipeline->SetWindowHandle(m_WindowHandle);
+    m_VulkanPipeline->SetMsaaSample(m_MsaaSamples);
     m_VulkanPipeline->Connect(m_Instance, m_PhysicalDevice, m_Device, m_Surface);
     m_VulkanPipeline->Initialize();
 
@@ -345,11 +348,20 @@ void VulkanGraphicsManager::CreateFramebuffers()
 
     for (size_t i = 0; i < m_SwapChainImageViews.size(); i++)
     {
-        std::array<VkImageView, 3> attachments = {
-            m_ColorImageView,
-            m_DepthImageView,
-            m_SwapChainImageViews[i]
-        };
+        Vec<VkImageView> attachments = {};
+
+        if (m_MsaaSamples == VK_SAMPLE_COUNT_1_BIT)
+        {
+            //attachments.push_back(m_ColorImageView);
+            attachments.push_back(m_SwapChainImageViews[i]);
+            attachments.push_back(m_DepthImageView);
+        }
+        else
+        {
+            attachments.push_back(m_ColorImageView);
+            attachments.push_back(m_DepthImageView);
+            attachments.push_back(m_SwapChainImageViews[i]);
+        }
 
         VkFramebufferCreateInfo framebufferInfo{};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -891,6 +903,11 @@ void VulkanGraphicsManager::Present()
     }
 
     m_CurrentFrame = (m_CurrentFrame + 1) % m_MaxFrameInFlight;
+}
+
+void VulkanGraphicsManager::GenerateSkyBox()
+{
+
 }
 
 void VulkanGraphicsManager::GenerateBRDFLUT(int32_t dim)

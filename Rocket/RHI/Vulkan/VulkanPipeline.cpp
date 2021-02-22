@@ -15,8 +15,6 @@ void VulkanPipeline::Connect(VkInstance instance, VkPhysicalDevice physicalDevic
     SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(physicalDevice, surface);
     surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
     extent = ChooseSwapExtent(swapChainSupport.capabilities, windowHandle);
-    // TODO : use config file
-    msaaSamples = GetMaxUsableSampleCount(physicalDevice);
 }
 
 void VulkanPipeline::Initialize()
@@ -28,6 +26,7 @@ void VulkanPipeline::Initialize()
 
 void VulkanPipeline::CreateRenderPass()
 {
+    
     VkAttachmentDescription colorAttachment{};
     colorAttachment.format = surfaceFormat.format;
     colorAttachment.samples = msaaSamples;
@@ -37,6 +36,14 @@ void VulkanPipeline::CreateRenderPass()
     colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    if (msaaSamples == VK_SAMPLE_COUNT_1_BIT)
+    {
+        colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    }
+    else
+    {
+        colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    }
 
     VkAttachmentDescription depthAttachment{};
     depthAttachment.format = FindDepthFormat(physicalDevice);

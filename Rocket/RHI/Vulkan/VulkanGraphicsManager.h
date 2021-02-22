@@ -33,6 +33,7 @@ namespace Rocket
         void BeginCompute() final {}
         void EndCompute() final {}
 
+        void GenerateSkyBox() final;
         void GenerateBRDFLUT(int32_t dim) final;
 
         void BeginFrame(const Frame& frame) final;
@@ -78,13 +79,11 @@ namespace Rocket
         void SetupDebugMessenger();
         void CreateSurface();
         void PickPhysicalDevice();
+
         void CreateLogicalDevice();
         void CreateSwapChain();
-        //void CreateImageViews();
-
-        //void CreateRenderPass();
-        //void CreateDescriptorSetLayout();
         void CreateGraphicsPipeline();
+
         void CreateCommandPool();
         void CreateColorResources();
         void CreateDepthResources();
@@ -127,6 +126,7 @@ namespace Rocket
         VkDevice m_Device;
 
         VkQueue m_GraphicsQueue;
+        VkQueue m_ComputeQueue;
         VkQueue m_PresentQueue;
 
         Ref<VulkanSwapChain> m_VulkanSwapChain;
