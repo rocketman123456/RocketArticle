@@ -450,3 +450,10 @@ void CopyBuffer(
 	VkBuffer srcBuffer, 
 	VkBuffer dstBuffer, 
 	VkDeviceSize size);
+
+// Vulkan PBR
+uint32_t GetMemoryType(
+	uint32_t typeBits, 
+	VkMemoryPropertyFlags properties,
+	VkPhysicalDeviceMemoryProperties memoryProperties,
+	VkBool32 *memTypeFound = nullptr);

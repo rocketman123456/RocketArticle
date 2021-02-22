@@ -3,14 +3,13 @@
 #include "Module/Application.h"
 #include "Module/AssetLoader.h"
 
-#include <shaderc/shaderc.hpp>
-
 using namespace Rocket;
 
 // Returns GLSL shader source text after preprocessing.
-static String PreprocessShader(const String& source_name,
-                               shaderc_shader_kind kind,
-                               const String& source)
+static String PreprocessShader(
+    const String& source_name,
+    shaderc_shader_kind kind,
+    const String& source)
 {
     shaderc::Compiler compiler;
     shaderc::CompileOptions options;
@@ -30,10 +29,11 @@ static String PreprocessShader(const String& source_name,
 }
 
 // Compiles a shader to SPIR-V assembly.
-static String CompileFileToAssembly(const String& source_name,
-                                    shaderc_shader_kind kind,
-                                    const String& source,
-                                    bool optimize = false)
+static String CompileFileToAssembly(
+    const String& source_name,
+    shaderc_shader_kind kind,
+    const String& source,
+    bool optimize = false)
 {
     shaderc::Compiler compiler;
     shaderc::CompileOptions options;
@@ -54,7 +54,9 @@ static String CompileFileToAssembly(const String& source_name,
 }
 
 // Compiles SPIR-V assembly to binary.
-static Vec<uint32_t> CompileAssemblyToBinary(const String& source, bool optimize = false)
+static Vec<uint32_t> CompileAssemblyToBinary(
+    const String& source, 
+    bool optimize = false)
 {
     shaderc::Compiler compiler;
     shaderc::CompileOptions options;
@@ -75,10 +77,11 @@ static Vec<uint32_t> CompileAssemblyToBinary(const String& source, bool optimize
 }
 
 // Compiles a shader to a SPIR-V binary.
-static Vec<uint32_t> CompileFile(const String& source_name,
-                                 shaderc_shader_kind kind,
-                                 const String& source,
-                                 bool optimize = false)
+static Vec<uint32_t> CompileFile(
+    const String& source_name,
+    shaderc_shader_kind kind,
+    const String& source,
+    bool optimize = false)
 {
     shaderc::Compiler compiler;
     shaderc::CompileOptions options;
@@ -124,6 +127,7 @@ bool VulkanShader::Initialize(const ShaderSourceList& list)
             shaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
             shaderStageInfo.module = shader;
             shaderStageInfo.pName = "main";
+            
             switch(it->first)
             {
             case shaderc_glsl_vertex_shader:

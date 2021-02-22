@@ -2,6 +2,7 @@
 #include "Module/Application.h"
 #include "Module/SceneManager.h"
 #include "Render/DrawPass/ForwardGeometryPass.h"
+#include "Render/DispatchPass/BRDFPrepare.h"
 
 using namespace Rocket;
 
@@ -15,7 +16,7 @@ int GraphicsManager::Initialize()
     m_Frames.resize(m_MaxFrameInFlight);
     for(size_t i = 0; i < m_MaxFrameInFlight; ++i)
     {
-        m_Frames[i] = Frame();
+        m_Frames[i] = {};
     }
 
     // Init UBOs
@@ -31,8 +32,11 @@ int GraphicsManager::Initialize()
         m_uboShadowMatricesConstant[i] = nullptr;
     }
 
+    // Add Init Pass
+    m_InitPasses.push_back(CreateRef<BRDFPrepare>());
+
     // Add Draw Pass
-    //m_DrawPasses.push_back(std::make_shared<ForwardGeometryPass>());
+    //m_DrawPasses.push_back(CreateRef<ForwardGeometryPass>());
 
     InitConstants();
     return 0;
@@ -135,11 +139,8 @@ void GraphicsManager::BeginScene(const Scene& scene)
 
 void GraphicsManager::EndScene()
 {
-    for (int i = 0; i < m_Frames.size(); i++)
-    {
-        auto &batchContexts = m_Frames[i].batchContexts;
-        batchContexts.clear();
-    }
+    m_Frames.clear();
+    m_Frames.resize(m_MaxFrameInFlight);
 
     // Clear Buffers
     //m_uboDrawFrameConstant.clear();
@@ -161,9 +162,9 @@ void GraphicsManager::EndScene()
     //    m_uboShadowMatricesConstant[i] = nullptr;
     //}
 
-    m_CurrentScene = nullptr;
-    m_CurrentShader = nullptr;
-    m_CurrentFrameBuffer = nullptr;
+    //m_CurrentScene = nullptr;
+    //m_CurrentShader = nullptr;
+    //m_CurrentFrameBuffer = nullptr;
 }
 
 void GraphicsManager::BeginFrame(const Frame& frame) 

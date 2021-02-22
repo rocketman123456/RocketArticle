@@ -29,11 +29,16 @@ namespace Rocket
         void BeginCompute() final {}
         void EndCompute() final {}
 
+        void GenerateBRDFLUT(int32_t dim) final;
+
         void BeginFrame(const Frame& frame) final;
         void EndFrame(const Frame& frame) final;
 
         void BeginFrameBuffer(const Frame& frame) final;
         void EndFrameBuffer(const Frame& frame) final;
+
+        void BeginScene(const Scene& scene) final;
+        void EndScene() final;
 
         void SetPerFrameConstants(const DrawFrameContext& context) final;
         void SetPerBatchConstants(const DrawBatchContext& context) final;
@@ -127,6 +132,13 @@ namespace Rocket
         VkPipeline m_GraphicsPipeline;
 
         VkCommandPool m_CommandPool;
+
+        VkImage m_BRDFImage = VK_NULL_HANDLE;
+        VkDeviceMemory m_BRDFImageMemory;
+        VkImageView m_BRDFImageView;
+        VkSampler m_BRDFSampler;
+
+        VkPipelineCache m_PipelineCache;
 
         VkImage m_ColorImage;
         VkDeviceMemory m_ColorImageMemory;
