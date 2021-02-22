@@ -2,7 +2,7 @@
 #include "Module/Application.h"
 #include "Module/SceneManager.h"
 #include "Render/DrawPass/ForwardGeometryPass.h"
-#include "Render/DispatchPass/BRDFPrepare.h"
+#include "Render/DispatchPass/BRDFGenerate.h"
 
 using namespace Rocket;
 
@@ -33,7 +33,7 @@ int GraphicsManager::Initialize()
     }
 
     // Add Init Pass
-    m_InitPasses.push_back(CreateRef<BRDFPrepare>());
+    m_InitPasses.push_back(CreateRef<BRDFGenerate>());
 
     // Add Draw Pass
     //m_DrawPasses.push_back(CreateRef<ForwardGeometryPass>());

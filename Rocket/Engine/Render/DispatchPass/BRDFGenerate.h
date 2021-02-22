@@ -3,7 +3,7 @@
 
 namespace Rocket
 {
-    class BRDFPrepare : implements BaseDispatchPass
+    class BRDFGenerate : implements BaseDispatchPass
     {
         void Dispatch(Frame& frame);
     };

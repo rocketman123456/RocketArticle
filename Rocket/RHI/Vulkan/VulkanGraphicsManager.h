@@ -1,6 +1,9 @@
 #pragma once
 #include "Module/GraphicsManager.h"
 #include "Vulkan/VulkanFunction.h"
+#include "Vulkan/VulkanDevice.h"
+#include "Vulkan/VulkanSwapChain.h"
+#include "Vulkan/VulkanShader.h"
 #include "Common/Buffer.h"
 
 #include <vulkan/vulkan.h>
@@ -114,10 +117,17 @@ namespace Rocket
 
         VkPhysicalDevice m_PhysicalDevice = VK_NULL_HANDLE;
         VkSampleCountFlagBits m_MsaaSamples = VK_SAMPLE_COUNT_1_BIT;
+        VkPhysicalDeviceProperties m_DeviceProperties;
+        VkPhysicalDeviceFeatures m_DeviceFeatures;
+        VkPhysicalDeviceMemoryProperties m_DeviceMemoryProperties;
+
+        Ref<VulkanDevice> m_LogicalDevice;
         VkDevice m_Device;
 
         VkQueue m_GraphicsQueue;
         VkQueue m_PresentQueue;
+
+        Ref<VulkanSwapChain> m_SwapChainClass;
 
         VkSwapchainKHR m_SwapChain;
         Vec<VkImage> m_SwapChainImages;

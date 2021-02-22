@@ -7,4 +7,6 @@ add_library( RendererVulkan
     VulkanBuffer.cpp
     VulkanTexture.cpp
     VulkanFunction.cpp
+    VulkanDevice.cpp
+    VulkanSwapChain.cpp
 )

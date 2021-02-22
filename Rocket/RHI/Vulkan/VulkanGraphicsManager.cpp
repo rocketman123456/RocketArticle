@@ -2,7 +2,6 @@
 #include "Module/WindowManager.h"
 #include "Module/AssetLoader.h"
 #include "Module/Application.h"
-#include "Vulkan/VulkanShader.h"
 
 #include <GLFW/glfw3.h>
 #include <tiny_obj_loader.h>
@@ -63,6 +62,7 @@ int VulkanGraphicsManager::Initialize()
     PickPhysicalDevice();
     CreateLogicalDevice();
     CreateSwapChain();
+
     CreateImageViews();
     CreateRenderPass();
     CreateDescriptorSetLayout();
@@ -94,15 +94,9 @@ void VulkanGraphicsManager::Finalize()
     vkDeviceWaitIdle(m_Device);
     RK_GRAPHICS_TRACE("Wait Device");
 
-    CleanupSwapChain();
-    RK_GRAPHICS_TRACE("CleanupSwapChain");
-
     GraphicsManager::Finalize();
-    //vkDestroySampler(m_Device, m_BRDFSampler, nullptr);
-    //vkDestroyImageView(m_Device, m_BRDFImageView, nullptr);
-    //vkDestroyImage(m_Device, m_BRDFImage, nullptr);
-    //vkFreeMemory(m_Device, m_BRDFImageMemory, nullptr);
-    //RK_GRAPHICS_TRACE("Finalize Base Class");
+
+    CleanupSwapChain();
 
     vkDestroyPipelineCache(m_Device, m_PipelineCache, nullptr);
 
@@ -129,15 +123,14 @@ void VulkanGraphicsManager::Finalize()
 
     vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
 
-    vkDestroyDevice(m_Device, nullptr);
+    m_LogicalDevice.reset();
+    //vkDestroyDevice(m_Device, nullptr);
 
     if (enableValidationLayers)
         DestroyDebugUtilsMessengerEXT(m_Instance, m_DebugMessenger, nullptr);
 
     vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
     vkDestroyInstance(m_Instance, nullptr);
-
-    //GraphicsManager::Finalize();
 }
 
 void VulkanGraphicsManager::CleanupSwapChain()
@@ -290,55 +283,30 @@ void VulkanGraphicsManager::PickPhysicalDevice()
 
     if (m_PhysicalDevice == VK_NULL_HANDLE)
         RK_GRAPHICS_ERROR("failed to find a suitable GPU!");
+
+    vkGetPhysicalDeviceProperties(m_PhysicalDevice, &m_DeviceProperties);
+    vkGetPhysicalDeviceFeatures(m_PhysicalDevice, &m_DeviceFeatures);
+    vkGetPhysicalDeviceMemoryProperties(m_PhysicalDevice, &m_DeviceMemoryProperties);
 }
 
 void VulkanGraphicsManager::CreateLogicalDevice()
 {
-    QueueFamilyIndices indices = FindQueueFamilies(m_PhysicalDevice, m_Surface);
+    m_LogicalDevice = CreateRef<VulkanDevice>(m_PhysicalDevice, m_Surface);
 
-    Vec<VkDeviceQueueCreateInfo> queueCreateInfos;
-    std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
-
-    float queuePriority = 1.0f;
-    for (uint32_t queueFamily : uniqueQueueFamilies)
-    {
-        VkDeviceQueueCreateInfo queueCreateInfo{};
-        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        queueCreateInfo.queueFamilyIndex = queueFamily;
-        queueCreateInfo.queueCount = 1;
-        queueCreateInfo.pQueuePriorities = &queuePriority;
-        queueCreateInfos.push_back(queueCreateInfo);
+    VkPhysicalDeviceFeatures enabledFeatures{};
+    if (m_DeviceFeatures.samplerAnisotropy) {
+        enabledFeatures.samplerAnisotropy = VK_TRUE;
     }
-
-    VkPhysicalDeviceFeatures deviceFeatures{};
-    deviceFeatures.samplerAnisotropy = VK_TRUE;
-
-    VkDeviceCreateInfo createInfo{};
-    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-
-    createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
-    createInfo.pQueueCreateInfos = queueCreateInfos.data();
-
-    createInfo.pEnabledFeatures = &deviceFeatures;
-
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
-    createInfo.ppEnabledExtensionNames = deviceExtensions.data();
-
-    if (enableValidationLayers)
-    {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-        createInfo.ppEnabledLayerNames = validationLayers.data();
+    Vec<const char*> enabledExtensions{};
+    VkResult res = m_LogicalDevice->CreateLogicalDevice(enabledFeatures, enabledExtensions, enableValidationLayers, validationLayers);
+    if (res != VK_SUCCESS) {
+        std::cerr << "Could not create Vulkan device!" << std::endl;
+        exit(res);
     }
-    else
-    {
-        createInfo.enabledLayerCount = 0;
-    }
+    m_Device = m_LogicalDevice->logicalDevice;
 
-    if (vkCreateDevice(m_PhysicalDevice, &createInfo, nullptr, &m_Device) != VK_SUCCESS)
-        RK_GRAPHICS_ERROR("failed to create logical device!");
-
-    vkGetDeviceQueue(m_Device, indices.graphicsFamily.value(), 0, &m_GraphicsQueue);
-    vkGetDeviceQueue(m_Device, indices.presentFamily.value(), 0, &m_PresentQueue);
+    vkGetDeviceQueue(m_Device, m_LogicalDevice->queueFamilyIndices.graphicsFamily.value(), 0, &m_GraphicsQueue);
+    vkGetDeviceQueue(m_Device, m_LogicalDevice->queueFamilyIndices.presentFamily.value(), 0, &m_PresentQueue);
 }
 
 void VulkanGraphicsManager::CreateSwapChain()

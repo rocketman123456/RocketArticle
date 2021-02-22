@@ -107,28 +107,42 @@ bool VulkanShader::Initialize(const ShaderSourceList& list)
     {
         if (!it->second.empty())
         {
-            auto config = g_Application->GetConfig();
-            String full_path = String("Shaders/" + RenderAPI + "/" + it->second);
-            
-            String shaderBuffer = g_AssetLoader->SyncOpenAndReadTextFileToString(full_path);
-            // Preprocessing
-            String preprocessed = PreprocessShader("shader_src", (shaderc_shader_kind)it->first, shaderBuffer);
-            //RK_GRAPHICS_TRACE("Compiled a vertex shader resulting in preprocessed text:\n {}", preprocessed);
-            // Optimizing
-            String assembly = CompileFileToAssembly("shader_preprocessed", (shaderc_shader_kind)it->first, preprocessed, true);
-            //RK_GRAPHICS_TRACE("Optimized SPIR-V assembly:\n {}", assembly);
-            // Compile
-            Vec<uint32_t> spirv = CompileAssemblyToBinary(assembly, true);
-            RK_GRAPHICS_INFO("Compiled to a binary module with {} words.", spirv.size());
+            VkShaderModule shader = VK_NULL_HANDLE;
+            if (!m_IsBinary)
+            {
+                auto config = g_Application->GetConfig();
+                String full_path = String("Shaders/" + RenderAPI + "/" + it->second);
 
-            VkShaderModule shader = CreateShaderModule(spirv, m_DeviceHandle);
+                String shaderBuffer = g_AssetLoader->SyncOpenAndReadTextFileToString(full_path);
+                // Preprocessing
+                String preprocessed = PreprocessShader("shader_src", (shaderc_shader_kind)it->first, shaderBuffer);
+                //RK_GRAPHICS_TRACE("Compiled a vertex shader resulting in preprocessed text:\n {}", preprocessed);
+                // Optimizing
+                String assembly = CompileFileToAssembly("shader_preprocessed", (shaderc_shader_kind)it->first, preprocessed, true);
+                //RK_GRAPHICS_TRACE("Optimized SPIR-V assembly:\n {}", assembly);
+                // Compile
+                Vec<uint32_t> spirv = CompileAssemblyToBinary(assembly, true);
+                RK_GRAPHICS_INFO("Compiled to a binary module with {} words.", spirv.size());
+
+                shader = CreateShaderModule(spirv, m_DeviceHandle);
+            }
+            else
+            {
+                // Load Precompiled shader
+                auto config = g_Application->GetConfig();
+                String full_path = String("Shaders/" + RenderAPI + "/" + it->second);
+
+                Buffer shaderBuffer = g_AssetLoader->SyncOpenAndReadBinary(full_path);
+                
+                shader = CreateShaderModule(shaderBuffer, m_DeviceHandle);
+            }
 
             VkPipelineShaderStageCreateInfo shaderStageInfo{};
             shaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
             shaderStageInfo.module = shader;
             shaderStageInfo.pName = "main";
-            
-            switch(it->first)
+
+            switch (it->first)
             {
             case shaderc_glsl_vertex_shader:
                 shaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;

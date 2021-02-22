@@ -1,3 +1,4 @@
+#pragma once
 #include "Render/DrawBasic/Shader.h"
 #include "Utils/Hashing.h"
 
@@ -15,6 +16,7 @@ namespace Rocket
         virtual ~VulkanShader() = default;
 
         void SetDevice(VkDevice& device) { m_DeviceHandle = device; }
+        void SetIsBinary(bool type) { m_IsBinary = type; }
 
         bool Initialize(const ShaderSourceList& list) final;
 		void Finalize() final;
@@ -46,6 +48,7 @@ namespace Rocket
     private:
         uint64_t m_NameId;
         uint32_t m_RendererId;
+        bool m_IsBinary = false;;
         Vec<VkShaderModule> m_Shader;
         Vec<VkPipelineShaderStageCreateInfo> m_ShaderInfo;
         VkDevice m_DeviceHandle;
