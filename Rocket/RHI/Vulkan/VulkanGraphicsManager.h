@@ -79,7 +79,8 @@ namespace Rocket
         void PickPhysicalDevice();
         void CreateLogicalDevice();
         void CreateSwapChain();
-        void CreateImageViews();
+        //void CreateImageViews();
+
         void CreateRenderPass();
         void CreateDescriptorSetLayout();
         void CreateGraphicsPipeline();

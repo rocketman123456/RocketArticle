@@ -22,11 +22,15 @@
 
 typedef struct GLFWwindow GLFWwindow;
 
-#define VK_CHECK(call) \
-	do { \
-		VkResult result_ = call; \
-		assert(result_ == VK_SUCCESS); \
-	} while (0)
+#define VK_CHECK(f)																						\
+{																										\
+	VkResult res = (f);																					\
+	if (res != VK_SUCCESS)																				\
+	{																									\
+		RK_GRAPHICS_ERROR("Fatal : VkResult is \" {} \" in {} at line {}", res, __FILE__, __LINE__);	\
+		assert(res == VK_SUCCESS);																		\
+	}																									\
+}
 
 #define GET_INSTANCE_PROC_ADDR(inst, entrypoint)                        \
 {                                                                       \

@@ -3,6 +3,8 @@
 
 #include <vulkan/vulkan.h>
 
+typedef struct GLFWwindow GLFWwindow;
+
 namespace Rocket
 {
 	typedef struct _SwapChainBuffers_ {
@@ -13,8 +15,8 @@ namespace Rocket
 	class VulkanSwapChain
 	{
 	public:
-		void Connect(VkInstance instance, VkPhysicalDevice physicalDevice, VkDevice device);
-		void Create(uint32_t* width, uint32_t* height, bool vsync = false);
+		void Connect(VkInstance instance, VkPhysicalDevice physicalDevice, VkDevice device, VkSurfaceKHR surface);
+		void Create(GLFWwindow* windowHandle, bool vsync = false);
 		VkResult AcquireNextImage(VkSemaphore presentCompleteSemaphore, uint32_t* imageIndex);
 		VkResult QueuePresent(VkQueue queue, uint32_t imageIndex, VkSemaphore waitSemaphore = VK_NULL_HANDLE);
 		void Cleanup();
@@ -25,15 +27,19 @@ namespace Rocket
 		VkColorSpaceKHR colorSpace;
 		VkSwapchainKHR swapChain = VK_NULL_HANDLE;
 		uint32_t imageCount;
-		std::vector<VkImage> images;
-		std::vector<SwapChainBuffer> buffers;
+		Vec<VkImage> images;
+		Vec<SwapChainBuffer> buffers;
 		VkExtent2D extent = {};
 		uint32_t queueNodeIndex = UINT32_MAX;
-	private:
+
 		VkInstance instance;
 		VkDevice device;
 		VkPhysicalDevice physicalDevice;
 		VkSurfaceKHR surface = VK_NULL_HANDLE;
+		VkSurfaceFormatKHR surfaceFormat;
+
+		GLFWwindow* windowHandle;
+	private:
 		// Function pointers
 		PFN_vkGetPhysicalDeviceSurfaceSupportKHR fpGetPhysicalDeviceSurfaceSupportKHR;
 		PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR fpGetPhysicalDeviceSurfaceCapabilitiesKHR;

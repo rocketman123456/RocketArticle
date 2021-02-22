@@ -1,16 +1,16 @@
 #include "Vulkan/VulkanSwapChain.h"
 #include "Vulkan/VulkanFunction.h"
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <GLFW/glfw3.h>
 
 using namespace Rocket;
 
-void VulkanSwapChain::Connect(VkInstance instance, VkPhysicalDevice physicalDevice, VkDevice device)
+void VulkanSwapChain::Connect(VkInstance instance, VkPhysicalDevice physicalDevice, VkDevice device, VkSurfaceKHR surface)
 {
 	this->instance = instance;
 	this->physicalDevice = physicalDevice;
 	this->device = device;
+	this->surface = surface;
 	GET_INSTANCE_PROC_ADDR(instance, GetPhysicalDeviceSurfaceSupportKHR);
 	GET_INSTANCE_PROC_ADDR(instance, GetPhysicalDeviceSurfaceCapabilitiesKHR);
 	GET_INSTANCE_PROC_ADDR(instance, GetPhysicalDeviceSurfaceFormatsKHR);
@@ -22,9 +22,17 @@ void VulkanSwapChain::Connect(VkInstance instance, VkPhysicalDevice physicalDevi
 	GET_DEVICE_PROC_ADDR(device, QueuePresentKHR);
 }
 
-void VulkanSwapChain::Create(uint32_t* width, uint32_t* height, bool vsync)
+void VulkanSwapChain::Create(GLFWwindow* windowHandle, bool vsync)
 {
+	this->windowHandle = windowHandle;
 	VkSwapchainKHR oldSwapchain = swapChain;
+
+	SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(physicalDevice, surface);
+
+	surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
+	extent = ChooseSwapExtent(swapChainSupport.capabilities, windowHandle);
+	colorFormat = surfaceFormat.format;
+	colorSpace = surfaceFormat.colorSpace;
 
 	// Get physical device surface properties and formats
 	VkSurfaceCapabilitiesKHR surfCaps;
@@ -37,22 +45,6 @@ void VulkanSwapChain::Create(uint32_t* width, uint32_t* height, bool vsync)
 
 	Vec<VkPresentModeKHR> presentModes(presentModeCount);
 	VK_CHECK(fpGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, presentModes.data()));
-
-	// If width (and height) equals the special value 0xFFFFFFFF, the size of the surface will be set by the swapchain
-	if (surfCaps.currentExtent.width == (uint32_t)-1)
-	{
-		// If the surface size is undefined, the size is set to
-		// the size of the images requested.
-		extent.width = *width;
-		extent.height = *height;
-	}
-	else
-	{
-		// If the surface size is defined, the swap chain size must match
-		extent = surfCaps.currentExtent;
-		*width = surfCaps.currentExtent.width;
-		*height = surfCaps.currentExtent.height;
-	}
 
 	// Select a present mode for the swapchain
 
@@ -113,6 +105,27 @@ void VulkanSwapChain::Create(uint32_t* width, uint32_t* height, bool vsync)
 		};
 	}
 
+	// Set Image Sharing Mode
+	QueueFamilyIndices indices = FindQueueFamilies(physicalDevice, surface);
+
+	std::set<uint32_t> uniqueQueueFamilyIndices = {
+		indices.graphicsFamily.value(),
+		indices.computeFamily.value(),
+		indices.presentFamily.value()
+	};
+
+	Vec<uint32_t> uniqueQueueFamilyIndicesVec;
+	for (auto indices : uniqueQueueFamilyIndices)
+	{
+		uniqueQueueFamilyIndicesVec.push_back(indices);
+	}
+
+	VkSharingMode sharingMode;
+	if (uniqueQueueFamilyIndices.size() > 1)
+		sharingMode = VK_SHARING_MODE_CONCURRENT;
+	else
+		sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
 	VkSwapchainCreateInfoKHR swapchainCI = {};
 	swapchainCI.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 	swapchainCI.pNext = NULL;
@@ -124,7 +137,12 @@ void VulkanSwapChain::Create(uint32_t* width, uint32_t* height, bool vsync)
 	swapchainCI.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 	swapchainCI.preTransform = (VkSurfaceTransformFlagBitsKHR)preTransform;
 	swapchainCI.imageArrayLayers = 1;
-	swapchainCI.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	swapchainCI.imageSharingMode = sharingMode;
+	if (sharingMode == VK_SHARING_MODE_CONCURRENT)
+	{
+		swapchainCI.queueFamilyIndexCount = static_cast<uint32_t>(uniqueQueueFamilyIndices.size());
+		swapchainCI.pQueueFamilyIndices = uniqueQueueFamilyIndicesVec.data();
+	}
 	swapchainCI.queueFamilyIndexCount = 0;
 	swapchainCI.pQueueFamilyIndices = NULL;
 	swapchainCI.presentMode = swapchainPresentMode;
@@ -227,11 +245,15 @@ void VulkanSwapChain::Cleanup()
 			vkDestroyImageView(device, buffers[i].view, nullptr);
 		}
 	}
-	if (surface != VK_NULL_HANDLE)
+	if (swapChain != VK_NULL_HANDLE)
 	{
 		fpDestroySwapchainKHR(device, swapChain, nullptr);
-		vkDestroySurfaceKHR(instance, surface, nullptr);
 	}
-	surface = VK_NULL_HANDLE;
 	swapChain = VK_NULL_HANDLE;
+	//if (surface != VK_NULL_HANDLE)
+	//{
+	//	fpDestroySwapchainKHR(device, swapChain, nullptr);
+	//	vkDestroySurfaceKHR(instance, surface, nullptr);
+	//}
+	//surface = VK_NULL_HANDLE;
 }

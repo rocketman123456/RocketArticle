@@ -62,8 +62,8 @@ int VulkanGraphicsManager::Initialize()
     PickPhysicalDevice();
     CreateLogicalDevice();
     CreateSwapChain();
+    //CreateImageViews();
 
-    CreateImageViews();
     CreateRenderPass();
     CreateDescriptorSetLayout();
     CreateGraphicsPipeline();
@@ -124,7 +124,6 @@ void VulkanGraphicsManager::Finalize()
     vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
 
     m_LogicalDevice.reset();
-    //vkDestroyDevice(m_Device, nullptr);
 
     if (enableValidationLayers)
         DestroyDebugUtilsMessengerEXT(m_Instance, m_DebugMessenger, nullptr);
@@ -152,10 +151,7 @@ void VulkanGraphicsManager::CleanupSwapChain()
     vkDestroyPipelineLayout(m_Device, m_PipelineLayout, nullptr);
     vkDestroyRenderPass(m_Device, m_RenderPass, nullptr);
 
-    for (auto imageView : m_SwapChainImageViews)
-        vkDestroyImageView(m_Device, imageView, nullptr);
-
-    vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr);
+    m_SwapChainClass->Cleanup();
 
     for (size_t i = 0; i < m_SwapChainImages.size(); i++)
     {
@@ -181,7 +177,8 @@ void VulkanGraphicsManager::RecreateSwapChain()
     CleanupSwapChain();
 
     CreateSwapChain();
-    CreateImageViews();
+    //CreateImageViews();
+    
     CreateRenderPass();
     CreateGraphicsPipeline();
     CreateColorResources();
@@ -311,65 +308,20 @@ void VulkanGraphicsManager::CreateLogicalDevice()
 
 void VulkanGraphicsManager::CreateSwapChain()
 {
-    SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(m_PhysicalDevice, m_Surface);
-
-    VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
-    VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
-    VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities, m_WindowHandle);
-
-    uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
-    if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
-        imageCount = swapChainSupport.capabilities.maxImageCount;
-
-    VkSwapchainCreateInfoKHR createInfo{};
-    createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    createInfo.surface = m_Surface;
-
-    createInfo.minImageCount = imageCount;
-    createInfo.imageFormat = surfaceFormat.format;
-    createInfo.imageColorSpace = surfaceFormat.colorSpace;
-    createInfo.imageExtent = extent;
-    createInfo.imageArrayLayers = 1;
-    createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
-    QueueFamilyIndices indices = FindQueueFamilies(m_PhysicalDevice, m_Surface);
-    uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
-
-    if (indices.graphicsFamily != indices.presentFamily)
+    m_SwapChainClass = CreateRef<VulkanSwapChain>();
+    m_SwapChainClass->Connect(m_Instance, m_PhysicalDevice, m_Device, m_Surface);
+    m_SwapChainClass->Create(m_WindowHandle, true);
+    
+    m_SwapChain = m_SwapChainClass->swapChain;
+    m_SwapChainImages.clear();
+    m_SwapChainImageViews.clear();
+    for (auto buffer : m_SwapChainClass->buffers)
     {
-        createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-        createInfo.queueFamilyIndexCount = 2;
-        createInfo.pQueueFamilyIndices = queueFamilyIndices;
+        m_SwapChainImages.push_back(buffer.image);
+        m_SwapChainImageViews.push_back(buffer.view);
     }
-    else
-    {
-        createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    }
-
-    createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
-    createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-    createInfo.presentMode = presentMode;
-    createInfo.clipped = VK_TRUE;
-
-    if (vkCreateSwapchainKHR(m_Device, &createInfo, nullptr, &m_SwapChain) != VK_SUCCESS)
-        RK_GRAPHICS_ERROR("failed to create swap chain!");
-
-    vkGetSwapchainImagesKHR(m_Device, m_SwapChain, &imageCount, nullptr);
-    m_SwapChainImages.resize(imageCount);
-    vkGetSwapchainImagesKHR(m_Device, m_SwapChain, &imageCount, m_SwapChainImages.data());
-
-    m_SwapChainImageFormat = surfaceFormat.format;
-    m_SwapChainExtent = extent;
-}
-
-void VulkanGraphicsManager::CreateImageViews()
-{
-    m_SwapChainImageViews.resize(m_SwapChainImages.size());
-
-    for (size_t i = 0; i < m_SwapChainImages.size(); i++)
-    {
-        m_SwapChainImageViews[i] = CreateImageView(m_Device, m_SwapChainImages[i], m_SwapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT, 0, 1);
-    }
+    m_SwapChainImageFormat = m_SwapChainClass->colorFormat;
+    m_SwapChainExtent = m_SwapChainClass->extent;
 }
 
 void VulkanGraphicsManager::CreateRenderPass()
