@@ -11,21 +11,17 @@ void VulkanSwapChain::Connect(VkInstance instance, VkPhysicalDevice physicalDevi
 	this->physicalDevice = physicalDevice;
 	this->device = device;
 	this->surface = surface;
+
 	GET_INSTANCE_PROC_ADDR(instance, GetPhysicalDeviceSurfaceSupportKHR);
 	GET_INSTANCE_PROC_ADDR(instance, GetPhysicalDeviceSurfaceCapabilitiesKHR);
 	GET_INSTANCE_PROC_ADDR(instance, GetPhysicalDeviceSurfaceFormatsKHR);
 	GET_INSTANCE_PROC_ADDR(instance, GetPhysicalDeviceSurfacePresentModesKHR);
+
 	GET_DEVICE_PROC_ADDR(device, CreateSwapchainKHR);
 	GET_DEVICE_PROC_ADDR(device, DestroySwapchainKHR);
 	GET_DEVICE_PROC_ADDR(device, GetSwapchainImagesKHR);
 	GET_DEVICE_PROC_ADDR(device, AcquireNextImageKHR);
 	GET_DEVICE_PROC_ADDR(device, QueuePresentKHR);
-}
-
-void VulkanSwapChain::Create(GLFWwindow* windowHandle, bool vsync)
-{
-	this->windowHandle = windowHandle;
-	VkSwapchainKHR oldSwapchain = swapChain;
 
 	SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(physicalDevice, surface);
 
@@ -33,6 +29,11 @@ void VulkanSwapChain::Create(GLFWwindow* windowHandle, bool vsync)
 	extent = ChooseSwapExtent(swapChainSupport.capabilities, windowHandle);
 	colorFormat = surfaceFormat.format;
 	colorSpace = surfaceFormat.colorSpace;
+}
+
+void VulkanSwapChain::Create(bool vsync)
+{
+	VkSwapchainKHR oldSwapchain = swapChain;
 
 	// Get physical device surface properties and formats
 	VkSurfaceCapabilitiesKHR surfCaps;

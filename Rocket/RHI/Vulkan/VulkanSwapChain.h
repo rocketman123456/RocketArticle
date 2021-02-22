@@ -16,11 +16,12 @@ namespace Rocket
 	{
 	public:
 		void Connect(VkInstance instance, VkPhysicalDevice physicalDevice, VkDevice device, VkSurfaceKHR surface);
-		void Create(GLFWwindow* windowHandle, bool vsync = false);
+		void Create(bool vsync = false);
 		VkResult AcquireNextImage(VkSemaphore presentCompleteSemaphore, uint32_t* imageIndex);
 		VkResult QueuePresent(VkQueue queue, uint32_t imageIndex, VkSemaphore waitSemaphore = VK_NULL_HANDLE);
 		void Cleanup();
 
+		void SetWindowHandle(GLFWwindow* handle) { windowHandle = handle; }
 	public:
 		// TODO : change variable names
 		VkFormat colorFormat;

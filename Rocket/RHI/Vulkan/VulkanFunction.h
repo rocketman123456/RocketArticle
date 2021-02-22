@@ -233,11 +233,13 @@ VkSemaphore CreateSemaphore(VkDevice device);
 VkCommandPool CreateCommandPool(
 	VkDevice device, 
 	uint32_t familyIndex);
+
 VkRenderPass CreateRenderPass(
 	VkDevice device, 
 	VkFormat colorFormat, 
 	VkFormat depthFormat, 
 	bool late);
+
 VkFramebuffer CreateFramebuffer(
 	VkDevice device, 
 	VkRenderPass renderPass, 
@@ -245,6 +247,7 @@ VkFramebuffer CreateFramebuffer(
 	VkImageView depthView, 
 	uint32_t width, 
 	uint32_t height);
+
 VkQueryPool CreateQueryPool(
 	VkDevice device, 
 	uint32_t queryCount, 
@@ -258,10 +261,12 @@ VkImageMemoryBarrier ImageBarrier(
 	VkImageLayout oldLayout, 
 	VkImageLayout newLayout, 
 	VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_COLOR_BIT);
+
 VkBufferMemoryBarrier BufferBarrier(
 	VkBuffer buffer, 
 	VkAccessFlags srcAccessMask, 
 	VkAccessFlags dstAccessMask);
+
 void CreateBuffer(
 	VulkanBuffer& result, 
 	VkDevice device, 
@@ -269,6 +274,7 @@ void CreateBuffer(
 	size_t size, 
 	VkBufferUsageFlags usage, 
 	VkMemoryPropertyFlags memoryFlags);
+
 void UploadBuffer(
 	VkDevice device, 
 	VkCommandPool commandPool, 
@@ -277,15 +283,18 @@ void UploadBuffer(
 	const VulkanBuffer& buffer, 
 	const VulkanBuffer& scratch, 
 	const void* data, size_t size);
+
 void DestroyBuffer(
 	const VulkanBuffer& buffer, 
 	VkDevice device);
+
 VkImageView CreateImageView(
 	VkDevice device, 
 	VkImage image, 
 	VkFormat format, 
 	uint32_t mipLevel, 
 	uint32_t levelCount);
+
 void CreateImage(
 	VulkanImage& result, 
 	VkDevice device, 
@@ -295,12 +304,15 @@ void CreateImage(
 	uint32_t mipLevels, 
 	VkFormat format, 
 	VkImageUsageFlags usage);
+
 void DestroyImage(
 	const VulkanImage& image, 
 	VkDevice device);
+
 uint32_t GetImageMipLevels(
 	uint32_t width, 
 	uint32_t height);
+
 VkSampler CreateSampler(
 	VkDevice device, 
 	VkSamplerReductionModeEXT reductionMode);
@@ -310,6 +322,7 @@ VkSampler CreateSampler(
 VkFormat GetSwapchainFormat(
 	VkPhysicalDevice physicalDevice, 
 	VkSurfaceKHR surface);
+
 void CreateSwapchain(
 	VulkanSwapchain& result, 
 	VkPhysicalDevice physicalDevice, 
@@ -318,6 +331,7 @@ void CreateSwapchain(
 	uint32_t familyIndex, 
 	VkFormat format, 
 	VkSwapchainKHR oldSwapchain = 0);
+
 void DestroySwapchain(
 	VkDevice device, 
 	const VulkanSwapchain& swapchain);
@@ -347,35 +361,46 @@ VkPipeline CreateGraphicsPipeline(
 	Shaders shaders, 
 	VkPipelineLayout layout, 
 	Constants constants = {});
+
 VkPipeline CreateComputePipeline(
 	VkDevice device, 
 	VkPipelineCache pipelineCache, 
 	const Vulkan_Shader& shader, 
 	VkPipelineLayout layout, 
 	Constants constants = {});
+
 VulkanProgram CreateProgram(
 	VkDevice device, 
 	VkPipelineBindPoint bindPoint, 
 	Shaders shaders, 
 	size_t pushConstantSize, 
 	bool pushDescriptorsSupported);
+
 void DestroyProgram(
 	VkDevice device, 
 	const VulkanProgram& program);
 // niagara ----------------------//
 
 bool CheckValidationLayerSupport();
+
 Rocket::Vec<const char*> GetRequiredExtensions();
+
 void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+
 bool IsDeviceSuitable(
 	const VkPhysicalDevice& device, 
 	const VkSurfaceKHR& surface);
+
 bool CheckDeviceExtensionSupport(const VkPhysicalDevice& device);
+
 VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const Rocket::Vec<VkSurfaceFormatKHR>& availableFormats);
+
 VkPresentModeKHR ChooseSwapPresentMode(const Rocket::Vec<VkPresentModeKHR>& availablePresentModes);
+
 VkExtent2D ChooseSwapExtent(
 	const VkSurfaceCapabilitiesKHR& capabilities, 
 	GLFWwindow* window_handle);
+
 SwapChainSupportDetails QuerySwapChainSupport(
 	const VkPhysicalDevice& device, 
 	const VkSurfaceKHR& surface);
@@ -383,9 +408,11 @@ SwapChainSupportDetails QuerySwapChainSupport(
 VkShaderModule CreateShaderModule(
 	const Rocket::Buffer& code, 
 	const VkDevice& device);
+
 VkShaderModule CreateShaderModule(
 	const Rocket::Vec<uint32_t>& code, 
 	const VkDevice& device);
+
 void CreateImage(
 	const VkDevice& device, 
 	const VkPhysicalDevice& physicalDevice, 
@@ -399,6 +426,7 @@ void CreateImage(
 	VkMemoryPropertyFlags properties, 
 	VkImage& image, 
 	VkDeviceMemory& imageMemory);
+
 VkImageView CreateImageView(
 	const VkDevice& device, 
 	VkImage image, 
@@ -406,6 +434,7 @@ VkImageView CreateImageView(
 	VkImageAspectFlags aspectFlags, 
 	uint32_t mipLevel, 
 	uint32_t levelCount);
+
 void CreateBuffer(
 	const VkDevice& device, 
 	const VkPhysicalDevice& physicalDevice, 
@@ -418,22 +447,28 @@ void CreateBuffer(
 QueueFamilyIndices FindQueueFamilies(
 	const VkPhysicalDevice& device, 
 	const VkSurfaceKHR& surface);
+
 uint32_t FindMemoryType(
 	const VkPhysicalDevice& device, 
 	uint32_t typeFilter, 
 	VkMemoryPropertyFlags properties);
+
 VkFormat FindSupportedFormat(
 	const VkPhysicalDevice& physicalDevice, 
 	const Rocket::Vec<VkFormat>& candidates, 
 	VkImageTiling tiling, 
 	VkFormatFeatureFlags features);
+
 VkFormat FindDepthFormat(const VkPhysicalDevice& physicalDevice);
+
 VkSampleCountFlagBits GetMaxUsableSampleCount(const VkPhysicalDevice& physicalDevice);
+
 bool HasStencilComponent(VkFormat format);
 
 VkCommandBuffer BeginSingleTimeCommands(
 	VkDevice& device, 
 	VkCommandPool& commandPool);
+
 void EndSingleTimeCommands(
 	VkDevice& device, 
 	VkCommandPool& commandPool, 
@@ -450,6 +485,7 @@ void GenerateMipmaps(
 	int32_t texWidth, 
 	int32_t texHeight, 
 	uint32_t mipLevels);
+
 void TransitionImageLayout(
 	VkDevice& device, 
 	VkCommandPool& commandPool, 
@@ -459,6 +495,7 @@ void TransitionImageLayout(
 	VkImageLayout oldLayout, 
 	VkImageLayout newLayout, 
 	uint32_t mipLevels);
+
 void CopyBufferToImage(
 	VkDevice& device, 
 	VkCommandPool& commandPool, 
@@ -467,6 +504,7 @@ void CopyBufferToImage(
 	VkImage image, 
 	uint32_t width,
 	uint32_t height);
+
 void CopyBuffer(
 	VkDevice& device, 
 	VkCommandPool& commandPool, 

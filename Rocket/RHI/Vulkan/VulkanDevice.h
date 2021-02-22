@@ -9,18 +9,6 @@ namespace Rocket
 	class VulkanDevice
 	{
 	public:
-		// TODO : change variable names
-		VkPhysicalDevice physicalDevice;
-		VkSurfaceKHR surface;
-		VkDevice logicalDevice;
-		VkPhysicalDeviceProperties properties;
-		VkPhysicalDeviceFeatures features;
-		VkPhysicalDeviceFeatures enabledFeatures;
-		VkPhysicalDeviceMemoryProperties memoryProperties;
-		Vec<VkQueueFamilyProperties> queueFamilyProperties;
-		VkCommandPool commandPool = VK_NULL_HANDLE;
-		QueueFamilyIndices queueFamilyIndices;
-
 		operator VkDevice() { return logicalDevice; };
 
 		VulkanDevice(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
@@ -34,5 +22,18 @@ namespace Rocket
 		VkCommandBuffer CreateCommandBuffer(VkCommandBufferLevel level, bool begin = false);
 		void BeginCommandBuffer(VkCommandBuffer commandBuffer);
 		void FlushCommandBuffer(VkCommandBuffer commandBuffer, VkQueue queue, bool free = true);
+
+	public:
+		// TODO : change variable names
+		VkPhysicalDevice physicalDevice;
+		VkSurfaceKHR surface;
+		VkDevice logicalDevice;
+		VkPhysicalDeviceProperties properties;
+		VkPhysicalDeviceFeatures features;
+		VkPhysicalDeviceFeatures enabledFeatures;
+		VkPhysicalDeviceMemoryProperties memoryProperties;
+		Vec<VkQueueFamilyProperties> queueFamilyProperties;
+		VkCommandPool commandPool = VK_NULL_HANDLE;
+		QueueFamilyIndices queueFamilyIndices;
 	};
 }

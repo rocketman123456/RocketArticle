@@ -3,6 +3,7 @@
 #include "Vulkan/VulkanFunction.h"
 #include "Vulkan/VulkanDevice.h"
 #include "Vulkan/VulkanSwapChain.h"
+#include "Vulkan/VulkanPipeline.h"
 #include "Vulkan/VulkanShader.h"
 #include "Common/Buffer.h"
 
@@ -81,8 +82,8 @@ namespace Rocket
         void CreateSwapChain();
         //void CreateImageViews();
 
-        void CreateRenderPass();
-        void CreateDescriptorSetLayout();
+        //void CreateRenderPass();
+        //void CreateDescriptorSetLayout();
         void CreateGraphicsPipeline();
         void CreateCommandPool();
         void CreateColorResources();
@@ -128,7 +129,7 @@ namespace Rocket
         VkQueue m_GraphicsQueue;
         VkQueue m_PresentQueue;
 
-        Ref<VulkanSwapChain> m_SwapChainClass;
+        Ref<VulkanSwapChain> m_VulkanSwapChain;
 
         VkSwapchainKHR m_SwapChain;
         Vec<VkImage> m_SwapChainImages;
@@ -136,6 +137,8 @@ namespace Rocket
         VkExtent2D m_SwapChainExtent;
         Vec<VkImageView> m_SwapChainImageViews;
         Vec<VkFramebuffer> m_SwapChainFramebuffers;
+
+        Ref<VulkanPipeline> m_VulkanPipeline;
 
         VkRenderPass m_RenderPass;
         VkDescriptorSetLayout m_DescriptorSetLayout;
