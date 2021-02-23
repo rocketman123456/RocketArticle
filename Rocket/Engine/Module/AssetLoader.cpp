@@ -44,6 +44,22 @@ void AssetLoader::SyncCloseTexture(AssetFilePtr data)
     stbi_image_free(data);
 }
 
+Texture2DPtr AssetLoader::SyncLoadTexture2D(const String& filename)
+{
+    String fullPath = m_AssetPath + filename;
+    RK_CORE_TRACE("Open Texture 2D {}", fullPath);
+    Texture2DPtr pic = CreateRef<Texture2DAsset>(gli::load(filename));
+    return pic;
+}
+
+TextureCubePtr AssetLoader::SyncLoadTextureCube(const String& filename)
+{
+    String fullPath = m_AssetPath + filename;
+    RK_CORE_TRACE("Open Texture Cube {}", fullPath);
+    TextureCubePtr pic = CreateRef<TextureCubeAsset>(gli::load(filename));
+    return pic;
+}
+
 void AssetLoader::SyncOpenAndReadAudio(const String& filename, uint32_t* buffer_in)
 {
     String fullPath = m_AssetPath + filename;

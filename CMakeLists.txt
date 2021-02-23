@@ -96,6 +96,8 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/Thirdparty/stb
     ${PROJECT_SOURCE_DIR}/Thirdparty/imgui
     ${PROJECT_SOURCE_DIR}/Thirdparty/glad/include
+    #${PROJECT_SOURCE_DIR}/Thirdparty/glm
+    #${PROJECT_SOURCE_DIR}/Thirdparty/gli
 )
 include_directories(
     ${PROJECT_SOURCE_DIR}/Rocket/Engine

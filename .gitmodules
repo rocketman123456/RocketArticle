@@ -79,3 +79,6 @@
 [submodule "Thirdparty/fiber-job-system"]
 	path = Thirdparty/fiber-job-system
 	url = https://github.com/Freeeaky/fiber-job-system.git
+[submodule "Thirdparty/gli"]
+	path = Thirdparty/gli
+	url = https://github.com/g-truc/gli

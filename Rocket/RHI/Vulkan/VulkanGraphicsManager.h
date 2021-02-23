@@ -4,7 +4,9 @@
 #include "Vulkan/VulkanDevice.h"
 #include "Vulkan/VulkanSwapChain.h"
 #include "Vulkan/VulkanPipeline.h"
+#include "Vulkan/VulkanFrameBuffer.h"
 #include "Vulkan/VulkanShader.h"
+#include "Vulkan/VulkanTexture.h"
 #include "Common/Buffer.h"
 
 #include <vulkan/vulkan.h>
@@ -83,11 +85,10 @@ namespace Rocket
         void CreateLogicalDevice();
         void CreateSwapChain();
         void CreateGraphicsPipeline();
+        void CreateFramebuffers();
 
         void CreateCommandPool();
-        void CreateColorResources();
-        void CreateDepthResources();
-        void CreateFramebuffers();
+
         void CreateTextureImage();
         void CreateTextureImageView();
         void CreateTextureSampler();
@@ -129,7 +130,7 @@ namespace Rocket
         VkQueue m_ComputeQueue;
         VkQueue m_PresentQueue;
 
-        Ref<VulkanSwapChain> m_VulkanSwapChain;
+        Ref<VulkanSwapChain> m_VulkanSwapChain = nullptr;
 
         VkSwapchainKHR m_SwapChain;
         Vec<VkImage> m_SwapChainImages;
@@ -138,21 +139,23 @@ namespace Rocket
         Vec<VkImageView> m_SwapChainImageViews;
         Vec<VkFramebuffer> m_SwapChainFramebuffers;
 
-        Ref<VulkanPipeline> m_VulkanPipeline;
+        Ref<VulkanPipeline> m_VulkanPipeline = nullptr;
 
         VkRenderPass m_RenderPass;
         VkDescriptorSetLayout m_DescriptorSetLayout;
         VkPipelineLayout m_PipelineLayout;
         VkPipeline m_GraphicsPipeline;
 
-        VkCommandPool m_CommandPool;
+        VkPipelineCache m_PipelineCache;
 
         VkImage m_BRDFImage = VK_NULL_HANDLE;
         VkDeviceMemory m_BRDFImageMemory;
         VkImageView m_BRDFImageView;
         VkSampler m_BRDFSampler;
 
-        VkPipelineCache m_PipelineCache;
+        VkCommandPool m_CommandPool;
+
+        Ref<VulkanFrameBuffer> m_VulkanFrameBuffer = nullptr;
 
         VkImage m_ColorImage;
         VkDeviceMemory m_ColorImageMemory;

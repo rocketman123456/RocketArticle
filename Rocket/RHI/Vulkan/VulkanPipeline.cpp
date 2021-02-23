@@ -24,6 +24,14 @@ void VulkanPipeline::Initialize()
     CreateGraphicsPipeline();
 }
 
+void VulkanPipeline::Finalize()
+{
+    vkDestroyPipeline(device, graphicsPipeline, nullptr);
+    vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+    vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+    vkDestroyRenderPass(device, renderPass, nullptr);
+}
+
 void VulkanPipeline::CreateRenderPass()
 {
     
@@ -164,8 +172,6 @@ void VulkanPipeline::CreateGraphicsPipeline()
     Ref<VulkanShader> shader = CreateRef<VulkanShader>("Simple Shader");
     shader->SetDevice(device);
     shader->Initialize(list);
-
-    //VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
     auto bindingDescription = Vertex::GetBindingDescription();
     auto attributeDescriptions = Vertex::GetAttributeDescriptions();

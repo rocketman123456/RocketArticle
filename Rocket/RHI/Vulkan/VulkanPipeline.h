@@ -12,6 +12,7 @@ namespace Rocket
 	public:
 		void Connect(VkInstance instance, VkPhysicalDevice physicalDevice, VkDevice device, VkSurfaceKHR surface);
 		void Initialize();
+		void Finalize();
 
 		void SetWindowHandle(GLFWwindow* handle) { windowHandle = handle; }
 		void SetMsaaSample(VkSampleCountFlagBits msaa) { msaaSamples = msaa; }
@@ -24,15 +25,16 @@ namespace Rocket
 		VkDescriptorSetLayout descriptorSetLayout;
 		VkPipelineLayout pipelineLayout;
 		VkPipeline graphicsPipeline;
-		VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
 
 		VkInstance instance;
 		VkDevice device;
 		VkPhysicalDevice physicalDevice;
 		VkSurfaceKHR surface;
+
 		VkSurfaceFormatKHR surfaceFormat;
 		VkExtent2D extent = {};
 
+		VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
 		GLFWwindow* windowHandle;
 	};
 }

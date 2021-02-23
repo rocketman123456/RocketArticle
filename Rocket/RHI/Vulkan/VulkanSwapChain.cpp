@@ -31,7 +31,7 @@ void VulkanSwapChain::Connect(VkInstance instance, VkPhysicalDevice physicalDevi
 	colorSpace = surfaceFormat.colorSpace;
 }
 
-void VulkanSwapChain::Create(bool vsync)
+void VulkanSwapChain::Initialize(bool vsync)
 {
 	VkSwapchainKHR oldSwapchain = swapChain;
 
@@ -237,7 +237,7 @@ VkResult VulkanSwapChain::QueuePresent(VkQueue queue, uint32_t imageIndex, VkSem
 	return fpQueuePresentKHR(queue, &presentInfo);
 }
 
-void VulkanSwapChain::Cleanup()
+void VulkanSwapChain::Finalize()
 {
 	if (swapChain != VK_NULL_HANDLE)
 	{

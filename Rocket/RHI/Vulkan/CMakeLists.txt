@@ -10,4 +10,5 @@ add_library( RendererVulkan
     VulkanDevice.cpp
     VulkanSwapChain.cpp
     VulkanPipeline.cpp
+    VulkanFrameBuffer.cpp
 )

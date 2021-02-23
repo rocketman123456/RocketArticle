@@ -1,33 +1,65 @@
 #pragma once
 #include "Render/DrawBasic/Texture.h"
+#include "Vulkan/VulkanDevice.h"
+
+#include <vulkan/vulkan.h>
+#include <stb_image.h>
+#include <gli/gli.hpp>
 
 namespace Rocket
 {
-    class VulkanTexture2D : implements Texture2D
+    class VulkanTexture
     {
     public:
-        VulkanTexture2D(uint32_t width, uint32_t height);
-        VulkanTexture2D(String path);
-        virtual ~VulkanTexture2D();
+        Ref<VulkanDevice> device;
+        VkImage image = VK_NULL_HANDLE;
+        VkImageLayout imageLayout;
+        VkDeviceMemory deviceMemory;
+        VkImageView view;
+        uint32_t width, height;
+        uint32_t mipLevels;
+        uint32_t layerCount;
+        VkDescriptorImageInfo descriptor;
+        VkSampler sampler;
 
-        uint32_t GetWidth() const final { return m_Width; }
-		uint32_t GetHeight() const final { return m_Height; }
-		uint32_t GetRendererID() const final { return m_RendererID; }
+        void UpdateDescriptor();
+        void Destroy();
+    };
 
-		void SetData(void* data, uint32_t size) final;
+    class VulkanTexture2D : implements VulkanTexture
+    {
+    public:
+        void LoadFromFile(
+            String filename,
+            VkFormat format,
+            Ref<VulkanDevice> device,
+            VkQueue copyQueue,
+            VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT,
+            VkImageLayout imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-		void Bind(uint32_t slot = 0) const final;
-		void Unbind(uint32_t slot = 0) const final;
+        void LoadFromBuffer(
+            void* buffer,
+            VkDeviceSize bufferSize,
+            VkFormat format,
+            uint32_t width,
+            uint32_t height,
+            Ref<VulkanDevice> device,
+            VkQueue copyQueue,
+            VkFilter filter = VK_FILTER_LINEAR,
+            VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT,
+            VkImageLayout imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-		bool operator==(const Texture& other) const final
-        {
-            return m_RendererID == ((VulkanTexture2D&)other).m_RendererID;
-        }
+    };
 
-    private:
-        uint32_t m_RendererID;
-        uint32_t m_Width;
-        uint32_t m_Height;
-        uint32_t m_MipLevels;
+    class TextureCubeMap : public VulkanTexture
+    {
+    public:
+        void LoadFromFile(
+            String filename,
+            VkFormat format,
+            Ref<VulkanDevice> device,
+            VkQueue copyQueue,
+            VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT,
+            VkImageLayout imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     };
 }
