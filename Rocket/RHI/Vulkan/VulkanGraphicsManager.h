@@ -7,6 +7,7 @@
 #include "Vulkan/VulkanFrameBuffer.h"
 #include "Vulkan/VulkanShader.h"
 #include "Vulkan/VulkanTexture.h"
+#include "Vulkan/VulkanUI.h"
 #include "Common/Buffer.h"
 
 #include <vulkan/vulkan.h>
@@ -53,6 +54,7 @@ namespace Rocket
 
         void Present() final;
 
+        void UpdataOverlay() final;
         void DrawBatch(const Frame& frame) final;
         void DrawFullScreenQuad() final;
 
@@ -87,19 +89,19 @@ namespace Rocket
         void CreateGraphicsPipeline();
         void CreateFramebuffers();
 
-        void CreateCommandPool();
+        void InitGui();
 
         void CreateTextureImage();
-        void CreateTextureImageView();
-        void CreateTextureSampler();
 
         void LoadModel();
 
         void CreateVertexBuffer();
         void CreateIndexBuffer();
+
         void CreateUniformBuffers();
         void CreateDescriptorPool();
         void CreateDescriptorSets();
+
         void CreateCommandBuffers();
         void CreateSyncObjects();
 
@@ -110,8 +112,11 @@ namespace Rocket
 
     private:
         bool m_VSync = true;
+        bool m_IsSceneLoaded = false;
         GLFWwindow* m_WindowHandle = nullptr;
         uint32_t m_CurrentImageIndex;
+
+        Ref<VulkanUI> m_VulkanUI = nullptr;
 
         VkInstance m_Instance;
         VkDebugUtilsMessengerEXT m_DebugMessenger;
@@ -165,6 +170,8 @@ namespace Rocket
         VkDeviceMemory m_DepthImageMemory;
         VkImageView m_DepthImageView;
 
+        Ref<VulkanTexture2D> m_VulkanTexture2D = nullptr;
+
         uint32_t m_MipLevels;
         VkImage m_TextureImage;
         VkDeviceMemory m_TextureImageMemory;
@@ -185,6 +192,7 @@ namespace Rocket
         Vec<VkDescriptorSet> m_DescriptorSets;
 
         Vec<VkCommandBuffer> m_CommandBuffers;
+        VkCommandBuffer m_GuiCommandBuffer;
 
         Vec<VkSemaphore> m_ImageAvailableSemaphores;
         Vec<VkSemaphore> m_RenderFinishedSemaphores;

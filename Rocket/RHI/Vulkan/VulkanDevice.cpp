@@ -7,7 +7,10 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface
 	RK_GRAPHICS_ASSERT(physicalDevice, "Invalid Physical Device");
 	this->physicalDevice = physicalDevice;
 	this->surface = surface;
+}
 
+void VulkanDevice::Initialize()
+{
 	// Store Properties features, limits and properties of the physical device for later use
 	// Device properties also contain limits and sparse properties
 	vkGetPhysicalDeviceProperties(physicalDevice, &properties);
@@ -23,7 +26,7 @@ VulkanDevice::VulkanDevice(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface
 	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilyProperties.data());
 }
 
-VulkanDevice::~VulkanDevice()
+void VulkanDevice::Finalize()
 {
 	if (commandPool) {
 		vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
@@ -98,11 +101,11 @@ VkResult VulkanDevice::CreateLogicalDevice(
 	// Note that the indices may overlap depending on the implementation
 
 	QueueFamilyIndices indices = FindQueueFamilies(physicalDevice, surface);
-	RK_GRAPHICS_TRACE("FindQueueFamilies: Graphics {}, Compute {}, Present {}", 
-		indices.graphicsFamily.value(), 
-		indices.computeFamily.value(),
-		indices.presentFamily.value()
-	);
+	//RK_GRAPHICS_TRACE("FindQueueFamilies: Graphics {}, Compute {}, Present {}", 
+	//	indices.graphicsFamily.value(), 
+	//	indices.computeFamily.value(),
+	//	indices.presentFamily.value()
+	//);
 	std::set<uint32_t> uniqueQueueFamilies = { 
 		indices.graphicsFamily.value(),
 		indices.computeFamily.value(),

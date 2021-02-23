@@ -53,6 +53,8 @@ namespace Rocket
         virtual void Draw();
         virtual void Present() {}
 
+        virtual void UpdataOverlay() = 0;
+
         virtual void DrawBatch(const Frame &frame) {}
         virtual void DrawFullScreenQuad() {}
 

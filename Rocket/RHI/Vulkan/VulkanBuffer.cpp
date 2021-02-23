@@ -2,57 +2,51 @@
 
 using namespace Rocket;
 
-VulkanVertexBuffer::VulkanVertexBuffer()
+void VulkanBufferStruct::Create(
+	Ref<VulkanDevice> device,
+	VkBufferUsageFlags usageFlags,
+	VkMemoryPropertyFlags memoryPropertyFlags,
+	VkDeviceSize size, bool map)
 {
+	RK_GRAPHICS_TRACE("VulkanBufferStruct Create");
+	this->device = device->logicalDevice;
+	device->CreateBuffer(usageFlags, memoryPropertyFlags, size, &buffer, &memory);
+	descriptor = { buffer, 0, size };
+	if (map) {
+		VK_CHECK(vkMapMemory(device->logicalDevice, memory, 0, size, 0, &mapped));
+	}
 }
 
-VulkanVertexBuffer::~VulkanVertexBuffer()
+void VulkanBufferStruct::Destroy()
 {
+	if (mapped) {
+		Unmap();
+	}
+	vkDestroyBuffer(device, buffer, nullptr);
+	vkFreeMemory(device, memory, nullptr);
+	buffer = VK_NULL_HANDLE;
+	memory = VK_NULL_HANDLE;
 }
 
-void VulkanVertexBuffer::Bind() const
+void VulkanBufferStruct::Map()
 {
+	VK_CHECK(vkMapMemory(device, memory, 0, VK_WHOLE_SIZE, 0, &mapped));
 }
 
-void VulkanVertexBuffer::Unbind() const
+void VulkanBufferStruct::Unmap()
 {
+	if (mapped)
+	{
+		vkUnmapMemory(device, memory);
+		mapped = nullptr;
+	}
 }
 
-void VulkanVertexBuffer::SetData(const void* data, uint32_t size)
+void VulkanBufferStruct::Flush(VkDeviceSize size)
 {
-}
-
-const BufferLayout& VulkanVertexBuffer::GetLayout() const
-{
-    return m_Layout;
-}
-
-void VulkanVertexBuffer::SetLayout(const BufferLayout& layout)
-{
-    m_Layout = layout;
-}
-
-//----------------------------------------------------------------
-//----------------------------------------------------------------
-//----------------------------------------------------------------
-
-VulkanIndexBuffer::VulkanIndexBuffer()
-{
-}
-
-VulkanIndexBuffer::~VulkanIndexBuffer()
-{
-}
-
-void VulkanIndexBuffer::Bind() const
-{
-}
-
-void VulkanIndexBuffer::Unbind() const
-{
-}
-
-uint32_t VulkanIndexBuffer::GetCount() const
-{
-    return 0;
+	VkMappedMemoryRange mappedRange{};
+	mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+	mappedRange.memory = memory;
+	mappedRange.size = size;
+	VK_CHECK(vkFlushMappedMemoryRanges(device, 1, &mappedRange));
 }

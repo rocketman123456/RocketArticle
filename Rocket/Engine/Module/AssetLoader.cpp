@@ -29,11 +29,11 @@ void AssetLoader::Tick(Timestep ts)
 
 AssetFilePtr AssetLoader::SyncOpenAndReadTexture(const String& filePath, int32_t* width, int32_t* height, int32_t* channels, int32_t desired_channel)
 {
-    String fullPath = m_AssetPath + filePath;
-    RK_CORE_TRACE("Open Texture {}", fullPath);
+    Buffer buffer = SyncOpenAndReadBinary(filePath);
+
     stbi_set_flip_vertically_on_load(1);
 	stbi_uc* data = nullptr;
-	data = stbi_load(fullPath.c_str(), width, height, channels, desired_channel);
+    data = stbi_load_from_memory(buffer.GetData().get(), buffer.GetDataSize(), width, height, channels, desired_channel);
 	RK_CORE_TRACE("Texture Info : width {}, height {}, channels {}", *width, *height, *channels);
     RK_CORE_ASSERT(data, "Failed to load image!");
     return data;
@@ -44,19 +44,23 @@ void AssetLoader::SyncCloseTexture(AssetFilePtr data)
     stbi_image_free(data);
 }
 
-Texture2DPtr AssetLoader::SyncLoadTexture2D(const String& filename)
+Texture2DAsset AssetLoader::SyncLoadTexture2D(const String& filename)
 {
     String fullPath = m_AssetPath + filename;
-    RK_CORE_TRACE("Open Texture 2D {}", fullPath);
-    Texture2DPtr pic = CreateRef<Texture2DAsset>(gli::load(filename));
+    auto data = gli::load(fullPath.c_str());
+    RK_CORE_TRACE("Open Texture 2D {}, {}, {}", fullPath, data.size(), data.levels());
+    Texture2DAsset pic(data);
+    RK_CORE_TRACE("Create Texture 2D {}", fullPath);
     return pic;
 }
 
-TextureCubePtr AssetLoader::SyncLoadTextureCube(const String& filename)
+TextureCubeAsset AssetLoader::SyncLoadTextureCube(const String& filename)
 {
     String fullPath = m_AssetPath + filename;
+    auto data = gli::load(fullPath.c_str());
     RK_CORE_TRACE("Open Texture Cube {}", fullPath);
-    TextureCubePtr pic = CreateRef<TextureCubeAsset>(gli::load(filename));
+    TextureCubeAsset pic(data);
+    RK_CORE_TRACE("Create Texture Cube {}", fullPath);
     return pic;
 }
 

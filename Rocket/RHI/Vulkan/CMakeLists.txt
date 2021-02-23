@@ -11,4 +11,4 @@ add_library( RendererVulkan
     VulkanSwapChain.cpp
     VulkanPipeline.cpp
     VulkanFrameBuffer.cpp
-)
+ "VulkanUI.h" "VulkanUI.cpp")

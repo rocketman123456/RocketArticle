@@ -4,6 +4,7 @@
 
 #include <vulkan/vulkan.h>
 #include <stb_image.h>
+// Only support DDS, KTX or KMG
 #include <gli/gli.hpp>
 
 namespace Rocket
@@ -23,7 +24,7 @@ namespace Rocket
         VkSampler sampler;
 
         void UpdateDescriptor();
-        void Destroy();
+        void Finalize();
     };
 
     class VulkanTexture2D : implements VulkanTexture
@@ -34,7 +35,7 @@ namespace Rocket
             VkFormat format,
             Ref<VulkanDevice> device,
             VkQueue copyQueue,
-            VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT,
+            VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
             VkImageLayout imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
         void LoadFromBuffer(
@@ -46,9 +47,8 @@ namespace Rocket
             Ref<VulkanDevice> device,
             VkQueue copyQueue,
             VkFilter filter = VK_FILTER_LINEAR,
-            VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT,
+            VkImageUsageFlags imageUsageFlags = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
             VkImageLayout imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
     };
 
     class TextureCubeMap : public VulkanTexture

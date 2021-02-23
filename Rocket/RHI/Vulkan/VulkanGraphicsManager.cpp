@@ -12,7 +12,7 @@ GraphicsManager* Rocket::GetGraphicsManager() { return new VulkanGraphicsManager
 
 // TODO : change this configuration to config file
 Vec<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
-Vec<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME, };
+Vec<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 #ifdef RK_DEBUG
 bool enableValidationLayers = true;
 #else
@@ -69,7 +69,8 @@ int VulkanGraphicsManager::Initialize()
     CreateGraphicsPipeline();
     CreateFramebuffers();
 
-    CreateCommandPool();
+    InitGui();
+
     CreateSyncObjects();
 
     CreateUniformBuffers();
@@ -80,18 +81,21 @@ int VulkanGraphicsManager::Initialize()
 void VulkanGraphicsManager::Finalize()
 {
     vkDeviceWaitIdle(m_Device);
-    RK_GRAPHICS_TRACE("Wait Device");
 
     GraphicsManager::Finalize();
 
     CleanupSwapChain();
 
+    m_VulkanUI->Finalize();
+
+    // Destroy Uniform Buffers
     for (size_t i = 0; i < m_SwapChainImages.size(); i++)
     {
         vkDestroyBuffer(m_Device, m_UniformBuffers[i], nullptr);
         vkFreeMemory(m_Device, m_UniformBuffersMemory[i], nullptr);
     }
 
+    // Destroy SyncObjects
     for (size_t i = 0; i < m_MaxFrameInFlight; i++)
     {
         vkDestroySemaphore(m_Device, m_RenderFinishedSemaphores[i], nullptr);
@@ -99,12 +103,12 @@ void VulkanGraphicsManager::Finalize()
         vkDestroyFence(m_Device, m_InFlightFences[i], nullptr);
     }
 
-    vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
-
-    m_LogicalDevice.reset();
+    m_LogicalDevice->Finalize();
 
     if (enableValidationLayers)
+    {
         DestroyDebugUtilsMessengerEXT(m_Instance, m_DebugMessenger, nullptr);
+    }
 
     vkDestroySurfaceKHR(m_Instance, m_Surface, nullptr);
     vkDestroyInstance(m_Instance, nullptr);
@@ -243,6 +247,7 @@ void VulkanGraphicsManager::CreateLogicalDevice()
     if (!m_LogicalDevice)
     {
         m_LogicalDevice = CreateRef<VulkanDevice>(m_PhysicalDevice, m_Surface);
+        m_LogicalDevice->Initialize();
     }
 
     VkPhysicalDeviceFeatures enabledFeatures{};
@@ -256,6 +261,11 @@ void VulkanGraphicsManager::CreateLogicalDevice()
     }
 
     m_Device = m_LogicalDevice->logicalDevice;
+    m_CommandPool = m_LogicalDevice->commandPool;
+
+    vkGetDeviceQueue(m_Device, m_LogicalDevice->queueFamilyIndices.graphicsFamily.value(), 0, &m_GraphicsQueue);
+    vkGetDeviceQueue(m_Device, m_LogicalDevice->queueFamilyIndices.computeFamily.value(), 0, &m_ComputeQueue);
+    vkGetDeviceQueue(m_Device, m_LogicalDevice->queueFamilyIndices.presentFamily.value(), 0, &m_PresentQueue);
 }
 
 void VulkanGraphicsManager::CreateSwapChain()
@@ -327,95 +337,24 @@ void VulkanGraphicsManager::CreateFramebuffers()
     }
 }
 
-void VulkanGraphicsManager::CreateCommandPool()
+void VulkanGraphicsManager::InitGui()
 {
-    QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(m_PhysicalDevice, m_Surface);
-
-    VkCommandPoolCreateInfo poolInfo{};
-    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
-
-    if (vkCreateCommandPool(m_Device, &poolInfo, nullptr, &m_CommandPool) != VK_SUCCESS)
-        RK_GRAPHICS_ERROR("failed to create command pool!");
-
-    vkGetDeviceQueue(m_Device, m_LogicalDevice->queueFamilyIndices.graphicsFamily.value(), 0, &m_GraphicsQueue);
-    vkGetDeviceQueue(m_Device, m_LogicalDevice->queueFamilyIndices.computeFamily.value(), 0, &m_ComputeQueue);
-    vkGetDeviceQueue(m_Device, m_LogicalDevice->queueFamilyIndices.presentFamily.value(), 0, &m_PresentQueue);
+    m_VulkanUI = CreateRef<VulkanUI>();
+    m_VulkanUI->Connect(m_LogicalDevice, m_RenderPass, m_GraphicsQueue, m_PipelineCache, m_MsaaSamples);
+    m_VulkanUI->Initialize();
+    //UpdataOverlay();
 }
 
 void VulkanGraphicsManager::CreateTextureImage()
 {
-    int32_t texWidth, texHeight, texChannels;
-    void* pixels = g_AssetLoader->SyncOpenAndReadTexture("Models/viking_room.png", &texWidth, &texHeight, &texChannels, 4);
-    VkDeviceSize imageSize = texWidth * texHeight * 4;
-    m_MipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight)))) + 1;
-
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-    CreateBuffer(m_Device, m_PhysicalDevice, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-
-    void* data;
-    vkMapMemory(m_Device, stagingBufferMemory, 0, imageSize, 0, &data);
-    memcpy(data, pixels, static_cast<size_t>(imageSize));
-    vkUnmapMemory(m_Device, stagingBufferMemory);
-
-    g_AssetLoader->SyncCloseTexture(pixels);
-
-    CreateImage(
-        m_Device, 
-        m_PhysicalDevice, 
-        texWidth, 
-        texHeight, 
-        m_MipLevels, 
-        VK_SAMPLE_COUNT_1_BIT, 
-        VK_FORMAT_R8G8B8A8_SRGB, 
-        VK_IMAGE_TILING_OPTIMAL, 
-        VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
-        m_TextureImage, 
-        m_TextureImageMemory
-    );
-
-    TransitionImageLayout(m_Device, m_CommandPool, m_GraphicsQueue, m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, m_MipLevels);
-    CopyBufferToImage(m_Device, m_CommandPool, m_GraphicsQueue, stagingBuffer, m_TextureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
-    //transitioned to VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL while generating mipmaps
-
-    vkDestroyBuffer(m_Device, stagingBuffer, nullptr);
-    vkFreeMemory(m_Device, stagingBufferMemory, nullptr);
-
-    GenerateMipmaps(m_Device, m_CommandPool, m_GraphicsQueue, m_PhysicalDevice, m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, m_MipLevels);
-}
-
-void VulkanGraphicsManager::CreateTextureImageView()
-{
-    m_TextureImageView = CreateImageView(m_Device, m_TextureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, 0, m_MipLevels);
-}
-
-void VulkanGraphicsManager::CreateTextureSampler()
-{
-    VkPhysicalDeviceProperties properties{};
-    vkGetPhysicalDeviceProperties(m_PhysicalDevice, &properties);
-
-    VkSamplerCreateInfo samplerInfo{};
-    samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-    samplerInfo.magFilter = VK_FILTER_LINEAR;
-    samplerInfo.minFilter = VK_FILTER_LINEAR;
-    samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerInfo.anisotropyEnable = VK_TRUE;
-    samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
-    samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-    samplerInfo.unnormalizedCoordinates = VK_FALSE;
-    samplerInfo.compareEnable = VK_FALSE;
-    samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-    samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-    samplerInfo.minLod = 0.0f;
-    samplerInfo.maxLod = static_cast<float>(m_MipLevels);
-    samplerInfo.mipLodBias = 0.0f;
-
-    if (vkCreateSampler(m_Device, &samplerInfo, nullptr, &m_TextureSampler) != VK_SUCCESS)
-        RK_GRAPHICS_ERROR("failed to create texture sampler!");
+    m_VulkanTexture2D = CreateRef<VulkanTexture2D>();
+    m_VulkanTexture2D->LoadFromFile("Models/viking_room.png", VK_FORMAT_R8G8B8A8_SRGB, m_LogicalDevice, m_GraphicsQueue);
+    
+    m_MipLevels = m_VulkanTexture2D->mipLevels;
+    m_TextureImage = m_VulkanTexture2D->image;
+    m_TextureImageMemory = m_VulkanTexture2D->deviceMemory;
+    m_TextureImageView = m_VulkanTexture2D->view;
+    m_TextureSampler = m_VulkanTexture2D->sampler;
 }
 
 void VulkanGraphicsManager::LoadModel()
@@ -606,7 +545,17 @@ void VulkanGraphicsManager::CreateCommandBuffers()
 
     if (vkAllocateCommandBuffers(m_Device, &allocInfo, m_CommandBuffers.data()) != VK_SUCCESS)
         RK_GRAPHICS_ERROR("failed to allocate command buffers!");
+    
+    VkCommandBufferAllocateInfo allocInfoGui{};
+    allocInfoGui.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfoGui.commandPool = m_CommandPool;
+    allocInfoGui.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfoGui.commandBufferCount = 1;
 
+    if (vkAllocateCommandBuffers(m_Device, &allocInfoGui, &m_GuiCommandBuffer) != VK_SUCCESS)
+        RK_GRAPHICS_ERROR("failed to allocate command buffers!");
+
+    // Record Command Buffer
     for (size_t i = 0; i < m_CommandBuffers.size(); i++)
     {
         VkCommandBufferBeginInfo beginInfo{};
@@ -636,6 +585,8 @@ void VulkanGraphicsManager::CreateCommandBuffers()
             vkCmdBindIndexBuffer(m_CommandBuffers[i], m_IndexBuffer, 0, VK_INDEX_TYPE_UINT32);
             vkCmdBindDescriptorSets(m_CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescriptorSets[i], 0, nullptr);
             vkCmdDrawIndexed(m_CommandBuffers[i], static_cast<uint32_t>(m_Indices.size()), 1, 0, 0, 0);
+
+            //m_VulkanUI->Draw(m_CommandBuffers[i]);
         vkCmdEndRenderPass(m_CommandBuffers[i]);
 
         if (vkEndCommandBuffer(m_CommandBuffers[i]) != VK_SUCCESS)
@@ -687,40 +638,41 @@ void VulkanGraphicsManager::BeginScene(const Scene& scene)
     CreateIndexBuffer();
 
     CreateTextureImage();
-    CreateTextureImageView();
-    CreateTextureSampler();
 
     CreateDescriptorPool();
     CreateDescriptorSets();
 
     CreateCommandBuffers();
+
+    m_IsSceneLoaded = true;
 }
 
 void VulkanGraphicsManager::EndScene()
 {
     GraphicsManager::EndScene();
 
-    // Clear DescriptorPool / DescriptorSet
-    vkDestroyDescriptorPool(m_Device, m_DescriptorPool, nullptr);
+    if (m_IsSceneLoaded)
+    {
+        // Clear DescriptorPool / DescriptorSet
+        vkDestroyDescriptorPool(m_Device, m_DescriptorPool, nullptr);
 
-    // Clear BRDF
-    vkDestroySampler(m_Device, m_BRDFSampler, nullptr);
-    vkDestroyImageView(m_Device, m_BRDFImageView, nullptr);
-    vkDestroyImage(m_Device, m_BRDFImage, nullptr);
-    vkFreeMemory(m_Device, m_BRDFImageMemory, nullptr);
+        // Clear BRDF
+        vkDestroySampler(m_Device, m_BRDFSampler, nullptr);
+        vkDestroyImageView(m_Device, m_BRDFImageView, nullptr);
+        vkDestroyImage(m_Device, m_BRDFImage, nullptr);
+        vkFreeMemory(m_Device, m_BRDFImageMemory, nullptr);
 
-    // Clear Model Data
-    vkDestroySampler(m_Device, m_TextureSampler, nullptr);
-    vkDestroyImageView(m_Device, m_TextureImageView, nullptr);
+        // Clear Model Data
+        m_VulkanTexture2D->Finalize();
 
-    vkDestroyImage(m_Device, m_TextureImage, nullptr);
-    vkFreeMemory(m_Device, m_TextureImageMemory, nullptr);
+        vkDestroyBuffer(m_Device, m_IndexBuffer, nullptr);
+        vkFreeMemory(m_Device, m_IndexBufferMemory, nullptr);
 
-    vkDestroyBuffer(m_Device, m_IndexBuffer, nullptr);
-    vkFreeMemory(m_Device, m_IndexBufferMemory, nullptr);
+        vkDestroyBuffer(m_Device, m_VertexBuffer, nullptr);
+        vkFreeMemory(m_Device, m_VertexBufferMemory, nullptr);
 
-    vkDestroyBuffer(m_Device, m_VertexBuffer, nullptr);
-    vkFreeMemory(m_Device, m_VertexBufferMemory, nullptr);
+        m_IsSceneLoaded = false;
+    }
 }
 
 void VulkanGraphicsManager::UpdateUniformBuffer(uint32_t currentImage)
@@ -749,6 +701,7 @@ void VulkanGraphicsManager::SetPipelineState(const Ref<PipelineState>& pipelineS
 void VulkanGraphicsManager::BeginFrame(const Frame& frame)
 {
     //RK_GRAPHICS_TRACE("Begin Frame");
+    //UpdataOverlay();
 
     vkWaitForFences(m_Device, 1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT64_MAX);
 
@@ -775,6 +728,8 @@ void VulkanGraphicsManager::EndFrame(const Frame& frame)
     }
     m_ImagesInFlight[m_CurrentImageIndex] = m_InFlightFences[m_CurrentFrame];
 
+    vkResetFences(m_Device, 1, &m_InFlightFences[m_CurrentFrame]);
+
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -786,12 +741,47 @@ void VulkanGraphicsManager::EndFrame(const Frame& frame)
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = &m_RenderFinishedSemaphores[m_CurrentFrame];
 
-    vkResetFences(m_Device, 1, &m_InFlightFences[m_CurrentFrame]);
-
     if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFences[m_CurrentFrame]) != VK_SUCCESS)
     {
         RK_GRAPHICS_ERROR("failed to submit draw command buffer!");
     }
+
+#if 1
+    //vkWaitForFences(m_Device, 1, &m_ImagesInFlight[m_CurrentImageIndex], VK_TRUE, UINT64_MAX);
+    //vkResetFences(m_Device, 1, &m_InFlightFences[m_CurrentFrame]);
+    //VK_CHECK(vkResetCommandPool(m_Device, m_CommandPool, 0));
+
+    VkCommandBufferBeginInfo commandInfo = {};
+    commandInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    commandInfo.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    VK_CHECK(vkBeginCommandBuffer(m_GuiCommandBuffer, &commandInfo));
+
+    std::array<VkClearValue, 2> clearValues{};
+    clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
+    clearValues[1].depthStencil = { 1.0f, 0 };
+
+    VkRenderPassBeginInfo renderpassInfo = {};
+    renderpassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderpassInfo.renderPass = m_RenderPass;
+    renderpassInfo.framebuffer = m_SwapChainFramebuffers[m_CurrentFrame];
+    renderpassInfo.renderArea.extent = m_SwapChainExtent;
+    renderpassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+    renderpassInfo.pClearValues = clearValues.data();
+    vkCmdBeginRenderPass(m_GuiCommandBuffer, &renderpassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+    // Record dear imgui primitives into command buffer
+    //ImGui_ImplVulkan_RenderDrawData(draw_data, m_GuiCommandBuffer);
+    {
+    }
+
+    // Submit command buffer
+    vkCmdEndRenderPass(m_GuiCommandBuffer);
+
+    submitInfo.pCommandBuffers = &m_GuiCommandBuffer;
+
+    VK_CHECK(vkEndCommandBuffer(m_GuiCommandBuffer));
+    //VK_CHECK(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFences[m_CurrentFrame]));
+#endif
     //RK_GRAPHICS_TRACE("End Frame");
 }
 
@@ -813,6 +803,70 @@ void VulkanGraphicsManager::SetPerBatchConstants(const DrawBatchContext& context
 
 void VulkanGraphicsManager::SetLightInfo(const DrawFrameContext& context)
 {
+}
+
+void VulkanGraphicsManager::UpdataOverlay()
+{
+    ImGuiIO& io = ImGui::GetIO();
+
+    ImVec2 lastDisplaySize = io.DisplaySize;
+    io.DisplaySize = ImVec2((float)m_SwapChainExtent.width, (float)m_SwapChainExtent.height);
+
+    m_VulkanUI->pushConstBlock.scale = glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
+    m_VulkanUI->pushConstBlock.translate = glm::vec2(-1.0f);
+
+    ImGui::NewFrame();
+
+    ImGui::Begin("Rocket");
+    ImGui::Text("Hello, world!");
+    ImGui::End();
+
+    ImGui::Render();
+
+    //ImDrawData* imDrawData = ImGui::GetDrawData();
+    ImDrawData* imDrawData = nullptr;
+
+    // Check if ui buffers need to be recreated
+    if (imDrawData) {
+        RK_GRAPHICS_TRACE("Vertex {}, Index {}", imDrawData->TotalVtxCount, imDrawData->TotalIdxCount);
+
+        VkDeviceSize vertexBufferSize = imDrawData->TotalVtxCount * sizeof(ImDrawVert);
+        VkDeviceSize indexBufferSize = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
+
+        bool updateBuffers = (
+            m_VulkanUI->vertexBuffer.buffer == VK_NULL_HANDLE) || 
+            (m_VulkanUI->vertexBuffer.count != imDrawData->TotalVtxCount) || 
+            (m_VulkanUI->indexBuffer.buffer == VK_NULL_HANDLE) || 
+            (m_VulkanUI->indexBuffer.count != imDrawData->TotalIdxCount);
+
+        if (updateBuffers) {
+            vkDeviceWaitIdle(m_Device);
+            if (m_VulkanUI->vertexBuffer.buffer) {
+                m_VulkanUI->vertexBuffer.Destroy();
+            }
+            m_VulkanUI->vertexBuffer.Create(m_LogicalDevice, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, vertexBufferSize);
+            m_VulkanUI->vertexBuffer.count = imDrawData->TotalVtxCount;
+            if (m_VulkanUI->indexBuffer.buffer) {
+                m_VulkanUI->indexBuffer.Destroy();
+            }
+            m_VulkanUI->indexBuffer.Create(m_LogicalDevice, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, indexBufferSize);
+            m_VulkanUI->indexBuffer.count = imDrawData->TotalIdxCount;
+        }
+
+        // Upload data
+        ImDrawVert* vtxDst = (ImDrawVert*)m_VulkanUI->vertexBuffer.mapped;
+        ImDrawIdx* idxDst = (ImDrawIdx*)m_VulkanUI->indexBuffer.mapped;
+        for (int n = 0; n < imDrawData->CmdListsCount; n++) {
+            const ImDrawList* cmd_list = imDrawData->CmdLists[n];
+            memcpy(vtxDst, cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
+            memcpy(idxDst, cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
+            vtxDst += cmd_list->VtxBuffer.Size;
+            idxDst += cmd_list->IdxBuffer.Size;
+        }
+
+        m_VulkanUI->vertexBuffer.Flush();
+        m_VulkanUI->indexBuffer.Flush();
+    }
 }
 
 void VulkanGraphicsManager::DrawBatch(const Frame& frame)

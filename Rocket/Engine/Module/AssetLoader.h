@@ -53,8 +53,11 @@ namespace Rocket
 
         virtual AssetFilePtr SyncOpenAndReadTexture(const String& filePath, int32_t* width, int32_t* height, int32_t* channels, int32_t desired_channel = 0);
         virtual void SyncCloseTexture(AssetFilePtr data);
-        virtual Texture2DPtr SyncLoadTexture2D(const String& filename);
-        virtual TextureCubePtr SyncLoadTextureCube(const String& filename);
+
+        // Only support DDS, KTX or KMG
+        virtual Texture2DAsset SyncLoadTexture2D(const String& filename);
+        virtual TextureCubeAsset SyncLoadTextureCube(const String& filename);
+
         virtual void SyncOpenAndReadAudio(const String& filePath, uint32_t* buffer);
         virtual void SyncCloseAudio(uint32_t* buffer);
 

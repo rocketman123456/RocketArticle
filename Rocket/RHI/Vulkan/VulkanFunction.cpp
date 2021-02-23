@@ -519,7 +519,7 @@ void CreateSwapchain(
 	uint32_t imageCount = 0;
 	VK_CHECK(vkGetSwapchainImagesKHR(device, swapchain, &imageCount, 0));
 
-	std::vector<VkImage> images(imageCount);
+	Vec<VkImage> images(imageCount);
 	VK_CHECK(vkGetSwapchainImagesKHR(device, swapchain, &imageCount, images.data()));
 
 	result.swapchain = swapchain;
@@ -718,8 +718,8 @@ bool CheckDeviceExtensionSupport(const VkPhysicalDevice& device)
     Vec<VkExtensionProperties> availableExtensions(extensionCount);
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
 
-    for(auto avail : availableExtensions)
-        RK_GRAPHICS_INFO("Available Extensions : {}", avail.extensionName);
+    //for(auto avail : availableExtensions)
+    //    RK_GRAPHICS_INFO("Available Extensions : {}", avail.extensionName);
 
     std::set<String> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
 
@@ -883,7 +883,8 @@ uint32_t FindMemoryType(
 void CreateImage(
     const VkDevice& device, 
     const VkPhysicalDevice& physicalDevice, 
-    uint32_t width, uint32_t height, 
+    uint32_t width, 
+    uint32_t height, 
     uint32_t mipLevels, 
     VkSampleCountFlagBits numSamples, 
     VkFormat format, 
@@ -1130,7 +1131,8 @@ void GenerateMipmaps(
     int32_t mipWidth = texWidth;
     int32_t mipHeight = texHeight;
 
-    for (uint32_t i = 1; i < mipLevels; i++) {
+    for (uint32_t i = 1; i < mipLevels; i++)
+    {
         barrier.subresourceRange.baseMipLevel = i - 1;
         barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
         barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;

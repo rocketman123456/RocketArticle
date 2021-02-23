@@ -12,7 +12,10 @@ namespace Rocket
 		operator VkDevice() { return logicalDevice; };
 
 		VulkanDevice(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
-		~VulkanDevice();
+		~VulkanDevice() = default;
+
+		void Initialize();
+		void Finalize();
 
 		uint32_t GetMemoryType(uint32_t typeBits, VkMemoryPropertyFlags properties, VkBool32* memTypeFound = nullptr);
 		uint32_t GetQueueFamilyIndex(VkQueueFlagBits queueFlags);
@@ -24,7 +27,6 @@ namespace Rocket
 		void FlushCommandBuffer(VkCommandBuffer commandBuffer, VkQueue queue, bool free = true);
 
 	public:
-		// TODO : change variable names
 		VkPhysicalDevice physicalDevice;
 		VkSurfaceKHR surface;
 		VkDevice logicalDevice;
