@@ -82,7 +82,7 @@ void VulkanTexture2D::LoadFromFile(
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memRequirements.size;
 		//allocInfo.memoryTypeIndex = FindMemoryType(device->physicalDevice, memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		allocInfo.memoryTypeIndex = device->GetMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+		allocInfo.memoryTypeIndex = device->GetMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 		if (vkAllocateMemory(device->logicalDevice, &allocInfo, nullptr, &deviceMemory) != VK_SUCCESS)
 			RK_GRAPHICS_ERROR("failed to allocate image memory!");
 
@@ -374,7 +374,7 @@ void VulkanTexture2D::LoadFromBuffer(
 		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 		allocInfo.allocationSize = memRequirements.size;
 		//allocInfo.memoryTypeIndex = FindMemoryType(device->physicalDevice, memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-		allocInfo.memoryTypeIndex = device->GetMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+		allocInfo.memoryTypeIndex = device->GetMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 		if (vkAllocateMemory(device->logicalDevice, &allocInfo, nullptr, &deviceMemory) != VK_SUCCESS)
 			RK_GRAPHICS_ERROR("failed to allocate image memory!");
 
@@ -643,7 +643,7 @@ void TextureCubeMap::LoadFromFile(
 
 	memAllocInfo.allocationSize = memReqs.size;
 	// Get memory type index for a host visible buffer
-	memAllocInfo.memoryTypeIndex = device->GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+	memAllocInfo.memoryTypeIndex = device->GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 	VK_CHECK(vkAllocateMemory(device->logicalDevice, &memAllocInfo, nullptr, &stagingMemory));
 	VK_CHECK(vkBindBufferMemory(device->logicalDevice, stagingBuffer, stagingMemory, 0));
