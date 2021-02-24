@@ -56,19 +56,19 @@ void OpenGLFrameBuffer::Invalidate()
 				glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_ColorAttachments[i]);
 				switch (m_Specification.ColorAttachment[i])
 				{
-				case FrameBufferTextureFormat::RGB8:
+				case FRAME_TEXTURE_FORMAT::RGB8:
 					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.Samples, GL_RGB8, m_Specification.ColorWidth, m_Specification.ColorHeight, GL_TRUE);
 					break;
-				case FrameBufferTextureFormat::RGBA8:
+				case FRAME_TEXTURE_FORMAT::RGBA8:
 					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.Samples, GL_RGBA8, m_Specification.ColorWidth, m_Specification.ColorHeight, GL_TRUE);
 					break;
-				case FrameBufferTextureFormat::RGBA16:
+				case FRAME_TEXTURE_FORMAT::RGBA16:
 					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.Samples, GL_RGBA16, m_Specification.ColorWidth, m_Specification.ColorHeight, GL_TRUE);
 					break;
-				case FrameBufferTextureFormat::RGB16F:
+				case FRAME_TEXTURE_FORMAT::RGB16F:
 					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.Samples, GL_RGB16F, m_Specification.ColorWidth, m_Specification.ColorHeight, GL_TRUE);
 					break;
-				case FrameBufferTextureFormat::RGBA16F:
+				case FRAME_TEXTURE_FORMAT::RGBA16F:
 					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.Samples, GL_RGBA16F, m_Specification.ColorWidth, m_Specification.ColorHeight, GL_TRUE);
 					break;
 				default:
@@ -84,27 +84,25 @@ void OpenGLFrameBuffer::Invalidate()
 				glBindTexture(GL_TEXTURE_2D, m_ColorAttachments[i]);
 				switch (m_Specification.ColorAttachment[i])
 				{
-				case FrameBufferTextureFormat::RGB8:
+				case FRAME_TEXTURE_FORMAT::RGB8:
 					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, m_Specification.ColorWidth, m_Specification.ColorHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 					break;
-				case FrameBufferTextureFormat::RGBA8:
+				case FRAME_TEXTURE_FORMAT::RGBA8:
 					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Specification.ColorWidth, m_Specification.ColorHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 					break;
-				case FrameBufferTextureFormat::RGBA16:
+				case FRAME_TEXTURE_FORMAT::RGBA16:
 					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, m_Specification.ColorWidth, m_Specification.ColorHeight, 0, GL_RGBA, GL_UNSIGNED_INT, NULL);
 					break;
-				case FrameBufferTextureFormat::RGB16F:
+				case FRAME_TEXTURE_FORMAT::RGB16F:
 					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, m_Specification.ColorWidth, m_Specification.ColorHeight, 0, GL_RGB, GL_FLOAT, NULL);
 					break;
-				case FrameBufferTextureFormat::RGBA16F:
+				case FRAME_TEXTURE_FORMAT::RGBA16F:
 					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_Specification.ColorWidth, m_Specification.ColorHeight, 0, GL_RGBA, GL_FLOAT, NULL);
 					break;
 				default:
 					RK_GRAPHICS_ERROR("Frame Buffer Color Attachment Format Error");
 					break;
 				}
-
-				//glGenerateMipmap(GL_TEXTURE_2D);
 				
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -130,7 +128,7 @@ void OpenGLFrameBuffer::Invalidate()
 	}
 
 	// Bind Depth Texture
-	if(m_Specification.DepthAttachment != FrameBufferTextureFormat::NONE)
+	if(m_Specification.DepthAttachment != FRAME_TEXTURE_FORMAT::NONE)
 	{
 		glGenTextures(1, &m_DepthAttachment);
 		//glActiveTexture(GL_TEXTURE0);
@@ -140,10 +138,10 @@ void OpenGLFrameBuffer::Invalidate()
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_DepthAttachment);
 			switch (m_Specification.DepthAttachment)
 			{
-			case FrameBufferTextureFormat::DEPTH24:
+			case FRAME_TEXTURE_FORMAT::DEPTH24:
 				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.Samples, GL_RGB8, m_Specification.DepthWidth, m_Specification.DepthHeight, GL_TRUE);
 				break;
-			case FrameBufferTextureFormat::DEPTH24STENCIL8:
+			case FRAME_TEXTURE_FORMAT::DEPTH24STENCIL8:
 				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.Samples, GL_RGBA8, m_Specification.DepthWidth, m_Specification.DepthHeight, GL_TRUE);
 				break;
 			default:
@@ -155,10 +153,10 @@ void OpenGLFrameBuffer::Invalidate()
 
 			switch (m_Specification.DepthAttachment)
 			{
-			case FrameBufferTextureFormat::DEPTH24:
+			case FRAME_TEXTURE_FORMAT::DEPTH24:
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, m_DepthAttachment, 0);
 				break;
-			case FrameBufferTextureFormat::DEPTH24STENCIL8:
+			case FRAME_TEXTURE_FORMAT::DEPTH24STENCIL8:
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, m_DepthAttachment, 0);
 				break;
 			default:
@@ -171,10 +169,10 @@ void OpenGLFrameBuffer::Invalidate()
 			glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
 			switch (m_Specification.DepthAttachment)
 			{
-			case FrameBufferTextureFormat::DEPTH24:
+			case FRAME_TEXTURE_FORMAT::DEPTH24:
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_Specification.ColorWidth, m_Specification.ColorHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
 				break;
-			case FrameBufferTextureFormat::DEPTH24STENCIL8:
+			case FRAME_TEXTURE_FORMAT::DEPTH24STENCIL8:
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_STENCIL_ATTACHMENT, m_Specification.ColorWidth, m_Specification.ColorHeight, 0, GL_DEPTH_STENCIL_ATTACHMENT, GL_UNSIGNED_BYTE, NULL);
 				break;
 			default:
@@ -194,10 +192,10 @@ void OpenGLFrameBuffer::Invalidate()
 
 			switch (m_Specification.DepthAttachment)
 			{
-			case FrameBufferTextureFormat::DEPTH24:
+			case FRAME_TEXTURE_FORMAT::DEPTH24:
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachment, 0); 
 				break;
-			case FrameBufferTextureFormat::DEPTH24STENCIL8:
+			case FRAME_TEXTURE_FORMAT::DEPTH24STENCIL8:
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachment, 0);
 				break;
 			default:
@@ -205,61 +203,23 @@ void OpenGLFrameBuffer::Invalidate()
 				break;
 			}
 		}
-
-		// Bind Depth Render Buffer
-		//glGenRenderbuffers(1, &m_DepthAttachment);
-		//glBindRenderbuffer(GL_RENDERBUFFER, m_DepthAttachment);
-		//if(m_Specification.Samples > 1)
-		//{
-		//	switch(m_Specification.DepthAttachment)
-		//	{
-		//	case FrameBufferTextureFormat::DEPTH24:
-		//		glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_Specification.Samples, GL_DEPTH_COMPONENT, m_Specification.DepthWidth, m_Specification.DepthHeight);
-		//		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_DepthAttachment);
-		//		break;
-		//	case FrameBufferTextureFormat::DEPTH24STENCIL8:
-		//		glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_Specification.Samples, GL_DEPTH24_STENCIL8, m_Specification.DepthWidth, m_Specification.DepthHeight);
-		//		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_DepthAttachment);
-		//		break;
-		//	default:
-		//		RK_GRAPHICS_ERROR("Frame Buffer Depth Stencil Attachment Format Error");
-		//		break;
-		//	}
-		//}
-		//else
-		//{
-		//	switch(m_Specification.DepthAttachment)
-		//	{
-		//	case FrameBufferTextureFormat::DEPTH24:
-		//		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_Specification.DepthWidth, m_Specification.DepthHeight);
-		//		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_DepthAttachment);
-		//		break;
-		//	case FrameBufferTextureFormat::DEPTH24STENCIL8:
-		//		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_Specification.DepthWidth, m_Specification.DepthHeight);
-		//		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_DepthAttachment);
-		//		break;
-		//	default:
-		//		RK_GRAPHICS_ERROR("Frame Buffer Depth Stencil Attachment Format Error");
-		//		break;
-		//	}
-		//}
 	}
 
 	RK_GRAPHICS_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer is incomplete!");
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void OpenGLFrameBuffer::Bind(FrameBufferBindMode mode)
+void OpenGLFrameBuffer::Bind(FRAME_BIND_MODE mode)
 {
 	switch (mode)
 	{
-	case FrameBufferBindMode::FRAMEBUFFER:
+	case FRAME_BIND_MODE::FRAMEBUFFER:
 		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 		break;
-	case FrameBufferBindMode::DRAW_FRAMEBUFFER:
+	case FRAME_BIND_MODE::DRAW_FRAMEBUFFER:
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_RendererID);
 		break;
-	case FrameBufferBindMode::READ_FRAMEBUFFER:
+	case FRAME_BIND_MODE::READ_FRAMEBUFFER:
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, m_RendererID);
 		break;
 	}

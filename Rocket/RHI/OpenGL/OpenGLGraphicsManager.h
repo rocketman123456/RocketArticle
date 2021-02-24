@@ -40,6 +40,9 @@ namespace Rocket
         void SetLightInfo(const DrawFrameContext& context) final;
         void SetPerBatchConstants(const DrawBatchContext& context) final;
 
+        void GenerateSkyBox() {}
+        void GenerateBRDFLUT(int32_t dim) {}
+
         void BeginScene(const Scene& scene) final;
         void EndScene() final;
 

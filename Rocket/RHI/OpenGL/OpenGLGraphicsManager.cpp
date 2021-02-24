@@ -151,7 +151,7 @@ int OpenGLGraphicsManager::Initialize()
     RK_GRAPHICS_INFO("  Version: {0}", glGetString(GL_VERSION));
 
     auto config = g_Application->GetConfig();
-    m_VSync = config->GetConfigInfo<bool>("Graphics", "vsync");
+    m_VSync = config->GetConfigInfo<int8_t>("Graphics", "vsync");
 
     if (m_VSync)
         glfwSwapInterval(1);
@@ -315,13 +315,13 @@ void OpenGLGraphicsManager::BeginFrame(const Frame& frame)
 void OpenGLGraphicsManager::SetPerFrameConstants(const DrawFrameContext& context)
 {
     auto constant = static_cast<PerFrameConstants>(context);
-    m_uboDrawFrameConstant[m_nFrameIndex]->SetSubData(&constant, 0, sizeof(PerFrameConstants));
+    m_uboDrawFrameConstant[m_CurrentFrameIndex]->SetSubData(&constant, 0, sizeof(PerFrameConstants));
 }
 
 void OpenGLGraphicsManager::SetLightInfo(const DrawFrameContext& context)
 {
     //auto constant = static_cast<PerFrameConstants>(context.lightInfo);
-    //m_uboLightInfo[m_nFrameIndex]->SetSubData(&constant, 0, sizeof(LightInfo));
+    //m_uboLightInfo[m_CurrentFrameIndex]->SetSubData(&constant, 0, sizeof(LightInfo));
 }
 
 void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineState, const Frame &frame)
@@ -352,7 +352,7 @@ void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineS
     // Bind Framebuffer
     if (m_CurrentFrameBuffer)
     {
-        m_CurrentFrameBuffer->Bind(FrameBufferBindMode::FRAMEBUFFER);
+        m_CurrentFrameBuffer->Bind(FRAME_BIND_MODE::FRAMEBUFFER);
     }
 
     // Set OpenGL State
@@ -456,7 +456,7 @@ void OpenGLGraphicsManager::BeginFrameBuffer(const Frame& frame)
         int32_t blockSize;
         glGetActiveUniformBlockiv(shader_id, frame_block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
         RK_GRAPHICS_ASSERT(blockSize >= sizeof(PerFrameConstants), "PerFrameConstants Size Error");
-        m_uboDrawFrameConstant[m_nFrameIndex]->BindShader(shader_id, frame_block_index, 0);
+        m_uboDrawFrameConstant[m_CurrentFrameIndex]->BindShader(shader_id, frame_block_index, 0);
     }
 
     // Bind PerBatchConstants
@@ -467,7 +467,7 @@ void OpenGLGraphicsManager::BeginFrameBuffer(const Frame& frame)
         int32_t blockSize;
         glGetActiveUniformBlockiv(shader_id, frame_block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
         RK_GRAPHICS_ASSERT(blockSize >= sizeof(PerBatchConstants), "PerBatchConstants Size Error");
-        m_uboDrawBatchConstant[m_nFrameIndex]->BindShader(shader_id, frame_block_index, 1);
+        m_uboDrawBatchConstant[m_CurrentFrameIndex]->BindShader(shader_id, frame_block_index, 1);
     }
 
     // TODO : remove fixed 16, use graphics card capability
@@ -480,7 +480,7 @@ void OpenGLGraphicsManager::BeginFrameBuffer(const Frame& frame)
 void OpenGLGraphicsManager::SetPerBatchConstants(const DrawBatchContext &context)
 {
     auto constant = static_cast<PerBatchConstants>(context);
-    m_uboDrawBatchConstant[m_nFrameIndex]->SetSubData(&constant, 0, sizeof(PerBatchConstants));
+    m_uboDrawBatchConstant[m_CurrentFrameIndex]->SetSubData(&constant, 0, sizeof(PerBatchConstants));
 }
 
 void OpenGLGraphicsManager::DrawBatch(const Frame &frame)

@@ -6,6 +6,8 @@
 
 namespace Rocket
 {
+    // TODO : change math to glm / other to avoid alignment issue
+    // alignas(16)
     struct alignas(16) TextureId
     {
         intptr_t texture{-1};   // 8 bytes

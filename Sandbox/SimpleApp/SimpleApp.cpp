@@ -98,12 +98,12 @@ namespace Rocket
 
         std::default_random_engine e;
         std::uniform_int_distribution<unsigned> u(0, 254);
-        //Scope<PlanarMesh> mesh = CreateScope<PlanarMesh>("Mesh Component");
+        Scope<PlanarMesh> mesh = CreateScope<PlanarMesh>("Mesh Component");
         for (int i = -50; i < 50; ++i)
         {
             for (int j = -50; j < 50; ++j)
             {
-                //mesh->AddQuad(Vector3f(i, j, 0), Vector2f(1, 1), Vector4f(float(u(e))/255.0f, float(u(e)) / 255.0f, float(u(e)) / 255.0f, 1.0f));
+                mesh->AddQuad(Vector3f(i, j, 0), Vector2f(1, 1), Vector4f(float(u(e))/255.0f, float(u(e)) / 255.0f, float(u(e)) / 255.0f, 1.0f));
             }
         }
 
@@ -114,9 +114,9 @@ namespace Rocket
         root_node->AddChild(*mesh_node);
 
         Vec<Scope<SceneComponent>> mesh_components;
-        //mesh_components.push_back(std::move(mesh));
+        mesh_components.push_back(std::move(mesh));
         scene->AddNode(std::move(root_node));
-        //scene->SetComponents(mesh->GetType(), std::move(mesh_components));
+        scene->SetComponents(mesh->GetType(), std::move(mesh_components));
 
         auto ret_1 = g_SceneManager->AddScene(scene);
         auto ret_2 = g_SceneManager->SetActiveScene("Test Scene");

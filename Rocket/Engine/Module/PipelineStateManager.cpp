@@ -148,7 +148,7 @@ int PipelineStateManager::Initialize()
     pipelineState.frameBufferInfo.DepthAttachment = FRAME_TEXTURE_FORMAT::DEPTH24;
     pipelineState.frameBufferInfo.Samples = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
     pipelineState.frameBufferInfo.SwapChainTarget = false;
-    RegisterPipelineState(pipelineState);
+    //RegisterPipelineState(pipelineState);
 
     RK_GRAPHICS_INFO("Pipeline State Manager Initialized. Add [{}] Pipelines", m_pipelineStates.size());
     return 0;

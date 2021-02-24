@@ -8,9 +8,9 @@ using namespace Rocket;
 
 void GuiSubPass::Draw(Frame& frame)
 {
-    //if (ImGui::GetCurrentContext())
-    //{
-    //    ImGui::NewFrame();
+    if (ImGui::GetCurrentContext())
+    {
+        ImGui::NewFrame();
     //
     //    // Count FPS
     //    {
@@ -48,6 +48,6 @@ void GuiSubPass::Draw(Frame& frame)
     //        ImGui::End();
     //    }
     //
-    //    ImGui::Render();
-    //}
+        ImGui::Render();
+    }
 }
