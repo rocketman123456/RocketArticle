@@ -13,6 +13,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+typedef struct GLFWwindow GLFWwindow;
+
 namespace Rocket
 {
 	class VulkanUI
@@ -26,13 +28,17 @@ namespace Rocket
 			VkSampleCountFlagBits multiSampleCount);
 		void Initialize();
 		void Finalize();
+		void UpdataOverlay(uint32_t width, uint32_t height);
+		void PrepareUI();
 		void Draw(VkCommandBuffer cmdBuffer);
+		void SetWindowHandle(GLFWwindow* handle) { windowHandle = handle; }
 	public:
 		Ref<VulkanDevice> device;
 		VkRenderPass renderPass;
 		VkQueue queue;
 		VkPipelineCache pipelineCache;
 		VkSampleCountFlagBits multiSampleCount;
+		GLFWwindow* windowHandle;
 
 		VulkanBufferStruct vertexBuffer;
 		VulkanBufferStruct indexBuffer;
@@ -49,5 +55,7 @@ namespace Rocket
 			glm::vec2 scale;
 			glm::vec2 translate;
 		} pushConstBlock;
+
+		bool canDraw = false;
 	};
 }

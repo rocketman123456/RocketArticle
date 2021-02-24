@@ -53,8 +53,6 @@ namespace Rocket
         virtual void Draw();
         virtual void Present() {}
 
-        virtual void UpdataOverlay() = 0;
-
         virtual void DrawBatch(const Frame &frame) {}
         virtual void DrawFullScreenQuad() {}
 
@@ -94,7 +92,8 @@ namespace Rocket
         void CalculateLights();
 
     protected:
-        uint32_t m_nFrameIndex;
+        uint32_t m_FrameIndex;
+        uint32_t m_CurrentFrameIndex;
         uint32_t m_MaxFrameInFlight;
 
         Vec<Frame> m_Frames;

@@ -6,6 +6,7 @@
 // ImGui Implements
 #include <backends/imgui_impl_glfw.cpp>
 #include <backends/imgui_impl_vulkan.cpp>
+#include <GLFW/glfw3.h>
 
 using namespace Rocket;
 
@@ -176,7 +177,7 @@ void VulkanUI::Initialize()
 			multisampleStateCI.rasterizationSamples = multiSampleCount;
 		}
 
-		std::vector<VkDynamicState> dynamicStateEnables = {
+		Vec<VkDynamicState> dynamicStateEnables = {
 			VK_DYNAMIC_STATE_VIEWPORT,
 			VK_DYNAMIC_STATE_SCISSOR
 		};
@@ -186,7 +187,7 @@ void VulkanUI::Initialize()
 		dynamicStateCI.dynamicStateCount = static_cast<uint32_t>(dynamicStateEnables.size());
 
 		VkVertexInputBindingDescription vertexInputBinding = { 0, 20, VK_VERTEX_INPUT_RATE_VERTEX };
-		std::vector<VkVertexInputAttributeDescription> vertexInputAttributes = {
+		Vec<VkVertexInputAttributeDescription> vertexInputAttributes = {
 			{ 0, 0, VK_FORMAT_R32G32_SFLOAT, 0 },
 			{ 1, 0, VK_FORMAT_R32G32_SFLOAT, sizeof(float) * 2 },
 			{ 2, 0, VK_FORMAT_R8G8B8A8_UNORM, sizeof(float) * 4 },
@@ -232,16 +233,106 @@ void VulkanUI::Finalize()
 {
 	ImGui::DestroyContext();
 	fontTexture.Finalize();
-	//vertexBuffer.Destroy();
-	//indexBuffer.Destroy();
+	if (canDraw)
+	{
+		vertexBuffer.Finalize();
+		indexBuffer.Finalize();
+	}
 	vkDestroyPipeline(device->logicalDevice, pipeline, nullptr);
 	vkDestroyPipelineLayout(device->logicalDevice, pipelineLayout, nullptr);
 	vkDestroyDescriptorSetLayout(device->logicalDevice, descriptorSetLayout, nullptr);
 	vkDestroyDescriptorPool(device->logicalDevice, descriptorPool, nullptr);
 }
 
+void VulkanUI::UpdataOverlay(uint32_t width, uint32_t height)
+{
+	ImGuiIO& io = ImGui::GetIO();
+
+	ImVec2 lastDisplaySize = io.DisplaySize;
+	io.DisplaySize = ImVec2((float)width, (float)height);
+
+	auto left = glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_LEFT);
+	auto right = glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_RIGHT);
+
+	double x, y;
+	glfwGetCursorPos(windowHandle, &x, &y);
+
+	io.MousePos = ImVec2(x, y);
+	io.MouseDown[0] = left;
+	io.MouseDown[1] = right;
+
+	pushConstBlock.scale = glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
+	pushConstBlock.translate = glm::vec2(-1.0f);
+
+	ImGui::NewFrame();
+
+	ImGui::Begin("Rocket");
+	ImGui::Text("Hello, world!");
+	ImGui::End();
+
+	ImGui::Render();
+}
+
+void VulkanUI::PrepareUI()
+{
+	canDraw = false;
+	ImDrawData* imDrawData = ImGui::GetDrawData();
+
+	if (imDrawData) {
+		//RK_GRAPHICS_TRACE("GUI Vertex {}, Index {}", imDrawData->TotalVtxCount, imDrawData->TotalIdxCount);
+		// First Call Of This Funtion will give 0 index and vertex count
+		if (imDrawData->TotalVtxCount == 0 || imDrawData->TotalIdxCount == 0)
+		{
+			return;
+		}
+
+		// Check if ui buffers need to be recreated
+		canDraw = true;
+
+		VkDeviceSize vertexBufferSize = imDrawData->TotalVtxCount * sizeof(ImDrawVert);
+		VkDeviceSize indexBufferSize = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
+
+		bool updateBuffers =
+			(vertexBuffer.buffer == VK_NULL_HANDLE) ||
+			(vertexBuffer.count != imDrawData->TotalVtxCount) ||
+			(indexBuffer.buffer == VK_NULL_HANDLE) ||
+			(indexBuffer.count != imDrawData->TotalIdxCount);
+
+		if (updateBuffers) {
+			vkDeviceWaitIdle(device->logicalDevice);
+			if (vertexBuffer.buffer) {
+				vertexBuffer.Finalize();
+			}
+			vertexBuffer.Create(device, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, vertexBufferSize);
+			vertexBuffer.count = imDrawData->TotalVtxCount;
+			if (indexBuffer.buffer) {
+				indexBuffer.Finalize();
+			}
+			indexBuffer.Create(device, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, indexBufferSize);
+			indexBuffer.count = imDrawData->TotalIdxCount;
+		}
+
+		// Upload data
+		ImDrawVert* vtxDst = (ImDrawVert*)vertexBuffer.mapped;
+		ImDrawIdx* idxDst = (ImDrawIdx*)indexBuffer.mapped;
+		for (int n = 0; n < imDrawData->CmdListsCount; n++) {
+			const ImDrawList* cmd_list = imDrawData->CmdLists[n];
+			memcpy(vtxDst, cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
+			memcpy(idxDst, cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
+			vtxDst += cmd_list->VtxBuffer.Size;
+			idxDst += cmd_list->IdxBuffer.Size;
+		}
+
+		vertexBuffer.Flush();
+		indexBuffer.Flush();
+	}
+}
+
 void VulkanUI::Draw(VkCommandBuffer cmdBuffer)
 {
+	if (!canDraw)
+		return;
+
 	vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 	vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
 

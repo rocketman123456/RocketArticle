@@ -48,4 +48,5 @@ add_library( RocketEngine
     Utils/Hashing.cpp
     Utils/Timer.cpp
     Utils/Variant.cpp
+    Utils/Instrumentor.h
 )

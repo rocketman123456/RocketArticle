@@ -18,10 +18,12 @@ namespace Rocket
 		void SetMsaaSample(VkSampleCountFlagBits msaa) { msaaSamples = msaa; }
 
 		void CreateRenderPass();
+		void CreateGuiRenderPass();
 		void CreateDescriptorSetLayout();
 		void CreateGraphicsPipeline();
 	public:
 		VkRenderPass renderPass;
+		VkRenderPass guiRenderPass;
 		VkDescriptorSetLayout descriptorSetLayout;
 		VkPipelineLayout pipelineLayout;
 		VkPipeline graphicsPipeline;

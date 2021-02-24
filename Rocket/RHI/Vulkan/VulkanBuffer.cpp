@@ -10,6 +10,7 @@ void VulkanBufferStruct::Create(
 {
 	RK_GRAPHICS_TRACE("VulkanBufferStruct Create");
 	this->device = device->logicalDevice;
+	this->size = size;
 	device->CreateBuffer(usageFlags, memoryPropertyFlags, size, &buffer, &memory);
 	descriptor = { buffer, 0, size };
 	if (map) {
@@ -17,7 +18,7 @@ void VulkanBufferStruct::Create(
 	}
 }
 
-void VulkanBufferStruct::Destroy()
+void VulkanBufferStruct::Finalize()
 {
 	if (mapped) {
 		Unmap();
@@ -30,7 +31,7 @@ void VulkanBufferStruct::Destroy()
 
 void VulkanBufferStruct::Map()
 {
-	VK_CHECK(vkMapMemory(device, memory, 0, VK_WHOLE_SIZE, 0, &mapped));
+	VK_CHECK(vkMapMemory(device, memory, 0, size, 0, &mapped));
 }
 
 void VulkanBufferStruct::Unmap()
@@ -47,6 +48,6 @@ void VulkanBufferStruct::Flush(VkDeviceSize size)
 	VkMappedMemoryRange mappedRange{};
 	mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
 	mappedRange.memory = memory;
-	mappedRange.size = size;
+	mappedRange.size = this->size;
 	VK_CHECK(vkFlushMappedMemoryRanges(device, 1, &mappedRange));
 }

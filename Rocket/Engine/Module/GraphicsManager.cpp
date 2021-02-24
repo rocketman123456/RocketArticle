@@ -66,16 +66,16 @@ void GraphicsManager::Tick(Timestep ts)
     
     UpdateConstants();
 
-    BeginFrame(m_Frames[m_nFrameIndex]);
+    BeginFrame(m_Frames[m_CurrentFrameIndex]);
     Draw();
-    EndFrame(m_Frames[m_nFrameIndex]);
+    EndFrame(m_Frames[m_CurrentFrameIndex]);
 
     Present();
 }
 
 void GraphicsManager::UpdateConstants()
 {
-    auto& frame = m_Frames[m_nFrameIndex];
+    auto& frame = m_Frames[m_CurrentFrameIndex];
 
     for (auto& pDbc : frame.batchContexts)
     {
@@ -92,9 +92,9 @@ void GraphicsManager::CalculateCameraMatrix()
     auto& scene = g_SceneManager->GetActiveScene();
     auto& camera = scene->GetPrimaryCamera();
     
-    m_Frames[m_nFrameIndex].frameContext.projectionMatrix = camera->GetProjection();
-    m_Frames[m_nFrameIndex].frameContext.viewMatrix = scene->GetPrimaryCameraTransform().inverse();
-    m_Frames[m_nFrameIndex].frameContext.camPos = scene->GetPrimaryCameraTransform().block<4, 1>(0, 3);
+    m_Frames[m_CurrentFrameIndex].frameContext.projectionMatrix = camera->GetProjection();
+    m_Frames[m_CurrentFrameIndex].frameContext.viewMatrix = scene->GetPrimaryCameraTransform().inverse();
+    m_Frames[m_CurrentFrameIndex].frameContext.camPos = scene->GetPrimaryCameraTransform().block<4, 1>(0, 3);
 }
 
 void GraphicsManager::CalculateLights()
@@ -103,7 +103,7 @@ void GraphicsManager::CalculateLights()
 
 void GraphicsManager::Draw()
 {
-    auto& frame = m_Frames[m_nFrameIndex];
+    auto& frame = m_Frames[m_CurrentFrameIndex];
 
     for (auto& pDispatchPass : m_DispatchPasses)
     {
@@ -175,7 +175,7 @@ void GraphicsManager::BeginFrame(const Frame& frame)
 
 void GraphicsManager::EndFrame(const Frame& frame) 
 { 
-    m_nFrameIndex = (m_nFrameIndex + 1) % m_MaxFrameInFlight; 
+    m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_MaxFrameInFlight; 
 }
 
 Ref<FrameBuffer> GraphicsManager::GetFrameBuffer(const String& name)

@@ -47,7 +47,7 @@ void EventManager::SetupCallback()
 	});
 
 	glfwSetWindowRefreshCallback(m_WindowHandle, [](GLFWwindow *window) {
-		//RK_EVENT_TRACE("glfwSetWindowRefreshCallback");
+		RK_EVENT_TRACE("glfwSetWindowRefreshCallback");
         WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
         EventVarPtr ptr = Ref<Variant>(new Variant[1], [](Variant* v){ delete[]v; });
@@ -59,7 +59,7 @@ void EventManager::SetupCallback()
 	});
 
 	glfwSetFramebufferSizeCallback(m_WindowHandle, [](GLFWwindow *window, int width, int height) {
-        //RK_EVENT_TRACE("glfwSetFramebufferSizeCallback");
+        RK_EVENT_TRACE("glfwSetFramebufferSizeCallback");
 		WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
         EventVarPtr ptr = Ref<Variant>(new Variant[4], [](Variant* v){ delete[]v; });
@@ -77,7 +77,7 @@ void EventManager::SetupCallback()
 	});
 
 	glfwSetWindowCloseCallback(m_WindowHandle, [](GLFWwindow *window) {
-        //RK_EVENT_TRACE("glfwSetWindowCloseCallback");
+        RK_EVENT_TRACE("glfwSetWindowCloseCallback");
 		WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
         EventVarPtr ptr = Ref<Variant>(new Variant[1], [](Variant* v){ delete[]v; });

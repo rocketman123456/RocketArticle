@@ -16,6 +16,7 @@ namespace Rocket
 		VkBuffer buffer = VK_NULL_HANDLE;
 		VkDeviceMemory memory = VK_NULL_HANDLE;
 		VkDescriptorBufferInfo descriptor;
+		VkDeviceSize size;
 		int32_t count = 0;
 		void* mapped = nullptr;
 
@@ -24,7 +25,7 @@ namespace Rocket
 			VkBufferUsageFlags usageFlags,
 			VkMemoryPropertyFlags memoryPropertyFlags,
 			VkDeviceSize size, bool map = true);
-		void Destroy();
+		void Finalize();
 		void Map();
 		void Unmap();
 		void Flush(VkDeviceSize size = VK_WHOLE_SIZE);

@@ -54,7 +54,6 @@ namespace Rocket
 
         void Present() final;
 
-        void UpdataOverlay() final;
         void DrawBatch(const Frame& frame) final;
         void DrawFullScreenQuad() final;
 
@@ -105,6 +104,9 @@ namespace Rocket
         void CreateCommandBuffers();
         void CreateSyncObjects();
 
+        void RecordCommandBuffer(uint32_t frameIndex);
+        void RecordGuiCommandBuffer(uint32_t frameIndex);
+
         void CleanupSwapChain();
         void RecreateSwapChain();
 
@@ -114,9 +116,13 @@ namespace Rocket
         bool m_VSync = true;
         bool m_IsSceneLoaded = false;
         GLFWwindow* m_WindowHandle = nullptr;
-        uint32_t m_CurrentImageIndex;
 
         Ref<VulkanUI> m_VulkanUI = nullptr;
+        Ref<VulkanDevice> m_LogicalDevice;
+        Ref<VulkanSwapChain> m_VulkanSwapChain = nullptr;
+        Ref<VulkanPipeline> m_VulkanPipeline = nullptr;
+        Ref<VulkanFrameBuffer> m_VulkanFrameBuffer = nullptr;
+        Ref<VulkanTexture2D> m_VulkanTexture2D = nullptr;
 
         VkInstance m_Instance;
         VkDebugUtilsMessengerEXT m_DebugMessenger;
@@ -128,14 +134,11 @@ namespace Rocket
         VkPhysicalDeviceFeatures m_DeviceFeatures;
         VkPhysicalDeviceMemoryProperties m_DeviceMemoryProperties;
 
-        Ref<VulkanDevice> m_LogicalDevice;
         VkDevice m_Device;
 
         VkQueue m_GraphicsQueue;
         VkQueue m_ComputeQueue;
         VkQueue m_PresentQueue;
-
-        Ref<VulkanSwapChain> m_VulkanSwapChain = nullptr;
 
         VkSwapchainKHR m_SwapChain;
         Vec<VkImage> m_SwapChainImages;
@@ -144,13 +147,11 @@ namespace Rocket
         Vec<VkImageView> m_SwapChainImageViews;
         Vec<VkFramebuffer> m_SwapChainFramebuffers;
 
-        Ref<VulkanPipeline> m_VulkanPipeline = nullptr;
-
         VkRenderPass m_RenderPass;
+        VkRenderPass m_GuiRenderPass;
         VkDescriptorSetLayout m_DescriptorSetLayout;
         VkPipelineLayout m_PipelineLayout;
         VkPipeline m_GraphicsPipeline;
-
         VkPipelineCache m_PipelineCache;
 
         VkImage m_BRDFImage = VK_NULL_HANDLE;
@@ -160,8 +161,6 @@ namespace Rocket
 
         VkCommandPool m_CommandPool;
 
-        Ref<VulkanFrameBuffer> m_VulkanFrameBuffer = nullptr;
-
         VkImage m_ColorImage;
         VkDeviceMemory m_ColorImageMemory;
         VkImageView m_ColorImageView;
@@ -169,8 +168,6 @@ namespace Rocket
         VkImage m_DepthImage;
         VkDeviceMemory m_DepthImageMemory;
         VkImageView m_DepthImageView;
-
-        Ref<VulkanTexture2D> m_VulkanTexture2D = nullptr;
 
         uint32_t m_MipLevels;
         VkImage m_TextureImage;
@@ -192,14 +189,14 @@ namespace Rocket
         Vec<VkDescriptorSet> m_DescriptorSets;
 
         Vec<VkCommandBuffer> m_CommandBuffers;
-        VkCommandBuffer m_GuiCommandBuffer;
+        Vec<VkCommandBuffer> m_GuiCommandBuffer;
 
         Vec<VkSemaphore> m_ImageAvailableSemaphores;
         Vec<VkSemaphore> m_RenderFinishedSemaphores;
         Vec<VkFence> m_InFlightFences;
         Vec<VkFence> m_ImagesInFlight;
-        size_t m_CurrentFrame = 0;
 
         bool m_FramebufferResized = false;
+        bool m_SkipCurrentFrame = false;
     };
 }
