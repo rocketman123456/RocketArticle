@@ -5,6 +5,7 @@ add_library( RocketEngine
     # Core
     Core/EntryPoint.cpp
     Core/Log.cpp
+    Core/Instrumentor.h
     # Graph
     Graph/Graph.cpp
     # Module
@@ -48,5 +49,4 @@ add_library( RocketEngine
     Utils/Hashing.cpp
     Utils/Timer.cpp
     Utils/Variant.cpp
-    Utils/Instrumentor.h
 )

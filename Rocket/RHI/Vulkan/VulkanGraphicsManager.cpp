@@ -786,24 +786,28 @@ void VulkanGraphicsManager::BeginFrame(const Frame& frame)
 
     vkWaitForFences(m_Device, 1, &m_InFlightFences[m_CurrentFrameIndex], VK_TRUE, UINT64_MAX);
     //RK_GRAPHICS_TRACE("vkWaitForFences m_InFlightFences");
-    VkResult result = m_VulkanSwapChain->AcquireNextImage(m_ImageAvailableSemaphores[m_CurrentFrameIndex], &m_FrameIndex);
+    VkResult acquireResult = m_VulkanSwapChain->AcquireNextImage(m_ImageAvailableSemaphores[m_CurrentFrameIndex], &m_FrameIndex);
     //RK_GRAPHICS_TRACE("vkAcquireNextImageKHR");
-    
-    if ((result == VK_ERROR_OUT_OF_DATE_KHR) || (result == VK_SUBOPTIMAL_KHR))
-    {
-        RecreateSwapChain();
-    }
-    else
-    {
-        VK_CHECK(result);
-    }
 
-    //if (m_ImagesInFlight[m_FrameIndex] != VK_NULL_HANDLE)
-    //{
-    //    vkWaitForFences(m_Device, 1, &m_ImagesInFlight[m_FrameIndex], VK_TRUE, UINT64_MAX);
-    //    //RK_GRAPHICS_TRACE("vkWaitForFences m_ImagesInFlight");
-    //}
-    //m_ImagesInFlight[m_FrameIndex] = m_InFlightFences[m_CurrentFrameIndex];
+    if (acquireResult == VK_ERROR_OUT_OF_DATE_KHR) {
+        RecreateSwapChain();
+        return;
+    }
+    else if (acquireResult != VK_SUCCESS && acquireResult != VK_SUBOPTIMAL_KHR) {
+        VK_CHECK(acquireResult);
+    }
+    
+    //if ((acquireResult == VK_ERROR_OUT_OF_DATE_KHR) || (acquireResult == VK_SUBOPTIMAL_KHR))
+    //    RecreateSwapChain();
+    //else
+    //    VK_CHECK(acquireResult);
+
+    if (m_ImagesInFlight[m_FrameIndex] != VK_NULL_HANDLE)
+    {
+        vkWaitForFences(m_Device, 1, &m_ImagesInFlight[m_FrameIndex], VK_TRUE, UINT64_MAX);
+        //RK_GRAPHICS_TRACE("vkWaitForFences m_ImagesInFlight");
+    }
+    m_ImagesInFlight[m_FrameIndex] = m_InFlightFences[m_CurrentFrameIndex];
 
     UpdateUniformBuffer(m_FrameIndex);
     //RK_GRAPHICS_TRACE("UpdateUniformBuffer");
@@ -831,12 +835,6 @@ void VulkanGraphicsManager::BeginFrame(const Frame& frame)
     vkResetFences(m_Device, 1, &m_InFlightFences[m_CurrentFrameIndex]);
     VK_CHECK(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFences[m_CurrentFrameIndex]));
     //RK_GRAPHICS_TRACE("vkQueueSubmit");
-}
-
-void VulkanGraphicsManager::EndFrame(const Frame& frame)
-{
-    if (!m_IsScenePrepared)
-        return;
 
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -846,26 +844,40 @@ void VulkanGraphicsManager::EndFrame(const Frame& frame)
     presentInfo.pSwapchains = &m_SwapChain;
     presentInfo.pImageIndices = &m_FrameIndex;
 
-    VkResult result = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
+    VkResult presentResult = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
     //RK_GRAPHICS_TRACE("vkQueuePresentKHR");
 
-    if (!((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR)))
-    {
-        if (result == VK_ERROR_OUT_OF_DATE_KHR)
-        {
-            //m_FramebufferResized = false;
-            RecreateSwapChain();
-            //RK_GRAPHICS_TRACE("Restart Frame");
-            return;
-        }
-        else
-        {
-            VK_CHECK(result);
-        }
+    if (presentResult == VK_ERROR_OUT_OF_DATE_KHR || presentResult == VK_SUBOPTIMAL_KHR || m_FramebufferResized) {
+        m_FramebufferResized = false;
+        RecreateSwapChain();
     }
+    else if (presentResult != VK_SUCCESS) {
+        VK_CHECK(presentResult);
+    }
+
+    //if (!((presentResult == VK_SUCCESS) || (presentResult == VK_SUBOPTIMAL_KHR)))
+    //{
+    //    if (presentResult == VK_ERROR_OUT_OF_DATE_KHR)
+    //    {
+    //        //m_FramebufferResized = false;
+    //        RecreateSwapChain();
+    //        //RK_GRAPHICS_TRACE("Restart Frame");
+    //        return;
+    //    }
+    //    else
+    //    {
+    //        VK_CHECK(presentResult);
+    //    }
+    //}
 
     m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_MaxFrameInFlight;
     //RK_GRAPHICS_TRACE("End Frame");
+}
+
+void VulkanGraphicsManager::EndFrame(const Frame& frame)
+{
+    if (!m_IsScenePrepared)
+        return;
 }
 
 void VulkanGraphicsManager::BeginFrameBuffer(const Frame& frame)

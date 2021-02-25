@@ -1,6 +1,13 @@
 #pragma once
 #include "Core/Core.h"
 
+#include <fstream>
+#include <iostream>
+#include <chrono>
+#include <iomanip>
+#include <sstream>
+#include <strstream>
+
 namespace Rocket
 {
 	using FloatingPointMicroseconds = std::chrono::duration<double, std::micro>;
@@ -195,7 +202,7 @@ namespace Rocket
 	} // namespace InstrumentorUtils
 } // namespace Rocket
 
-#if RK_PROFILE
+#if RK_PROFILE_FILE
 // Resolve which function signature macro will be used. Note that this only
 // is resolved when the (pre)compiler starts, so the syntax highlighting
 // could mark the wrong one in your editor!

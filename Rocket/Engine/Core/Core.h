@@ -6,3 +6,4 @@
 #include "Core/Template.h"
 #include "Core/Assert.h"
 #include "Core/Log.h"
+#include "Core/Instrumentor.h"
