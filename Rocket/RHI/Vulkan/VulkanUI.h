@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/Core.h"
+#include "Render/DrawBasic/UI.h"
 #include "Vulkan/VulkanBuffer.h"
 #include "Vulkan/VulkanTexture.h"
 #include "Vulkan/VulkanDevice.h"
@@ -17,7 +18,7 @@ typedef struct GLFWwindow GLFWwindow;
 
 namespace Rocket
 {
-	class VulkanUI
+	class VulkanUI : implements UI
 	{
 	public:
 		void Connect(
@@ -26,8 +27,8 @@ namespace Rocket
 			VkQueue queue, 
 			VkPipelineCache pipelineCache, 
 			VkSampleCountFlagBits multiSampleCount);
-		void Initialize();
-		void Finalize();
+		void Initialize() final;
+		void Finalize() final;
 		void UpdataOverlay(uint32_t width, uint32_t height);
 		void PrepareUI();
 		void Draw(VkCommandBuffer cmdBuffer);
@@ -57,5 +58,8 @@ namespace Rocket
 		} pushConstBlock;
 
 		bool canDraw = false;
+
+		// UI Control Variable
+		ImVec4 clearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 	};
 }

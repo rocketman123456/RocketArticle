@@ -14,11 +14,11 @@ void VulkanBufferStruct::Create(
 	VkDeviceSize limit = device->properties.limits.nonCoherentAtomSize;
 
 	auto redundent = size % limit;
-	//if (redundent != 0)
-	//{
-	//	auto free_size = limit - redundent;
-	//	this->size += free_size;
-	//}
+	if (redundent != 0)
+	{
+		auto free_size = limit - redundent;
+		this->size += free_size;
+	}
 	device->CreateBuffer(usageFlags, memoryPropertyFlags, this->size, &buffer, &memory);
 	
 	descriptor = { buffer, 0, size };
@@ -57,6 +57,6 @@ void VulkanBufferStruct::Flush(VkDeviceSize size)
 	VkMappedMemoryRange mappedRange{};
 	mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
 	mappedRange.memory = memory;
-	mappedRange.size = this->size;// this->size;
+	mappedRange.size = size;
 	VK_CHECK(vkFlushMappedMemoryRanges(device, 1, &mappedRange));
 }

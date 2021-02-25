@@ -268,6 +268,7 @@ void VulkanUI::UpdataOverlay(uint32_t width, uint32_t height)
 
 	ImGui::Begin("Rocket");
 	ImGui::Text("Hello, world!");
+	ImGui::ColorEdit3("clear color", (float*)&clearColor);
 	ImGui::End();
 
 	ImGui::Render();
