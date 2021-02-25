@@ -85,7 +85,9 @@ void VulkanGraphicsManager::Finalize()
 
     CleanupSwapChain();
 
+    m_VulkanSwapChain->Finalize();
     m_VulkanPipeline->Finalize();
+
     vkDestroyPipelineCache(m_Device, m_PipelineCache, nullptr);
 
     // Destroy Uniform Buffers
@@ -121,8 +123,7 @@ void VulkanGraphicsManager::CleanupSwapChain()
 
     m_VulkanFrameBuffer->Finalize();
     //m_VulkanPipeline->Finalize();
-    m_VulkanSwapChain->Finalize();
-
+    //m_VulkanSwapChain->Finalize();
     m_VulkanUI->Finalize();
 
     RK_GRAPHICS_TRACE("CleanupSwapChain");
@@ -131,6 +132,7 @@ void VulkanGraphicsManager::CleanupSwapChain()
 void VulkanGraphicsManager::RecreateSwapChain()
 {
     RK_GRAPHICS_TRACE("RecreateSwapChain");
+    m_IsScenePrepared = false;
 
     int width = 0, height = 0;
     glfwGetFramebufferSize(m_WindowHandle, &width, &height);
@@ -146,13 +148,16 @@ void VulkanGraphicsManager::RecreateSwapChain()
 
     CreateSwapChain();
     //CreateGraphicsPipeline();
+
+    InitGui();
     CreateFramebuffers();
     CreateCommandBuffers();
-    InitGui();
-
+    
     vkDeviceWaitIdle(m_Device);
 
     m_ImagesInFlight.resize(m_SwapChainImages.size(), VK_NULL_HANDLE);
+
+    m_IsScenePrepared = true;
 }
 
 //--------------------------------------------------------------------//
@@ -611,14 +616,14 @@ void VulkanGraphicsManager::BeginScene(const Scene& scene)
 
     CreateCommandBuffers();
 
-    m_IsSceneLoaded = true;
+    m_IsScenePrepared = true;
 }
 
 void VulkanGraphicsManager::EndScene()
 {
     GraphicsManager::EndScene();
 
-    if (m_IsSceneLoaded)
+    if (m_IsScenePrepared)
     {
         // Clear DescriptorPool / DescriptorSet
         vkDestroyDescriptorPool(m_Device, m_DescriptorPool, nullptr);
@@ -637,9 +642,8 @@ void VulkanGraphicsManager::EndScene()
 
         vkDestroyBuffer(m_Device, m_VertexBuffer, nullptr);
         vkFreeMemory(m_Device, m_VertexBufferMemory, nullptr);
-
-        m_IsSceneLoaded = false;
     }
+    m_IsScenePrepared = false;
 }
 
 void VulkanGraphicsManager::UpdateUniformBuffer(uint32_t currentImage)
@@ -773,8 +777,10 @@ void VulkanGraphicsManager::RecordGuiCommandBuffer(uint32_t frameIndex)
 
 void VulkanGraphicsManager::BeginFrame(const Frame& frame)
 {
-    //RK_GRAPHICS_TRACE("Begin Frame");
+    if (!m_IsScenePrepared)
+        return;
 
+    //RK_GRAPHICS_TRACE("Begin Frame");
     m_VulkanUI->UpdataOverlay(m_SwapChainExtent.width, m_SwapChainExtent.height);
     m_VulkanUI->PrepareUI();
 
@@ -783,23 +789,21 @@ void VulkanGraphicsManager::BeginFrame(const Frame& frame)
     VkResult result = m_VulkanSwapChain->AcquireNextImage(m_ImageAvailableSemaphores[m_CurrentFrameIndex], &m_FrameIndex);
     //RK_GRAPHICS_TRACE("vkAcquireNextImageKHR");
     
-    if (result == VK_ERROR_OUT_OF_DATE_KHR)
+    if ((result == VK_ERROR_OUT_OF_DATE_KHR) || (result == VK_SUBOPTIMAL_KHR))
     {
         RecreateSwapChain();
-        //RK_GRAPHICS_TRACE("Restart Frame");
-        return;
     }
-    else if(result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+    else
     {
         VK_CHECK(result);
     }
 
-    if (m_ImagesInFlight[m_FrameIndex] != VK_NULL_HANDLE)
-    {
-        vkWaitForFences(m_Device, 1, &m_ImagesInFlight[m_FrameIndex], VK_TRUE, UINT64_MAX);
-        //RK_GRAPHICS_TRACE("vkWaitForFences m_ImagesInFlight");
-    }
-    m_ImagesInFlight[m_FrameIndex] = m_InFlightFences[m_CurrentFrameIndex];
+    //if (m_ImagesInFlight[m_FrameIndex] != VK_NULL_HANDLE)
+    //{
+    //    vkWaitForFences(m_Device, 1, &m_ImagesInFlight[m_FrameIndex], VK_TRUE, UINT64_MAX);
+    //    //RK_GRAPHICS_TRACE("vkWaitForFences m_ImagesInFlight");
+    //}
+    //m_ImagesInFlight[m_FrameIndex] = m_InFlightFences[m_CurrentFrameIndex];
 
     UpdateUniformBuffer(m_FrameIndex);
     //RK_GRAPHICS_TRACE("UpdateUniformBuffer");
@@ -827,6 +831,12 @@ void VulkanGraphicsManager::BeginFrame(const Frame& frame)
     vkResetFences(m_Device, 1, &m_InFlightFences[m_CurrentFrameIndex]);
     VK_CHECK(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFences[m_CurrentFrameIndex]));
     //RK_GRAPHICS_TRACE("vkQueueSubmit");
+}
+
+void VulkanGraphicsManager::EndFrame(const Frame& frame)
+{
+    if (!m_IsScenePrepared)
+        return;
 
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -834,30 +844,28 @@ void VulkanGraphicsManager::BeginFrame(const Frame& frame)
     presentInfo.pWaitSemaphores = &m_RenderFinishedSemaphores[m_CurrentFrameIndex];
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = &m_SwapChain;
-    presentInfo.pImageIndices = &m_CurrentFrameIndex;
+    presentInfo.pImageIndices = &m_FrameIndex;
 
-    result = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
+    VkResult result = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
     //RK_GRAPHICS_TRACE("vkQueuePresentKHR");
 
-    if ((result == VK_ERROR_OUT_OF_DATE_KHR) || (result == VK_SUBOPTIMAL_KHR) || m_FramebufferResized)
+    if (!((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR)))
     {
-        m_FramebufferResized = false;
-        RecreateSwapChain();
-        //RK_GRAPHICS_TRACE("Restart Frame");
-        return;
-    }
-    else
-    {
-        VK_CHECK(result);
+        if (result == VK_ERROR_OUT_OF_DATE_KHR)
+        {
+            //m_FramebufferResized = false;
+            RecreateSwapChain();
+            //RK_GRAPHICS_TRACE("Restart Frame");
+            return;
+        }
+        else
+        {
+            VK_CHECK(result);
+        }
     }
 
     m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_MaxFrameInFlight;
     //RK_GRAPHICS_TRACE("End Frame");
-}
-
-void VulkanGraphicsManager::EndFrame(const Frame& frame)
-{
-    
 }
 
 void VulkanGraphicsManager::BeginFrameBuffer(const Frame& frame)

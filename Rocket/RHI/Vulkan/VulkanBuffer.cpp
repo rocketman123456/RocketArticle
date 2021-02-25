@@ -48,6 +48,6 @@ void VulkanBufferStruct::Flush(VkDeviceSize size)
 	VkMappedMemoryRange mappedRange{};
 	mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
 	mappedRange.memory = memory;
-	mappedRange.size = this->size;
+	mappedRange.size = size;// this->size;
 	VK_CHECK(vkFlushMappedMemoryRanges(device, 1, &mappedRange));
 }

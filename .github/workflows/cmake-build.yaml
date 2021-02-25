@@ -17,61 +17,37 @@ jobs:
       - name: Check out code
         uses: actions/checkout@main
         
-      - name: Create Build Environment
-        run: cmake -E make_directory ${{github.workspace}}/build
-      
-      - name: Install vcpkg
-        working-directory: ${{github.workspace}}/build
-        run: git clone https://github.com/microsoft/vcpkg.git
-      
-      - name: Compile vcpkg
-        working-directory: ${{github.workspace}}/build/vcpkg
-        run: ./bootstrap-vcpkg.sh
-        
       - name: Install Packages
-        working-directory: ${{github.workspace}}/build/vcpkg
-        run: ./vcpkg install yaml-cpp glfw3 eigen3 bullet3 openal-soft entt sndfile glm tinyobjloader spdlog glad glslang libcopp
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_bullet.sh
 
-      - name: Configure CMake
-        shell: bash
-        working-directory: ${{github.workspace}}/build
-        run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+      - name: Install Packages
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_box2d.sh
+
+      - name: Install Packages
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_box2d.sh
 
       - name: Build
         shell: bash
-        working-directory: ${{github.workspace}}/build
-        run: cmake --build . --config $BUILD_TYPE
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_mac.sh
 
   build-win10:
     runs-on: windows-2019
     steps:
       - name: Check out code
         uses: actions/checkout@main
-        
-      - name: Create Build Environment
-        run: cmake -E make_directory ${{github.workspace}}/build
-      
-      - name: Install vcpkg
-        working-directory: ${{github.workspace}}/build
-        run: git clone https://github.com/microsoft/vcpkg.git
-      
-      - name: Compile vcpkg
-        working-directory: ${{github.workspace}}/build/vcpkg
-        run: ./bootstrap-vcpkg.bat
       
       - name: Install Packages
-        working-directory: ${{github.workspace}}/build/vcpkg
-        run: ./vcpkg install --triplet=x64-windows yaml-cpp glfw3 eigen3 bullet3 openal-soft entt sndfile glm tinyobjloader spdlog glad glslang libcopp
-        
-      - name: Configure CMake
-        shell: bash
-        working-directory: ${{github.workspace}}/build
-        run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_bullet.sh
 
       - name: Build
         shell: bash
-        working-directory: ${{github.workspace}}/build
-        run: cmake --build . --config $BUILD_TYPE
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_win.sh
       
   build-ubuntu:
     runs-on: ubuntu-18.04
@@ -79,27 +55,19 @@ jobs:
       - name: Check out code
         uses: actions/checkout@main
         
-      - name: Create Build Environment
-        run: cmake -E make_directory ${{github.workspace}}/build
-      
-      - name: Install vcpkg
-        working-directory: ${{github.workspace}}/build
-        run: git clone https://github.com/microsoft/vcpkg.git
-      
-      - name: Compile vcpkg
-        working-directory: ${{github.workspace}}/build/vcpkg
-        run: ./bootstrap-vcpkg.sh
+      - name: Install Packages
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_bullet.sh
 
       - name: Install Packages
-        working-directory: ${{github.workspace}}/build/vcpkg
-        run: ./vcpkg install --triplet=x64-linux yaml-cpp glfw3 eigen3 bullet3 openal-soft entt sndfile glm tinyobjloader spdlog glad glslang libcopp
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_box2d.sh
 
-      - name: Configure CMake
-        shell: bash
-        working-directory: ${{github.workspace}}/build
-        run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+      - name: Install Packages
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_box2d.sh
 
       - name: Build
         shell: bash
-        working-directory: ${{github.workspace}}/build
-        run: cmake --build . --config $BUILD_TYPE
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_linux.sh

@@ -23,7 +23,6 @@ namespace Rocket
 
 		void SetWindowHandle(GLFWwindow* handle) { windowHandle = handle; }
 	public:
-		// TODO : change variable names
 		VkFormat colorFormat;
 		VkColorSpaceKHR colorSpace;
 		VkSwapchainKHR swapChain = VK_NULL_HANDLE;
