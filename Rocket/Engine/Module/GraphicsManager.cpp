@@ -164,7 +164,7 @@ void GraphicsManager::EndScene()
     //    m_uboShadowMatricesConstant[i] = nullptr;
     //}
 
-    //m_CurrentScene = nullptr;
+    m_CurrentScene = nullptr;
     //m_CurrentShader = nullptr;
     //m_CurrentFrameBuffer = nullptr;
 }

@@ -37,7 +37,7 @@ namespace Rocket
         void EndCompute() final {}
 
         void GenerateSkyBox() final;
-        void GenerateBRDFLUT(int32_t dim) final;
+        void GenerateBRDFLUT() final;
 
         void BeginFrame(const Frame& frame) final;
         void EndFrame(const Frame& frame) final;

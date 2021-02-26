@@ -748,7 +748,7 @@ void VulkanGraphicsManager::RecordGuiCommandBuffer(uint32_t frameIndex)
 
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = m_RenderPass;
+    renderPassInfo.renderPass = m_GuiRenderPass;
     renderPassInfo.framebuffer = m_SwapChainFramebuffers[frameIndex];
     renderPassInfo.renderArea.offset = { 0, 0 };
     renderPassInfo.renderArea.extent = m_SwapChainExtent;
@@ -1468,8 +1468,10 @@ void VulkanGraphicsManager::GenerateSkyBox()
     }
 }
 
-void VulkanGraphicsManager::GenerateBRDFLUT(int32_t dim)
+void VulkanGraphicsManager::GenerateBRDFLUT()
 {
+    int32_t dim = 512;
+
     auto tStart = std::chrono::high_resolution_clock::now();
 
     const VkFormat format = VK_FORMAT_R16G16_SFLOAT;

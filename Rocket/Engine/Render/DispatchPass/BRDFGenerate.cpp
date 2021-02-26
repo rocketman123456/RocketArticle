@@ -5,5 +5,5 @@ using namespace Rocket;
 
 void BRDFGenerate::Dispatch(Frame& frame)
 {
-    g_GraphicsManager->GenerateBRDFLUT(512);
+    g_GraphicsManager->GenerateBRDFLUT();
 }

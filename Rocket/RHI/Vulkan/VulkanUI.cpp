@@ -26,6 +26,7 @@ void VulkanUI::Connect(
 
 void VulkanUI::Initialize()
 {
+	IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -272,6 +273,12 @@ void VulkanUI::UpdataOverlay(uint32_t width, uint32_t height)
 	ImGui::End();
 
 	ImGui::Render();
+
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+	}
 }
 
 void VulkanUI::PrepareUI()

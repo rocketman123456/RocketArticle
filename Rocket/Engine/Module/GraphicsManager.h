@@ -35,7 +35,7 @@ namespace Rocket
         virtual void EndCompute() {}
 
         virtual void GenerateSkyBox() = 0;
-        virtual void GenerateBRDFLUT(int32_t dim) = 0;
+        virtual void GenerateBRDFLUT() = 0;
 
         virtual void BeginFrame(const Frame& frame);
         virtual void EndFrame(const Frame& frame);
