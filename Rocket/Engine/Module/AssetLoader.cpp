@@ -44,6 +44,31 @@ void AssetLoader::SyncCloseTexture(AssetFilePtr data)
     stbi_image_free(data);
 }
 
+Vec<AssetFilePtr> AssetLoader::SyncOpenAndReadTextureCube(const Vec<String>& filePaths, int32_t* width, int32_t* height, int32_t* channels, int32_t desired_channel)
+{
+    Vec<AssetFilePtr> result;
+    for (auto file_name : filePaths)
+    {
+        Buffer buffer = SyncOpenAndReadBinary(file_name);
+
+        stbi_set_flip_vertically_on_load(1);
+        stbi_uc* data = nullptr;
+        data = stbi_load_from_memory(buffer.GetData().get(), buffer.GetDataSize(), width, height, channels, desired_channel);
+        RK_CORE_TRACE("Texture Info : width {}, height {}, channels {}", *width, *height, *channels);
+        RK_CORE_ASSERT(data, "Failed to load image!");
+        result.push_back(data);
+    }
+    return result;
+}
+
+void AssetLoader::SyncCloseTextureCube(Vec<AssetFilePtr>& datas)
+{
+    for (auto img : datas)
+    {
+        stbi_image_free(img);
+    }
+}
+
 Texture2DAsset AssetLoader::SyncLoadTexture2D(const String& filename)
 {
     String fullPath = m_AssetPath + filename;

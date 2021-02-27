@@ -5,5 +5,5 @@ using namespace Rocket;
 
 void SkyBoxGenerate::Dispatch(Frame& frame)
 {
-    g_GraphicsManager->GenerateSkyBox();
+    g_GraphicsManager->GenerateCubeMaps();
 }

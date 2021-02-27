@@ -9,6 +9,7 @@
 #include "Vulkan/VulkanTexture.h"
 #include "Vulkan/VulkanUI.h"
 #include "Common/Buffer.h"
+#include "Scene/Component/Mesh.h"
 
 #include <vulkan/vulkan.h>
 
@@ -36,7 +37,7 @@ namespace Rocket
         void BeginCompute() final {}
         void EndCompute() final {}
 
-        void GenerateSkyBox() final;
+        void GenerateCubeMaps() final;
         void GenerateBRDFLUT() final;
 
         void BeginFrame(const Frame& frame) final;
@@ -123,6 +124,9 @@ namespace Rocket
         Ref<VulkanPipeline> m_VulkanPipeline = nullptr;
         Ref<VulkanFrameBuffer> m_VulkanFrameBuffer = nullptr;
         Ref<VulkanTexture2D> m_VulkanTexture2D = nullptr;
+        Ref<TextureCubeMap> m_EnvironmentCube = nullptr;
+        Ref<TextureCubeMap> m_IrradianceCube = nullptr;
+        Ref<TextureCubeMap> m_PrefilteredCube = nullptr;
 
         VkInstance m_Instance;
         VkDebugUtilsMessengerEXT m_DebugMessenger;

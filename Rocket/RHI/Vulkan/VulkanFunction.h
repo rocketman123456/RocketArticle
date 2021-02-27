@@ -162,20 +162,20 @@ enum SwapchainStatus
 };
 
 // TODO : update vulkan shader class
-struct Vulkan_Shader
-{
-	VkShaderModule module;
-	VkShaderStageFlagBits stage;
-
-	VkDescriptorType resourceTypes[32];
-	uint32_t resourceMask;
-
-	uint32_t localSizeX;
-	uint32_t localSizeY;
-	uint32_t localSizeZ;
-
-	bool usesPushConstants;
-};
+//struct Vulkan_Shader
+//{
+//	VkShaderModule module;
+//	VkShaderStageFlagBits stage;
+//
+//	VkDescriptorType resourceTypes[32];
+//	uint32_t resourceMask;
+//
+//	uint32_t localSizeX;
+//	uint32_t localSizeY;
+//	uint32_t localSizeZ;
+//
+//	bool usesPushConstants;
+//};
 
 struct VulkanProgram
 {
@@ -225,7 +225,7 @@ struct DescriptorInfo
 	}
 };
 
-using Shaders = std::initializer_list<const Vulkan_Shader*>;
+//using Shaders = std::initializer_list<const Vulkan_Shader*>;
 using Constants = std::initializer_list<int>;
 
 // niagara ----------------------//
@@ -318,7 +318,7 @@ VkSampler CreateSampler(
 	VkSamplerReductionModeEXT reductionMode);
 
 // Swapchain
-//VkSurfaceKHR CreateSurface(VkInstance instance, GLFWwindow* window);
+// VkSurfaceKHR CreateSurface(VkInstance instance, GLFWwindow* window);
 VkFormat GetSwapchainFormat(
 	VkPhysicalDevice physicalDevice, 
 	VkSurfaceKHR surface);
@@ -354,31 +354,31 @@ VkDevice CreateDevice(
 	bool meshShadingSupported);
 
 // Shader
-VkPipeline CreateGraphicsPipeline(
-	VkDevice device, 
-	VkPipelineCache pipelineCache, 
-	VkRenderPass renderPass, 
-	Shaders shaders, 
-	VkPipelineLayout layout, 
-	Constants constants = {});
-
-VkPipeline CreateComputePipeline(
-	VkDevice device, 
-	VkPipelineCache pipelineCache, 
-	const Vulkan_Shader& shader, 
-	VkPipelineLayout layout, 
-	Constants constants = {});
-
-VulkanProgram CreateProgram(
-	VkDevice device, 
-	VkPipelineBindPoint bindPoint, 
-	Shaders shaders, 
-	size_t pushConstantSize, 
-	bool pushDescriptorsSupported);
-
-void DestroyProgram(
-	VkDevice device, 
-	const VulkanProgram& program);
+//VkPipeline CreateGraphicsPipeline(
+//	VkDevice device, 
+//	VkPipelineCache pipelineCache, 
+//	VkRenderPass renderPass, 
+//	Shaders shaders, 
+//	VkPipelineLayout layout, 
+//	Constants constants = {});
+//
+//VkPipeline CreateComputePipeline(
+//	VkDevice device, 
+//	VkPipelineCache pipelineCache, 
+//	const Vulkan_Shader& shader, 
+//	VkPipelineLayout layout, 
+//	Constants constants = {});
+//
+//VulkanProgram CreateProgram(
+//	VkDevice device, 
+//	VkPipelineBindPoint bindPoint, 
+//	Shaders shaders, 
+//	size_t pushConstantSize, 
+//	bool pushDescriptorsSupported);
+//
+//void DestroyProgram(
+//	VkDevice device, 
+//	const VulkanProgram& program);
 // niagara ----------------------//
 
 bool CheckValidationLayerSupport();
