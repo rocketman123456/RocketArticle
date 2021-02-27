@@ -1,30 +1,38 @@
 #include "Core/EntryPoint.h"
 
+using namespace Rocket;
+
 int main(int argc, char **argv)
 {
     PROFILE_ENTRY();
     PROFILE_SET_THREAD(Main);
 
-    Rocket::Log::Init();
+    Log::Init();
     RK_CORE_WARN("Initialize Log");
 
-    Rocket::CommandParser Parser(argc, argv);
-    RK_CORE_INFO("CommandParser : {0}", Parser.ToString());
-
-    std::string command;
+    RK_PROFILE_BEGIN_SESSION("ReadComfig", "RocketProfile-Startup.json");
+    Ref<CommandParser> Parser = Ref<CommandParser>(new CommandParser(argc, argv));
+    RK_CORE_INFO("CommandParser : {0}", Parser->ToString());
+    
+    String command;
     if(argc > 1)
-        command = Parser.GetCommand(1);
+        command = Parser->GetCommand(1);
     else
         command = ProjectSourceDir;
 
-    Rocket::ConfigLoader Loader(command);
-    if(!Loader.Initialize())
+    Ref<ConfigLoader> Loader  = Ref<ConfigLoader>(new ConfigLoader(command));
+    
+    int ret = Loader->Initialize();
+    if(ret != 0)
     {
         RK_CORE_ERROR("Config Loader Initialize Failed");
         return 1;
     }
-
-    auto app = Rocket::CreateApplication();
+    RK_CORE_INFO("ConfigLoader : {0}", Loader->ToString());
+    RK_PROFILE_END_SESSION();
+    
+    RK_PROFILE_BEGIN_SESSION("Initialize", "RocketProfile-Initialize.json");
+    auto app = CreateApplication();
     app->LoadConfig(Loader);
 
     app->PreInitializeModule();
@@ -42,36 +50,42 @@ int main(int argc, char **argv)
 	    return 1;
     }
     app->PostInitialize();
+    RK_PROFILE_END_SESSION();
 
-    std::chrono::steady_clock Clock;
-    std::chrono::duration<float> Duration;
-    std::chrono::time_point<std::chrono::steady_clock> CurrentTime;
-    std::chrono::time_point<std::chrono::steady_clock> LastTime;
+    float CountTime = 0.0f;
+    int32_t CountFrame = 0;
 
-    CurrentTime = Clock.now();
-    LastTime = CurrentTime;
-    
+    ElapseTimer Timer;
+    Timer.Start();
+
+    RK_PROFILE_BEGIN_SESSION("RunLoop", "RocketProfile-RunLoop.json");
     while (app->IsRunning())
     {
         PROFILE_SCOPE_CPU(MainLoop, 0);
 
-        LastTime = CurrentTime;
-        CurrentTime = Clock.now();
-        Duration = CurrentTime - LastTime;
-        float dt = Duration.count();
+        double Duration = Timer.GetTickTime();
+
+        CountFrame++;
+        CountTime += Duration;
+
+        if(CountTime >= 1000.0f)
+        {
+            //RK_TRACE("FPS : {}", CountFrame);
+            CountFrame = 0;
+            CountTime = 0.0f;
+        }
 
 	    PROFILE_BEGIN_CPU_SAMPLE(ApplicationUpdate, 0);
-	    app->Tick(dt);
-	    PROFILE_END_CPU_SAMPLE();
-
-	    PROFILE_BEGIN_CPU_SAMPLE(ModuleUpdate, 0);
-	    app->TickModule(dt);
+	    app->Tick(Duration);
 	    PROFILE_END_CPU_SAMPLE();
     }
+    RK_PROFILE_END_SESSION();
     
+    RK_PROFILE_BEGIN_SESSION("Finalize", "RocketProfile-Finalize.json");
     app->Finalize();
     app->FinalizeModule();
     delete app;
+    RK_PROFILE_END_SESSION();
 
     PROFILE_EXIT();
     return 0;

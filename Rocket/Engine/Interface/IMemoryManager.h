@@ -3,14 +3,13 @@
 
 namespace Rocket
 {
-    Interface IMemoryManager : inheritance IRuntimeModule {
+    Interface IMemoryManager : inheritance IRuntimeModule
+    {
     public:
-        IMemoryManager(const std::string& name) : IRuntimeModule(name) {}
+        IMemoryManager() = default;
         virtual ~IMemoryManager() = default;
 
         virtual void* AllocatePage(size_t size) = 0;
         virtual void FreePage(void* p) = 0;
     };
-
-    extern IMemoryManager* g_pMemoryManager;
 }

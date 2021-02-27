@@ -7,12 +7,11 @@
 #define RK_EXPAND_MACRO(x) x
 #define RK_STRINGIFY_MACRO(x) #x
 
-#define BIT(x) (1 << x)
+#define RK_BIT(x) (1 << x)
 
-#ifdef ALIGN
-#undef ALIGN
+#ifndef RK_ALIGN
+#define RK_ALIGN(x, a) (((x) + ((a)-1)) & ~((a)-1))
 #endif
-#define ALIGN(x, a) (((x) + ((a)-1)) & ~((a)-1))
 
 #include <cstdint>
 using four_char_enum = int32_t;

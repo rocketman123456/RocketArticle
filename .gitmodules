@@ -37,3 +37,48 @@
 [submodule "Thirdparty/spdlog"]
 	path = Thirdparty/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "Thirdparty/glm"]
+	path = Thirdparty/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "Thirdparty/bullet3"]
+	path = Thirdparty/bullet3
+	url = https://github.com/bulletphysics/bullet3.git
+[submodule "Thirdparty/box2d"]
+	path = Thirdparty/box2d
+	url = https://github.com/erincatto/box2d.git
+[submodule "Thirdparty/ImGuizmo"]
+	path = Thirdparty/ImGuizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo.git
+[submodule "Thirdparty/tinygltf"]
+	path = Thirdparty/tinygltf
+	url = https://github.com/syoyo/tinygltf.git
+[submodule "Thirdparty/nlohmann-json"]
+	path = Thirdparty/nlohmann-json
+	url = https://github.com/nlohmann/json
+[submodule "Thirdparty/eigen"]
+	path = Thirdparty/eigen
+	url = https://gitlab.com/libeigen/eigen.git
+[submodule "Thirdparty/taskflow"]
+	path = Thirdparty/taskflow
+	url = https://github.com/taskflow/taskflow.git
+[submodule "Thirdparty/stb"]
+	path = Thirdparty/stb
+	url = https://github.com/nothings/stb.git
+[submodule "Thirdparty/entt"]
+	path = Thirdparty/entt
+	url = https://github.com/skypjack/entt.git
+[submodule "Thirdparty/minizip-ng"]
+	path = Thirdparty/minizip-ng
+	url = https://github.com/zlib-ng/minizip-ng.git
+[submodule "Thirdparty/shaderc"]
+	path = Thirdparty/shaderc
+	url = https://github.com/google/shaderc.git
+[submodule "Thirdparty/volk"]
+	path = Thirdparty/volk
+	url = https://github.com/zeux/volk.git
+[submodule "Thirdparty/fiber-job-system"]
+	path = Thirdparty/fiber-job-system
+	url = https://github.com/Freeeaky/fiber-job-system.git
+[submodule "Thirdparty/gli"]
+	path = Thirdparty/gli
+	url = https://github.com/g-truc/gli

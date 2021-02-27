@@ -1,6 +1,6 @@
 #pragma once
 #include "Interface/IApplication.h"
-#include "Event/ApplicationEvent.h"
+#include "Interface/IEvent.h"
 
 namespace Rocket
 {
@@ -14,7 +14,8 @@ namespace Rocket
         }
         virtual ~Application() = default;
 
-        virtual void LoadConfig(ConfigLoader& config) override;
+        virtual void LoadConfig(const Ref<ConfigLoader>& config) override;
+        inline const Ref<ConfigLoader>& GetConfig() const { return m_Config; }
 
         virtual int Initialize() final;
         virtual void Finalize() final;
@@ -22,9 +23,8 @@ namespace Rocket
         virtual int InitializeModule() final;
         virtual void FinalizeModule() final;
 
-        void PushModule(IRuntimeModule * module);
+        void PushModule(IRuntimeModule* module);
 
-        virtual void TickModule(Timestep ts) final;
         virtual void Tick(Timestep ts) final;
 
         static Application& Get() { return *s_Instance; }
@@ -38,9 +38,11 @@ namespace Rocket
         bool m_Minimized = false;
         bool m_Parallel = true;
         // Modules
-        Vec<IRuntimeModule *> m_Modules;
+        Vec<IRuntimeModule*> m_Modules;
         // Config
-        std::string m_AssetPath;
+        Ref<ConfigLoader> m_Config;
+        String m_AssetPath;
+        
     private:
         static Application* s_Instance;
     };

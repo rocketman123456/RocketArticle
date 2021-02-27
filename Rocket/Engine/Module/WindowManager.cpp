@@ -1,32 +1,39 @@
 #include "Module/WindowManager.h"
+#include "Module/Application.h"
+#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
+#include "GLFWWindow/WindowImplement.h"
+#endif
 
-namespace Rocket
+using namespace Rocket;
+
+WindowManager* Rocket::GetWindowManager() { return new WindowManager(); }
+
+int WindowManager::Initialize()
 {
-    WindowManager* GetWindowManager()
-    {
-        return new WindowManager();
-    }
+    auto config = g_Application->GetConfig();
 
-    int WindowManager::Initialize()
-    {
-        WindowProps prop;
-        m_Window = Window::Create(prop);
-        m_Window->Initialize();
+    WindowProps prop;
+    prop.Title = config->GetConfigInfo<String>("Graphics", "window_title");
+    prop.Width = config->GetConfigInfo<uint32_t>("Graphics", "window_width");
+    prop.Height = config->GetConfigInfo<uint32_t>("Graphics", "window_height");
+#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
+    m_Window = CreateRef<WindowImplement>(prop);
+#else
+	RK_CORE_ASSERT(false, "Unknown platform!");
+#endif
+    m_Window->Initialize();
 
-        return 0;
-    }
+    return 0;
+}
 
-    void WindowManager::Finalize()
-    {
-        m_Window->Finalize();
-    }
+void WindowManager::Finalize()
+{
+    m_Window->Finalize();
+}
 
-    void WindowManager::Tick(Timestep ts)
-    {
-        PROFILE_BEGIN_CPU_SAMPLE(WindowManagerUpdate, 0);
-
-        m_Window->Tick();
-
-        PROFILE_END_CPU_SAMPLE();
-    }
+bool WindowManager::OnWindowResize(EventPtr& e)
+{
+    m_Window->SetWidth(e->GetUInt32(1));
+    m_Window->SetHeight(e->GetUInt32(2));
+    return false;
 }

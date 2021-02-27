@@ -5,11 +5,11 @@ namespace Rocket
 {
     struct WindowProps
 	{
-		std::string Title;
-		uint32_t Width;
-		uint32_t Height;
+		String Title;
+		int32_t Width;
+		int32_t Height;
 
-		WindowProps(const std::string &title = "Rocket Engine",
+		WindowProps(const String& title = "Rocket Engine",
 					uint32_t width = 1280,
 					uint32_t height = 720)
 			: Title(title), Width(width), Height(height) {}
@@ -19,18 +19,21 @@ namespace Rocket
 	Interface Window
 	{
 	public:
+		Window(WindowProps prop) : m_Props(prop) {}
 		virtual ~Window() = default;
 
         virtual void Initialize() = 0;
         virtual void Finalize() = 0;
 
-		virtual void Tick() = 0;
-
-		virtual uint32_t GetWidth() const = 0;
-		virtual uint32_t GetHeight() const = 0;
+		void SetWidth(uint32_t w) { m_Props.Width = w; }
+		void SetHeight(uint32_t h) { m_Props.Height = h; }
+		uint32_t GetWidth() const { return m_Props.Width; }
+		uint32_t GetHeight() const { return m_Props.Height; }
 
 		virtual void* GetNativeWindow() const = 0;
 
 		static Ref<Window> Create(const WindowProps &props = WindowProps());
+	protected:
+		WindowProps m_Props;
 	};
 }

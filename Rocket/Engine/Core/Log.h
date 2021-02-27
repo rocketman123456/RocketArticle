@@ -13,7 +13,7 @@ namespace Rocket
         TRACE = 0,
         INFO,
         WARN,
-        ERROR,
+        ERR,
         CRITICAL,
     };
 
@@ -25,14 +25,16 @@ namespace Rocket
 
         static void Init(LogLevel level = LogLevel::TRACE);
 
-        inline static std::shared_ptr<spdlog::logger> &GetCoreLogger() { return s_CoreLogger; }
-        inline static std::shared_ptr<spdlog::logger> &GetClientLogger() { return s_ClientLogger; }
-        inline static std::shared_ptr<spdlog::logger> &GetEventLogger() { return s_EventLogger; }
+        inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
+        inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
+        inline static std::shared_ptr<spdlog::logger>& GetEventLogger() { return s_EventLogger; }
+        inline static std::shared_ptr<spdlog::logger>& GetGraphicsLogger() { return s_GraphicsLogger; }
 
     private:
         static std::shared_ptr<spdlog::logger> s_CoreLogger;
         static std::shared_ptr<spdlog::logger> s_ClientLogger;
         static std::shared_ptr<spdlog::logger> s_EventLogger;
+        static std::shared_ptr<spdlog::logger> s_GraphicsLogger;
     };
 } // namespace Rocket
 
@@ -48,6 +50,12 @@ namespace Rocket
 #define RK_EVENT_WARN(...) ::Rocket::Log::GetEventLogger()->warn(__VA_ARGS__)
 #define RK_EVENT_INFO(...) ::Rocket::Log::GetEventLogger()->info(__VA_ARGS__)
 #define RK_EVENT_TRACE(...) ::Rocket::Log::GetEventLogger()->trace(__VA_ARGS__)
+
+#define RK_GRAPHICS_CRITICAL(...) ::Rocket::Log::GetGraphicsLogger()->critical(__VA_ARGS__)
+#define RK_GRAPHICS_ERROR(...) ::Rocket::Log::GetGraphicsLogger()->error(__VA_ARGS__)
+#define RK_GRAPHICS_WARN(...) ::Rocket::Log::GetGraphicsLogger()->warn(__VA_ARGS__)
+#define RK_GRAPHICS_INFO(...) ::Rocket::Log::GetGraphicsLogger()->info(__VA_ARGS__)
+#define RK_GRAPHICS_TRACE(...) ::Rocket::Log::GetGraphicsLogger()->trace(__VA_ARGS__)
 
 #define RK_CRITICAL(...) ::Rocket::Log::GetClientLogger()->critical(__VA_ARGS__)
 #define RK_ERROR(...) ::Rocket::Log::GetClientLogger()->error(__VA_ARGS__)
@@ -66,6 +74,12 @@ namespace Rocket
 #define RK_EVENT_WARN(...)
 #define RK_EVENT_INFO(...)
 #define RK_EVENT_TRACE(...)
+
+#define RK_GRAPHICS_CRITICAL(...)
+#define RK_GRAPHICS_ERROR(...)
+#define RK_GRAPHICS_WARN(...)
+#define RK_GRAPHICS_INFO(...)
+#define RK_GRAPHICS_TRACE(...)
 
 #define RK_CRITICAL(...)
 #define RK_ERROR(...)

@@ -17,61 +17,149 @@ jobs:
       - name: Check out code
         uses: actions/checkout@main
         
-      - name: Create Build Environment
-        run: cmake -E make_directory ${{github.workspace}}/build
-      
-      - name: Install vcpkg
-        working-directory: ${{github.workspace}}/build
-        run: git clone https://github.com/microsoft/vcpkg.git
-      
-      - name: Compile vcpkg
-        working-directory: ${{github.workspace}}/build/vcpkg
-        run: ./bootstrap-vcpkg.sh
-        
-      - name: Install Packages
-        working-directory: ${{github.workspace}}/build/vcpkg
-        run: ./vcpkg install yaml-cpp glfw3 eigen3 bullet3 openal-soft entt sndfile glm tinyobjloader spdlog glad glslang libcopp
+      - name: Install compile_bullet
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_bullet.sh
 
-      - name: Configure CMake
-        shell: bash
-        working-directory: ${{github.workspace}}/build
-        run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+      - name: Install compile_box2d
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_box2d.sh
+
+      - name: Install compile_crossguid
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_crossguid.sh
+
+      - name: Install compile_entt
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_entt.sh
+
+      - name: Install compile_eigen
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_eigen.sh
+
+      - name: Install compile_gli
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_gli.sh
+
+      - name: Install compile_libsndfile
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_libsndfile.sh
+
+      - name: Install compile_nlohmann_json
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_nlohmann_json.sh
+
+      - name: Install compile_openal_soft
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_openal_soft.sh
+
+      - name: Install compile_shaderc
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_shaderc.sh
+
+      - name: Install compile_spdlog
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_spdlog.sh
+
+      - name: Install compile_tinygltf
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_tinygltf.sh
+
+      - name: Install compile_tinyobjloader
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_tinyobjloader.sh
+
+      - name: Install compile_yaml_cpp
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_yaml_cpp.sh
+
+      - name : Install glm
+        working-directory: ${{github.workspace}}/
+        run: mkdir -p External/'uname -s'/include/glm
+
+      - name : Install glm
+        working-directory: ${{github.workspace}}/
+        run: cp -r Thirdparty/glm/glm/* External/'uname -s'/include/glm/
 
       - name: Build
         shell: bash
-        working-directory: ${{github.workspace}}/build
-        run: cmake --build . --config $BUILD_TYPE
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_mac.sh
 
   build-win10:
     runs-on: windows-2019
     steps:
       - name: Check out code
         uses: actions/checkout@main
-        
-      - name: Create Build Environment
-        run: cmake -E make_directory ${{github.workspace}}/build
       
-      - name: Install vcpkg
-        working-directory: ${{github.workspace}}/build
-        run: git clone https://github.com/microsoft/vcpkg.git
-      
-      - name: Compile vcpkg
-        working-directory: ${{github.workspace}}/build/vcpkg
-        run: ./bootstrap-vcpkg.bat
-      
-      - name: Install Packages
-        working-directory: ${{github.workspace}}/build/vcpkg
-        run: ./vcpkg install --triplet=x64-windows yaml-cpp glfw3 eigen3 bullet3 openal-soft entt sndfile glm tinyobjloader spdlog glad glslang libcopp
-        
-      - name: Configure CMake
-        shell: bash
-        working-directory: ${{github.workspace}}/build
-        run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+      - name: Install compile_bullet
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_bullet.bat
+
+      - name: Install compile_box2d
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_box2d.bat
+
+      - name: Install compile_crossguid
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_crossguid.bat
+
+      - name: Install compile_entt
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_entt.bat
+
+      - name: Install compile_eigen
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_eigen.bat
+
+      - name: Install compile_gli
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_gli.bat
+
+      - name: Install compile_libsndfile
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_libsndfile.bat
+
+      - name: Install compile_nlohmann_json
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_nlohmann_json.bat
+
+      - name: Install compile_openal_soft
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_openal_soft.bat
+
+      - name: Install compile_shaderc
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_shaderc.bat
+
+      - name: Install compile_spdlog
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_spdlog.bat
+
+      - name: Install compile_tinygltf
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_tinygltf.bat
+
+      - name: Install compile_tinyobjloader
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_tinyobjloader.bat
+
+      - name: Install compile_yaml_cpp
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_yaml_cpp.bat
+
+      - name : Install glm
+        working-directory: ${{github.workspace}}/
+        run: mkdir External\Windows\include\glm
+
+      - name : Install glm
+        working-directory: ${{github.workspace}}/
+        run: xcopy Thirdparty\glm\glm\* External\Windows\include\glm\ /s/y
 
       - name: Build
         shell: bash
-        working-directory: ${{github.workspace}}/build
-        run: cmake --build . --config $BUILD_TYPE
+        working-directory: ${{github.workspace}}/
+        run: ./Script/build_win.bat
       
   build-ubuntu:
     runs-on: ubuntu-18.04
@@ -79,27 +167,71 @@ jobs:
       - name: Check out code
         uses: actions/checkout@main
         
-      - name: Create Build Environment
-        run: cmake -E make_directory ${{github.workspace}}/build
-      
-      - name: Install vcpkg
-        working-directory: ${{github.workspace}}/build
-        run: git clone https://github.com/microsoft/vcpkg.git
-      
-      - name: Compile vcpkg
-        working-directory: ${{github.workspace}}/build/vcpkg
-        run: ./bootstrap-vcpkg.sh
+      - name: Install compile_bullet
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_bullet.sh
 
-      - name: Install Packages
-        working-directory: ${{github.workspace}}/build/vcpkg
-        run: ./vcpkg install --triplet=x64-linux yaml-cpp glfw3 eigen3 bullet3 openal-soft entt sndfile glm tinyobjloader spdlog glad glslang libcopp
+      - name: Install compile_box2d
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_box2d.sh
 
-      - name: Configure CMake
-        shell: bash
-        working-directory: ${{github.workspace}}/build
-        run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_TOOLCHAIN_FILE=vcpkg/scripts/buildsystems/vcpkg.cmake
+      - name: Install compile_crossguid
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_crossguid.sh
+
+      - name: Install compile_entt
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_entt.sh
+
+      - name: Install compile_eigen
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_eigen.sh
+
+      - name: Install compile_gli
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_gli.sh
+
+      - name: Install compile_libsndfile
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_libsndfile.sh
+
+      - name: Install compile_nlohmann_json
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_nlohmann_json.sh
+
+      - name: Install compile_openal_soft
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_openal_soft.sh
+
+      - name: Install compile_shaderc
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_shaderc.sh
+
+      - name: Install compile_spdlog
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_spdlog.sh
+
+      - name: Install compile_tinygltf
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_tinygltf.sh
+
+      - name: Install compile_tinyobjloader
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_tinyobjloader.sh
+
+      - name: Install compile_yaml_cpp
+        working-directory: ${{github.workspace}}/
+        run: ./Script/compile_yaml_cpp.sh
+
+      - name : Install glm
+        working-directory: ${{github.workspace}}/
+        run: mkdir -p External/'uname -s'/include/glm
+
+      - name : Install glm
+        working-directory: ${{github.workspace}}/
+        run: cp -r Thirdparty/glm/glm/* External/'uname -s'/include/glm/
 
       - name: Build
         shell: bash
-        working-directory: ${{github.workspace}}/build
-        run: cmake --build . --config $BUILD_TYPE
+        working-directory: ${{github.workspace}}/
+        run: ./Script/build_linux.sh

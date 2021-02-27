@@ -1,14 +1,13 @@
 #include "Render/DrawPass/BaseDrawPass.h"
 
-namespace Rocket
+using namespace Rocket;
+
+void BaseDrawPass::Draw(Frame& frame)
 {
-    void BaseDrawPass::Draw(Frame& frame)
+    for (const auto& pSubPass : m_DrawSubPasses)
     {
-        for (const auto& pSubPass : m_DrawSubPasses)
-        {
-            pSubPass->BeginSubPass();
-            pSubPass->Draw(frame);
-            pSubPass->EndSubPass();
-        }
+        pSubPass->BeginSubPass();
+        pSubPass->Draw(frame);
+        pSubPass->EndSubPass();
     }
 }

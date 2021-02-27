@@ -1,8 +1,15 @@
 message(STATUS "Add Module RHI Vulkan")
 
 add_library( RendererVulkan
+    VulkanPipelineStateManager.cpp
     VulkanGraphicsManager.cpp
-)
-target_link_libraries( RendererVulkan PRIVATE
-    spdlog::spdlog_header_only
+    VulkanShader.cpp
+    VulkanBuffer.cpp
+    VulkanTexture.cpp
+    VulkanFunction.cpp
+    VulkanDevice.cpp
+    VulkanSwapChain.cpp
+    VulkanPipeline.cpp
+    VulkanFrameBuffer.cpp
+    VulkanUI.cpp
 )

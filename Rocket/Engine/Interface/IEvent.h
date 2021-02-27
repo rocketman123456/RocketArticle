@@ -2,119 +2,87 @@
 #include "Core/Core.h"
 #include "Utils/Timer.h"
 #include "Utils/Variant.h"
+#include "Utils/Hashing.h"
 
 #include <utility>
 #include <optional>
 #include <functional>
 #include <sstream>
-#include <memory>
-#include <vector>
 
 namespace Rocket
 {
-	enum class EventType : uint32_t
-	{
-		None = 0,
-		WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
-		AppTick, AppUpdate, AppRender,
-		KeyPressed, KeyReleased, KeyTyped,
-		MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled,
-		AudioEvent,
-	};
+	using EventVarPtr = Ref<Variant>;
+	using EventType = uint64_t;
 
-	static const char* EventTypeName[] = 
-	{
-		"None",
-		"WindowClose", "WindowResize", "WindowFocus", "WindowLostFocus", "WindowMoved",
-		"AppTick", "AppUpdate", "AppRender",
-		"KeyPressed", "KeyReleased", "KeyTyped",
-		"MouseButtonPressed", "MouseButtonReleased", "MouseMoved", "MouseScrolled",
-		"AudioEvent",
-	};
-
-	enum EventCategory : uint32_t
-	{
-		None = 0,
-		EventCategoryApplication = BIT(0),
-		EventCategoryInput = BIT(1),
-		EventCategoryKeyboard = BIT(2),
-		EventCategoryMouse = BIT(3),
-		EventCategoryMouseButton = BIT(4),
-		EventCategoryAudio = BIT(5),
-	};
+	extern ElapseTimer* g_EventTimer;
 
 	Interface IEvent
 	{
 	public:
-		IEvent() { m_TimeStamp = g_GlobalTimer->GetExactTime(); }
-		virtual ~IEvent() = default;
+		IEvent(const EventVarPtr& var, uint32_t count) : Var(var), Count(count)
+		{
+			RK_CORE_ASSERT(count > 0, "Event Var Count Error");
+			TimeStamp = g_EventTimer->GetExactTime();
+		}
+		virtual ~IEvent() 
+		{
+			//delete[] Var;
+		}
 
-		virtual EventType GetEventType() const = 0;
-		virtual const char* GetName() const = 0;
-		virtual int GetCategoryFlags() const = 0;
-		virtual std::string ToString() const { return GetName(); }
-		
-		inline bool IsInCategory(EventCategory category) { return GetCategoryFlags() & static_cast<int>(category); }
+		[[nodiscard]] virtual EventType GetEventType() const { return Var.get()[0].m_asStringId; }
+		[[nodiscard]] virtual const String& GetName() const { return EventHashTable::GetStringFromId(GetEventType()); }
+		[[nodiscard]] virtual const String& ToString() const { return GetName(); }
 
-		bool Handled = false;
-		double m_TimeStamp = 0.0f;
-	};
-
-	inline std::ostream &operator << (std::ostream &os, const IEvent &e)
-	{
-		return os << e.ToString();
-	}
-
-	// TODO : use Variant to transmit data
-	using EventVar = Vec<Variant>;
-	using EventVarPtr = Ref<Variant[]>;
-
-	Interface IEvent_
-	{
-	public:
-		IEvent_(const EventVar& var) : m_Var(var) { m_TimeStamp = g_GlobalTimer->GetExactTime(); }
-		virtual ~IEvent_() = default;
-
-		virtual EventType GetEventType() const = 0;
-		virtual const char* GetName() const = 0;
-		virtual std::string ToString() const { return GetName(); }
+		[[nodiscard]] int32_t GetInt32(uint32_t index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asInt32; }
+		[[nodiscard]] uint32_t GetUInt32(uint32_t index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asUInt32; }
+		[[nodiscard]] float GetFloat(uint32_t index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asFloat; }
+		[[nodiscard]] double GetDouble(uint32_t index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asDouble; }
+		[[nodiscard]] bool GetBool(uint32_t index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asBool; }
+		[[nodiscard]] void* GetPointer(uint32_t index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asPointer; }
+		[[nodiscard]] string_id GetStringId(uint32_t index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asStringId; }
 
 		bool Handled = false;
-		double m_TimeStamp = 0.0f;
-		EventVar m_Var;
+		double TimeStamp = 0.0f;
+		EventVarPtr Var;
+		uint32_t Count;
 	};
 
-	inline std::ostream &operator << (std::ostream &os, const IEvent_ &e)
+	using EventPtr = Ref<IEvent>;
+
+	inline std::ostream& operator<<(std::ostream& os, const IEvent &e)
 	{
 		os << e.ToString();
-		for(auto var : e.m_Var)
+		for (uint32_t i = 0; i < e.Count; ++i)
 		{
-			os << var.var.index() << " ";
+			switch (e.Var.get()[i].type)
+			{
+			case Variant::TYPE_INT32:
+				os << "[" << e.Var.get()[i].m_asInt32 << "]";
+				break;
+			case Variant::TYPE_UINT32:
+				os << "[" << e.Var.get()[i].m_asUInt32 << "]";
+				break;
+			case Variant::TYPE_FLOAT:
+				os << "[" << e.Var.get()[i].m_asFloat << "]";
+				break;
+			case Variant::TYPE_DOUBLE:
+				os << "[" << e.Var.get()[i].m_asDouble << "]";
+				break;
+			case Variant::TYPE_POINTER:
+				os << "[" << e.Var.get()[i].m_asPointer << "]";
+				break;
+			case Variant::TYPE_STRING_ID:
+				os << "[" << e.Var.get()[i].m_asStringId << "]";
+				break;
+			default:
+				RK_EVENT_ERROR("Unknow Event Data Type");
+				break;
+			}
 		}
 		return os;
 	}
 
-	using EventPtr = Ref<IEvent>;
-
-	template<typename T, typename... Args>
-	EventPtr CreateEvent(Args&&... args) 
-	{
-		// TODO : use pool allocator
-		return CreateScope<T>(std::forward<Args>(args)...);
-	}
-
-#define EVENT_CLASS_TYPE(type) \
-	static EventType GetStaticType() { return EventType::type; }                \
-	virtual EventType GetEventType() const override { return GetStaticType(); } \
-	virtual const char* GetName() const override { return #type; }
-
-#define EVENT_CLASS_CATEGORY(category) \
-	virtual int GetCategoryFlags() const override { return static_cast<int>(category); }
-
-#define RK_BIND_EVENT_FN(fn) [](auto &&... args) -> decltype(auto) \
-	{ return fn(std::forward<decltype(args)>(args)...); }
-#define RK_BIND_EVENT_FN_CLASS(fn) [this](auto &&... args) -> decltype(auto) \
-	{ return this->fn(std::forward<decltype(args)>(args)...); }
-#define RK_BIND_EVENT_FN_CLASS_PTR(pointer, fn) [pointer](auto &&... args) -> decltype(auto) \
-	{ return pointer->fn(std::forward<decltype(args)>(args)...); }
+#define RK_BIND_EVENT_FN(fn) [](auto &&...args) -> decltype(auto) { return fn(std::forward<decltype(args)>(args)...); }
+#define RK_BIND_EVENT_FN_CLASS(fn) [this](auto &&...args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
+#define RK_BIND_EVENT_FN_CLASS_PTR(pointer, fn) [pointer](auto &&...args) -> decltype(auto) { return pointer->fn(std::forward<decltype(args)>(args)...); }
 } // namespace Rocket

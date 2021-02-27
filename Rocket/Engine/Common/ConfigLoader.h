@@ -2,31 +2,62 @@
 #include "Core/Core.h"
 
 #include <yaml-cpp/yaml.h>
+#include <sstream>
 
 namespace Rocket
 {
     class ConfigLoader
     {
     public:
-        ConfigLoader(const std::string& path) : m_Path(path) {}
+        ConfigLoader(const String& path) : m_Path(path) {}
         ~ConfigLoader() = default;
 
         int Initialize()
         {
-            auto config_file = m_Path + "/Config/setting-linux.yaml";
-            m_Config = YAML::LoadFile(config_file);
+            String config_file;
+#if defined(PLATFORM_LINUX)
+            config_file = m_Path + "/Config/setting-linux.yaml";
+#elif defined(PLATFORM_WINDOWS)
+            config_file = m_Path + "/Config/setting-windows.yaml";
+#elif defined(PLATFORM_APPLE)
+            config_file = m_Path + "/Config/setting-mac.yaml";
+#else
+            RK_CORE_ASSERT(false, "Unknown Platform");
+#endif
+            m_ConfigMap["Path"] = YAML::LoadFile(config_file);
+            config_file = m_Path + "/Config/setting-graphics.yaml";
+            m_ConfigMap["Graphics"] = YAML::LoadFile(config_file);
+            config_file = m_Path + "/Config/setting-event.yaml";
+            m_ConfigMap["Event"] = YAML::LoadFile(config_file);
             return 0;
         }
 
-        const std::string& GetAssetPath()
+        String GetAssetPath()
         {
-            m_AssetPath = m_Config["asset_path"].as<std::string>();
-            return m_AssetPath;
+            return m_ConfigMap["Path"]["asset_path"].as<String>();
         }
 
+        template<typename T>
+        T GetConfigInfo(const String& category, const String& name)
+        {
+            return m_ConfigMap[category][name].as<T>();
+        }
+
+        String ToString() const
+		{
+			std::stringstream ss;
+            ss << "Config Path : " << m_Path;
+			return ss.str();
+		}
+
     private:
-        std::string m_Path;
-        std::string m_AssetPath;
-        YAML::Node m_Config;
+        String m_Path;
+        UMap<String, YAML::Node> m_ConfigMap;
     };
+
+    inline std::ostream& operator << (std::ostream &os, const ConfigLoader& c)
+	{
+		os << c.ToString();
+		return os;
+	}
 }

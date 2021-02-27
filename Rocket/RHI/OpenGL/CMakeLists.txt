@@ -1,7 +1,12 @@
 message(STATUS "Add Module RHI OpenGL")
 add_library( RendererOpenGL
+    OpenGLShader.cpp
     OpenGLGraphicsManager.cpp
-)
-target_link_libraries( RendererOpenGL PRIVATE
-    spdlog::spdlog_header_only
+    OpenGLPipelineStateManager.cpp
+    OpenGLVertexArray.cpp
+    OpenGLVertexBuffer.cpp
+    OpenGLIndexBuffer.cpp
+    OpenGLUniformBuffer.cpp
+    OpenGLFrameBuffer.cpp
+    OpenGLTexture.cpp
 )

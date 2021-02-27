@@ -20,6 +20,7 @@
 // Currently accepts at least the condition and one additional parameter (the message) being optional
 #define RK_ASSERT(...) RK_EXPAND_MACRO(RK_INTERNAL_ASSERT_GET_MACRO(__VA_ARGS__)(_, __VA_ARGS__))
 #define RK_CORE_ASSERT(...) RK_EXPAND_MACRO(RK_INTERNAL_ASSERT_GET_MACRO(__VA_ARGS__)(_CORE_, __VA_ARGS__))
+#define RK_GRAPHICS_ASSERT(...) RK_EXPAND_MACRO(RK_INTERNAL_ASSERT_GET_MACRO(__VA_ARGS__)(_GRAPHICS_, __VA_ARGS__))
 #else
 #define RK_ASSERT(...)
 #define RK_CORE_ASSERT(...)

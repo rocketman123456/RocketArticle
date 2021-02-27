@@ -1,40 +1,10 @@
-# Prerequisites
-*.d
-
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
-
 # Project Special
 out/
 build/
 .vs/
 .VSCodeCounter/
+External/
+Thirdparty/build/
 Rocket/GEEngine/RKConfig.h
 imgui.ini
+*.DS_Store
