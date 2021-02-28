@@ -1,18 +1,18 @@
 #pragma once
 #include "Core/Core.h"
 #include "Render/DrawBasic/UI.h"
-#include "Vulkan/VulkanBuffer.h"
-#include "Vulkan/VulkanTexture.h"
-#include "Vulkan/VulkanDevice.h"
+#include "Vulkan/Render/VulkanBuffer.h"
+#include "Vulkan/Render/VulkanTexture.h"
+#include "Vulkan/Render/VulkanDevice.h"
 
 #include <Vulkan/vulkan.h>
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_vulkan.h>
-#define GLM_FORCE_RADIANS
-#define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+//#define GLM_FORCE_RADIANS
+//#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+//#include <glm/glm.hpp>
+//#include <glm/gtc/matrix_transform.hpp>
 
 typedef struct GLFWwindow GLFWwindow;
 
@@ -51,10 +51,10 @@ namespace Rocket
 		VkDescriptorSetLayout descriptorSetLayout;
 		VkDescriptorSet descriptorSet;
 
-		struct PushConstBlock
+		struct alignas(16) PushConstBlock
 		{
-			glm::vec2 scale;
-			glm::vec2 translate;
+			Vector2f scale;
+			Vector2f translate;
 		} pushConstBlock;
 
 		bool canDraw = false;

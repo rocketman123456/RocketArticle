@@ -16,7 +16,7 @@ namespace Rocket
         uint32_t depth{1};      // 4 bytes
         uint32_t index{0};      // 4 bytes
         float    mipmap{0.0f};  // 4 bytes
-        int32_t  padding;       // 4 bytes
+        uint8_t  padding[4];    // 4 bytes
     };                          // total 32 bytes
 
     struct alignas(16) MaterialTextures

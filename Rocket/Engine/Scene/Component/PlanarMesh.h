@@ -1,5 +1,5 @@
 #pragma once
-#include "Scene/Component/Mesh.h"
+#include "Scene/Component/Model.h"
 #include "Render/DrawBasic/Texture.h"
 #include "Common/GeomMath.h"
 

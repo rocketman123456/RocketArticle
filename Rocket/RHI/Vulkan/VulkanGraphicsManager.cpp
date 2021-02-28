@@ -1243,7 +1243,7 @@ void VulkanGraphicsManager::GenerateCubeMaps()
         dynamicStateCI.dynamicStateCount = static_cast<uint32_t>(dynamicStateEnables.size());
 
         // Vertex input state
-        VkVertexInputBindingDescription vertexInputBinding = { 0, sizeof(ModelVertex), VK_VERTEX_INPUT_RATE_VERTEX };
+        VkVertexInputBindingDescription vertexInputBinding = { 0, sizeof(MeshVertex), VK_VERTEX_INPUT_RATE_VERTEX };
         VkVertexInputAttributeDescription vertexInputAttribute = { 0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0 };
 
         VkPipelineVertexInputStateCreateInfo vertexInputStateCI{};
@@ -1265,6 +1265,7 @@ void VulkanGraphicsManager::GenerateCubeMaps()
             break;
         };
         shader->SetDevice(m_Device);
+        shader->SetIsBinary(true);
         shader->Initialize(list);
 
         VkGraphicsPipelineCreateInfo pipelineCI{};
@@ -1695,6 +1696,7 @@ void VulkanGraphicsManager::GenerateBRDFLUT()
     list.emplace_back(shaderc_glsl_fragment_shader, "genbrdflut.frag");
     Ref<VulkanShader> shader = CreateRef<VulkanShader>("BRDF Shader");
     shader->SetDevice(m_Device);
+    shader->SetIsBinary(true);
     shader->Initialize(list);
 
     VkGraphicsPipelineCreateInfo pipelineCI{};

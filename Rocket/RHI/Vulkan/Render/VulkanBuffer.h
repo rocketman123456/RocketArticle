@@ -3,8 +3,8 @@
 //#include "Render/DrawBasic/VertexArray.h"
 //#include "Render/DrawBasic/VertexBuffer.h"
 //#include "Render/DrawBasic/IndexBuffer.h"
-#include "Vulkan/VulkanFunction.h"
-#include "Vulkan/VulkanDevice.h"
+#include "Vulkan/Render/VulkanFunction.h"
+#include "Vulkan/Render/VulkanDevice.h"
 
 #include <Vulkan/vulkan.h>
 

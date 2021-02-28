@@ -1,15 +1,16 @@
 #pragma once
 #include "Module/GraphicsManager.h"
-#include "Vulkan/VulkanFunction.h"
-#include "Vulkan/VulkanDevice.h"
-#include "Vulkan/VulkanSwapChain.h"
-#include "Vulkan/VulkanPipeline.h"
-#include "Vulkan/VulkanFrameBuffer.h"
-#include "Vulkan/VulkanShader.h"
-#include "Vulkan/VulkanTexture.h"
-#include "Vulkan/VulkanUI.h"
+#include "Vulkan/Render/VulkanFunction.h"
+#include "Vulkan/Render/VulkanDevice.h"
+#include "Vulkan/Render/VulkanSwapChain.h"
+#include "Vulkan/Render/VulkanPipeline.h"
+#include "Vulkan/Render/VulkanFrameBuffer.h"
+#include "Vulkan/Render/VulkanShader.h"
+#include "Vulkan/Render/VulkanTexture.h"
+#include "Vulkan/Render/VulkanUI.h"
 #include "Common/Buffer.h"
-#include "Scene/Component/Mesh.h"
+// TODO : finish scene structure
+#include "Scene/Component/Model.h"
 
 #include <vulkan/vulkan.h>
 

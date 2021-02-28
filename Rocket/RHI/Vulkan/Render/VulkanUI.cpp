@@ -1,6 +1,6 @@
-#include "Vulkan/VulkanUI.h"
-#include "Vulkan/VulkanFunction.h"
-#include "Vulkan/VulkanShader.h"
+#include "Vulkan/Render/VulkanUI.h"
+#include "Vulkan/Render/VulkanFunction.h"
+#include "Vulkan/Render/VulkanShader.h"
 #include "Module/AssetLoader.h"
 
 // ImGui Implements
@@ -219,6 +219,7 @@ void VulkanUI::Initialize()
 		list.emplace_back(shaderc_glsl_fragment_shader, "ui.frag");
 		Ref<VulkanShader> shader = CreateRef<VulkanShader>("UI Shader");
 		shader->SetDevice(device->logicalDevice);
+		shader->SetIsBinary(true);
 		shader->Initialize(list);
 
 		pipelineCI.stageCount = static_cast<uint32_t>(shader->GetShaderInfo().size());
@@ -262,8 +263,8 @@ void VulkanUI::UpdataOverlay(uint32_t width, uint32_t height)
 	io.MouseDown[0] = left;
 	io.MouseDown[1] = right;
 
-	pushConstBlock.scale = glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
-	pushConstBlock.translate = glm::vec2(-1.0f);
+	pushConstBlock.scale = Vector2f(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
+	pushConstBlock.translate = Vector2f(-1.0f, -1.0f);
 
 	ImGui::NewFrame();
 

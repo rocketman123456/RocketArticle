@@ -1,5 +1,5 @@
-#include "Vulkan/VulkanShader.h"
-#include "Vulkan/VulkanFunction.h"
+#include "Vulkan/Render/VulkanShader.h"
+#include "Vulkan/Render/VulkanFunction.h"
 #include "Module/Application.h"
 #include "Module/AssetLoader.h"
 
@@ -130,7 +130,7 @@ bool VulkanShader::Initialize(const ShaderSourceList& list)
             {
                 // Load Precompiled shader
                 auto config = g_Application->GetConfig();
-                String full_path = String("Shaders/" + RenderAPI + "/" + it->second);
+                String full_path = String("Shaders/" + RenderAPI + "/" + it->second + ".spv");
 
                 Buffer shaderBuffer = g_AssetLoader->SyncOpenAndReadBinary(full_path);
                 

@@ -1,6 +1,6 @@
-#include "Vulkan/VulkanPipeline.h"
-#include "Vulkan/VulkanFunction.h"
-#include "Vulkan/VulkanShader.h"
+#include "Vulkan/Render/VulkanPipeline.h"
+#include "Vulkan/Render/VulkanFunction.h"
+#include "Vulkan/Render/VulkanShader.h"
 #include "Module/AssetLoader.h"
 
 using namespace Rocket;
@@ -256,6 +256,7 @@ void VulkanPipeline::CreateGraphicsPipeline()
     list.emplace_back(shaderc_glsl_fragment_shader, "simple.frag");
     Ref<VulkanShader> shader = CreateRef<VulkanShader>("Simple Shader");
     shader->SetDevice(device);
+    shader->SetIsBinary(true);
     shader->Initialize(list);
 
     auto bindingDescription = Vertex::GetBindingDescription();
