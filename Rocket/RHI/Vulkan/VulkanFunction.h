@@ -131,6 +131,15 @@ struct SwapChainSupportDetails
     Rocket::Vec<VkPresentModeKHR> presentModes;
 };
 
+template<class T>
+struct Resource
+{
+	T resource;
+	VkDeviceMemory memory;
+	VkDeviceSize allocationSize;
+	uint32_t memoryTypeIndex;
+};
+
 struct VulkanBuffer
 {
 	VkBuffer buffer;
