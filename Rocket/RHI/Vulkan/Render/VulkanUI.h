@@ -5,7 +5,7 @@
 #include "Vulkan/Render/VulkanTexture.h"
 #include "Vulkan/Render/VulkanDevice.h"
 
-#include <Vulkan/vulkan.h>
+#include <vulkan/vulkan.h>
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_vulkan.h>

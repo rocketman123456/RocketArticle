@@ -6,7 +6,7 @@
 #include "Vulkan/Render/VulkanFunction.h"
 #include "Vulkan/Render/VulkanDevice.h"
 
-#include <Vulkan/vulkan.h>
+#include <vulkan/vulkan.h>
 
 namespace Rocket
 {

@@ -33,49 +33,12 @@ void VulkanUI::Initialize()
 
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;   // Enable Keyboard Controls
+		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;   // Enable Keyboard Controls
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;    // Enable Gamepad Controls
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;       // Enable Docking
 		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;     // Enable Multi-Viewport / Platform Windows
 		//io.ConfigViewportsNoAutoMerge = true;
 		//io.ConfigViewportsNoTaskBarIcon = true;
-
-		// We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
-		//io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
-		// We can create multi-viewports on the Renderer side (optional)
-		//io.BackendFlags |= ImGuiBackendFlags_RendererHasViewports;
-		//io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;         // We can honor GetMouseCursor() values (optional)
-		//io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;          // We can honor io.WantSetMousePos requests (optional, rarely used)
-		//io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;    // We can create multi-viewports on the Platform side (optional)
-		//io.BackendRendererName = "imgui_impl_vulkan";
-		//io.BackendPlatformName = "imgui_impl_glfw";
-
-		// Keyboard mapping. ImGui will use those indices to peek into the io.KeysDown[] array.
-		io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;
-		io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
-		io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
-		io.KeyMap[ImGuiKey_UpArrow] = GLFW_KEY_UP;
-		io.KeyMap[ImGuiKey_DownArrow] = GLFW_KEY_DOWN;
-		io.KeyMap[ImGuiKey_PageUp] = GLFW_KEY_PAGE_UP;
-		io.KeyMap[ImGuiKey_PageDown] = GLFW_KEY_PAGE_DOWN;
-		io.KeyMap[ImGuiKey_Home] = GLFW_KEY_HOME;
-		io.KeyMap[ImGuiKey_End] = GLFW_KEY_END;
-		io.KeyMap[ImGuiKey_Insert] = GLFW_KEY_INSERT;
-		io.KeyMap[ImGuiKey_Delete] = GLFW_KEY_DELETE;
-		io.KeyMap[ImGuiKey_Backspace] = GLFW_KEY_BACKSPACE;
-		io.KeyMap[ImGuiKey_Space] = GLFW_KEY_SPACE;
-		io.KeyMap[ImGuiKey_Enter] = GLFW_KEY_ENTER;
-		io.KeyMap[ImGuiKey_Escape] = GLFW_KEY_ESCAPE;
-		io.KeyMap[ImGuiKey_KeyPadEnter] = GLFW_KEY_KP_ENTER;
-		io.KeyMap[ImGuiKey_A] = GLFW_KEY_A;
-		io.KeyMap[ImGuiKey_C] = GLFW_KEY_C;
-		io.KeyMap[ImGuiKey_V] = GLFW_KEY_V;
-		io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
-		io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
-		io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
-
-		//ImGuiViewport* main_viewport = ImGui::GetMainViewport();
-		//main_viewport->RendererUserData = IM_NEW(ImGuiViewportDataVulkan)();
 
 		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
@@ -89,8 +52,8 @@ void VulkanUI::Initialize()
 			style.WindowRounding = 0.0f;
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
-		//style.FrameBorderSize = 0.0f;
-		//style.WindowBorderSize = 0.0f;
+		style.FrameBorderSize = 0.0f;
+		style.WindowBorderSize = 0.0f;
 
 		// Load Fonts
 		io.Fonts->AddFontDefault();
@@ -106,6 +69,8 @@ void VulkanUI::Initialize()
 		io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
 		VkDeviceSize imageSize = texWidth * texHeight * 4;
 		fontTexture.LoadFromBuffer(fontData, imageSize, VK_FORMAT_R8G8B8A8_UNORM, texWidth, texHeight, device, queue);
+	
+		//ImGui_ImplGlfw_InitForVulkan(windowHandle, true);
 	}
 
     // Descriptor pool
@@ -273,7 +238,9 @@ void VulkanUI::Initialize()
 
 void VulkanUI::Finalize()
 {
+	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
+
 	fontTexture.Finalize();
 	if (canDraw)
 	{
@@ -293,6 +260,14 @@ void VulkanUI::UpdataOverlay(uint32_t width, uint32_t height)
 	ImVec2 lastDisplaySize = io.DisplaySize;
 	io.DisplaySize = ImVec2((float)width, (float)height);
 
+	int w, h;
+    int display_w, display_h;
+    glfwGetWindowSize(windowHandle, &w, &h);
+    glfwGetFramebufferSize(windowHandle, &display_w, &display_h);
+	io.DisplaySize = ImVec2((float)w, (float)h);
+    //if (w > 0 && h > 0)
+    //    io.DisplayFramebufferScale = ImVec2((float)display_w / w, (float)display_h / h);
+
 	auto left = glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_LEFT);
 	auto right = glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_RIGHT);
 
@@ -303,23 +278,25 @@ void VulkanUI::UpdataOverlay(uint32_t width, uint32_t height)
 	io.MouseDown[0] = left;
 	io.MouseDown[1] = right;
 
+	//ImGui_ImplGlfw_NewFrame();
+
 	pushConstBlock.scale = Vector2f(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
 	pushConstBlock.translate = Vector2f(-1.0f, -1.0f);
 
 	ImGui::NewFrame();
 
-	ImGui::Begin("Rocket", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Begin("Rocket");
 	ImGui::Text("Hello, world!");
 	ImGui::ColorEdit3("clear color", (float*)&clearColor);
 	ImGui::End();
 
 	ImGui::Render();
 
-	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-	{
-		ImGui::UpdatePlatformWindows();
-		ImGui::RenderPlatformWindowsDefault();
-	}
+	//if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	//{
+	//	ImGui::UpdatePlatformWindows();
+	//	ImGui::RenderPlatformWindowsDefault();
+	//}
 }
 
 void VulkanUI::PrepareUI()
@@ -409,4 +386,12 @@ void VulkanUI::Draw(VkCommandBuffer cmdBuffer)
 		}
 		vertexOffset += cmd_list->VtxBuffer.Size;
 	}
+
+	// Update and Render additional Platform Windows
+	//ImGuiIO& io = ImGui::GetIO();
+	//if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	//{
+	//	ImGui::UpdatePlatformWindows();
+	//	ImGui::RenderPlatformWindowsDefault();
+	//}
 }

@@ -800,6 +800,7 @@ void VulkanGraphicsManager::BeginFrame(const Frame& frame)
         return;
 
     //RK_GRAPHICS_TRACE("Begin Frame");
+    //RK_CORE_TRACE("width : {}, height : {}", m_SwapChainExtent.width, m_SwapChainExtent.height);
     m_VulkanUI->UpdataOverlay(m_SwapChainExtent.width, m_SwapChainExtent.height);
     m_VulkanUI->PrepareUI();
 
@@ -869,6 +870,7 @@ void VulkanGraphicsManager::BeginFrame(const Frame& frame)
     if (presentResult == VK_ERROR_OUT_OF_DATE_KHR || presentResult == VK_SUBOPTIMAL_KHR || m_FramebufferResized) {
         m_FramebufferResized = false;
         RecreateSwapChain();
+        return;
     }
     else if (presentResult != VK_SUCCESS) {
         VK_CHECK(presentResult);
