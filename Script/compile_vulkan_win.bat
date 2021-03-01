@@ -1,7 +1,20 @@
-./External/Windows/bin/glslangValidator -e main -V Asset/Shaders/Vulkan/base.vert -o Asset/Shaders/Vulkan/base_vert.spv
-./External/Windows/bin/glslangValidator -e main -V Asset/Shaders/Vulkan/base.frag -o Asset/Shaders/Vulkan/base_frag.spv
-./External/Windows/bin/glslangValidator -e main -V Asset/Shaders/Vulkan/draw2d.vert -o Asset/Shaders/Vulkan/draw2d_vert.spv
-./External/Windows/bin/glslangValidator -e main -V Asset/Shaders/Vulkan/draw2d.frag -o Asset/Shaders/Vulkan/draw2d_frag.spv
-./External/Windows/bin/glslangValidator -e main -V Asset/Shaders/Vulkan/simple.vert -o Asset/Shaders/Vulkan/simple_vert.spv
-./External/Windows/bin/glslangValidator -e main -V Asset/Shaders/Vulkan/simple.frag -o Asset/Shaders/Vulkan/simple_frag.spv
+.\External\Windows\bin\glslangValidator.exe -e main -V Asset\Shaders\Vulkan\base.vert -o Asset\Shaders\Vulkan\base.vert.spv
+.\External\Windows\bin\glslangValidator.exe -e main -V Asset\Shaders\Vulkan\base.frag -o Asset\Shaders\Vulkan\base.frag.spv
+.\External\Windows\bin\glslangValidator.exe -e main -V Asset\Shaders\Vulkan\draw2d.vert -o Asset\Shaders\Vulkan\draw2d.vert.spv
+.\External\Windows\bin\glslangValidator.exe -e main -V Asset\Shaders\Vulkan\draw2d.frag -o Asset\Shaders\Vulkan\draw2d.frag.spv
+.\External\Windows\bin\glslangValidator.exe -e main -V Asset\Shaders\Vulkan\simple.vert -o Asset\Shaders\Vulkan\simple.vert.spv
+.\External\Windows\bin\glslangValidator.exe -e main -V Asset\Shaders\Vulkan\simple.frag -o Asset\Shaders\Vulkan\simple.frag.spv
+.\External\Windows\bin\glslangValidator.exe -e main -V Asset\Shaders\Vulkan\filtercube.vert -o Asset\Shaders\Vulkan\filtercube.vert.spv
+.\External\Windows\bin\glslangValidator.exe -e main -V Asset\Shaders\Vulkan\irradiancecube.frag -o Asset\Shaders\Vulkan\irradiancecube.frag.spv
+.\External\Windows\bin\glslangValidator.exe -e main -V Asset\Shaders\Vulkan\prefilterenvmap.frag -o Asset\Shaders\Vulkan\prefilterenvmap.frag.spv
+.\External\Windows\bin\glslangValidator.exe -e main -V Asset\Shaders\Vulkan\genbrdflut.vert -o Asset\Shaders\Vulkan\genbrdflut.vert.spv
+.\External\Windows\bin\glslangValidator.exe -e main -V Asset\Shaders\Vulkan\genbrdflut.frag -o Asset\Shaders\Vulkan\genbrdflut.frag.spv
+.\External\Windows\bin\glslangValidator.exe -e main -V Asset\Shaders\Vulkan\pbr.vert -o Asset\Shaders\Vulkan\pbr.vert.spv
+.\External\Windows\bin\glslangValidator.exe -e main -V Asset\Shaders\Vulkan\pbr_khr.frag -o Asset\Shaders\Vulkan\pbr_khr.frag.spv
+.\External\Windows\bin\glslangValidator.exe -e main -V Asset\Shaders\Vulkan\screen.vert -o Asset\Shaders\Vulkan\screen.vert.spv
+.\External\Windows\bin\glslangValidator.exe -e main -V Asset\Shaders\Vulkan\screen.frag -o Asset\Shaders\Vulkan\screen.frag.spv
+.\External\Windows\bin\glslangValidator.exe -e main -V Asset\Shaders\Vulkan\skybox.vert -o Asset\Shaders\Vulkan\skybox.vert.spv
+.\External\Windows\bin\glslangValidator.exe -e main -V Asset\Shaders\Vulkan\skybox.frag -o Asset\Shaders\Vulkan\skybox.frag.spv
+.\External\Windows\bin\glslangValidator.exe -e main -V Asset\Shaders\Vulkan\ui.vert -o Asset\Shaders\Vulkan\ui.vert.spv
+.\External\Windows\bin\glslangValidator.exe -e main -V Asset\Shaders\Vulkan\ui.frag -o Asset\Shaders\Vulkan\ui.frag.spv
 echo "Compile Shader Complete"

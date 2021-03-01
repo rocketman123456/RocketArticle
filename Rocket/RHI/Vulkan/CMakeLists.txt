@@ -3,13 +3,13 @@ message(STATUS "Add Module RHI Vulkan")
 add_library( RendererVulkan
     VulkanPipelineStateManager.cpp
     VulkanGraphicsManager.cpp
-    VulkanShader.cpp
-    VulkanBuffer.cpp
-    VulkanTexture.cpp
-    VulkanFunction.cpp
-    VulkanDevice.cpp
-    VulkanSwapChain.cpp
-    VulkanPipeline.cpp
-    VulkanFrameBuffer.cpp
-    VulkanUI.cpp
+    "Render/VulkanShader.cpp"
+    "Render/VulkanBuffer.cpp"
+    "Render/VulkanTexture.cpp"
+    "Render/VulkanFunction.cpp"
+    "Render/VulkanDevice.cpp"
+    "Render/VulkanSwapChain.cpp"
+    "Render/VulkanPipeline.cpp"
+    "Render/VulkanFrameBuffer.cpp"
+    "Render/VulkanUI.cpp"
 )

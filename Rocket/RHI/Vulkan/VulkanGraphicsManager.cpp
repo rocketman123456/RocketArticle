@@ -405,18 +405,6 @@ void VulkanGraphicsManager::CreateCommandBuffers()
 //----- Scene --------------------------------------------------------//
 //--------------------------------------------------------------------//
 
-void VulkanGraphicsManager::CreateTextureImage()
-{
-    m_VulkanTexture2D = CreateRef<VulkanTexture2D>();
-    m_VulkanTexture2D->LoadFromFile("Models/viking_room.png", VK_FORMAT_R8G8B8A8_SRGB, m_LogicalDevice, m_GraphicsQueue);
-
-    m_MipLevels = m_VulkanTexture2D->mipLevels;
-    m_TextureImage = m_VulkanTexture2D->image;
-    m_TextureImageMemory = m_VulkanTexture2D->deviceMemory;
-    m_TextureImageView = m_VulkanTexture2D->view;
-    m_TextureSampler = m_VulkanTexture2D->sampler;
-}
-
 void VulkanGraphicsManager::LoadModel()
 {
     tinyobj::attrib_t attrib;
@@ -505,6 +493,29 @@ void VulkanGraphicsManager::CreateIndexBuffer()
 
     vkDestroyBuffer(m_Device, stagingBuffer, nullptr);
     vkFreeMemory(m_Device, stagingBufferMemory, nullptr);
+}
+
+void VulkanGraphicsManager::CreateTextureImage()
+{
+    m_VulkanTexture2D = CreateRef<VulkanTexture2D>();
+    m_VulkanTexture2D->LoadFromFile("Models/viking_room.png", VK_FORMAT_R8G8B8A8_SRGB, m_LogicalDevice, m_GraphicsQueue);
+
+    m_MipLevels = m_VulkanTexture2D->mipLevels;
+    m_TextureImage = m_VulkanTexture2D->image;
+    m_TextureImageMemory = m_VulkanTexture2D->deviceMemory;
+    m_TextureImageView = m_VulkanTexture2D->view;
+    m_TextureSampler = m_VulkanTexture2D->sampler;
+
+    if (m_EnvironmentCube) {
+        m_EnvironmentCube->Finalize();
+        m_IrradianceCube->Finalize();
+        m_PrefilteredCube->Finalize();
+    }
+    String filename = "Textures/environments/papermill.ktx";
+    RK_GRAPHICS_INFO("Loading environment from {}", filename);
+    m_EnvironmentCube = CreateRef<TextureCubeMap>();
+    m_EnvironmentCube->LoadFromFile(filename, VK_FORMAT_R16G16B16A16_SFLOAT, m_LogicalDevice, m_GraphicsQueue);
+    GenerateCubeMaps();
 }
 
 void VulkanGraphicsManager::CreateUniformBuffers()
@@ -636,6 +647,14 @@ void VulkanGraphicsManager::EndScene()
 
         // Clear Model Data
         m_VulkanTexture2D->Finalize();
+        m_VulkanTexture2D.reset();
+
+        m_EnvironmentCube->Finalize();
+        m_IrradianceCube->Finalize();
+        m_PrefilteredCube->Finalize();
+        m_EnvironmentCube.reset();
+        m_IrradianceCube.reset();
+        m_PrefilteredCube.reset();
 
         vkDestroyBuffer(m_Device, m_IndexBuffer, nullptr);
         vkFreeMemory(m_Device, m_IndexBufferMemory, nullptr);
@@ -748,7 +767,7 @@ void VulkanGraphicsManager::RecordGuiCommandBuffer(uint32_t frameIndex)
 
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = m_RenderPass;
+    renderPassInfo.renderPass = m_GuiRenderPass;
     renderPassInfo.framebuffer = m_SwapChainFramebuffers[frameIndex];
     renderPassInfo.renderArea.offset = { 0, 0 };
     renderPassInfo.renderArea.extent = m_SwapChainExtent;
@@ -786,24 +805,28 @@ void VulkanGraphicsManager::BeginFrame(const Frame& frame)
 
     vkWaitForFences(m_Device, 1, &m_InFlightFences[m_CurrentFrameIndex], VK_TRUE, UINT64_MAX);
     //RK_GRAPHICS_TRACE("vkWaitForFences m_InFlightFences");
-    VkResult result = m_VulkanSwapChain->AcquireNextImage(m_ImageAvailableSemaphores[m_CurrentFrameIndex], &m_FrameIndex);
+    VkResult acquireResult = m_VulkanSwapChain->AcquireNextImage(m_ImageAvailableSemaphores[m_CurrentFrameIndex], &m_FrameIndex);
     //RK_GRAPHICS_TRACE("vkAcquireNextImageKHR");
-    
-    if ((result == VK_ERROR_OUT_OF_DATE_KHR) || (result == VK_SUBOPTIMAL_KHR))
-    {
-        RecreateSwapChain();
-    }
-    else
-    {
-        VK_CHECK(result);
-    }
 
-    //if (m_ImagesInFlight[m_FrameIndex] != VK_NULL_HANDLE)
-    //{
-    //    vkWaitForFences(m_Device, 1, &m_ImagesInFlight[m_FrameIndex], VK_TRUE, UINT64_MAX);
-    //    //RK_GRAPHICS_TRACE("vkWaitForFences m_ImagesInFlight");
-    //}
-    //m_ImagesInFlight[m_FrameIndex] = m_InFlightFences[m_CurrentFrameIndex];
+    if (acquireResult == VK_ERROR_OUT_OF_DATE_KHR) {
+        RecreateSwapChain();
+        return;
+    }
+    else if (acquireResult != VK_SUCCESS && acquireResult != VK_SUBOPTIMAL_KHR) {
+        VK_CHECK(acquireResult);
+    }
+    
+    //if ((acquireResult == VK_ERROR_OUT_OF_DATE_KHR) || (acquireResult == VK_SUBOPTIMAL_KHR))
+    //    RecreateSwapChain();
+    //else
+    //    VK_CHECK(acquireResult);
+
+    if (m_ImagesInFlight[m_FrameIndex] != VK_NULL_HANDLE)
+    {
+        vkWaitForFences(m_Device, 1, &m_ImagesInFlight[m_FrameIndex], VK_TRUE, UINT64_MAX);
+        //RK_GRAPHICS_TRACE("vkWaitForFences m_ImagesInFlight");
+    }
+    m_ImagesInFlight[m_FrameIndex] = m_InFlightFences[m_CurrentFrameIndex];
 
     UpdateUniformBuffer(m_FrameIndex);
     //RK_GRAPHICS_TRACE("UpdateUniformBuffer");
@@ -831,12 +854,6 @@ void VulkanGraphicsManager::BeginFrame(const Frame& frame)
     vkResetFences(m_Device, 1, &m_InFlightFences[m_CurrentFrameIndex]);
     VK_CHECK(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFences[m_CurrentFrameIndex]));
     //RK_GRAPHICS_TRACE("vkQueueSubmit");
-}
-
-void VulkanGraphicsManager::EndFrame(const Frame& frame)
-{
-    if (!m_IsScenePrepared)
-        return;
 
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -846,26 +863,40 @@ void VulkanGraphicsManager::EndFrame(const Frame& frame)
     presentInfo.pSwapchains = &m_SwapChain;
     presentInfo.pImageIndices = &m_FrameIndex;
 
-    VkResult result = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
+    VkResult presentResult = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
     //RK_GRAPHICS_TRACE("vkQueuePresentKHR");
 
-    if (!((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR)))
-    {
-        if (result == VK_ERROR_OUT_OF_DATE_KHR)
-        {
-            //m_FramebufferResized = false;
-            RecreateSwapChain();
-            //RK_GRAPHICS_TRACE("Restart Frame");
-            return;
-        }
-        else
-        {
-            VK_CHECK(result);
-        }
+    if (presentResult == VK_ERROR_OUT_OF_DATE_KHR || presentResult == VK_SUBOPTIMAL_KHR || m_FramebufferResized) {
+        m_FramebufferResized = false;
+        RecreateSwapChain();
     }
+    else if (presentResult != VK_SUCCESS) {
+        VK_CHECK(presentResult);
+    }
+
+    //if (!((presentResult == VK_SUCCESS) || (presentResult == VK_SUBOPTIMAL_KHR)))
+    //{
+    //    if (presentResult == VK_ERROR_OUT_OF_DATE_KHR)
+    //    {
+    //        //m_FramebufferResized = false;
+    //        RecreateSwapChain();
+    //        //RK_GRAPHICS_TRACE("Restart Frame");
+    //        return;
+    //    }
+    //    else
+    //    {
+    //        VK_CHECK(presentResult);
+    //    }
+    //}
 
     m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_MaxFrameInFlight;
     //RK_GRAPHICS_TRACE("End Frame");
+}
+
+void VulkanGraphicsManager::EndFrame(const Frame& frame)
+{
+    if (!m_IsScenePrepared)
+        return;
 }
 
 void VulkanGraphicsManager::BeginFrameBuffer(const Frame& frame)
@@ -897,13 +928,13 @@ void VulkanGraphicsManager::Present()
     
 }
 
-void VulkanGraphicsManager::GenerateSkyBox()
+void VulkanGraphicsManager::GenerateCubeMaps()
 {
     enum Target { IRRADIANCE = 0, PREFILTEREDENV = 1 };
 
     for (uint32_t target = 0; target < PREFILTEREDENV + 1; target++)
     {
-        //TextureCubeMap cubemap;
+        TextureCubeMap cubemap;
 
         auto tStart = std::chrono::high_resolution_clock::now();
 
@@ -939,15 +970,15 @@ void VulkanGraphicsManager::GenerateSkyBox()
             imageCI.tiling = VK_IMAGE_TILING_OPTIMAL;
             imageCI.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
             imageCI.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
-            //VK_CHECK(vkCreateImage(m_Device, &imageCI, nullptr, &cubemap.image));
+            VK_CHECK(vkCreateImage(m_Device, &imageCI, nullptr, &cubemap.image));
             VkMemoryRequirements memReqs;
-            //vkGetImageMemoryRequirements(m_Device, cubemap.image, &memReqs);
+            vkGetImageMemoryRequirements(m_Device, cubemap.image, &memReqs);
             VkMemoryAllocateInfo memAllocInfo{};
             memAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
             memAllocInfo.allocationSize = memReqs.size;
-            //memAllocInfo.memoryTypeIndex = m_LogicalDevice->GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-            //VK_CHECK(vkAllocateMemory(m_Device, &memAllocInfo, nullptr, &cubemap.deviceMemory));
-            //VK_CHECK(vkBindImageMemory(m_Device, cubemap.image, cubemap.deviceMemory, 0));
+            memAllocInfo.memoryTypeIndex = m_LogicalDevice->GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+            VK_CHECK(vkAllocateMemory(m_Device, &memAllocInfo, nullptr, &cubemap.deviceMemory));
+            VK_CHECK(vkBindImageMemory(m_Device, cubemap.image, cubemap.deviceMemory, 0));
 
             // View
             VkImageViewCreateInfo viewCI{};
@@ -958,8 +989,8 @@ void VulkanGraphicsManager::GenerateSkyBox()
             viewCI.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
             viewCI.subresourceRange.levelCount = numMips;
             viewCI.subresourceRange.layerCount = 6;
-            //viewCI.image = cubemap.image;
-            //VK_CHECK(vkCreateImageView(m_Device, &viewCI, nullptr, &cubemap.view));
+            viewCI.image = cubemap.image;
+            VK_CHECK(vkCreateImageView(m_Device, &viewCI, nullptr, &cubemap.view));
 
             // Sampler
             VkSamplerCreateInfo samplerCI{};
@@ -974,7 +1005,7 @@ void VulkanGraphicsManager::GenerateSkyBox()
             samplerCI.maxLod = static_cast<float>(numMips);
             samplerCI.maxAnisotropy = 1.0f;
             samplerCI.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
-            //VK_CHECK(vkCreateSampler(m_Device, &samplerCI, nullptr, &cubemap.sampler));
+            VK_CHECK(vkCreateSampler(m_Device, &samplerCI, nullptr, &cubemap.sampler));
         }
 
         // FB, Att, RP, Pipe, etc.
@@ -1022,7 +1053,7 @@ void VulkanGraphicsManager::GenerateSkyBox()
         renderPassCI.dependencyCount = 2;
         renderPassCI.pDependencies = dependencies.data();
         VkRenderPass renderpass;
-        //VK_CHECK(vkCreateRenderPass(m_Device, &renderPassCI, nullptr, &renderpass));
+        VK_CHECK(vkCreateRenderPass(m_Device, &renderPassCI, nullptr, &renderpass));
 
         struct Offscreen {
             VkImage image;
@@ -1048,15 +1079,15 @@ void VulkanGraphicsManager::GenerateSkyBox()
             imageCI.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
             imageCI.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
             imageCI.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-            //VK_CHECK(vkCreateImage(m_Device, &imageCI, nullptr, &offscreen.image));
+            VK_CHECK(vkCreateImage(m_Device, &imageCI, nullptr, &offscreen.image));
             VkMemoryRequirements memReqs;
-            //vkGetImageMemoryRequirements(m_Device, offscreen.image, &memReqs);
+            vkGetImageMemoryRequirements(m_Device, offscreen.image, &memReqs);
             VkMemoryAllocateInfo memAllocInfo{};
             memAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
             memAllocInfo.allocationSize = memReqs.size;
-            //memAllocInfo.memoryTypeIndex = m_LogicalDevice->GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-            //VK_CHECK(vkAllocateMemory(m_Device, &memAllocInfo, nullptr, &offscreen.memory));
-            //VK_CHECK(vkBindImageMemory(m_Device, offscreen.image, offscreen.memory, 0));
+            memAllocInfo.memoryTypeIndex = m_LogicalDevice->GetMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+            VK_CHECK(vkAllocateMemory(m_Device, &memAllocInfo, nullptr, &offscreen.memory));
+            VK_CHECK(vkBindImageMemory(m_Device, offscreen.image, offscreen.memory, 0));
 
             // View
             VkImageViewCreateInfo viewCI{};
@@ -1071,7 +1102,7 @@ void VulkanGraphicsManager::GenerateSkyBox()
             viewCI.subresourceRange.baseArrayLayer = 0;
             viewCI.subresourceRange.layerCount = 1;
             viewCI.image = offscreen.image;
-            //VK_CHECK(vkCreateImageView(m_Device, &viewCI, nullptr, &offscreen.view));
+            VK_CHECK(vkCreateImageView(m_Device, &viewCI, nullptr, &offscreen.view));
 
             // Framebuffer
             VkFramebufferCreateInfo framebufferCI{};
@@ -1082,9 +1113,9 @@ void VulkanGraphicsManager::GenerateSkyBox()
             framebufferCI.width = dim;
             framebufferCI.height = dim;
             framebufferCI.layers = 1;
-            //VK_CHECK(vkCreateFramebuffer(m_Device, &framebufferCI, nullptr, &offscreen.framebuffer));
+            VK_CHECK(vkCreateFramebuffer(m_Device, &framebufferCI, nullptr, &offscreen.framebuffer));
 
-            //VkCommandBuffer layoutCmd = m_LogicalDevice->CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
+            VkCommandBuffer layoutCmd = m_LogicalDevice->CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
             VkImageMemoryBarrier imageMemoryBarrier{};
             imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
             imageMemoryBarrier.image = offscreen.image;
@@ -1093,8 +1124,8 @@ void VulkanGraphicsManager::GenerateSkyBox()
             imageMemoryBarrier.srcAccessMask = 0;
             imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
             imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-            //vkCmdPipelineBarrier(layoutCmd, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
-            //m_LogicalDevice->FlushCommandBuffer(layoutCmd, queue, true);
+            vkCmdPipelineBarrier(layoutCmd, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+            m_LogicalDevice->FlushCommandBuffer(layoutCmd, m_GraphicsQueue, true);
         }
 
         // Descriptors
@@ -1104,7 +1135,7 @@ void VulkanGraphicsManager::GenerateSkyBox()
         descriptorSetLayoutCI.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
         descriptorSetLayoutCI.pBindings = &setLayoutBinding;
         descriptorSetLayoutCI.bindingCount = 1;
-        //VK_CHECK(vkCreateDescriptorSetLayout(m_Device, &descriptorSetLayoutCI, nullptr, &descriptorsetlayout));
+        VK_CHECK(vkCreateDescriptorSetLayout(m_Device, &descriptorSetLayoutCI, nullptr, &descriptorsetlayout));
 
         // Descriptor Pool
         VkDescriptorPoolSize poolSize = { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1 };
@@ -1114,7 +1145,7 @@ void VulkanGraphicsManager::GenerateSkyBox()
         descriptorPoolCI.pPoolSizes = &poolSize;
         descriptorPoolCI.maxSets = 2;
         VkDescriptorPool descriptorpool;
-        //VK_CHECK(vkCreateDescriptorPool(m_Device, &descriptorPoolCI, nullptr, &descriptorpool));
+        VK_CHECK(vkCreateDescriptorPool(m_Device, &descriptorPoolCI, nullptr, &descriptorpool));
 
         // Descriptor sets
         VkDescriptorSet descriptorset;
@@ -1123,15 +1154,15 @@ void VulkanGraphicsManager::GenerateSkyBox()
         descriptorSetAllocInfo.descriptorPool = descriptorpool;
         descriptorSetAllocInfo.pSetLayouts = &descriptorsetlayout;
         descriptorSetAllocInfo.descriptorSetCount = 1;
-        //VK_CHECK(vkAllocateDescriptorSets(m_Device, &descriptorSetAllocInfo, &descriptorset));
+        VK_CHECK(vkAllocateDescriptorSets(m_Device, &descriptorSetAllocInfo, &descriptorset));
         VkWriteDescriptorSet writeDescriptorSet{};
         writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
         writeDescriptorSet.descriptorCount = 1;
         writeDescriptorSet.dstSet = descriptorset;
         writeDescriptorSet.dstBinding = 0;
-        //writeDescriptorSet.pImageInfo = &textures.environmentCube.descriptor;
-        //vkUpdateDescriptorSets(m_Device, 1, &writeDescriptorSet, 0, nullptr);
+        writeDescriptorSet.pImageInfo = &m_EnvironmentCube->descriptor;
+        vkUpdateDescriptorSets(m_Device, 1, &writeDescriptorSet, 0, nullptr);
 
         struct PushBlockIrradiance {
             glm::mat4 mvp;
@@ -1165,7 +1196,7 @@ void VulkanGraphicsManager::GenerateSkyBox()
         pipelineLayoutCI.pSetLayouts = &descriptorsetlayout;
         pipelineLayoutCI.pushConstantRangeCount = 1;
         pipelineLayoutCI.pPushConstantRanges = &pushConstantRange;
-        //VK_CHECK(vkCreatePipelineLayout(m_Device, &pipelineLayoutCI, nullptr, &pipelinelayout));
+        VK_CHECK(vkCreatePipelineLayout(m_Device, &pipelineLayoutCI, nullptr, &pipelinelayout));
 
         // Pipeline
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCI{};
@@ -1212,7 +1243,7 @@ void VulkanGraphicsManager::GenerateSkyBox()
         dynamicStateCI.dynamicStateCount = static_cast<uint32_t>(dynamicStateEnables.size());
 
         // Vertex input state
-        VkVertexInputBindingDescription vertexInputBinding;// = { 0, sizeof(vkglTF::Model::Vertex), VK_VERTEX_INPUT_RATE_VERTEX };
+        VkVertexInputBindingDescription vertexInputBinding = { 0, sizeof(MeshVertex), VK_VERTEX_INPUT_RATE_VERTEX };
         VkVertexInputAttributeDescription vertexInputAttribute = { 0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0 };
 
         VkPipelineVertexInputStateCreateInfo vertexInputStateCI{};
@@ -1234,6 +1265,7 @@ void VulkanGraphicsManager::GenerateSkyBox()
             break;
         };
         shader->SetDevice(m_Device);
+        shader->SetIsBinary(true);
         shader->Initialize(list);
 
         VkGraphicsPipelineCreateInfo pipelineCI{};
@@ -1254,7 +1286,7 @@ void VulkanGraphicsManager::GenerateSkyBox()
         pipelineCI.pStages = shader->GetShaderInfo().data();
 
         VkPipeline pipeline;
-        //VK_CHECK(vkCreateGraphicsPipelines(m_Device, m_PipelineCache, 1, &pipelineCI, nullptr, &pipeline));
+        VK_CHECK(vkCreateGraphicsPipelines(m_Device, m_PipelineCache, 1, &pipelineCI, nullptr, &pipeline));
 
         shader->Finalize();
 
@@ -1280,7 +1312,7 @@ void VulkanGraphicsManager::GenerateSkyBox()
             glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
         };
 
-        VkCommandBuffer cmdBuf;// = m_LogicalDevice->CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, false);
+        VkCommandBuffer cmdBuf = m_LogicalDevice->CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, false);
 
         VkViewport viewport{};
         viewport.width = (float)dim;
@@ -1300,54 +1332,64 @@ void VulkanGraphicsManager::GenerateSkyBox()
 
         // Change image layout for all cubemap faces to transfer destination
         {
-            //m_LogicalDevice->BeginCommandBuffer(cmdBuf);
+            m_LogicalDevice->BeginCommandBuffer(cmdBuf);
             VkImageMemoryBarrier imageMemoryBarrier{};
             imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            //imageMemoryBarrier.image = cubemap.image;
+            imageMemoryBarrier.image = cubemap.image;
             imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
             imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
             imageMemoryBarrier.srcAccessMask = 0;
             imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
             imageMemoryBarrier.subresourceRange = subresourceRange;
-            //vkCmdPipelineBarrier(cmdBuf, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
-            //m_LogicalDevice->FlushCommandBuffer(cmdBuf, queue, false);
+            vkCmdPipelineBarrier(cmdBuf, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+            m_LogicalDevice->FlushCommandBuffer(cmdBuf, m_GraphicsQueue, false);
         }
 
         for (uint32_t m = 0; m < numMips; m++)
         {
             for (uint32_t f = 0; f < 6; f++)
             {
-                //m_LogicalDevice->BeginCommandBuffer(cmdBuf);
+                m_LogicalDevice->BeginCommandBuffer(cmdBuf);
 
                 viewport.width = static_cast<float>(dim * std::pow(0.5f, m));
                 viewport.height = static_cast<float>(dim * std::pow(0.5f, m));
-                //vkCmdSetViewport(cmdBuf, 0, 1, &viewport);
-                //vkCmdSetScissor(cmdBuf, 0, 1, &scissor);
+                vkCmdSetViewport(cmdBuf, 0, 1, &viewport);
+                vkCmdSetScissor(cmdBuf, 0, 1, &scissor);
 
                 // Render scene from cube face's point of view
-                //vkCmdBeginRenderPass(cmdBuf, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+                vkCmdBeginRenderPass(cmdBuf, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
                 // Pass parameters for current pass using a push constant block
-                //switch (target) {
-                //case IRRADIANCE:
-                //    pushBlockIrradiance.mvp = glm::perspective((float)(M_PI / 2.0), 1.0f, 0.1f, 512.0f) * matrices[f];
-                //    vkCmdPushConstants(cmdBuf, pipelinelayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushBlockIrradiance), &pushBlockIrradiance);
-                //    break;
-                //case PREFILTEREDENV:
-                //    pushBlockPrefilterEnv.mvp = glm::perspective((float)(M_PI / 2.0), 1.0f, 0.1f, 512.0f) * matrices[f];
-                //    pushBlockPrefilterEnv.roughness = (float)m / (float)(numMips - 1);
-                //    vkCmdPushConstants(cmdBuf, pipelinelayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushBlockPrefilterEnv), &pushBlockPrefilterEnv);
-                //    break;
-                //};
+                switch (target) {
+                case IRRADIANCE:
+                    pushBlockIrradiance.mvp = glm::perspective((float)(M_PI / 2.0), 1.0f, 0.1f, 512.0f) * matrices[f];
+                    vkCmdPushConstants(cmdBuf, pipelinelayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushBlockIrradiance), &pushBlockIrradiance);
+                    break;
+                case PREFILTEREDENV:
+                    pushBlockPrefilterEnv.mvp = glm::perspective((float)(M_PI / 2.0), 1.0f, 0.1f, 512.0f) * matrices[f];
+                    pushBlockPrefilterEnv.roughness = (float)m / (float)(numMips - 1);
+                    vkCmdPushConstants(cmdBuf, pipelinelayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushBlockPrefilterEnv), &pushBlockPrefilterEnv);
+                    break;
+                };
 
-                //vkCmdBindPipeline(cmdBuf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-                //vkCmdBindDescriptorSets(cmdBuf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinelayout, 0, 1, &descriptorset, 0, NULL);
+                vkCmdBindPipeline(cmdBuf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+                vkCmdBindDescriptorSets(cmdBuf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelinelayout, 0, 1, &descriptorset, 0, NULL);
 
                 VkDeviceSize offsets[1] = { 0 };
 
-                //models.skybox.draw(cmdBuf);
+                // TODO : Finish Draw Skybox Function
+                // Draw Skybox
+                {
+                    //models.skybox.draw(cmdBuf);
+                    //const VkDeviceSize offsets[1] = { 0 };
+                    //vkCmdBindVertexBuffers(cmdBuf, 0, 1, &vertices.buffer, offsets);
+                    //vkCmdBindIndexBuffer(cmdBuf, indices.buffer, 0, VK_INDEX_TYPE_UINT32);
+                    //for (auto& node : nodes) {
+                    //    drawNode(node, cmdBuf);
+                    //}
+                }
 
-                //vkCmdEndRenderPass(cmdBuf);
+                vkCmdEndRenderPass(cmdBuf);
 
                 VkImageSubresourceRange subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
                 subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -1364,7 +1406,7 @@ void VulkanGraphicsManager::GenerateSkyBox()
                     imageMemoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
                     imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
                     imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-                    //vkCmdPipelineBarrier(cmdBuf, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+                    vkCmdPipelineBarrier(cmdBuf, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
                 }
 
                 // Copy region for transfer from framebuffer to cube face
@@ -1386,14 +1428,14 @@ void VulkanGraphicsManager::GenerateSkyBox()
                 copyRegion.extent.height = static_cast<uint32_t>(viewport.height);
                 copyRegion.extent.depth = 1;
 
-                //vkCmdCopyImage(
-                //    cmdBuf,
-                //    offscreen.image,
-                //    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                //    cubemap.image,
-                //    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                //    1,
-                //    &copyRegion);
+                vkCmdCopyImage(
+                    cmdBuf,
+                    offscreen.image,
+                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                    cubemap.image,
+                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                    1,
+                    &copyRegion);
 
                 {
                     VkImageMemoryBarrier imageMemoryBarrier{};
@@ -1404,51 +1446,60 @@ void VulkanGraphicsManager::GenerateSkyBox()
                     imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
                     imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
                     imageMemoryBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-                    //vkCmdPipelineBarrier(cmdBuf, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+                    vkCmdPipelineBarrier(cmdBuf, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
                 }
 
-                //m_LogicalDevice->FlushCommandBuffer(cmdBuf, queue, false);
+                m_LogicalDevice->FlushCommandBuffer(cmdBuf, m_GraphicsQueue, false);
             }
         }
 
         {
-            //m_LogicalDevice->BeginCommandBuffer(cmdBuf);
+            m_LogicalDevice->BeginCommandBuffer(cmdBuf);
             VkImageMemoryBarrier imageMemoryBarrier{};
             imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-            //imageMemoryBarrier.image = cubemap.image;
+            imageMemoryBarrier.image = cubemap.image;
             imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
             imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
             imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
             imageMemoryBarrier.dstAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
             imageMemoryBarrier.subresourceRange = subresourceRange;
-            //vkCmdPipelineBarrier(cmdBuf, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
-            //m_LogicalDevice->FlushCommandBuffer(cmdBuf, queue, false);
+            vkCmdPipelineBarrier(cmdBuf, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+            m_LogicalDevice->FlushCommandBuffer(cmdBuf, m_GraphicsQueue, false);
         }
 
-        //vkDestroyRenderPass(m_Device, renderpass, nullptr);
-        //vkDestroyFramebuffer(m_Device, offscreen.framebuffer, nullptr);
-        //vkFreeMemory(m_Device, offscreen.memory, nullptr);
-        //vkDestroyImageView(m_Device, offscreen.view, nullptr);
-        //vkDestroyImage(m_Device, offscreen.image, nullptr);
-        //vkDestroyDescriptorPool(m_Device, descriptorpool, nullptr);
-        //vkDestroyDescriptorSetLayout(m_Device, descriptorsetlayout, nullptr);
-        //vkDestroyPipeline(m_Device, pipeline, nullptr);
-        //vkDestroyPipelineLayout(m_Device, pipelinelayout, nullptr);
+        vkDestroyRenderPass(m_Device, renderpass, nullptr);
+        vkDestroyFramebuffer(m_Device, offscreen.framebuffer, nullptr);
+        vkFreeMemory(m_Device, offscreen.memory, nullptr);
+        vkDestroyImageView(m_Device, offscreen.view, nullptr);
+        vkDestroyImage(m_Device, offscreen.image, nullptr);
+        vkDestroyDescriptorPool(m_Device, descriptorpool, nullptr);
+        vkDestroyDescriptorSetLayout(m_Device, descriptorsetlayout, nullptr);
+        vkDestroyPipeline(m_Device, pipeline, nullptr);
+        vkDestroyPipelineLayout(m_Device, pipelinelayout, nullptr);
 
-        //cubemap.descriptor.imageView = cubemap.view;
-        //cubemap.descriptor.sampler = cubemap.sampler;
-        //cubemap.descriptor.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        //cubemap.device = m_LogicalDevice;
+        cubemap.descriptor.imageView = cubemap.view;
+        cubemap.descriptor.sampler = cubemap.sampler;
+        cubemap.descriptor.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        cubemap.device = m_LogicalDevice;
 
-        //switch (target) {
-        //case IRRADIANCE:
-        //    textures.irradianceCube = cubemap;
-        //    break;
-        //case PREFILTEREDENV:
-        //    textures.prefilteredCube = cubemap;
-        //    shaderValuesParams.prefilteredCubeMipLevels = static_cast<float>(numMips);
-        //    break;
-        //};
+        if (!m_IrradianceCube)
+        {
+            m_IrradianceCube = CreateRef<TextureCubeMap>();
+        }
+        if (!m_PrefilteredCube)
+        {
+            m_PrefilteredCube = CreateRef<TextureCubeMap>();
+        }
+
+        switch (target) {
+        case IRRADIANCE:
+            *m_IrradianceCube = cubemap;
+            break;
+        case PREFILTEREDENV:
+            *m_PrefilteredCube = cubemap;
+            //shaderValuesParams.prefilteredCubeMipLevels = static_cast<float>(numMips);
+            break;
+        };
 
         auto tEnd = std::chrono::high_resolution_clock::now();
         auto tDiff = std::chrono::duration<double, std::milli>(tEnd - tStart).count();
@@ -1456,8 +1507,10 @@ void VulkanGraphicsManager::GenerateSkyBox()
     }
 }
 
-void VulkanGraphicsManager::GenerateBRDFLUT(int32_t dim)
+void VulkanGraphicsManager::GenerateBRDFLUT()
 {
+    int32_t dim = 512;
+
     auto tStart = std::chrono::high_resolution_clock::now();
 
     const VkFormat format = VK_FORMAT_R16G16_SFLOAT;
@@ -1643,6 +1696,7 @@ void VulkanGraphicsManager::GenerateBRDFLUT(int32_t dim)
     list.emplace_back(shaderc_glsl_fragment_shader, "genbrdflut.frag");
     Ref<VulkanShader> shader = CreateRef<VulkanShader>("BRDF Shader");
     shader->SetDevice(m_Device);
+    shader->SetIsBinary(true);
     shader->Initialize(list);
 
     VkGraphicsPipelineCreateInfo pipelineCI{};

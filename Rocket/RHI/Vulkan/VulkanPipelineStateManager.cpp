@@ -1,6 +1,6 @@
 #include "Vulkan/VulkanPipelineStateManager.h"
 #include "Vulkan/VulkanGraphicsManager.h"
-#include "Vulkan/VulkanShader.h"
+#include "Vulkan/Render/VulkanShader.h"
 #include "Module/WindowManager.h"
 
 #include <memory>
@@ -276,6 +276,7 @@ bool VulkanPipelineStateManager::InitializePipelineState(PipelineState** ppPipel
     String name = pnew_state->pipelineStateName + " Shader";
     auto shaderProgram = CreateRef<VulkanShader>(name);
     shaderProgram->SetDevice(pnew_state->m_DeviceHandle);
+    shaderProgram->SetIsBinary(true);
     bool result = shaderProgram->Initialize(list);
     pnew_state->shaderProgram = shaderProgram;
 

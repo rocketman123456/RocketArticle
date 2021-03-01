@@ -3,7 +3,7 @@
 #if defined(RK_OPENGL)
 #include "OpenGL/OpenGLTexture.h"
 #elif defined(RK_VULKAN)
-#include "Vulkan/VulkanTexture.h"
+#include "Vulkan/Render/VulkanTexture.h"
 #elif defined(RK_METAL)
 #include "Metal/MetalTexture.h"
 #endif

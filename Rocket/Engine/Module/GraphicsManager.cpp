@@ -11,7 +11,7 @@ int GraphicsManager::Initialize()
 {
     // Add Init Pass
     m_InitPasses.push_back(CreateRef<BRDFGenerate>());
-    m_InitPasses.push_back(CreateRef<SkyBoxGenerate>());
+    //m_InitPasses.push_back(CreateRef<SkyBoxGenerate>());
 
     // Get Max Frame In Flight
     auto& config = g_Application->GetConfig();
@@ -164,7 +164,7 @@ void GraphicsManager::EndScene()
     //    m_uboShadowMatricesConstant[i] = nullptr;
     //}
 
-    //m_CurrentScene = nullptr;
+    m_CurrentScene = nullptr;
     //m_CurrentShader = nullptr;
     //m_CurrentFrameBuffer = nullptr;
 }

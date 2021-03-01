@@ -10,9 +10,10 @@ int main(int argc, char **argv)
     Log::Init();
     RK_CORE_WARN("Initialize Log");
 
+    RK_PROFILE_BEGIN_SESSION("ReadComfig", "RocketProfile-Startup.json");
     Ref<CommandParser> Parser = Ref<CommandParser>(new CommandParser(argc, argv));
     RK_CORE_INFO("CommandParser : {0}", Parser->ToString());
-
+    
     String command;
     if(argc > 1)
         command = Parser->GetCommand(1);
@@ -20,6 +21,7 @@ int main(int argc, char **argv)
         command = ProjectSourceDir;
 
     Ref<ConfigLoader> Loader  = Ref<ConfigLoader>(new ConfigLoader(command));
+    
     int ret = Loader->Initialize();
     if(ret != 0)
     {
@@ -27,7 +29,9 @@ int main(int argc, char **argv)
         return 1;
     }
     RK_CORE_INFO("ConfigLoader : {0}", Loader->ToString());
-
+    RK_PROFILE_END_SESSION();
+    
+    RK_PROFILE_BEGIN_SESSION("Initialize", "RocketProfile-Initialize.json");
     auto app = CreateApplication();
     app->LoadConfig(Loader);
 
@@ -46,6 +50,7 @@ int main(int argc, char **argv)
 	    return 1;
     }
     app->PostInitialize();
+    RK_PROFILE_END_SESSION();
 
     float CountTime = 0.0f;
     int32_t CountFrame = 0;
@@ -53,6 +58,7 @@ int main(int argc, char **argv)
     ElapseTimer Timer;
     Timer.Start();
 
+    RK_PROFILE_BEGIN_SESSION("RunLoop", "RocketProfile-RunLoop.json");
     while (app->IsRunning())
     {
         PROFILE_SCOPE_CPU(MainLoop, 0);
@@ -73,10 +79,13 @@ int main(int argc, char **argv)
 	    app->Tick(Duration);
 	    PROFILE_END_CPU_SAMPLE();
     }
+    RK_PROFILE_END_SESSION();
     
+    RK_PROFILE_BEGIN_SESSION("Finalize", "RocketProfile-Finalize.json");
     app->Finalize();
     app->FinalizeModule();
     delete app;
+    RK_PROFILE_END_SESSION();
 
     PROFILE_EXIT();
     return 0;

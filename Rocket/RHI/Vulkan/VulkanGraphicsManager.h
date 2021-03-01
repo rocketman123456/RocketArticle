@@ -1,14 +1,16 @@
 #pragma once
 #include "Module/GraphicsManager.h"
-#include "Vulkan/VulkanFunction.h"
-#include "Vulkan/VulkanDevice.h"
-#include "Vulkan/VulkanSwapChain.h"
-#include "Vulkan/VulkanPipeline.h"
-#include "Vulkan/VulkanFrameBuffer.h"
-#include "Vulkan/VulkanShader.h"
-#include "Vulkan/VulkanTexture.h"
-#include "Vulkan/VulkanUI.h"
+#include "Vulkan/Render/VulkanFunction.h"
+#include "Vulkan/Render/VulkanDevice.h"
+#include "Vulkan/Render/VulkanSwapChain.h"
+#include "Vulkan/Render/VulkanPipeline.h"
+#include "Vulkan/Render/VulkanFrameBuffer.h"
+#include "Vulkan/Render/VulkanShader.h"
+#include "Vulkan/Render/VulkanTexture.h"
+#include "Vulkan/Render/VulkanUI.h"
 #include "Common/Buffer.h"
+// TODO : finish scene structure
+#include "Scene/Component/Model.h"
 
 #include <vulkan/vulkan.h>
 
@@ -36,8 +38,8 @@ namespace Rocket
         void BeginCompute() final {}
         void EndCompute() final {}
 
-        void GenerateSkyBox() final;
-        void GenerateBRDFLUT(int32_t dim) final;
+        void GenerateCubeMaps() final;
+        void GenerateBRDFLUT() final;
 
         void BeginFrame(const Frame& frame) final;
         void EndFrame(const Frame& frame) final;
@@ -123,6 +125,9 @@ namespace Rocket
         Ref<VulkanPipeline> m_VulkanPipeline = nullptr;
         Ref<VulkanFrameBuffer> m_VulkanFrameBuffer = nullptr;
         Ref<VulkanTexture2D> m_VulkanTexture2D = nullptr;
+        Ref<TextureCubeMap> m_EnvironmentCube = nullptr;
+        Ref<TextureCubeMap> m_IrradianceCube = nullptr;
+        Ref<TextureCubeMap> m_PrefilteredCube = nullptr;
 
         VkInstance m_Instance;
         VkDebugUtilsMessengerEXT m_DebugMessenger;
