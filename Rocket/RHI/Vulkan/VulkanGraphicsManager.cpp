@@ -798,6 +798,9 @@ void VulkanGraphicsManager::BeginFrame(const Frame& frame)
 {
     if (!m_IsScenePrepared)
         return;
+    
+    // Reset RecreateSwapChain
+    m_IsRecreateSwapChain = false;
 
     //RK_GRAPHICS_TRACE("Begin Frame");
     //RK_CORE_TRACE("width : {}, height : {}", m_SwapChainExtent.width, m_SwapChainExtent.height);
@@ -805,37 +808,35 @@ void VulkanGraphicsManager::BeginFrame(const Frame& frame)
     m_VulkanUI->PrepareUI();
 
     vkWaitForFences(m_Device, 1, &m_InFlightFences[m_CurrentFrameIndex], VK_TRUE, UINT64_MAX);
-    //RK_GRAPHICS_TRACE("vkWaitForFences m_InFlightFences");
     VkResult acquireResult = m_VulkanSwapChain->AcquireNextImage(m_ImageAvailableSemaphores[m_CurrentFrameIndex], &m_FrameIndex);
-    //RK_GRAPHICS_TRACE("vkAcquireNextImageKHR");
-
+    
     if (acquireResult == VK_ERROR_OUT_OF_DATE_KHR) {
+        m_IsRecreateSwapChain = true;
         RecreateSwapChain();
         return;
     }
     else if (acquireResult != VK_SUCCESS && acquireResult != VK_SUBOPTIMAL_KHR) {
         VK_CHECK(acquireResult);
     }
-    
-    //if ((acquireResult == VK_ERROR_OUT_OF_DATE_KHR) || (acquireResult == VK_SUBOPTIMAL_KHR))
-    //    RecreateSwapChain();
-    //else
-    //    VK_CHECK(acquireResult);
 
-    if (m_ImagesInFlight[m_FrameIndex] != VK_NULL_HANDLE)
-    {
+    if (m_ImagesInFlight[m_FrameIndex] != VK_NULL_HANDLE) {
         vkWaitForFences(m_Device, 1, &m_ImagesInFlight[m_FrameIndex], VK_TRUE, UINT64_MAX);
-        //RK_GRAPHICS_TRACE("vkWaitForFences m_ImagesInFlight");
     }
     m_ImagesInFlight[m_FrameIndex] = m_InFlightFences[m_CurrentFrameIndex];
 
     UpdateUniformBuffer(m_FrameIndex);
-    //RK_GRAPHICS_TRACE("UpdateUniformBuffer");
-
+    
     RecordCommandBuffer(m_FrameIndex);
     RecordGuiCommandBuffer(m_FrameIndex);
-    //RK_GRAPHICS_TRACE("RecordCommandBuffers");
+}
 
+void VulkanGraphicsManager::EndFrame(const Frame& frame)
+{
+    if (!m_IsScenePrepared)
+        return;
+    if(m_IsRecreateSwapChain)
+        return;
+    
     Vec<VkCommandBuffer> commandBuffers = {
         m_CommandBuffers[m_FrameIndex],
         //m_GuiCommandBuffer[imageIndex], 
@@ -854,7 +855,6 @@ void VulkanGraphicsManager::BeginFrame(const Frame& frame)
 
     vkResetFences(m_Device, 1, &m_InFlightFences[m_CurrentFrameIndex]);
     VK_CHECK(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFences[m_CurrentFrameIndex]));
-    //RK_GRAPHICS_TRACE("vkQueueSubmit");
 
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -865,10 +865,10 @@ void VulkanGraphicsManager::BeginFrame(const Frame& frame)
     presentInfo.pImageIndices = &m_FrameIndex;
 
     VkResult presentResult = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
-    //RK_GRAPHICS_TRACE("vkQueuePresentKHR");
 
     if (presentResult == VK_ERROR_OUT_OF_DATE_KHR || presentResult == VK_SUBOPTIMAL_KHR || m_FramebufferResized) {
         m_FramebufferResized = false;
+        m_IsRecreateSwapChain = true;
         RecreateSwapChain();
         return;
     }
@@ -876,29 +876,8 @@ void VulkanGraphicsManager::BeginFrame(const Frame& frame)
         VK_CHECK(presentResult);
     }
 
-    //if (!((presentResult == VK_SUCCESS) || (presentResult == VK_SUBOPTIMAL_KHR)))
-    //{
-    //    if (presentResult == VK_ERROR_OUT_OF_DATE_KHR)
-    //    {
-    //        //m_FramebufferResized = false;
-    //        RecreateSwapChain();
-    //        //RK_GRAPHICS_TRACE("Restart Frame");
-    //        return;
-    //    }
-    //    else
-    //    {
-    //        VK_CHECK(presentResult);
-    //    }
-    //}
-
     m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_MaxFrameInFlight;
     //RK_GRAPHICS_TRACE("End Frame");
-}
-
-void VulkanGraphicsManager::EndFrame(const Frame& frame)
-{
-    if (!m_IsScenePrepared)
-        return;
 }
 
 void VulkanGraphicsManager::BeginFrameBuffer(const Frame& frame)

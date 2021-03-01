@@ -117,6 +117,7 @@ namespace Rocket
     private:
         bool m_VSync = true;
         bool m_IsScenePrepared = false;
+        bool m_IsRecreateSwapChain = false;
         GLFWwindow* m_WindowHandle = nullptr;
 
         Ref<VulkanUI> m_VulkanUI = nullptr;
