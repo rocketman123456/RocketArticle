@@ -68,7 +68,7 @@ int VulkanGraphicsManager::Initialize()
     CreateSwapChain();
     CreateGraphicsPipeline();
     CreateFramebuffers();
-    //InitGui();
+    InitGui();
 
     CreateSyncObjects();
 
@@ -85,6 +85,7 @@ void VulkanGraphicsManager::Finalize()
 
     CleanupSwapChain();
 
+    m_VulkanUI->Finalize();
     m_VulkanSwapChain->Finalize();
     m_VulkanPipeline->Finalize();
 
@@ -630,7 +631,7 @@ void VulkanGraphicsManager::BeginScene(const Scene& scene)
 
     CreateCommandBuffers();
 
-    InitGui();
+    //InitGui();
 
     for (uint32_t i = 0; i < m_CommandBuffers.size(); ++i)
     {
@@ -650,7 +651,7 @@ void VulkanGraphicsManager::EndScene()
         //m_CommandBuffers.clear();
         //m_CommandBuffers.resize(m_MaxFrameInFlight);
 
-        m_VulkanUI->Finalize();
+        //m_VulkanUI->Finalize();
 
         // Clear DescriptorPool / DescriptorSet
         vkDestroyDescriptorPool(m_Device, m_DescriptorPool, nullptr);

@@ -51,13 +51,13 @@ namespace Rocket
 
         PushModule(g_MemoryManager);
         PushModule(g_AssetLoader);
+        PushModule(g_WindowManager);
+        PushModule(g_EventManager);
         PushModule(g_ProcessManager);
         PushModule(g_AudioManager);
         PushModule(g_SceneManager);
-        PushModule(g_WindowManager);
         PushModule(g_GraphicsManager);
         PushModule(g_PipelineStateManager);
-        PushModule(g_EventManager);
     }
 
     void SimpleApp::PostInitializeModule()

@@ -244,7 +244,7 @@ void VulkanUI::Initialize()
 
 	// Init Vulkan For ImGui
 	{
-		ImGui_ImplGlfw_InitForVulkan(windowHandle, true);
+		ImGui_ImplGlfw_InitForVulkan(windowHandle, false);
 		ImGui_ImplVulkan_InitInfo init_info = {};
 		init_info.Instance = instance;
 		init_info.PhysicalDevice = device->physicalDevice;
@@ -344,11 +344,11 @@ void VulkanUI::UpdataOverlay(uint32_t width, uint32_t height)
 	//pushConstBlock.translate = Vector2f(-1.0f, -1.0f);
 	
 	ImGuiContext* context = ImGui::GetCurrentContext();
-	RK_CORE_INFO("ImGui Info: {}, {}", context->FrameCount, context->FrameCountPlatformEnded);
+	//RK_CORE_INFO("ImGui Info: {}, {}", context->FrameCount, context->FrameCountPlatformEnded);
 
 	ImGui::NewFrame();
 
-	RK_CORE_INFO("NewFrame Info: {}, {}", context->FrameCount, context->FrameCountPlatformEnded);
+	//RK_CORE_INFO("NewFrame Info: {}, {}", context->FrameCount, context->FrameCountPlatformEnded);
 
 	ImGui::Begin("Rocket", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Text("Hello, world!");
@@ -359,11 +359,11 @@ void VulkanUI::UpdataOverlay(uint32_t width, uint32_t height)
 
 	ImGui::EndFrame();
 
-	RK_CORE_INFO("EndFrame Info: {}, {}", context->FrameCount, context->FrameCountPlatformEnded);
+	//RK_CORE_INFO("EndFrame Info: {}, {}", context->FrameCount, context->FrameCountPlatformEnded);
 
 	ImGui::Render();
 
-	RK_CORE_INFO("Render Info: {}, {}", context->FrameCount, context->FrameCountPlatformEnded);
+	//RK_CORE_INFO("Render Info: {}, {}", context->FrameCount, context->FrameCountPlatformEnded);
 
 	// Update and Render additional Platform Windows
 	ImGuiIO& io = ImGui::GetIO();
@@ -373,7 +373,7 @@ void VulkanUI::UpdataOverlay(uint32_t width, uint32_t height)
 		ImGui::RenderPlatformWindowsDefault();
 	}
 	
-	RK_CORE_INFO("UpdatePlatformWindows Info: {}, {}", context->FrameCount, context->FrameCountPlatformEnded);
+	//RK_CORE_INFO("UpdatePlatformWindows Info: {}, {}", context->FrameCount, context->FrameCountPlatformEnded);
 }
 
 void VulkanUI::PrepareUI()
