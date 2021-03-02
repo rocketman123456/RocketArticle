@@ -118,7 +118,7 @@ void VulkanGraphicsManager::Finalize()
 
 void VulkanGraphicsManager::CleanupSwapChain()
 {
-    vkFreeCommandBuffers(m_Device, m_CommandPool, static_cast<uint32_t>(m_CommandBuffers.size()), m_CommandBuffers.data());
+    //vkFreeCommandBuffers(m_Device, m_CommandPool, static_cast<uint32_t>(m_CommandBuffers.size()), m_CommandBuffers.data());
     vkFreeCommandBuffers(m_Device, m_CommandPool, static_cast<uint32_t>(m_GuiCommandBuffer.size()), m_GuiCommandBuffer.data());
 
     m_VulkanFrameBuffer->Finalize();
@@ -152,7 +152,7 @@ void VulkanGraphicsManager::RecreateSwapChain()
     CreateFramebuffers();
     CreateCommandBuffers();
 
-    //for (int i = 0; i < m_MaxFrameInFlight; ++i)
+    //for (uint32_t i = 0; i < m_MaxFrameInFlight; ++i)
     //{
     //    RecordCommandBuffer(i);
     //}
@@ -630,10 +630,10 @@ void VulkanGraphicsManager::BeginScene(const Scene& scene)
 
     CreateCommandBuffers();
 
-    //for (int i = 0; i < m_MaxFrameInFlight; ++i)
-    //{
-    //    RecordCommandBuffer(i);
-    //}
+    for (uint32_t i = 0; i < m_MaxFrameInFlight; ++i)
+    {
+        RecordCommandBuffer(i);
+    }
 
     m_IsScenePrepared = true;
 }
@@ -644,6 +644,10 @@ void VulkanGraphicsManager::EndScene()
 
     if (m_IsScenePrepared)
     {
+        vkFreeCommandBuffers(m_Device, m_CommandPool, static_cast<uint32_t>(m_CommandBuffers.size()), m_CommandBuffers.data());
+        m_CommandBuffers.clear();
+        m_CommandBuffers.resize(m_MaxFrameInFlight);
+
         // Clear DescriptorPool / DescriptorSet
         vkDestroyDescriptorPool(m_Device, m_DescriptorPool, nullptr);
 
