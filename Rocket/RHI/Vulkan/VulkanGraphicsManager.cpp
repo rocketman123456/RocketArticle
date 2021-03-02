@@ -118,7 +118,7 @@ void VulkanGraphicsManager::Finalize()
 
 void VulkanGraphicsManager::CleanupSwapChain()
 {
-    //vkFreeCommandBuffers(m_Device, m_CommandPool, static_cast<uint32_t>(m_CommandBuffers.size()), m_CommandBuffers.data());
+    vkFreeCommandBuffers(m_Device, m_CommandPool, static_cast<uint32_t>(m_CommandBuffers.size()), m_CommandBuffers.data());
     vkFreeCommandBuffers(m_Device, m_CommandPool, static_cast<uint32_t>(m_GuiCommandBuffer.size()), m_GuiCommandBuffer.data());
 
     m_VulkanFrameBuffer->Finalize();
@@ -152,10 +152,10 @@ void VulkanGraphicsManager::RecreateSwapChain()
     CreateFramebuffers();
     CreateCommandBuffers();
 
-    //for (uint32_t i = 0; i < m_MaxFrameInFlight; ++i)
-    //{
-    //    RecordCommandBuffer(i);
-    //}
+    for (uint32_t i = 0; i < m_CommandBuffers.size(); ++i)
+    {
+        RecordCommandBuffer(i);
+    }
     
     vkDeviceWaitIdle(m_Device);
 
@@ -630,7 +630,7 @@ void VulkanGraphicsManager::BeginScene(const Scene& scene)
 
     CreateCommandBuffers();
 
-    for (uint32_t i = 0; i < m_MaxFrameInFlight; ++i)
+    for (uint32_t i = 0; i < m_CommandBuffers.size(); ++i)
     {
         RecordCommandBuffer(i);
     }
@@ -644,9 +644,9 @@ void VulkanGraphicsManager::EndScene()
 
     if (m_IsScenePrepared)
     {
-        vkFreeCommandBuffers(m_Device, m_CommandPool, static_cast<uint32_t>(m_CommandBuffers.size()), m_CommandBuffers.data());
-        m_CommandBuffers.clear();
-        m_CommandBuffers.resize(m_MaxFrameInFlight);
+        //vkFreeCommandBuffers(m_Device, m_CommandPool, static_cast<uint32_t>(m_CommandBuffers.size()), m_CommandBuffers.data());
+        //m_CommandBuffers.clear();
+        //m_CommandBuffers.resize(m_MaxFrameInFlight);
 
         // Clear DescriptorPool / DescriptorSet
         vkDestroyDescriptorPool(m_Device, m_DescriptorPool, nullptr);
@@ -813,6 +813,9 @@ void VulkanGraphicsManager::BeginFrame(const Frame& frame)
     m_ImagesInFlight[m_FrameIndex] = m_InFlightFences[m_CurrentFrameIndex];
 
     UpdateUniformBuffer(m_FrameIndex);
+
+    //RecordCommandBuffer(m_FrameIndex);
+    RecordGuiCommandBuffer(m_FrameIndex);
 }
 
 void VulkanGraphicsManager::EndFrame(const Frame& frame)
@@ -821,9 +824,6 @@ void VulkanGraphicsManager::EndFrame(const Frame& frame)
         return;
     if(m_IsRecreateSwapChain)
         return;
-
-    RecordCommandBuffer(m_FrameIndex);
-    RecordGuiCommandBuffer(m_FrameIndex);
     
     Vec<VkCommandBuffer> commandBuffers = {
         m_CommandBuffers[m_FrameIndex],

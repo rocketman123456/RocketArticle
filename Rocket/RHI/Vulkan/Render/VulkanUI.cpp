@@ -298,15 +298,17 @@ void VulkanUI::UpdataOverlay(uint32_t width, uint32_t height)
 
 	ImGuiIO& io = ImGui::GetIO();
 	
-	auto left = glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_LEFT);
-	auto right = glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_RIGHT);
-	
-	double x, y;
-	glfwGetCursorPos(windowHandle, &x, &y);
-	
-	io.MousePos = ImVec2(x, y);
-	io.MouseDown[0] = left;
-	io.MouseDown[1] = right;
+	//auto left = glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_LEFT);
+	//auto right = glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_RIGHT);
+	//
+	//double x, y;
+	//glfwGetCursorPos(windowHandle, &x, &y);
+	//
+	//io.MousePos = ImVec2(x, y);
+	//io.MouseDown[0] = left;
+	//io.MouseDown[1] = right;
+
+	//RK_CORE_TRACE("Mouse {} {}", left, right);
 
 	pushConstBlock.scale = Vector2f(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
 	pushConstBlock.translate = Vector2f(-1.0f, -1.0f);
