@@ -147,11 +147,15 @@ void VulkanGraphicsManager::RecreateSwapChain()
     CleanupSwapChain();
 
     CreateSwapChain();
-    //CreateGraphicsPipeline();
 
     InitGui();
     CreateFramebuffers();
     CreateCommandBuffers();
+
+    //for (int i = 0; i < m_MaxFrameInFlight; ++i)
+    //{
+    //    RecordCommandBuffer(i);
+    //}
     
     vkDeviceWaitIdle(m_Device);
 
@@ -626,6 +630,11 @@ void VulkanGraphicsManager::BeginScene(const Scene& scene)
 
     CreateCommandBuffers();
 
+    //for (int i = 0; i < m_MaxFrameInFlight; ++i)
+    //{
+    //    RecordCommandBuffer(i);
+    //}
+
     m_IsScenePrepared = true;
 }
 
@@ -731,24 +740,6 @@ void VulkanGraphicsManager::RecordCommandBuffer(uint32_t frameIndex)
     }
     vkCmdEndRenderPass(m_CommandBuffers[frameIndex]);
 
-    renderPassInfo.renderPass = m_GuiRenderPass;
-    vkCmdBeginRenderPass(m_CommandBuffers[frameIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-    {
-        VkViewport viewport{};
-        viewport.width = (float)m_SwapChainExtent.width;
-        viewport.height = (float)m_SwapChainExtent.height;
-        viewport.minDepth = 0.0f;
-        viewport.maxDepth = 1.0f;
-        vkCmdSetViewport(m_CommandBuffers[frameIndex], 0, 1, &viewport);
-
-        VkRect2D scissor{};
-        scissor.extent = { (uint32_t)m_SwapChainExtent.width, (uint32_t)m_SwapChainExtent.height };
-        vkCmdSetScissor(m_CommandBuffers[frameIndex], 0, 1, &scissor);
-
-        m_VulkanUI->Draw(m_CommandBuffers[frameIndex]);
-    }
-    vkCmdEndRenderPass(m_CommandBuffers[frameIndex]);
-
     VK_CHECK(vkEndCommandBuffer(m_CommandBuffers[frameIndex]));
 }
 
@@ -760,18 +751,12 @@ void VulkanGraphicsManager::RecordGuiCommandBuffer(uint32_t frameIndex)
 
     VK_CHECK(vkBeginCommandBuffer(m_GuiCommandBuffer[frameIndex], &beginInfo));
 
-    std::array<VkClearValue, 2> clearValues{};
-    clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-    clearValues[1].depthStencil = { 1.0f, 0 };
-
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = m_GuiRenderPass;
     renderPassInfo.framebuffer = m_SwapChainFramebuffers[frameIndex];
     renderPassInfo.renderArea.offset = { 0, 0 };
     renderPassInfo.renderArea.extent = m_SwapChainExtent;
-    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-    renderPassInfo.pClearValues = clearValues.data();
 
     vkCmdBeginRenderPass(m_GuiCommandBuffer[frameIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
     {
@@ -838,7 +823,7 @@ void VulkanGraphicsManager::EndFrame(const Frame& frame)
     
     Vec<VkCommandBuffer> commandBuffers = {
         m_CommandBuffers[m_FrameIndex],
-        //m_GuiCommandBuffer[imageIndex], 
+        m_GuiCommandBuffer[m_FrameIndex],
     };
 
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
