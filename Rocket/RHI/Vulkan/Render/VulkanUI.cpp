@@ -87,13 +87,24 @@ void VulkanUI::Initialize()
     // Descriptor pool
 	{
 		std::vector<VkDescriptorPoolSize> poolSizes = {
-			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1 }
+			//{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1 }
+			{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+			{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
 		};
 		VkDescriptorPoolCreateInfo descriptorPoolCI{};
 		descriptorPoolCI.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 		descriptorPoolCI.poolSizeCount = (uint32_t)poolSizes.size();
 		descriptorPoolCI.pPoolSizes = poolSizes.data();
-		descriptorPoolCI.maxSets = 1;
+		descriptorPoolCI.maxSets = 1000 * (uint32_t)poolSizes.size(); //1;
 		VK_CHECK(vkCreateDescriptorPool(device->logicalDevice, &descriptorPoolCI, nullptr, &descriptorPool));
 	}
 	//RK_GRAPHICS_TRACE("Descriptor pool");
@@ -246,7 +257,7 @@ void VulkanUI::Initialize()
 	}
 	//RK_GRAPHICS_TRACE("Pipeline");
 
-	//ImGui_ImplGlfw_InitForVulkan(windowHandle, true);
+	ImGui_ImplGlfw_InitForVulkan(windowHandle, true);
 	ImGui_ImplVulkan_InitInfo init_info = {};
 	init_info.Instance = instance;
 	init_info.PhysicalDevice = device->physicalDevice;
@@ -283,30 +294,19 @@ void VulkanUI::Finalize()
 
 void VulkanUI::UpdataOverlay(uint32_t width, uint32_t height)
 {
+	ImGui_ImplGlfw_NewFrame();
+
 	ImGuiIO& io = ImGui::GetIO();
-
-	ImVec2 lastDisplaySize = io.DisplaySize;
-	io.DisplaySize = ImVec2((float)width, (float)height);
-
-	int w, h;
-    int display_w, display_h;
-    glfwGetWindowSize(windowHandle, &w, &h);
-    glfwGetFramebufferSize(windowHandle, &display_w, &display_h);
-	io.DisplaySize = ImVec2((float)w, (float)h);
-    //if (w > 0 && h > 0)
-    //    io.DisplayFramebufferScale = ImVec2((float)display_w / w, (float)display_h / h);
-
+	
 	auto left = glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_LEFT);
 	auto right = glfwGetMouseButton(windowHandle, GLFW_MOUSE_BUTTON_RIGHT);
-
+	
 	double x, y;
 	glfwGetCursorPos(windowHandle, &x, &y);
-
+	
 	io.MousePos = ImVec2(x, y);
 	io.MouseDown[0] = left;
 	io.MouseDown[1] = right;
-
-	//ImGui_ImplGlfw_NewFrame();
 
 	pushConstBlock.scale = Vector2f(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
 	pushConstBlock.translate = Vector2f(-1.0f, -1.0f);
@@ -319,12 +319,6 @@ void VulkanUI::UpdataOverlay(uint32_t width, uint32_t height)
 	ImGui::End();
 
 	ImGui::Render();
-
-	//if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-	//{
-	//	ImGui::UpdatePlatformWindows();
-	//	ImGui::RenderPlatformWindowsDefault();
-	//}
 }
 
 void VulkanUI::PrepareUI()
@@ -416,10 +410,10 @@ void VulkanUI::Draw(VkCommandBuffer cmdBuffer)
 	}
 
 	// Update and Render additional Platform Windows
-	//ImGuiIO& io = ImGui::GetIO();
-	//if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-	//{
-	//	ImGui::UpdatePlatformWindows();
-	//	ImGui::RenderPlatformWindowsDefault();
-	//}
+	ImGuiIO& io = ImGui::GetIO();
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+	}
 }
