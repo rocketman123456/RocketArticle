@@ -813,9 +813,6 @@ void VulkanGraphicsManager::BeginFrame(const Frame& frame)
     m_ImagesInFlight[m_FrameIndex] = m_InFlightFences[m_CurrentFrameIndex];
 
     UpdateUniformBuffer(m_FrameIndex);
-    
-    RecordCommandBuffer(m_FrameIndex);
-    RecordGuiCommandBuffer(m_FrameIndex);
 }
 
 void VulkanGraphicsManager::EndFrame(const Frame& frame)
@@ -824,6 +821,9 @@ void VulkanGraphicsManager::EndFrame(const Frame& frame)
         return;
     if(m_IsRecreateSwapChain)
         return;
+
+    RecordCommandBuffer(m_FrameIndex);
+    RecordGuiCommandBuffer(m_FrameIndex);
     
     Vec<VkCommandBuffer> commandBuffers = {
         m_CommandBuffers[m_FrameIndex],
