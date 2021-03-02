@@ -29,6 +29,7 @@ namespace Rocket
 	public:
 		VkPhysicalDevice physicalDevice;
 		VkSurfaceKHR surface;
+
 		VkDevice logicalDevice;
 		VkPhysicalDeviceProperties properties;
 		VkPhysicalDeviceFeatures features;
@@ -37,5 +38,8 @@ namespace Rocket
 		Vec<VkQueueFamilyProperties> queueFamilyProperties;
 		VkCommandPool commandPool = VK_NULL_HANDLE;
 		QueueFamilyIndices queueFamilyIndices;
+		VkQueue graphicsQueue = VK_NULL_HANDLE;
+		VkQueue computeQueue = VK_NULL_HANDLE;
+		VkQueue presentQueue = VK_NULL_HANDLE;
 	};
 }

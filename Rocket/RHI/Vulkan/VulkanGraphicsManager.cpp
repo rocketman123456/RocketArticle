@@ -267,10 +267,9 @@ void VulkanGraphicsManager::CreateLogicalDevice()
 
     m_Device = m_LogicalDevice->logicalDevice;
     m_CommandPool = m_LogicalDevice->commandPool;
-
-    vkGetDeviceQueue(m_Device, m_LogicalDevice->queueFamilyIndices.graphicsFamily.value(), 0, &m_GraphicsQueue);
-    vkGetDeviceQueue(m_Device, m_LogicalDevice->queueFamilyIndices.computeFamily.value(), 0, &m_ComputeQueue);
-    vkGetDeviceQueue(m_Device, m_LogicalDevice->queueFamilyIndices.presentFamily.value(), 0, &m_PresentQueue);
+    m_GraphicsQueue = m_LogicalDevice->graphicsQueue;
+    m_ComputeQueue = m_LogicalDevice->computeQueue;
+    m_PresentQueue = m_LogicalDevice->presentQueue;
 }
 
 void VulkanGraphicsManager::CreateSwapChain()
@@ -372,7 +371,7 @@ void VulkanGraphicsManager::InitGui()
         m_VulkanUI = CreateRef<VulkanUI>();
         m_VulkanUI->SetWindowHandle(m_WindowHandle);
     }
-    m_VulkanUI->Connect(m_LogicalDevice, m_RenderPass, m_GraphicsQueue, m_PipelineCache, m_MsaaSamples);
+    m_VulkanUI->Connect(m_Instance, m_LogicalDevice, m_RenderPass, m_GraphicsQueue, m_PipelineCache, m_MsaaSamples, m_MaxFrameInFlight);
     m_VulkanUI->Initialize();
     m_VulkanUI->UpdataOverlay(m_SwapChainExtent.width, m_SwapChainExtent.height);
     m_VulkanUI->PrepareUI();

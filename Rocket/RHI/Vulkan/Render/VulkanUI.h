@@ -22,11 +22,13 @@ namespace Rocket
 	{
 	public:
 		void Connect(
+			VkInstance instance,
 			Ref<VulkanDevice> device, 
 			VkRenderPass renderPass, 
 			VkQueue queue, 
 			VkPipelineCache pipelineCache, 
-			VkSampleCountFlagBits multiSampleCount);
+			VkSampleCountFlagBits multiSampleCount,
+			uint32_t frameInFlight);
 		void Initialize() final;
 		void Finalize() final;
 		void UpdataOverlay(uint32_t width, uint32_t height);
@@ -34,12 +36,14 @@ namespace Rocket
 		void Draw(VkCommandBuffer cmdBuffer);
 		void SetWindowHandle(GLFWwindow* handle) { windowHandle = handle; }
 	public:
+		VkInstance instance;
 		Ref<VulkanDevice> device;
 		VkRenderPass renderPass;
 		VkQueue queue;
 		VkPipelineCache pipelineCache;
 		VkSampleCountFlagBits multiSampleCount;
 		GLFWwindow* windowHandle;
+		uint32_t frameInFlight;
 
 		VulkanBufferStruct vertexBuffer;
 		VulkanBufferStruct indexBuffer;

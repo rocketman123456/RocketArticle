@@ -10,18 +10,31 @@
 
 using namespace Rocket;
 
+static void check_vk_result_ui(VkResult err)
+{
+	if (err == 0)
+		return;
+	fprintf(stderr, "[vulkan] Error: VkResult = %d\n", err);
+	if (err < 0)
+		abort();
+}
+
 void VulkanUI::Connect(
+	VkInstance instance, 
     Ref<VulkanDevice> device, 
     VkRenderPass renderPass, 
     VkQueue queue, 
     VkPipelineCache pipelineCache, 
-    VkSampleCountFlagBits multiSampleCount)
+    VkSampleCountFlagBits multiSampleCount,
+	uint32_t frameInFlight)
 {
+	this->instance = instance;
     this->device = device;
     this->renderPass = renderPass;
     this->queue = queue;
     this->pipelineCache = pipelineCache;
     this->multiSampleCount = multiSampleCount;
+	this->frameInFlight = frameInFlight;
 }
 
 void VulkanUI::Initialize()
@@ -69,8 +82,6 @@ void VulkanUI::Initialize()
 		io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
 		VkDeviceSize imageSize = texWidth * texHeight * 4;
 		fontTexture.LoadFromBuffer(fontData, imageSize, VK_FORMAT_R8G8B8A8_UNORM, texWidth, texHeight, device, queue);
-	
-		//ImGui_ImplGlfw_InitForVulkan(windowHandle, true);
 	}
 
     // Descriptor pool
@@ -80,7 +91,7 @@ void VulkanUI::Initialize()
 		};
 		VkDescriptorPoolCreateInfo descriptorPoolCI{};
 		descriptorPoolCI.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		descriptorPoolCI.poolSizeCount = 1;
+		descriptorPoolCI.poolSizeCount = (uint32_t)poolSizes.size();
 		descriptorPoolCI.pPoolSizes = poolSizes.data();
 		descriptorPoolCI.maxSets = 1;
 		VK_CHECK(vkCreateDescriptorPool(device->logicalDevice, &descriptorPoolCI, nullptr, &descriptorPool));
@@ -234,23 +245,40 @@ void VulkanUI::Initialize()
 		shader->Finalize();
 	}
 	//RK_GRAPHICS_TRACE("Pipeline");
+
+	//ImGui_ImplGlfw_InitForVulkan(windowHandle, true);
+	ImGui_ImplVulkan_InitInfo init_info = {};
+	init_info.Instance = instance;
+	init_info.PhysicalDevice = device->physicalDevice;
+	init_info.Device = device->logicalDevice;
+	init_info.QueueFamily = device->queueFamilyIndices.graphicsFamily.value();
+	init_info.Queue = queue;
+	init_info.PipelineCache = pipelineCache;
+	init_info.DescriptorPool = descriptorPool;
+	init_info.Allocator = nullptr;
+	init_info.MinImageCount = frameInFlight;
+	init_info.ImageCount = frameInFlight;
+	init_info.CheckVkResultFn = check_vk_result_ui;
+	//ImGui_ImplVulkan_Init(&init_info, renderPass);
 }
 
 void VulkanUI::Finalize()
 {
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
-
 	fontTexture.Finalize();
 	if (canDraw)
 	{
 		vertexBuffer.Finalize();
 		indexBuffer.Finalize();
 	}
+
 	vkDestroyPipeline(device->logicalDevice, pipeline, nullptr);
 	vkDestroyPipelineLayout(device->logicalDevice, pipelineLayout, nullptr);
 	vkDestroyDescriptorSetLayout(device->logicalDevice, descriptorSetLayout, nullptr);
 	vkDestroyDescriptorPool(device->logicalDevice, descriptorPool, nullptr);
+
+	//ImGui_ImplVulkan_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
 }
 
 void VulkanUI::UpdataOverlay(uint32_t width, uint32_t height)
@@ -285,7 +313,7 @@ void VulkanUI::UpdataOverlay(uint32_t width, uint32_t height)
 
 	ImGui::NewFrame();
 
-	ImGui::Begin("Rocket");
+	ImGui::Begin("Rocket", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::Text("Hello, world!");
 	ImGui::ColorEdit3("clear color", (float*)&clearColor);
 	ImGui::End();

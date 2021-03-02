@@ -175,6 +175,13 @@ VkResult VulkanDevice::CreateLogicalDevice(
 
 	this->enabledFeatures = enabledFeatures;
 
+	if (queueFamilyIndices.graphicsFamily.has_value())
+		vkGetDeviceQueue(logicalDevice, queueFamilyIndices.graphicsFamily.value(), 0, &graphicsQueue);
+	if (queueFamilyIndices.computeFamily.has_value())
+		vkGetDeviceQueue(logicalDevice, queueFamilyIndices.computeFamily.value(), 0, &computeQueue);
+	if (queueFamilyIndices.presentFamily.has_value())
+		vkGetDeviceQueue(logicalDevice, queueFamilyIndices.presentFamily.value(), 0, &presentQueue);
+
 	return result;
 }
 
