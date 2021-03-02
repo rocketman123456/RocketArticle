@@ -14,8 +14,7 @@ namespace Rocket
 
         virtual int Initialize() final;
         virtual void Finalize() final;
-
-        virtual void Tick(Timestep ts) final {}
+        virtual void Tick(Timestep ts) final;
 
         bool OnWindowResize(EventPtr& e);
 

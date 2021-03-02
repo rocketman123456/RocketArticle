@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/Core.h"
+#include "Utils/Timestep.h"
 
 namespace Rocket
 {
@@ -24,6 +25,7 @@ namespace Rocket
 
         virtual void Initialize() = 0;
         virtual void Finalize() = 0;
+		virtual void Tick(Timestep ts) = 0;
 
 		void SetWidth(uint32_t w) { m_Props.Width = w; }
 		void SetHeight(uint32_t h) { m_Props.Height = h; }

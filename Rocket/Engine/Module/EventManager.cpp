@@ -134,7 +134,7 @@ void EventManager::SetupCallback()
 	});
 
 	glfwSetMouseButtonCallback(m_WindowHandle, [](GLFWwindow *window, int button, int action, int mods) {
-        //RK_EVENT_TRACE("glfwSetMouseButtonCallback");
+        RK_EVENT_TRACE("glfwSetMouseButtonCallback");
 		WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
         EventVarPtr ptr = Ref<Variant>(new Variant[2], [](Variant* v){ delete[]v; });
@@ -217,7 +217,7 @@ void EventManager::Tick(Timestep ts)
 
     Rocket::g_EventTimer->MarkLapping();
 
-    glfwPollEvents();
+    //glfwPollEvents();
 
     m_Timer.MarkLapping();
     bool result = Update();

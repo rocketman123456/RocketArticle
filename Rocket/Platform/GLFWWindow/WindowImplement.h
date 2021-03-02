@@ -13,6 +13,7 @@ namespace Rocket
 
         void Initialize() final;
 		void Finalize() final;
+		void Tick(Timestep ts) final;
 
 		void* GetNativeWindow() const final { return m_Window; }
 	private:

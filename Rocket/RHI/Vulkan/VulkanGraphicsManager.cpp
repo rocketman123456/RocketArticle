@@ -68,7 +68,7 @@ int VulkanGraphicsManager::Initialize()
     CreateSwapChain();
     CreateGraphicsPipeline();
     CreateFramebuffers();
-    InitGui();
+    //InitGui();
 
     CreateSyncObjects();
 
@@ -124,7 +124,7 @@ void VulkanGraphicsManager::CleanupSwapChain()
     m_VulkanFrameBuffer->Finalize();
     //m_VulkanPipeline->Finalize();
     //m_VulkanSwapChain->Finalize();
-    m_VulkanUI->Finalize();
+    //m_VulkanUI->Finalize();
 
     RK_GRAPHICS_TRACE("CleanupSwapChain");
 }
@@ -148,7 +148,7 @@ void VulkanGraphicsManager::RecreateSwapChain()
 
     CreateSwapChain();
 
-    InitGui();
+    //InitGui();
     CreateFramebuffers();
     CreateCommandBuffers();
 
@@ -378,7 +378,7 @@ void VulkanGraphicsManager::InitGui()
     m_VulkanUI->Connect(m_Instance, m_LogicalDevice, m_RenderPass, m_GraphicsQueue, m_PipelineCache, m_MsaaSamples, m_MaxFrameInFlight);
     m_VulkanUI->Initialize();
     m_VulkanUI->UpdataOverlay(m_SwapChainExtent.width, m_SwapChainExtent.height);
-    m_VulkanUI->PrepareUI();
+    //m_VulkanUI->PrepareUI();
 }
 
 void VulkanGraphicsManager::CreateCommandBuffers()
@@ -630,6 +630,8 @@ void VulkanGraphicsManager::BeginScene(const Scene& scene)
 
     CreateCommandBuffers();
 
+    InitGui();
+
     for (uint32_t i = 0; i < m_CommandBuffers.size(); ++i)
     {
         RecordCommandBuffer(i);
@@ -647,6 +649,8 @@ void VulkanGraphicsManager::EndScene()
         //vkFreeCommandBuffers(m_Device, m_CommandPool, static_cast<uint32_t>(m_CommandBuffers.size()), m_CommandBuffers.data());
         //m_CommandBuffers.clear();
         //m_CommandBuffers.resize(m_MaxFrameInFlight);
+
+        m_VulkanUI->Finalize();
 
         // Clear DescriptorPool / DescriptorSet
         vkDestroyDescriptorPool(m_Device, m_DescriptorPool, nullptr);
@@ -793,7 +797,7 @@ void VulkanGraphicsManager::BeginFrame(const Frame& frame)
     //RK_GRAPHICS_TRACE("Begin Frame");
     //RK_CORE_TRACE("width : {}, height : {}", m_SwapChainExtent.width, m_SwapChainExtent.height);
     m_VulkanUI->UpdataOverlay(m_SwapChainExtent.width, m_SwapChainExtent.height);
-    m_VulkanUI->PrepareUI();
+    //m_VulkanUI->PrepareUI();
 
     vkWaitForFences(m_Device, 1, &m_InFlightFences[m_CurrentFrameIndex], VK_TRUE, UINT64_MAX);
     VkResult acquireResult = m_VulkanSwapChain->AcquireNextImage(m_ImageAvailableSemaphores[m_CurrentFrameIndex], &m_FrameIndex);
@@ -814,8 +818,11 @@ void VulkanGraphicsManager::BeginFrame(const Frame& frame)
 
     UpdateUniformBuffer(m_FrameIndex);
 
+    // TODO : move this to draw batch
     //RecordCommandBuffer(m_FrameIndex);
     RecordGuiCommandBuffer(m_FrameIndex);
+
+    m_SubmitBuffers.clear();
 }
 
 void VulkanGraphicsManager::EndFrame(const Frame& frame)
@@ -824,11 +831,9 @@ void VulkanGraphicsManager::EndFrame(const Frame& frame)
         return;
     if(m_IsRecreateSwapChain)
         return;
-    
-    Vec<VkCommandBuffer> commandBuffers = {
-        m_CommandBuffers[m_FrameIndex],
-        m_GuiCommandBuffer[m_FrameIndex],
-    };
+
+    m_SubmitBuffers.push_back(m_CommandBuffers[m_FrameIndex]);
+    m_SubmitBuffers.push_back(m_GuiCommandBuffer[m_FrameIndex]);
 
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     VkSubmitInfo submitInfo{};
@@ -837,12 +842,14 @@ void VulkanGraphicsManager::EndFrame(const Frame& frame)
     submitInfo.pWaitSemaphores = &m_ImageAvailableSemaphores[m_CurrentFrameIndex];
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = &m_RenderFinishedSemaphores[m_CurrentFrameIndex];
-    submitInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
-    submitInfo.pCommandBuffers = commandBuffers.data();
+    submitInfo.commandBufferCount = static_cast<uint32_t>(m_SubmitBuffers.size());
+    submitInfo.pCommandBuffers = m_SubmitBuffers.data();
     submitInfo.pWaitDstStageMask = waitStages;
 
     vkResetFences(m_Device, 1, &m_InFlightFences[m_CurrentFrameIndex]);
     VK_CHECK(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFences[m_CurrentFrameIndex]));
+
+    m_VulkanUI->PostAction();
 
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;

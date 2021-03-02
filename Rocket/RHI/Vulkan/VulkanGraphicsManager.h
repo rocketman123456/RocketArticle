@@ -196,6 +196,7 @@ namespace Rocket
 
         Vec<VkCommandBuffer> m_CommandBuffers;
         Vec<VkCommandBuffer> m_GuiCommandBuffer;
+        Vec<VkCommandBuffer> m_SubmitBuffers;
 
         Vec<VkSemaphore> m_ImageAvailableSemaphores;
         Vec<VkSemaphore> m_RenderFinishedSemaphores;

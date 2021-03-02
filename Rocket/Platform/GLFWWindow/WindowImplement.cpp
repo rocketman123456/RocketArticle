@@ -60,3 +60,8 @@ void WindowImplement::Finalize()
 		glfwTerminate();
 	}
 }
+
+void WindowImplement::Tick(Timestep ts)
+{
+	glfwPollEvents();
+}

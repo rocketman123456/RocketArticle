@@ -31,6 +31,11 @@ void WindowManager::Finalize()
     m_Window->Finalize();
 }
 
+void WindowManager::Tick(Timestep ts)
+{
+    m_Window->Tick(ts);
+}
+
 bool WindowManager::OnWindowResize(EventPtr& e)
 {
     m_Window->SetWidth(e->GetUInt32(1));
