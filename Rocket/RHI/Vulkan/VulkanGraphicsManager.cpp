@@ -378,8 +378,9 @@ void VulkanGraphicsManager::InitGui()
     }
     m_VulkanUI->Connect(m_Instance, m_LogicalDevice, m_RenderPass, m_GraphicsQueue, m_PipelineCache, m_MsaaSamples, m_MaxFrameInFlight);
     m_VulkanUI->Initialize();
+
     m_VulkanUI->UpdataOverlay(m_SwapChainExtent.width, m_SwapChainExtent.height);
-    //m_VulkanUI->PrepareUI();
+    //m_VulkanUI->PostAction();
 }
 
 void VulkanGraphicsManager::CreateCommandBuffers()
@@ -798,7 +799,6 @@ void VulkanGraphicsManager::BeginFrame(const Frame& frame)
     //RK_GRAPHICS_TRACE("Begin Frame");
     //RK_CORE_TRACE("width : {}, height : {}", m_SwapChainExtent.width, m_SwapChainExtent.height);
     m_VulkanUI->UpdataOverlay(m_SwapChainExtent.width, m_SwapChainExtent.height);
-    //m_VulkanUI->PrepareUI();
 
     vkWaitForFences(m_Device, 1, &m_InFlightFences[m_CurrentFrameIndex], VK_TRUE, UINT64_MAX);
     VkResult acquireResult = m_VulkanSwapChain->AcquireNextImage(m_ImageAvailableSemaphores[m_CurrentFrameIndex], &m_FrameIndex);
@@ -831,7 +831,10 @@ void VulkanGraphicsManager::EndFrame(const Frame& frame)
     if (!m_IsScenePrepared)
         return;
     if(m_IsRecreateSwapChain)
+    {
+        //m_VulkanUI->PostAction();
         return;
+    }
 
     m_SubmitBuffers.push_back(m_CommandBuffers[m_FrameIndex]);
     m_SubmitBuffers.push_back(m_GuiCommandBuffer[m_FrameIndex]);
@@ -850,7 +853,7 @@ void VulkanGraphicsManager::EndFrame(const Frame& frame)
     vkResetFences(m_Device, 1, &m_InFlightFences[m_CurrentFrameIndex]);
     VK_CHECK(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFences[m_CurrentFrameIndex]));
 
-    m_VulkanUI->PostAction();
+    //m_VulkanUI->PostAction();
 
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;

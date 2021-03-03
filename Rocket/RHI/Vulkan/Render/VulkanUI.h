@@ -32,7 +32,6 @@ namespace Rocket
 		void Initialize() final;
 		void Finalize() final;
 		void UpdataOverlay(uint32_t width, uint32_t height);
-		void PrepareUI();
 		void Draw(VkCommandBuffer cmdBuffer);
 		void PostAction();
 		void SetWindowHandle(GLFWwindow* handle) { windowHandle = handle; }
@@ -46,23 +45,7 @@ namespace Rocket
 		GLFWwindow* windowHandle;
 		uint32_t frameInFlight;
 
-		//VulkanBufferStruct vertexBuffer;
-		//VulkanBufferStruct indexBuffer;
-		//VulkanTexture2D fontTexture;
-
-		//VkPipelineLayout pipelineLayout;
 		VkDescriptorPool descriptorPool;
-		//VkPipeline pipeline;
-		//VkDescriptorSetLayout descriptorSetLayout;
-		//VkDescriptorSet descriptorSet;
-
-		//struct alignas(16) PushConstBlock
-		//{
-		//	Vector2f scale;
-		//	Vector2f translate;
-		//} pushConstBlock;
-
-		//bool canDraw = false;
 
 		// UI Control Variable
 		ImVec4 clearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
