@@ -45,8 +45,6 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT
 
 int VulkanGraphicsManager::Initialize()
 {
-    auto config = g_Application->GetConfig();
-
     bool ret = GraphicsManager::Initialize();
     if (ret)
     {
@@ -54,8 +52,10 @@ int VulkanGraphicsManager::Initialize()
         return ret;
     }
 
+    // Get Config
+    auto config = g_Application->GetConfig();
+    // Get Window Handle
     m_WindowHandle = static_cast<GLFWwindow*>(g_WindowManager->GetNativeWindow());
-
     // Must be : 1, 2, 4, 8, 16, 32, 64
     m_MsaaSamples = (VkSampleCountFlagBits)config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
 
@@ -68,11 +68,10 @@ int VulkanGraphicsManager::Initialize()
     CreateSwapChain();
     CreateGraphicsPipeline();
     CreateFramebuffers();
-    InitGui();
-
     CreateSyncObjects();
-
     CreateUniformBuffers();
+    
+    InitGui();
 
     return 0;
 }

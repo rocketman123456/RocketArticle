@@ -20,10 +20,14 @@ void WindowImplement::Initialize()
 	{
 		int success = glfwInit();
 		RK_CORE_ASSERT(success, "Could not initialize GLFW!");
-		glfwSetErrorCallback(GLFWErrorCallback);
 	}
 
+#if defined(RK_DEBUG)
+	glfwSetErrorCallback(GLFWErrorCallback);
+#endif
+
 #if defined(RK_OPENGL)
+
 #if defined(PLATFORM_APPLE)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
@@ -35,11 +39,13 @@ void WindowImplement::Initialize()
 #if defined(PLATFORM_APPLE)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
-#elif defined(RK_VULKAN) || defined(RK_METAL)
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-#endif
+
 #if defined(RK_DEBUG)
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+#endif
+
+#elif defined(RK_VULKAN) || defined(RK_METAL)
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 #endif
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
