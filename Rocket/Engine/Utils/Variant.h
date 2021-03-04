@@ -18,6 +18,7 @@ namespace Rocket
             TYPE_STRING_ID,
             TYPE_COUNT,
         };
+        
         Type type;
         union
         {
