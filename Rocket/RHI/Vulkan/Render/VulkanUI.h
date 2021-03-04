@@ -31,7 +31,8 @@ namespace Rocket
 			uint32_t frameInFlight);
 		void Initialize() final;
 		void Finalize() final;
-		void UpdataOverlay(uint32_t width, uint32_t height);
+		void UpdataOverlay(uint32_t width, uint32_t height) final;
+		void Draw() final {}; // TODO : finish ui draw
 		void Draw(VkCommandBuffer cmdBuffer);
 		void PostAction();
 		void SetWindowHandle(GLFWwindow* handle) { windowHandle = handle; }
