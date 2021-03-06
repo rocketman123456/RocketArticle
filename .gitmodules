@@ -82,3 +82,9 @@
 [submodule "Thirdparty/gli"]
 	path = Thirdparty/gli
 	url = https://github.com/g-truc/gli
+[submodule "Thirdparty/UDRefl"]
+	path = Thirdparty/UDRefl
+	url = https://github.com/Ubpa/UDRefl
+[submodule "Thirdparty/USRefl"]
+	path = Thirdparty/USRefl
+	url = https://github.com/Ubpa/USRefl
