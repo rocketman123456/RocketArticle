@@ -9,6 +9,7 @@
 #include "Render/DrawBasic/FrameBuffer.h"
 #include "Render/DrawBasic/VertexArray.h"
 #include "Render/DrawBasic/UniformBuffer.h"
+#include "Render/DrawBasic/UI.h"
 #include "Event/Event.h"
 #include "Scene/Scene.h"
 
@@ -84,6 +85,10 @@ namespace Rocket
 
         Ref<FrameBuffer> GetFrameBuffer(const String& name);
 
+        Ref<UI>& GetUI() { return m_UI; }
+        Ref<PipelineState>& GetCurrentPipelineState() { return m_CurrentPipelineState; }
+        Ref<Scene>& GetCurrentScene() { return m_CurrentScene; }
+        Ref<FrameBuffer>& GetCurrentFrameBuffer() { return m_CurrentFrameBuffer; }
     protected:
 
         void InitConstants() {}
@@ -108,6 +113,7 @@ namespace Rocket
 
         UMap<String, Ref<FrameBuffer>> m_FrameBuffers;
 
+        Ref<UI> m_UI = nullptr;
         Ref<PipelineState> m_CurrentPipelineState = nullptr;
         Ref<Scene> m_CurrentScene = nullptr;
         Ref<Shader> m_CurrentShader = nullptr;

@@ -29,13 +29,14 @@ namespace Rocket
 			VkPipelineCache pipelineCache, 
 			VkSampleCountFlagBits multiSampleCount,
 			uint32_t frameInFlight);
+		void SetWindowHandle(GLFWwindow* handle) { windowHandle = handle; }
+		
 		void Initialize() final;
 		void Finalize() final;
 		void UpdataOverlay(uint32_t width, uint32_t height) final;
 		void Draw() final {}; // TODO : finish ui draw
 		void Draw(VkCommandBuffer cmdBuffer);
-		void PostAction();
-		void SetWindowHandle(GLFWwindow* handle) { windowHandle = handle; }
+		//void PostAction();
 	public:
 		VkInstance instance;
 		Ref<VulkanDevice> device;
@@ -47,8 +48,5 @@ namespace Rocket
 		uint32_t frameInFlight;
 
 		VkDescriptorPool descriptorPool;
-
-		// UI Control Variable
-		ImVec4 clearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 	};
 }

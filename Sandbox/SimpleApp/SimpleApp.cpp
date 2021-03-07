@@ -8,6 +8,7 @@
 #include "Module/ProcessManager.h"
 #include "Module/EventManager.h"
 #include "Module/SceneManager.h"
+#include "Module/GameLogic.h"
 
 #include "Scene/Scene.h"
 #include "Scene/SceneNode.h"
@@ -30,6 +31,7 @@ namespace Rocket
     ProcessManager* g_ProcessManager;
     EventManager* g_EventManager;
     SceneManager* g_SceneManager;
+    GameLogic* g_GameLogic;
     
     Application* CreateApplication()
     {
@@ -48,35 +50,60 @@ namespace Rocket
         g_GraphicsManager = GetGraphicsManager();
         g_PipelineStateManager = GetPipelineStateManager();
         g_EventManager = GetEventManager();
+        g_GameLogic = GetGameLogic();
 
         PushModule(g_MemoryManager);
         PushModule(g_AssetLoader);
         PushModule(g_WindowManager);
-        PushModule(g_EventManager);
         PushModule(g_ProcessManager);
+        PushModule(g_EventManager);
+        
         PushModule(g_AudioManager);
         PushModule(g_SceneManager);
+
         PushModule(g_GraphicsManager);
         PushModule(g_PipelineStateManager);
+
+        PushModule(g_GameLogic);
     }
 
     void SimpleApp::PostInitializeModule()
     {
-        bool ret = false;
-        ret = g_EventManager->AddListener(
-            REGISTER_DELEGATE_CLASS(Application::OnWindowClose, *g_Application), 
-            EventHashTable::HashString("window_close"));
-        ret = g_EventManager->AddListener(
-            REGISTER_DELEGATE_CLASS(GraphicsManager::OnWindowResize, *g_GraphicsManager), 
-            EventHashTable::HashString("window_resize"));
-        ret = g_EventManager->AddListener(
-            REGISTER_DELEGATE_CLASS(WindowManager::OnWindowResize, *g_WindowManager), 
-            EventHashTable::HashString("window_resize"));
-        RK_CORE_ASSERT(ret, "Application PostInitializeModule Failed");
+        // Register Event Listener
+        {
+            bool ret = false;
+            ret = g_EventManager->AddListener(
+                REGISTER_DELEGATE_CLASS(Application::OnWindowClose, *g_Application), 
+                EventHashTable::HashString("window_close"));
+            RK_CORE_ASSERT(ret, "Register window_close Failed");
+            ret = g_EventManager->AddListener(
+                REGISTER_DELEGATE_CLASS(GraphicsManager::OnWindowResize, *g_GraphicsManager), 
+                EventHashTable::HashString("window_resize"));
+            RK_CORE_ASSERT(ret, "Register window_resize Failed");
+            ret = g_EventManager->AddListener(
+                REGISTER_DELEGATE_CLASS(WindowManager::OnWindowResize, *g_WindowManager), 
+                EventHashTable::HashString("window_resize"));
+            RK_CORE_ASSERT(ret, "Register window_resize Failed");
+            ret = g_EventManager->AddListener(
+                REGISTER_DELEGATE_CLASS(GameLogic::OnUIEvent, *g_GameLogic), 
+                EventHashTable::HashString("ui_event_logic"));
+            RK_CORE_ASSERT(ret, "Register ui_event_logic Failed");
+        }
+
+        // Setup Game Logic
+        Ref<StateMachine> stateMachine = CreateRef<StateMachine>("Robot Control");
+        Ref<StateNode> init = CreateRef<StateNode>("Init");
+        Ref<StateEdge> egde_11 = CreateRef<StateEdge>("Edge_11");
+        init->transferFun = [](const uint64_t, const uint64_t){ return nullptr; };
+
+        stateMachine->SetInitState(init);
+
+        g_GameLogic->SetStateMachine(stateMachine);
     }
 
     void SimpleApp::PreInitialize()
     {
+        // Setup game asset
         Ref<Scene> scene = CreateRef<Scene>("Test Scene");
         Scope<SceneNode> root_node = CreateScope<SceneNode>("Root Node");
         Scope<SceneNode> cam_node = CreateScope<SceneNode>("Camera Node");

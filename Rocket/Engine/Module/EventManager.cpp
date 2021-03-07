@@ -25,8 +25,8 @@ int EventManager::Initialize()
         
     glfwSetWindowUserPointer(m_WindowHandle, &m_Data);
 
-    SetupCallback();
     SetupListener();
+    SetupCallback();
 
     m_Timer.Start();
 
@@ -50,10 +50,11 @@ void EventManager::SetupCallback()
 		RK_EVENT_TRACE("glfwSetWindowRefreshCallback");
         WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
-        EventVarPtr ptr = Ref<Variant>(new Variant[1], [](Variant* v){ delete[]v; });
-        ptr.get()[0].type = Variant::TYPE_STRING_ID;
-        ptr.get()[0].m_asStringId = EventHashTable::HashString("window_refresh");
-        EventPtr event = CreateRef<Event>(ptr, 1);
+        EventVarVec var;
+        var.resize(1);
+        var[0].type = Variant::TYPE_STRING_ID;
+        var[0].m_asStringId = EventHashTable::HashString("window_refresh");
+        EventPtr event = CreateRef<Event>(var);
 
         data.EventCallback(event);
 	});
@@ -62,16 +63,17 @@ void EventManager::SetupCallback()
         RK_EVENT_TRACE("glfwSetFramebufferSizeCallback");
 		WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
-        EventVarPtr ptr = Ref<Variant>(new Variant[4], [](Variant* v){ delete[]v; });
-        ptr.get()[0].type = Variant::TYPE_STRING_ID;
-        ptr.get()[0].m_asStringId = EventHashTable::HashString("window_resize");
-        ptr.get()[1].type = Variant::TYPE_INT32;
-        ptr.get()[1].m_asInt32 = width;
-        ptr.get()[2].type = Variant::TYPE_INT32;
-        ptr.get()[2].m_asInt32 = height;
-        ptr.get()[3].type = Variant::TYPE_INT32;
-        ptr.get()[3].m_asInt32 = 0;
-        EventPtr event = CreateRef<Event>(ptr, 4);
+        EventVarVec var;
+        var.resize(4);
+        var[0].type = Variant::TYPE_STRING_ID;
+        var[0].m_asStringId = EventHashTable::HashString("window_resize");
+        var[1].type = Variant::TYPE_INT32;
+        var[1].m_asInt32 = width;
+        var[2].type = Variant::TYPE_INT32;
+        var[2].m_asInt32 = height;
+        var[3].type = Variant::TYPE_INT32;
+        var[3].m_asInt32 = 0;
+        EventPtr event = CreateRef<Event>(var);
 
 		data.EventCallback(event);
 	});
@@ -80,10 +82,11 @@ void EventManager::SetupCallback()
         RK_EVENT_TRACE("glfwSetWindowCloseCallback");
 		WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
-        EventVarPtr ptr = Ref<Variant>(new Variant[1], [](Variant* v){ delete[]v; });
-        ptr.get()[0].type = Variant::TYPE_STRING_ID;
-        ptr.get()[0].m_asStringId = EventHashTable::HashString("window_close");
-        EventPtr event = CreateRef<Event>(ptr, 1);
+        EventVarVec var;
+        var.resize(1);
+        var[0].type = Variant::TYPE_STRING_ID;
+        var[0].m_asStringId = EventHashTable::HashString("window_close");
+        EventPtr event = CreateRef<Event>(var);
 
         data.EventCallback(event);
 	});
@@ -91,90 +94,104 @@ void EventManager::SetupCallback()
 	glfwSetKeyCallback(m_WindowHandle, [](GLFWwindow *window, int key, int scancode, int action, int mods) {
         //RK_EVENT_TRACE("glfwSetKeyCallback");
 		WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
-        EventVarPtr ptr = Ref<Variant>(new Variant[3], [](Variant* v){ delete[]v; });
-        ptr.get()[0].type = Variant::TYPE_STRING_ID;
-        ptr.get()[0].m_asStringId = 0;
-        ptr.get()[1].type = Variant::TYPE_INT32;
-        ptr.get()[1].m_asInt32 = scancode;
-        ptr.get()[2].type = Variant::TYPE_INT32;
-        ptr.get()[2].m_asInt32 = 0;
+
+        EventVarVec var;
+        var.resize(3);
+        var[0].type = Variant::TYPE_STRING_ID;
+        var[0].m_asStringId = 0;
+        var[1].type = Variant::TYPE_INT32;
+        var[1].m_asInt32 = scancode;
+        var[2].type = Variant::TYPE_INT32;
+        var[2].m_asInt32 = 0;
 		switch (action)
 		{
             case GLFW_PRESS: {
-                ptr.get()[0].m_asStringId = EventHashTable::HashString("key_press");
-                ptr.get()[2].m_asInt32 = 0;
+                var[0].m_asStringId = EventHashTable::HashString("key_press");
+                var[2].m_asInt32 = 0;
             } break;
             case GLFW_RELEASE: {
-                ptr.get()[0].m_asStringId = EventHashTable::HashString("key_release");
-                ptr.get()[2].m_asInt32 = 0;
+                var[0].m_asStringId = EventHashTable::HashString("key_release");
+                var[2].m_asInt32 = 0;
             } break;
             case GLFW_REPEAT: {
-                ptr.get()[0].m_asStringId = EventHashTable::HashString("key_repeat");
-                ptr.get()[2].m_asInt32 = 1;
+                var[0].m_asStringId = EventHashTable::HashString("key_repeat");
+                var[2].m_asInt32 = 1;
             } break;
 		}
-        EventPtr event = CreateRef<Event>(ptr, 3);
+        EventPtr event = CreateRef<Event>(var);
         data.EventCallback(event);
 	});
 
 	glfwSetCharCallback(m_WindowHandle, [](GLFWwindow *window, uint32_t keycode) {
         //RK_EVENT_TRACE("glfwSetCharCallback");
 		WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
-        EventVarPtr ptr = Ref<Variant>(new Variant[2], [](Variant* v){ delete[]v; });
-        ptr.get()[0].type = Variant::TYPE_STRING_ID;
-        ptr.get()[0].m_asStringId = EventHashTable::HashString("key_char_code");
-        ptr.get()[1].type = Variant::TYPE_UINT32;
-        ptr.get()[1].m_asUInt32 = keycode;
-        EventPtr event = CreateRef<Event>(ptr, 2);
+
+        EventVarVec var;
+        var.resize(2);
+        var[0].type = Variant::TYPE_STRING_ID;
+        var[0].m_asStringId = EventHashTable::HashString("key_char_code");
+        var[1].type = Variant::TYPE_INT32;
+        var[1].m_asInt32 = keycode;
+        EventPtr event = CreateRef<Event>(var);
+
         data.EventCallback(event);
 	});
 
 	glfwSetMouseButtonCallback(m_WindowHandle, [](GLFWwindow *window, int button, int action, int mods) {
         //RK_EVENT_TRACE("glfwSetMouseButtonCallback");
 		WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
-        EventVarPtr ptr = Ref<Variant>(new Variant[2], [](Variant* v){ delete[]v; });
-        ptr.get()[0].type = Variant::TYPE_STRING_ID;
-        ptr.get()[0].m_asStringId = 0;
-        ptr.get()[1].type = Variant::TYPE_INT32;
-        ptr.get()[1].m_asInt32 = button;
+
+        EventVarVec var;
+        var.resize(2);
+        var[0].type = Variant::TYPE_STRING_ID;
+        var[0].m_asStringId = 0;
+        var[1].type = Variant::TYPE_INT32;
+        var[1].m_asInt32 = button;
 		switch (action)
 		{
             case GLFW_PRESS: {
-                ptr.get()[0].m_asStringId = EventHashTable::HashString("mouse_button_press");
+                var[0].m_asStringId = EventHashTable::HashString("mouse_button_press");
             } break;
             case GLFW_RELEASE: {
-                ptr.get()[0].m_asStringId = EventHashTable::HashString("mouse_button_release");
+                var[0].m_asStringId = EventHashTable::HashString("mouse_button_release");
             } break;
 		}
-        EventPtr event = CreateRef<Event>(ptr, 2);
+        EventPtr event = CreateRef<Event>(var);
+        
         data.EventCallback(event);
 	});
 
 	glfwSetScrollCallback(m_WindowHandle, [](GLFWwindow *window, double xOffset, double yOffset) {
         //RK_EVENT_TRACE("glfwSetScrollCallback");
-		WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);      
-        EventVarPtr ptr = Ref<Variant>(new Variant[3], [](Variant* v){ delete[]v; });
-        ptr.get()[0].type = Variant::TYPE_STRING_ID;
-        ptr.get()[0].m_asStringId = EventHashTable::HashString("mouse_scroll");
-        ptr.get()[1].type = Variant::TYPE_DOUBLE;
-        ptr.get()[1].m_asDouble = xOffset;
-        ptr.get()[2].type = Variant::TYPE_DOUBLE;
-        ptr.get()[2].m_asDouble = yOffset;
-        EventPtr event = CreateRef<Event>(ptr, 3);		
+		WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
+
+        EventVarVec var;
+        var.resize(3);
+        var[0].type = Variant::TYPE_STRING_ID;
+        var[0].m_asStringId = EventHashTable::HashString("mouse_scroll");
+        var[1].type = Variant::TYPE_DOUBLE;
+        var[1].m_asDouble = xOffset;
+        var[2].type = Variant::TYPE_DOUBLE;
+        var[2].m_asDouble = yOffset;
+        EventPtr event = CreateRef<Event>(var);
+		
         data.EventCallback(event);
 	});
 
 	glfwSetCursorPosCallback(m_WindowHandle, [](GLFWwindow *window, double xPos, double yPos) {
         //RK_EVENT_TRACE("glfwSetCursorPosCallback");
 		WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
-        EventVarPtr ptr = Ref<Variant>(new Variant[3], [](Variant* v){ delete[]v; });
-        ptr.get()[0].type = Variant::TYPE_STRING_ID;
-        ptr.get()[0].m_asStringId = EventHashTable::HashString("mouse_move");
-        ptr.get()[1].type = Variant::TYPE_DOUBLE;
-        ptr.get()[1].m_asDouble = xPos;
-        ptr.get()[2].type = Variant::TYPE_DOUBLE;
-        ptr.get()[2].m_asDouble = yPos;
-        EventPtr event = CreateRef<Event>(ptr, 3);
+
+        EventVarVec var;
+        var.resize(3);
+        var[0].type = Variant::TYPE_STRING_ID;
+        var[0].m_asStringId = EventHashTable::HashString("mouse_move");
+        var[1].type = Variant::TYPE_DOUBLE;
+        var[1].m_asDouble = xPos;
+        var[2].type = Variant::TYPE_DOUBLE;
+        var[2].m_asDouble = yPos;
+        EventPtr event = CreateRef<Event>(var);
+
 		data.EventCallback(event);
 	});
 }
@@ -193,7 +210,10 @@ void EventManager::OnEvent(EventPtr& event)
 {
     bool ret = false;
     //RK_EVENT_TRACE("Callback Event {0}", *event);
-    if(event->GetEventType() == EventHashTable::HashString("window_close"))
+    auto event_type = event->GetEventType();
+    auto id_1 = EventHashTable::HashString("window_close");
+    auto id_2 = EventHashTable::HashString("window_resize");
+    if(event_type == id_1 || event_type == id_2)
         ret = QueueEvent(event);
     else
         ret = TriggerEvent(event);
@@ -335,6 +355,7 @@ bool EventManager::RemoveListener(const EventListenerDelegate& eventDelegate, co
 
 bool EventManager::TriggerEvent(EventPtr& event) const
 {
+    //RK_EVENT_TRACE("Trigger Event : {}", event->GetName());
     bool processed = false;
     auto findIt = m_EventListener.find(event->GetEventType());
     if (findIt != m_EventListener.end())
@@ -357,18 +378,18 @@ bool EventManager::QueueEvent(const EventPtr& event)
     RK_CORE_ASSERT(m_ActiveEventQueue >= 0, "EventManager Active Queue Error");
     RK_CORE_ASSERT(m_ActiveEventQueue < EVENTMANAGER_NUM_QUEUES, "EventManager Active Queue Error");
 
-    RK_EVENT_INFO("Attempting to queue event: {0}", event->GetName());
+    RK_EVENT_TRACE("Attempting to queue event: {0}", event->GetName());
 
     auto findIt = m_EventListener.find(event->GetEventType());
     if (findIt != m_EventListener.end())
     {
         m_EventQueue[m_ActiveEventQueue].push_back(event);
-        RK_EVENT_INFO("Successfully queued event: {0}", event->GetName());
+        RK_EVENT_TRACE("Successfully queued event: {0}", event->GetName());
         return true;
     }
     else
     {
-        RK_EVENT_INFO("Skipping event since there are no delegates registered: {0}", event->GetName());
+        RK_EVENT_TRACE("Skipping event since there are no delegates registered: {0}", event->GetName());
         return false;
     }
 }

@@ -11,6 +11,7 @@
 
 namespace Rocket
 {
+	using EventVarVec = Vec<Variant>;
 	using EventVarPtr = Ref<Variant>;
 	using EventType = uint64_t;
 
@@ -19,32 +20,24 @@ namespace Rocket
 	Interface IEvent
 	{
 	public:
-		IEvent(const EventVarPtr& var, uint32_t count) : Var(var), Count(count)
-		{
-			RK_CORE_ASSERT(count > 0, "Event Var Count Error");
-			TimeStamp = g_EventTimer->GetExactTime();
-		}
-		virtual ~IEvent() 
-		{
-			//delete[] Var;
-		}
+		IEvent(const EventVarVec& var) : Var(var) { TimeStamp = g_EventTimer->GetExactTime(); }
+		virtual ~IEvent() = default;
 
-		[[nodiscard]] virtual EventType GetEventType() const { return Var.get()[0].m_asStringId; }
+		[[nodiscard]] virtual EventType GetEventType() const { return Var[0].m_asStringId; }
 		[[nodiscard]] virtual const String& GetName() const { return EventHashTable::GetStringFromId(GetEventType()); }
 		[[nodiscard]] virtual const String& ToString() const { return GetName(); }
 
-		[[nodiscard]] int32_t GetInt32(uint32_t index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asInt32; }
-		[[nodiscard]] uint32_t GetUInt32(uint32_t index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asUInt32; }
-		[[nodiscard]] float GetFloat(uint32_t index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asFloat; }
-		[[nodiscard]] double GetDouble(uint32_t index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asDouble; }
-		[[nodiscard]] bool GetBool(uint32_t index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asBool; }
-		[[nodiscard]] void* GetPointer(uint32_t index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asPointer; }
-		[[nodiscard]] string_id GetStringId(uint32_t index) { RK_CORE_ASSERT(index < Count, "event index error"); return Var.get()[index].m_asStringId; }
+		[[nodiscard]] int32_t GetInt32(uint32_t index) { RK_CORE_ASSERT(index < Var.size(), "event index error"); return Var[index].m_asInt32; }
+		[[nodiscard]] uint32_t GetUInt32(uint32_t index) { RK_CORE_ASSERT(index < Var.size(), "event index error"); return Var[index].m_asUInt32; }
+		[[nodiscard]] float GetFloat(uint32_t index) { RK_CORE_ASSERT(index < Var.size(), "event index error"); return Var[index].m_asFloat; }
+		[[nodiscard]] double GetDouble(uint32_t index) { RK_CORE_ASSERT(index < Var.size(), "event index error"); return Var[index].m_asDouble; }
+		[[nodiscard]] bool GetBool(uint32_t index) { RK_CORE_ASSERT(index < Var.size(), "event index error"); return Var[index].m_asBool; }
+		[[nodiscard]] void* GetPointer(uint32_t index) { RK_CORE_ASSERT(index < Var.size(), "event index error"); return Var[index].m_asPointer; }
+		[[nodiscard]] string_id GetStringId(uint32_t index) { RK_CORE_ASSERT(index < Var.size(), "event index error"); return Var[index].m_asStringId; }
 
 		bool Handled = false;
 		double TimeStamp = 0.0f;
-		EventVarPtr Var;
-		uint32_t Count;
+		EventVarVec Var;
 	};
 
 	using EventPtr = Ref<IEvent>;
@@ -52,27 +45,27 @@ namespace Rocket
 	inline std::ostream& operator<<(std::ostream& os, const IEvent &e)
 	{
 		os << e.ToString();
-		for (uint32_t i = 0; i < e.Count; ++i)
+		for (uint32_t i = 0; i < e.Var.size(); ++i)
 		{
-			switch (e.Var.get()[i].type)
+			switch (e.Var[i].type)
 			{
 			case Variant::TYPE_INT32:
-				os << "[" << e.Var.get()[i].m_asInt32 << "]";
+				os << "[" << e.Var[i].m_asInt32 << "]";
 				break;
 			case Variant::TYPE_UINT32:
-				os << "[" << e.Var.get()[i].m_asUInt32 << "]";
+				os << "[" << e.Var[i].m_asUInt32 << "]";
 				break;
 			case Variant::TYPE_FLOAT:
-				os << "[" << e.Var.get()[i].m_asFloat << "]";
+				os << "[" << e.Var[i].m_asFloat << "]";
 				break;
 			case Variant::TYPE_DOUBLE:
-				os << "[" << e.Var.get()[i].m_asDouble << "]";
+				os << "[" << e.Var[i].m_asDouble << "]";
 				break;
 			case Variant::TYPE_POINTER:
-				os << "[" << e.Var.get()[i].m_asPointer << "]";
+				os << "[" << e.Var[i].m_asPointer << "]";
 				break;
 			case Variant::TYPE_STRING_ID:
-				os << "[" << e.Var.get()[i].m_asStringId << "]";
+				os << "[" << e.Var[i].m_asStringId << "]";
 				break;
 			default:
 				RK_EVENT_ERROR("Unknow Event Data Type");

@@ -18,6 +18,15 @@ namespace Rocket
             TYPE_STRING_ID,
             TYPE_COUNT,
         };
+
+        explicit Variant() : type(Variant::TYPE_INT32), m_asInt32(0) {}
+        explicit Variant(Type _type, string_id data) : type(_type), m_asStringId(data) {}
+        explicit Variant(Type _type, int32_t data) : type(_type), m_asInt32(data) {}
+        explicit Variant(Type _type, uint32_t data) : type(_type), m_asUInt32(data) {}
+        explicit Variant(Type _type, float data) : type(_type), m_asFloat(data) {}
+        explicit Variant(Type _type, double data) : type(_type), m_asDouble(data) {}
+        explicit Variant(Type _type, bool data) : type(_type), m_asBool(data) {}
+        explicit Variant(Type _type, void* data) : type(_type), m_asPointer(data) {}
         
         Type type;
         union
@@ -30,10 +39,5 @@ namespace Rocket
             void* m_asPointer;
             string_id m_asStringId;
         };
-
-        //static void* operator new(std::size_t sz);
-        //static void* operator new[](std::size_t sz);
-        //static void operator delete(void* ptr, std::size_t sz);
-        //static void operator delete[](void* ptr, std::size_t sz);
     };
 } // namespace Rocket

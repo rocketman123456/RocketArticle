@@ -52,6 +52,8 @@ add_library( RocketEngine
     Module/AudioManager.cpp
     Module/EventManager.h
     Module/EventManager.cpp
+    Module/GameLogic.h
+    Module/GameLogic.cpp
     Module/GraphicsManager.h
     Module/GraphicsManager.cpp
     Module/MemoryManager.h
@@ -83,6 +85,7 @@ add_library( RocketEngine
     Render/DrawBasic/Texture.h
     Render/DrawBasic/Texture.cpp
     Render/DrawBasic/UI.h
+    Render/DrawBasic/UI.cpp
     Render/DrawBasic/UniformBuffer.h
     Render/DrawBasic/VertexArray.h
     Render/DrawBasic/VertexBuffer.h
@@ -134,8 +137,6 @@ add_library( RocketEngine
     Utils/ThreadPool.h
     Utils/ThreadSafeQueue.h
     Utils/Timer.h
-    Utils/Timer.cpp
     Utils/Variant.h
-    Utils/Variant.cpp
     Utils/YamlMath.h
 )

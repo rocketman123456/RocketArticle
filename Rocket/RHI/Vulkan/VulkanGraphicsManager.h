@@ -120,7 +120,7 @@ namespace Rocket
         bool m_IsRecreateSwapChain = false;
         GLFWwindow* m_WindowHandle = nullptr;
 
-        Ref<VulkanUI> m_VulkanUI = nullptr;
+        //Ref<VulkanUI> m_VulkanUI = nullptr;
         Ref<VulkanDevice> m_LogicalDevice;
         Ref<VulkanSwapChain> m_VulkanSwapChain = nullptr;
         Ref<VulkanPipeline> m_VulkanPipeline = nullptr;

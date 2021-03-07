@@ -4,7 +4,6 @@
 #include "Module/AssetLoader.h"
 
 // ImGui Implements
-#include <imgui_internal.h>
 #include <backends/imgui_impl_glfw.cpp>
 #include <backends/imgui_impl_vulkan.cpp>
 #include <GLFW/glfw3.h>
@@ -152,33 +151,7 @@ void VulkanUI::UpdataOverlay(uint32_t width, uint32_t height)
 	ImGui_ImplVulkan_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	
-	ImGuiContext* context = ImGui::GetCurrentContext();
-	//RK_CORE_INFO("ImGui Info: {}, {}", context->FrameCount, context->FrameCountPlatformEnded);
-
-	ImGui::NewFrame();
-	//RK_CORE_INFO("NewFrame Info: {}, {}", context->FrameCount, context->FrameCountPlatformEnded);
-
-	ImGui::Begin("Rocket", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-	ImGui::Text("Hello, world!");
-	ImGui::Text("Rocket Vulkan Render");
-	ImGui::ColorEdit3("clear color", (float*)&clearColor);
-	ImGui::End();
-	ImGui::ShowDemoWindow();
-
-	ImGui::EndFrame();
-	//RK_CORE_INFO("EndFrame Info: {}, {}", context->FrameCount, context->FrameCountPlatformEnded);
-
-	ImGui::Render();
-	//RK_CORE_INFO("Render Info: {}, {}", context->FrameCount, context->FrameCountPlatformEnded);
-
-	// Update and Render additional Platform Windows
-	ImGuiIO& io = ImGui::GetIO();
-	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-	{
-		ImGui::UpdatePlatformWindows();
-		ImGui::RenderPlatformWindowsDefault();
-	}
-	//RK_CORE_INFO("UpdatePlatformWindows Info: {}, {}", context->FrameCount, context->FrameCountPlatformEnded);
+	UI::UpdataOverlay(width, height);
 }
 
 void VulkanUI::Draw(VkCommandBuffer cmdBuffer)
@@ -187,15 +160,15 @@ void VulkanUI::Draw(VkCommandBuffer cmdBuffer)
 	ImGui_ImplVulkan_RenderDrawData(imDrawData, cmdBuffer);
 }
 
-void VulkanUI::PostAction()
-{
-	// Update and Render additional Platform Windows
-	//ImGuiContext* context = ImGui::GetCurrentContext();
-	//ImGuiIO& io = ImGui::GetIO();
-	//if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-	//{
-	//	ImGui::UpdatePlatformWindows();
-	//	ImGui::RenderPlatformWindowsDefault();
-	//}
-	//RK_CORE_INFO("UpdatePlatformWindows Info: {}, {}, {}", context->FrameCount, context->FrameCountPlatformEnded);
-}
+//void VulkanUI::PostAction()
+//{
+//	// Update and Render additional Platform Windows
+//	//ImGuiContext* context = ImGui::GetCurrentContext();
+//	//ImGuiIO& io = ImGui::GetIO();
+//	//if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+//	//{
+//	//	ImGui::UpdatePlatformWindows();
+//	//	ImGui::RenderPlatformWindowsDefault();
+//	//}
+//	//RK_CORE_INFO("UpdatePlatformWindows Info: {}, {}, {}", context->FrameCount, context->FrameCountPlatformEnded);
+//}

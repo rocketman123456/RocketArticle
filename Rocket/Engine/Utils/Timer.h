@@ -24,8 +24,20 @@ namespace Rocket
 		ElapseTimer() : m_StartTimepoint{ Clock::now() }, m_LapTimePoint{ Clock::now() } {}
 		virtual ~ElapseTimer() = default;
 
-		void Start(void);
-		void MarkLapping(void);
+		void Start(void)
+		{
+			if (!m_Running)
+			{
+				m_Running = true;
+				m_StartTimepoint = Clock::now();
+			}
+		}
+
+		void MarkLapping(void)
+		{
+			m_Lapping = true;
+			m_LapTimePoint = Clock::now();
+		}
 
 		bool IsRunning() const { return m_Running; }
 
