@@ -52,6 +52,7 @@ namespace Rocket
     const String& class_name::GetStringFromId(uint64_t id)\
     { auto& result = _GetStringFromId_(id, IdStringMap); return result; }
 
+    class StateMachineHashTable { DeclareHashTable; };
     class EventHashTable { DeclareHashTable; };
     class AssetHashTable { DeclareHashTable; };
     class GraphicsHashTable { DeclareHashTable; };

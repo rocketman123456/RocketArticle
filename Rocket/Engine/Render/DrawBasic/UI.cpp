@@ -5,21 +5,16 @@
 
 using namespace Rocket;
 
-void UI::UpdataOverlay(uint32_t width, uint32_t height)
+void UI::DrawUI()
 {
-    ImGuiIO& io = ImGui::GetIO();
-    ImGuiContext* context = ImGui::GetCurrentContext();
-
-    ImGui::NewFrame();
-
     EventVarVec var;
-    var.resize(2);
+    var.resize(4);
     // Event Type
     var[0].type = Variant::TYPE_STRING_ID;
-    var[0].m_asStringId = EventHashTable::HashString("ui_event_logic");
+    var[0].asStringId = EventHashTable::HashString("ui_event_logic");
     // Action
     var[1].type = Variant::TYPE_STRING_ID;
-    var[1].m_asStringId = 0;
+    var[1].asStringId = 0;
 
     ImGui::Begin("Rocket", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::Text("Hello, world!");
@@ -28,25 +23,45 @@ void UI::UpdataOverlay(uint32_t width, uint32_t height)
     bool init = ImGui::Button("Init");
     bool walk = ImGui::Button("Walk");
     bool rotation = ImGui::Button("Rotation");
+    double angle_x;
+    double angle_y;
+    ImGui::InputDouble("angle_x", &angle_x);
+    ImGui::InputDouble("angle_y", &angle_y);
+    ImGui::End();
+
+    var[2].type = Variant::TYPE_DOUBLE;
+    var[2].asDouble = angle_x;
+    var[3].type = Variant::TYPE_DOUBLE;
+    var[3].asDouble = angle_y;
+
     if(init)
     {
-        var[1].m_asStringId = EventHashTable::HashString("init_pos");
+        var[1].asStringId = StateMachineHashTable::HashString("init_pos");
     }
     if(walk)
     {
-        var[1].m_asStringId = EventHashTable::HashString("init_pos");
+        var[1].asStringId = StateMachineHashTable::HashString("walk");
     }
     if(rotation)
     {
-        var[1].m_asStringId = EventHashTable::HashString("init_pos");
+        var[1].asStringId = StateMachineHashTable::HashString("rotation");
     }
-    ImGui::End();
 
     if(init || walk || rotation)
     {
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
+}
+
+void UI::UpdataOverlay(uint32_t width, uint32_t height)
+{
+    ImGuiIO& io = ImGui::GetIO();
+    ImGuiContext* context = ImGui::GetCurrentContext();
+
+    ImGui::NewFrame();
+
+    DrawUI();
 
     ImGui::EndFrame();
     ImGui::Render();

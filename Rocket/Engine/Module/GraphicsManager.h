@@ -85,10 +85,10 @@ namespace Rocket
 
         Ref<FrameBuffer> GetFrameBuffer(const String& name);
 
-        Ref<UI>& GetUI() { return m_UI; }
-        Ref<PipelineState>& GetCurrentPipelineState() { return m_CurrentPipelineState; }
-        Ref<Scene>& GetCurrentScene() { return m_CurrentScene; }
-        Ref<FrameBuffer>& GetCurrentFrameBuffer() { return m_CurrentFrameBuffer; }
+        Ref<UI> GetUI() { return m_UI; }
+        Ref<PipelineState> GetCurrentPipelineState() { return m_CurrentPipelineState; }
+        Ref<Scene> GetCurrentScene() { return m_CurrentScene; }
+        Ref<FrameBuffer> GetCurrentFrameBuffer() { return m_CurrentFrameBuffer; }
     protected:
 
         void InitConstants() {}

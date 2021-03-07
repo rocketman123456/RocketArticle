@@ -32,6 +32,7 @@ static const String& _GetStringFromId_(uint64_t id, UMap<uint64_t, String>& id_m
     RK_CORE_ASSERT(false, "Hash String Table Don't Have String ID");
 }
 
+ImplementHashTable(StateMachineHashTable);
 ImplementHashTable(EventHashTable);
 ImplementHashTable(AssetHashTable);
 ImplementHashTable(GraphicsHashTable);

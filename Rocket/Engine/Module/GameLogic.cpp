@@ -18,10 +18,16 @@ void GameLogic::Finalize()
 
 void GameLogic::Tick(Timestep ts)
 {
+    bool result = m_StateMachine->GetIsInTransfer();
+    if(result)
+    {
+        m_StateMachine->Update(m_CurrentStateData);
+    }
 }
 
 bool GameLogic::OnUIEvent(EventPtr& e)
 {
-    m_StateMachine->Update(e->GetStringId(1), e->Var);
-    return false;
+    bool result = m_StateMachine->Update(e->Var);
+    m_CurrentStateData.assign(e->Var.begin(), e->Var.end());
+    return result;
 }

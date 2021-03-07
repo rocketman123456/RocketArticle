@@ -11,12 +11,15 @@ namespace Rocket
     struct StateEdge;
     struct StateNode;
 
-    using TransferFunction = std::function<Ref<StateEdge>(const uint64_t, const uint64_t)>; // Action, State
+    using TransferFunction = std::function<Ref<StateEdge>(const Vec<Variant>&, const uint64_t)>; // Action, State
     using ActionFunction = std::function<bool(const Vec<Variant>&)>;
 
     struct StateNode
     {
         StateNode(const String& _name);
+        void AddEgde(const Ref<StateEdge>& edge);
+        Ref<StateEdge> GetEdge(uint64_t id);
+
         UMap<uint64_t, Ref<StateEdge>> edgeList;
         TransferFunction transferFun;
         uint64_t id;
@@ -28,6 +31,7 @@ namespace Rocket
     struct StateEdge
     {
         StateEdge(const String& _name);
+
         Ref<StateNode> parent;
         Ref<StateNode> child;
         ActionFunction actionFun;
@@ -44,7 +48,8 @@ namespace Rocket
 
         void SetInitState(Ref<StateNode> init);
         void ResetToInitState();
-        void Update(uint64_t action, const Vec<Variant>& data);
+        bool Update(const Vec<Variant>& data);
+        bool GetIsInTransfer() { return isInTransfer; }
 
     private:
         String name;

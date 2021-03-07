@@ -13,6 +13,7 @@ namespace Rocket
 		virtual void Finalize() = 0;
 		virtual void Draw() = 0;
 
+		void DrawUI();
 		virtual void UpdataOverlay(uint32_t width, uint32_t height);
 		virtual bool OnUIResponse(EventPtr& e);
 
