@@ -33,6 +33,14 @@ endif()
 
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     set(Linux 1)
+    set(CMAKE_C_COMPILER    "/usr/bin/clang")
+    set(CMAKE_CXX_COMPILER  "/usr/bin/clang++")
+    set(CMAKE_AR            "/usr/bin/llvm-ar")
+    set(CMAKE_LINKER        "/usr/bin/llvm-ld")
+    set(CMAKE_NM            "/usr/bin/llvm-nm")
+    set(CMAKE_OBJDUMP       "/usr/bin/llvm-objdump")
+    set(CMAKE_RANLIB        "/usr/bin/llvm-ranlib")
+    set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} -ldl -pthread -luuid")
     add_definitions(-DPLATFORM_LINUX)
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(Windows 1)
@@ -41,6 +49,13 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_definitions(-DPLATFORM_WINDOWS)
 elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     set(Apple 1)
+    #set(CMAKE_C_COMPILER    "/usr/bin/clang")
+    #set(CMAKE_CXX_COMPILER  "/usr/bin/clang++")
+    #set(CMAKE_AR            "/usr/bin/llvm-ar")
+    #set(CMAKE_LINKER        "/usr/bin/llvm-ld")
+    #set(CMAKE_NM            "/usr/bin/llvm-nm")
+    #set(CMAKE_OBJDUMP       "/usr/bin/llvm-objdump")
+    #set(CMAKE_RANLIB        "/usr/bin/llvm-ranlib")
     add_definitions(-DPLATFORM_APPLE)
 endif ()
 
@@ -94,10 +109,13 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/External/${CMAKE_SYSTEM_NAME}/include
     ${PROJECT_SOURCE_DIR}/External/${CMAKE_SYSTEM_NAME}/include/eigen3
     ${PROJECT_SOURCE_DIR}/Thirdparty/stb
+    ${PROJECT_SOURCE_DIR}/Thirdparty/glm
     ${PROJECT_SOURCE_DIR}/Thirdparty/imgui
+    ${PROJECT_SOURCE_DIR}/Thirdparty/UGraphviz/include
+    ${PROJECT_SOURCE_DIR}/Thirdparty/UDRefl/include
+    ${PROJECT_SOURCE_DIR}/Thirdparty/USRefl/include
+    ${PROJECT_SOURCE_DIR}/Thirdparty/UTemplate/include
     ${PROJECT_SOURCE_DIR}/Thirdparty/glad/include
-    #${PROJECT_SOURCE_DIR}/Thirdparty/glm
-    #${PROJECT_SOURCE_DIR}/Thirdparty/gli
 )
 include_directories(
     ${PROJECT_SOURCE_DIR}/Rocket/Engine
@@ -125,11 +143,11 @@ add_subdirectory( Rocket )
 
 if(PROFILE)
     set( ENGINE_LIBRARY
-        ${Threads_LIBS} glfw3 glad stb_image imgui sndfile tinyobjloader Remotery CACHE STRING ""
+        ${Threads_LIBS} glfw3 glad stb_image imgui sndfile tinyobjloader UGraphviz Remotery CACHE STRING ""
     )
 else()
     set( ENGINE_LIBRARY
-        ${Threads_LIBS} glfw3 glad stb_image imgui sndfile tinyobjloader CACHE STRING ""
+        ${Threads_LIBS} glfw3 glad stb_image imgui sndfile tinyobjloader UGraphviz CACHE STRING ""
     )
 endif()
 
@@ -145,7 +163,7 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
     if(Apple)
         set(ENGINE_PLATFORM_LIBRARY PlatformWindow spdlog crossguid openal yaml-cpp CACHE STRING "")
     elseif(Linux)
-        set(ENGINE_PLATFORM_LIBRARY PlatformWindow ${CMAKE_DL_LIBS} spdlog crossguid openal yaml-cpp CACHE STRING "")
+        set(ENGINE_PLATFORM_LIBRARY PlatformWindow spdlog crossguid openal yaml-cpp CACHE STRING "")
     elseif(Windows)
         set(ENGINE_PLATFORM_LIBRARY PlatformWindow spdlog crossguid OpenAL32 libyaml-cppmd CACHE STRING "")
     endif()
