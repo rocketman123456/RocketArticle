@@ -82,3 +82,6 @@
 [submodule "Thirdparty/UTemplate"]
 	path = Thirdparty/UTemplate
 	url = https://github.com/Ubpa/UTemplate.git
+[submodule "Thirdparty/glslang"]
+	path = Thirdparty/glslang
+	url = https://github.com/KhronosGroup/glslang.git
