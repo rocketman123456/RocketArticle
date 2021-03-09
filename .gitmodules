@@ -7,15 +7,6 @@
 [submodule "Thirdparty/Remotery"]
 	path = Thirdparty/Remotery
 	url = https://github.com/Celtoys/Remotery.git
-[submodule "Thirdparty/FiberTaskingLib"]
-	path = Thirdparty/FiberTaskingLib
-	url = https://github.com/RichieSams/FiberTaskingLib.git
-[submodule "Thirdparty/glslang"]
-	path = Thirdparty/glslang
-	url = https://github.com/KhronosGroup/glslang.git
-[submodule "Thirdparty/libcopp"]
-	path = Thirdparty/libcopp
-	url = https://github.com/owt5008137/libcopp.git
 [submodule "Thirdparty/lua"]
 	path = Thirdparty/lua
 	url = https://github.com/lua/lua.git
@@ -73,12 +64,6 @@
 [submodule "Thirdparty/shaderc"]
 	path = Thirdparty/shaderc
 	url = https://github.com/google/shaderc.git
-[submodule "Thirdparty/volk"]
-	path = Thirdparty/volk
-	url = https://github.com/zeux/volk.git
-[submodule "Thirdparty/fiber-job-system"]
-	path = Thirdparty/fiber-job-system
-	url = https://github.com/Freeeaky/fiber-job-system.git
 [submodule "Thirdparty/gli"]
 	path = Thirdparty/gli
 	url = https://github.com/g-truc/gli
@@ -88,3 +73,12 @@
 [submodule "Thirdparty/USRefl"]
 	path = Thirdparty/USRefl
 	url = https://github.com/Ubpa/USRefl
+[submodule "Thirdparty/UGraphviz"]
+	path = Thirdparty/UGraphviz
+	url = https://github.com/Ubpa/UGraphviz.git
+[submodule "Thirdparty/graphviz"]
+	path = Thirdparty/graphviz
+	url = https://gitlab.com/graphviz/graphviz.git
+[submodule "Thirdparty/UTemplate"]
+	path = Thirdparty/UTemplate
+	url = https://github.com/Ubpa/UTemplate.git

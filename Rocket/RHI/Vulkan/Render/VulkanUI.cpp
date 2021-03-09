@@ -65,37 +65,11 @@ void VulkanUI::Initialize()
 	}
 
 	// Setup ImGui
-	{
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
-
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;   // Enable Keyboard Controls
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;    // Enable Gamepad Controls
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;       // Enable Docking
-		// TODO : fix multi-viewort error
-		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;     // Enable Multi-Viewport / Platform Windows
-		//io.ConfigViewportsNoAutoMerge = true;
-		//io.ConfigViewportsNoTaskBarIcon = true;
-
-		// Setup Dear ImGui style
-		ImGui::StyleColorsDark();
-		//ImGui::StyleColorsClassic();
-
-		// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows 
-		// can look identical to regular ones.
-		ImGuiStyle& style = ImGui::GetStyle();
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			style.WindowRounding = 0.0f;
-			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-		}
-	}
+	UI::Initialize();
 
 	// Init Vulkan For ImGui
 	{
-		ImGui_ImplGlfw_InitForVulkan(windowHandle, false);
+		ImGui_ImplGlfw_InitForVulkan(windowHandle, true);
 		ImGui_ImplVulkan_InitInfo init_info = {};
 		init_info.Instance = instance;
 		init_info.PhysicalDevice = device->physicalDevice;
@@ -143,7 +117,8 @@ void VulkanUI::Finalize()
 
 	ImGui_ImplVulkan_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
+
+	UI::Finalize();
 }
 
 void VulkanUI::UpdataOverlay(uint32_t width, uint32_t height)
@@ -159,16 +134,3 @@ void VulkanUI::Draw(VkCommandBuffer cmdBuffer)
 	ImDrawData* imDrawData = ImGui::GetDrawData();
 	ImGui_ImplVulkan_RenderDrawData(imDrawData, cmdBuffer);
 }
-
-//void VulkanUI::PostAction()
-//{
-//	// Update and Render additional Platform Windows
-//	//ImGuiContext* context = ImGui::GetCurrentContext();
-//	//ImGuiIO& io = ImGui::GetIO();
-//	//if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-//	//{
-//	//	ImGui::UpdatePlatformWindows();
-//	//	ImGui::RenderPlatformWindowsDefault();
-//	//}
-//	//RK_CORE_INFO("UpdatePlatformWindows Info: {}, {}, {}", context->FrameCount, context->FrameCountPlatformEnded);
-//}

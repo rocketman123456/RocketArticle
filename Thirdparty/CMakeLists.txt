@@ -2,7 +2,6 @@ message(STATUS "Add Thirdparty")
 
 add_library( stb_image stb_image.cpp)
 add_library( glad glad/src/glad.c )
-#add_library( tiny_gltf tiny_gltf.cpp )
 
 add_library( imgui
     imgui/imgui.cpp
@@ -17,6 +16,25 @@ add_library( ImGuizmo
     ImGuizmo/ImGradient.cpp
     ImGuizmo/ImGuizmo.cpp
     ImGuizmo/ImSequencer.cpp
+)
+
+#add_library( UDRefl
+#    UDRefl/src/core/FieldPtr.cpp
+#    UDRefl/src/core/IDRegistry.cpp
+#    UDRefl/src/core/InvokeUtil.cpp
+#    UDRefl/src/core/MethodPtr.cpp
+#    UDRefl/src/core/Object.cpp
+#    UDRefl/src/core/ReflMngr.cpp
+#)
+
+add_library( UGraphviz
+    #UGraphviz/include/UGraphviz/Graph.h
+    #UGraphviz/include/UGraphviz/Registry.h
+    #UGraphviz/include/UGraphviz/Subgraph.h
+    #UGraphviz/include/UGraphviz/UGraphviz.h
+    UGraphviz/src/core/Graph.cpp
+    UGraphviz/src/core/Registry.cpp
+    UGraphviz/src/core/Subgraph.cpp
 )
 
 if(PROFILE)

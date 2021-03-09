@@ -9,8 +9,8 @@ namespace Rocket
 	Interface UI
 	{
 	public:
-		virtual void Initialize() = 0;
-		virtual void Finalize() = 0;
+		virtual void Initialize();
+		virtual void Finalize();
 		virtual void Draw() = 0;
 
 		void DrawUI();
@@ -20,5 +20,9 @@ namespace Rocket
 	protected:
 		// UI Control Variable
 		ImVec4 clearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+		double angle_x;
+    	double angle_y;
+    	int32_t direction;
+		bool showRobotState = true;
 	};
 }

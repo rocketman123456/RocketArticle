@@ -94,10 +94,13 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/External/${CMAKE_SYSTEM_NAME}/include
     ${PROJECT_SOURCE_DIR}/External/${CMAKE_SYSTEM_NAME}/include/eigen3
     ${PROJECT_SOURCE_DIR}/Thirdparty/stb
+    ${PROJECT_SOURCE_DIR}/Thirdparty/glm
     ${PROJECT_SOURCE_DIR}/Thirdparty/imgui
+    ${PROJECT_SOURCE_DIR}/Thirdparty/UGraphviz/include
+    ${PROJECT_SOURCE_DIR}/Thirdparty/UDRefl/include
+    ${PROJECT_SOURCE_DIR}/Thirdparty/USRefl/include
+    ${PROJECT_SOURCE_DIR}/Thirdparty/UTemplate/include
     ${PROJECT_SOURCE_DIR}/Thirdparty/glad/include
-    #${PROJECT_SOURCE_DIR}/Thirdparty/glm
-    #${PROJECT_SOURCE_DIR}/Thirdparty/gli
 )
 include_directories(
     ${PROJECT_SOURCE_DIR}/Rocket/Engine
@@ -125,11 +128,11 @@ add_subdirectory( Rocket )
 
 if(PROFILE)
     set( ENGINE_LIBRARY
-        ${Threads_LIBS} glfw3 glad stb_image imgui sndfile tinyobjloader Remotery CACHE STRING ""
+        ${Threads_LIBS} glfw3 glad stb_image imgui sndfile tinyobjloader UGraphviz Remotery CACHE STRING ""
     )
 else()
     set( ENGINE_LIBRARY
-        ${Threads_LIBS} glfw3 glad stb_image imgui sndfile tinyobjloader CACHE STRING ""
+        ${Threads_LIBS} glfw3 glad stb_image imgui sndfile tinyobjloader UGraphviz CACHE STRING ""
     )
 endif()
 
