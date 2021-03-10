@@ -17,6 +17,8 @@
 #include "Scene/Component/PlanarMesh.h"
 #include "Scene/Component/Transform.h"
 
+#include "Logic/StateMachine.h"
+
 #include <random>
 
 namespace Rocket
