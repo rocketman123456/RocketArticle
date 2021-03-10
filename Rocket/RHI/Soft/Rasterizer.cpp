@@ -7,6 +7,7 @@
 //#include <opencv2/opencv.hpp>
 #include <math.h>
 #include <stdexcept>
+#include <float.h>
 
 rst::pos_buf_id rst::Rasterizer::load_positions(const std::vector<Eigen::Vector3f>& positions)
 {
@@ -24,7 +25,7 @@ rst::ind_buf_id rst::Rasterizer::load_indices(const std::vector<Eigen::Vector3i>
     return { id };
 }
 
-rst::col_buf_id rst::rasterizer::load_colors(const std::vector<Eigen::Vector3f> &cols)
+rst::col_buf_id rst::Rasterizer::load_colors(const std::vector<Eigen::Vector3f> &cols)
 {
     auto id = get_next_id();
     col_buf.emplace(id, cols);
@@ -246,7 +247,7 @@ void rst::Rasterizer::rasterize_wireframe(const Triangle& t)
 }
 
 //Screen space rasterization
-void rst::rasterizer::rasterize_triangle(const Triangle& t) {
+void rst::Rasterizer::rasterize_triangle(const Triangle& t) {
     auto v = t.toVector4();
     
     // Find out the bounding box of current triangle.

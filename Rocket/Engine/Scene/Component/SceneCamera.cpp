@@ -35,30 +35,35 @@ void SceneCamera::RecalculateProjection()
 {
 	if (m_ProjectionType == ProjectionType::Perspective)
 	{
-		float range = tanf((m_PerspectiveFOV * 0.5f / 180.0f * M_PI)) * m_OrthographicNear;	
-		float left = -range * m_AspectRatio;
-		float right = range * m_AspectRatio;
-		float bottom = -range;
-		float top = range;
-
 		m_Projection = Matrix4f::Zero();
 
+		const float range = tanf((m_PerspectiveFOV * 0.5f / 180.0f * M_PI)) * m_OrthographicNear;	
+		const float left = -range * m_AspectRatio;
+		const float right = range * m_AspectRatio;
+		const float bottom = -range;
+		const float top = range;
+
 		const float zNear = m_PerspectiveNear;
-		const float zFar = m_PerspectiveFar
+		const float zFar = m_PerspectiveFar;
 		const float zRange = (zFar - zNear);
-        const float tanHalfFOV = tanf((m_PerspectiveFOV / 2.0f / 180.0f * MY_PI));
+        const float tanHalfFOV = tanf((m_PerspectiveFOV / 2.0f / 180.0f * M_PI));
         
-        m_Projection(0,0) = 1.0f / (tanHalfFOV * aspect_ratio); 
-        m_Projection(1,1) = 1.0f / tanHalfFOV;   
-        m_Projection(2,2) = -(zNear + zFar) / zRange;  
-        m_Projection(2,3) = -2.0f * zFar * zNear / zRange;
-        m_Projection(3,2) = -1.0f;
-		
-		//m_Projection(0,0) = (2.0f * m_PerspectiveNear) / (right - left);
-		//m_Projection(1,1) = (2.0f * m_PerspectiveNear) / (top - bottom);
-		//m_Projection(2,2) = - (m_PerspectiveFar + m_PerspectiveNear) / (m_PerspectiveFar - m_PerspectiveNear);
-		//m_Projection(2,3) = - 1.0f;
-		//m_Projection(3,2) = - (2.0f * m_PerspectiveFar * m_PerspectiveNear) / (m_PerspectiveFar - m_PerspectiveNear);
+		if(0)
+		{
+			m_Projection(0,0) = 1.0f / (tanHalfFOV * m_AspectRatio); 
+			m_Projection(1,1) = 1.0f / tanHalfFOV;   
+			m_Projection(2,2) = -(zNear + zFar) / zRange;  
+			m_Projection(2,3) = -2.0f * zFar * zNear / zRange;
+			m_Projection(3,2) = -1.0f;
+		}
+		else
+		{
+			m_Projection(0,0) = (2.0f * zNear) / (right - left);
+			m_Projection(1,1) = (2.0f * zNear) / (top - bottom);
+			m_Projection(2,2) = - (zFar + zNear) / (zRange);
+			m_Projection(2,3) = - 1.0f;
+			m_Projection(3,2) = - (2.0f * zFar * zNear) / (zRange);
+		}
 	}
 	else
 	{
