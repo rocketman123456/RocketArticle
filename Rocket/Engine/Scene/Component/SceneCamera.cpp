@@ -42,12 +42,23 @@ void SceneCamera::RecalculateProjection()
 		float top = range;
 
 		m_Projection = Matrix4f::Zero();
+
+		const float zNear = m_PerspectiveNear;
+		const float zFar = m_PerspectiveFar
+		const float zRange = (zFar - zNear);
+        const float tanHalfFOV = tanf((m_PerspectiveFOV / 2.0f / 180.0f * MY_PI));
+        
+        m_Projection(0,0) = 1.0f / (tanHalfFOV * aspect_ratio); 
+        m_Projection(1,1) = 1.0f / tanHalfFOV;   
+        m_Projection(2,2) = -(zNear + zFar) / zRange;  
+        m_Projection(2,3) = -2.0f * zFar * zNear / zRange;
+        m_Projection(3,2) = -1.0f;
 		
-		m_Projection(0,0) = (2.0f * m_PerspectiveNear) / (right - left);
-		m_Projection(1,1) = (2.0f * m_PerspectiveNear) / (top - bottom);
-		m_Projection(2,2) = - (m_PerspectiveFar + m_PerspectiveNear) / (m_PerspectiveFar - m_PerspectiveNear);
-		m_Projection(2,3) = - 1.0f;
-		m_Projection(3,2) = - (2.0f * m_PerspectiveFar * m_PerspectiveNear) / (m_PerspectiveFar - m_PerspectiveNear);
+		//m_Projection(0,0) = (2.0f * m_PerspectiveNear) / (right - left);
+		//m_Projection(1,1) = (2.0f * m_PerspectiveNear) / (top - bottom);
+		//m_Projection(2,2) = - (m_PerspectiveFar + m_PerspectiveNear) / (m_PerspectiveFar - m_PerspectiveNear);
+		//m_Projection(2,3) = - 1.0f;
+		//m_Projection(3,2) = - (2.0f * m_PerspectiveFar * m_PerspectiveNear) / (m_PerspectiveFar - m_PerspectiveNear);
 	}
 	else
 	{

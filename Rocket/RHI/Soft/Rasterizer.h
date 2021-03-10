@@ -48,42 +48,51 @@ namespace rst {
         int ind_id = 0;
     };
 
+    struct col_buf_id
+    {
+        int col_id = 0;
+    };
+
     class Rasterizer
     {
     public:
         Rasterizer(int w, int h);
-        pos_buf_id load_positions(const std::vector<Vector3f>& positions);
+        pos_buf_id load_positions(const std::vector<Eigen::Vector3f>& positions);
         ind_buf_id load_indices(const std::vector<Eigen::Vector3i>& indices);
+        col_buf_id load_colors(const std::vector<Eigen::Vector3f>& colors);
 
         void set_model(const Matrix4f& m);
         void set_view(const Matrix4f& v);
         void set_projection(const Matrix4f& p);
 
-        void set_pixel(const Vector3f& point, const Vector3f& color);
+        void set_pixel(const Eigen::Vector3f& point, const Eigen::Vector3f& color);
 
         void clear(Buffers buff);
 
-        void draw(pos_buf_id pos_buffer, ind_buf_id ind_buffer, Primitive type);
+        void draw(pos_buf_id pos_buffer, ind_buf_id ind_buffer, col_buf_id col_buffer, Primitive type);
 
-        std::vector<Vector3f>& frame_buffer() { return frame_buf; }
+        std::vector<Eigen::Vector3f>& frame_buffer() { return frame_buf; }
 
     private:
-        void draw_line(Vector3f begin, Vector3f end);
+        void draw_line(Eigen::Vector3f begin, Eigen::Vector3f end);
         void rasterize_wireframe(const Triangle& t);
+        void rasterize_triangle(const Triangle& t);
 
     private:
         Matrix4f model;
         Matrix4f view;
         Matrix4f projection;
 
-        std::map<int, std::vector<Vector3f>> pos_buf;
+        std::map<int, std::vector<Eigen::Vector3f>> pos_buf;
         std::map<int, std::vector<Eigen::Vector3i>> ind_buf;
+        std::map<int, std::vector<Eigen::Vector3f>> col_buf;
 
-        std::vector<Vector3f> frame_buf;
+        std::vector<Eigen::Vector3f> frame_buf;
         std::vector<float> depth_buf;
         int get_index(int x, int y);
 
         int width, height;
+        bool msaa = false;
 
         int next_id = 0;
         int get_next_id() { return next_id++; }
