@@ -23,8 +23,14 @@ void UI::Initialize()
 		//io.ConfigViewportsNoTaskBarIcon = true;
 
 		// Setup Dear ImGui style
-		ImGui::StyleColorsDark();
-		//ImGui::StyleColorsClassic();
+        if(1)
+        {
+		    ImGui::StyleColorsDark();
+        }
+        else
+        {
+		    ImGui::StyleColorsClassic();
+        }
 
 		// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows 
 		// can look identical to regular ones.
@@ -58,7 +64,7 @@ void UI::DrawUI()
     ImGui::Text("Rocket Vulkan Render");
     ImGui::ColorEdit3("clear color", (float*)&clearColor);
     bool init = ImGui::Button("Init");
-    bool walk = ImGui::Button("Walk");
+    bool walk = ImGui::Button("Walk"); 
     bool rotation = ImGui::Button("Rotation");
     ImGui::Checkbox("Show Robot State", &showRobotState);
     ImGui::Text("Robot Data");
