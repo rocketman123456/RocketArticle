@@ -34,6 +34,23 @@ void StateMachine::ResetToInitState()
     currStateNode = initStateNode;
 }
 
+bool StateMachine::UpdateAction(const Vec<Variant>& data)
+{
+    RK_CORE_TRACE("Update Along Edge {}", currentEdge->name);
+    bool result = currentEdge->actionFun(data, currentEdge->data);
+    currentEdge->finished = result;
+    isTransferFinish = result;
+    // Check Action Result
+    if(currentEdge->finished)
+    {
+        RK_CORE_TRACE("Update To State {}", currentEdge->child->name);
+        currStateNode = currentEdge->child;
+        currentState = currStateNode->id;
+        currentEdge = nullptr;
+    }
+    return result;
+}
+
 bool StateMachine::Update(const Vec<Variant>& data)
 {
     RK_CORE_TRACE("State Machine Update on Action {}", StateMachineHashTable::GetStringFromId(data[1].asStringId));
@@ -41,11 +58,15 @@ bool StateMachine::Update(const Vec<Variant>& data)
     // Get Edge to Follow
     if(!currentEdge)
     {
-        currentEdge = currStateNode->transferFun(data, currentState);
+        auto edge_id = currStateNode->transferFun(data, currentState);
+        currentEdge = currStateNode->GetEdge(edge_id);
         if(!currentEdge)
         {
             return false;
         }
+        // Set Edge Data
+        currentEdge->finished = false;
+        currentEdge->data.assign(data.begin(), data.end());
         RK_CORE_TRACE("Get New Edge {}", currentEdge->name);
     }
     else
@@ -57,22 +78,8 @@ bool StateMachine::Update(const Vec<Variant>& data)
     // Take Edge Action
     if(!currentEdge->finished)
     {
-        RK_CORE_TRACE("Update Along Edge {}", currentEdge->name);
-        bool result = currentEdge->actionFun(data, currentEdge->data);
-        currentEdge->finished = result;
-        // Check Action Result
-        if(currentEdge->finished)
-        {
-            RK_CORE_TRACE("Update To State {}", currentEdge->child->name);
-            currStateNode = currentEdge->child;
-            currentState = currStateNode->id;
-            currentEdge = nullptr;
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        bool result = UpdateAction(data);
+        return result;
     }
     else
     {

@@ -268,7 +268,7 @@ bool EventManager::Update(uint64_t maxMillis)
         // pop the front of the queue
         EventPtr pEvent = m_EventQueue[queueToProcess].front();
         m_EventQueue[queueToProcess].pop_front();
-        RK_EVENT_INFO("\tProcessing Event {0}", pEvent->GetName());
+        RK_EVENT_TRACE("\tProcessing Event {0}", pEvent->GetName());
 
         const EventType& eventType = pEvent->GetEventType();
 
@@ -277,13 +277,13 @@ bool EventManager::Update(uint64_t maxMillis)
         if (findIt != m_EventListener.end())
         {
             const EventListenerList& eventListeners = findIt->second;
-            RK_EVENT_INFO("\tFound {0} delegates", (unsigned long)eventListeners.size());
+            RK_EVENT_TRACE("\tFound {0} delegates", (unsigned long)eventListeners.size());
 
             // call each listener
             for (auto it = eventListeners.begin(); it != eventListeners.end(); ++it)
             {
                 EventListenerDelegate listener = (*it);
-                RK_EVENT_INFO("\tSending event {0} to delegate", pEvent->GetName());
+                RK_EVENT_TRACE("\tSending event {0} to delegate", pEvent->GetName());
                 bool processed = listener(pEvent);
                 if (processed)
                     break;
@@ -294,7 +294,7 @@ bool EventManager::Update(uint64_t maxMillis)
         currMs = m_Timer.GetElapsedTime();
         if (currMs >= maxMs)
         {
-            RK_EVENT_INFO("Aborting event processing; time ran out");
+            RK_EVENT_TRACE("Aborting event processing; time ran out");
             break;
         }
     }
@@ -344,7 +344,7 @@ bool EventManager::RemoveListener(const EventListenerDelegate& eventDelegate, co
             if (eventDelegate == (*it))
             {
                 listeners.erase(it);
-                RK_EVENT_INFO("Successfully removed delegate function from event type {0}", EventHashTable::GetStringFromId(type));
+                RK_EVENT_TRACE("Successfully removed delegate function from event type {0}", EventHashTable::GetStringFromId(type));
                 success = true;
                 break;
             }
@@ -364,7 +364,7 @@ bool EventManager::TriggerEvent(EventPtr& event) const
         for (EventListenerList::const_iterator it = eventListenerList.begin(); it != eventListenerList.end(); ++it)
         {
             auto listener = (*it);
-            RK_EVENT_INFO("Sending Event {0} to delegate.", event->GetName());
+            RK_EVENT_TRACE("Sending Event {0} to delegate.", event->GetName());
             processed = listener(event);  // call the delegate
             if (processed)
                 break;

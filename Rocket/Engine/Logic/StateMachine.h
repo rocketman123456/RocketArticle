@@ -11,8 +11,8 @@ namespace Rocket
     struct StateEdge;
     struct StateNode;
 
-    using TransferFunction = std::function<Ref<StateEdge>(const Vec<Variant>&, const uint64_t)>; // Action, State
-    using ActionFunction = std::function<bool(const Vec<Variant>&, const Vec<Variant>&)>; // Input data, Set data
+    using TransferFunction = std::function<uint64_t(const Vec<Variant>&, const uint64_t)>; // Action, State
+    using ActionFunction = std::function<bool(const Vec<Variant>&, const Vec<Variant>&)>; // Input data, Target data
 
     struct StateNode
     {
@@ -25,12 +25,16 @@ namespace Rocket
         uint64_t id;
         String name;
         Vec<Variant> data;
-        bool onArrive = true;
     };
 
     struct StateEdge
     {
         StateEdge(const String& _name);
+
+        void Reset()
+        {
+            finished = false;
+        }
 
         Ref<StateNode> parent;
         Ref<StateNode> child;
@@ -49,15 +53,16 @@ namespace Rocket
 
         void SetInitState(Ref<StateNode> init);
         void ResetToInitState();
+        bool UpdateAction(const Vec<Variant>& data);
         bool Update(const Vec<Variant>& data);
-        bool GetIsInTransfer() { return isInTransfer; }
+        bool GetTransferFinish() { return isTransferFinish; }
 
     private:
         String name;
         Ref<StateNode> initStateNode = nullptr;
         Ref<StateNode> currStateNode = nullptr;
         Ref<StateEdge> currentEdge = nullptr;
-        bool isInTransfer = false;
+        bool isTransferFinish = true;
 
         // use current action and state to decide next state
         uint64_t currentAction;

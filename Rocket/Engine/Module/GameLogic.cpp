@@ -19,17 +19,21 @@ void GameLogic::Finalize()
 void GameLogic::Tick(Timestep ts)
 {
     // Update state machine to finish state transfer
-    bool result = m_StateMachine->GetIsInTransfer();
-    if(result)
+    bool result = m_StateMachine->GetTransferFinish();
+    if(!result)
     {
-        m_StateMachine->Update(m_CurrentStateData);
+        m_StateMachine->UpdateAction(m_CurrentStateData);
     }
+    //else
+    //{
+    //    m_StateMachine->Update(m_CurrentStateData);
+    //}
 }
 
 bool GameLogic::OnUIEvent(EventPtr& e)
 {
-    bool result = m_StateMachine->GetIsInTransfer();
-    if(result)
+    bool result = m_StateMachine->GetTransferFinish();
+    if(!result)
     {
         RK_EVENT_TRACE("UI Event {} - StateMachine is in Transfer", 
             EventHashTable::GetStringFromId(e->Var[0].asStringId)
