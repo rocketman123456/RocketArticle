@@ -85,3 +85,6 @@
 [submodule "Thirdparty/UGraphviz"]
 	path = Thirdparty/UGraphviz
 	url = https://github.com/Ubpa/UGraphviz.git
+[submodule "Thirdparty/marl"]
+	path = Thirdparty/marl
+	url = https://github.com/google/marl.git

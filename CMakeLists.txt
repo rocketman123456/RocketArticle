@@ -14,6 +14,25 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 17)
 
+if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+    #set(CMAKE_C_COMPILER    "/usr/bin/clang")
+    #set(CMAKE_CXX_COMPILER  "/usr/bin/clang++")
+    #set(CMAKE_AR            "/usr/bin/llvm-ar")
+    #set(CMAKE_LINKER        "/usr/bin/llvm-ld")
+    #set(CMAKE_NM            "/usr/bin/llvm-nm")
+    #set(CMAKE_OBJDUMP       "/usr/bin/llvm-objdump")
+    #set(CMAKE_RANLIB        "/usr/bin/llvm-ranlib")
+elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
+elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+    #set(CMAKE_C_COMPILER    "/usr/bin/gcc-10")
+    #set(CMAKE_CXX_COMPILER  "/usr/bin/g++-10")
+    #set(CMAKE_AR            "/usr/bin/gcc-ar-10")
+    #set(CMAKE_LINKER        "/usr/bin/gcov-10")
+    #set(CMAKE_NM            "/usr/bin/gcc-nm-10")
+    #set(CMAKE_OBJDUMP       "/usr/bin/gcov-dump-10")
+    #set(CMAKE_RANLIB        "/usr/bin/gcc-ranlib-10")
+endif ()
+
 project( Rocket )
 #### Project Language Config ########################
 
@@ -25,22 +44,8 @@ if(PROFILE_FILE)
     add_definitions(-DRK_PROFILE_FILE)
 endif()
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_definitions(-DRK_DEBUG)
-elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
-    add_definitions(-DRK_RELEASE)
-endif()
-
 if (CMAKE_SYSTEM_NAME MATCHES "Linux")
     set(Linux 1)
-    set(CMAKE_C_COMPILER    "/usr/bin/clang")
-    set(CMAKE_CXX_COMPILER  "/usr/bin/clang++")
-    set(CMAKE_AR            "/usr/bin/llvm-ar")
-    set(CMAKE_LINKER        "/usr/bin/llvm-ld")
-    set(CMAKE_NM            "/usr/bin/llvm-nm")
-    set(CMAKE_OBJDUMP       "/usr/bin/llvm-objdump")
-    set(CMAKE_RANLIB        "/usr/bin/llvm-ranlib")
-    set(CMAKE_CXX_LINK_EXECUTABLE "${CMAKE_CXX_LINK_EXECUTABLE} -ldl -pthread -luuid")
     add_definitions(-DPLATFORM_LINUX)
 elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
     set(Windows 1)
@@ -49,15 +54,14 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_definitions(-DPLATFORM_WINDOWS)
 elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     set(Apple 1)
-    #set(CMAKE_C_COMPILER    "/usr/bin/clang")
-    #set(CMAKE_CXX_COMPILER  "/usr/bin/clang++")
-    #set(CMAKE_AR            "/usr/bin/llvm-ar")
-    #set(CMAKE_LINKER        "/usr/bin/llvm-ld")
-    #set(CMAKE_NM            "/usr/bin/llvm-nm")
-    #set(CMAKE_OBJDUMP       "/usr/bin/llvm-objdump")
-    #set(CMAKE_RANLIB        "/usr/bin/llvm-ranlib")
     add_definitions(-DPLATFORM_APPLE)
 endif ()
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions(-DRK_DEBUG)
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_definitions(-DRK_RELEASE)
+endif()
 
 if (RENDER_API MATCHES "OpenGL")
     set(OpenGL 1)
@@ -70,11 +74,6 @@ elseif (RENDER_API MATCHES "Metal")
     add_definitions(-DRK_METAL)
 endif()
 
-configure_file (
-    "${PROJECT_SOURCE_DIR}/RKConfig.h.in"
-    "${PROJECT_SOURCE_DIR}/Rocket/Engine/RKConfig.h"
-)
-
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(WARNINGS "-Werror")
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -82,6 +81,11 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 elseif(MSVC)
     set(WARNINGS "/WX" "/W4")
 endif()
+
+configure_file (
+    "${PROJECT_SOURCE_DIR}/RKConfig.h.in"
+    "${PROJECT_SOURCE_DIR}/Rocket/Engine/RKConfig.h"
+)
 #### Project Definition #############################
 
 #### Project Packages ###############################
