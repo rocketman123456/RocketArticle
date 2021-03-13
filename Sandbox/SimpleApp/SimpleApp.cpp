@@ -93,18 +93,20 @@ namespace Rocket
         }
 
         // Setup Game Logic
-        Eigen::Matrix<uint64_t, 6, 6> stateTransferMatrix = Eigen::Matrix<uint64_t, 6, 6>::Zero();
-        stateTransferMatrix(0, 0) = 0;
-        Ref<StateMachine> stateMachine = CreateRef<StateMachine>("Robot Control");
-        Ref<StateNode> init = CreateRef<StateNode>("Init");
-        Ref<StateEdge> egde_11 = CreateRef<StateEdge>("Edge_11");
-        init->transferFun = [](const Vec<Variant>&, const uint64_t){ 
-            return nullptr; 
-        };
+        {
+            Eigen::Matrix<uint64_t, 6, 6> stateTransferMatrix = Eigen::Matrix<uint64_t, 6, 6>::Zero();
+            stateTransferMatrix(0, 0) = 0;
+            Ref<StateMachine> stateMachine = CreateRef<StateMachine>("Robot Control");
+            Ref<StateNode> init = CreateRef<StateNode>("Init");
+            Ref<StateEdge> egde_11 = CreateRef<StateEdge>("Edge_11");
+            init->transferFun = [](const Vec<Variant>&, const uint64_t){ 
+                return nullptr; 
+            };
 
-        stateMachine->SetInitState(init);
+            stateMachine->SetInitState(init);
 
-        g_GameLogic->SetStateMachine(stateMachine);
+            g_GameLogic->SetStateMachine(stateMachine);
+            }
     }
 
     void SimpleApp::PreInitialize()
