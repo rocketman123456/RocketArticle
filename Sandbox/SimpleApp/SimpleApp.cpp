@@ -92,21 +92,32 @@ namespace Rocket
             RK_CORE_ASSERT(ret, "Register ui_event_logic Failed");
         }
 
+        // Add Robot UI
+        {
+            auto ui = g_GraphicsManager->GetUI();
+            ui->AddContext(CreateRef<RobotUI>());
+        }
+
         // Setup Game Logic
         {
             Eigen::Matrix<uint64_t, 6, 6> stateTransferMatrix = Eigen::Matrix<uint64_t, 6, 6>::Zero();
             stateTransferMatrix(0, 0) = 0;
             Ref<StateMachine> stateMachine = CreateRef<StateMachine>("Robot Control");
             Ref<StateNode> init = CreateRef<StateNode>("Init");
+            Ref<StateNode> rot = CreateRef<StateNode>("Rot_00");
             Ref<StateEdge> egde_11 = CreateRef<StateEdge>("Edge_11");
-            init->transferFun = [](const Vec<Variant>&, const uint64_t){ 
+            init->transferFun = [](const Vec<Variant>& data, const uint64_t state){ 
+                RK_CORE_TRACE("Current State {}, Get Action {}", 
+                    StateMachineHashTable::GetStringFromId(state),
+                    StateMachineHashTable::GetStringFromId(data[1].asStringId)
+                );
                 return nullptr; 
             };
 
             stateMachine->SetInitState(init);
 
             g_GameLogic->SetStateMachine(stateMachine);
-            }
+        }
     }
 
     void SimpleApp::PreInitialize()
@@ -119,20 +130,25 @@ namespace Rocket
 
         Ref<SceneCamera> cam = CreateRef<SceneCamera>();
 
-        cam->SetProjectionType(SceneCamera::ProjectionType::Orthographic);
-        auto width = g_WindowManager->GetWindowWidth();
-        auto height = g_WindowManager->GetWindowHeight();
-        cam->SetViewportSize(width, height);
-        cam->SetOrthographic(10.0f, -1.0f, 10.0f);
+        if(1)
+        {
+            cam->SetProjectionType(SceneCamera::ProjectionType::Orthographic);
+            auto width = g_WindowManager->GetWindowWidth();
+            auto height = g_WindowManager->GetWindowHeight();
+            cam->SetViewportSize(width, height);
+            cam->SetOrthographic(10.0f, -1.0f, 10.0f);
+        }
+        else
+        {
+            cam->SetProjectionType(SceneCamera::ProjectionType::Perspective);
+            auto width = g_WindowManager->GetWindowWidth();
+            auto height = g_WindowManager->GetWindowHeight();
+            cam->SetViewportSize(width, height);
+            cam->SetPerspective(90.0f, 0.1f, 100.0f);
+        }
 
-        //cam->SetProjectionType(SceneCamera::ProjectionType::Perspective);
-        //auto width = g_WindowManager->GetWindowWidth();
-        //auto height = g_WindowManager->GetWindowHeight();
-        //cam->SetViewportSize(width, height);
-        //cam->SetPerspective(90.0f, 0.1f, 100.0f);
-
-        std::default_random_engine e;
-        std::uniform_int_distribution<unsigned> u(0, 254);
+        //std::default_random_engine e;
+        //std::uniform_int_distribution<unsigned> u(0, 254);
         //Scope<PlanarMesh> mesh = CreateScope<PlanarMesh>("Mesh Component");
         //for (int i = -50; i < 50; ++i)
         //{

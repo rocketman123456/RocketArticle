@@ -12,7 +12,7 @@ namespace Rocket
     struct StateNode;
 
     using TransferFunction = std::function<Ref<StateEdge>(const Vec<Variant>&, const uint64_t)>; // Action, State
-    using ActionFunction = std::function<bool(const Vec<Variant>&)>;
+    using ActionFunction = std::function<bool(const Vec<Variant>&, const Vec<Variant>&)>; // Input data, Set data
 
     struct StateNode
     {
@@ -38,6 +38,7 @@ namespace Rocket
         uint64_t id;
         String name;
         bool finished = false;
+        Vec<Variant> data;
     };
 
     class StateMachine

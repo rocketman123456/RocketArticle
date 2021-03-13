@@ -26,6 +26,7 @@ void StateMachine::SetInitState(Ref<StateNode> init)
 {
     initStateNode = init;
     currStateNode = init;
+    currentState = init->id;
 }
 
 void StateMachine::ResetToInitState()
@@ -57,13 +58,14 @@ bool StateMachine::Update(const Vec<Variant>& data)
     if(!currentEdge->finished)
     {
         RK_CORE_TRACE("Update Along Edge {}", currentEdge->name);
-        bool result = currentEdge->actionFun(data);
+        bool result = currentEdge->actionFun(data, currentEdge->data);
         currentEdge->finished = result;
         // Check Action Result
         if(currentEdge->finished)
         {
             RK_CORE_TRACE("Update To State {}", currentEdge->child->name);
             currStateNode = currentEdge->child;
+            currentState = currStateNode->id;
             currentEdge = nullptr;
             return true;
         }

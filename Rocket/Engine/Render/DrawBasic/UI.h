@@ -6,6 +6,12 @@
 
 namespace Rocket
 {
+	Interface UIContext
+	{
+	public:
+		virtual void Draw() = 0;
+	};
+
 	Interface UI
 	{
 	public:
@@ -13,16 +19,14 @@ namespace Rocket
 		virtual void Finalize();
 		virtual void Draw() = 0;
 
+		void AddContext(const Ref<UIContext>& context) { contexts.push_back(context); }
+		// TODO : add remove ui function
 		void DrawUI();
 		virtual void UpdataOverlay(uint32_t width, uint32_t height);
 		virtual bool OnUIResponse(EventPtr& e);
 
 	protected:
-		// UI Control Variable
-		ImVec4 clearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-		double angle_x;
-    	double angle_y;
-    	int32_t direction;
-		bool showRobotState = true;
+		// TODO : use map to store
+		Vec<Ref<UIContext>> contexts;
 	};
 }

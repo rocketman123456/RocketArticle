@@ -1,6 +1,7 @@
 #pragma once
 #include "Module/Application.h"
-
+#include "RobotControl.h"
+#include "RobotUI.h"
 namespace Rocket
 {
     class SimpleApp : implements Application

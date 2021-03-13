@@ -2,6 +2,7 @@
 
 namespace Rocket
 {
+    std::shared_ptr<spdlog::logger> Log::s_EmptyLogger;
     std::shared_ptr<spdlog::logger> Log::s_CoreLogger;
     std::shared_ptr<spdlog::logger> Log::s_ClientLogger;
     std::shared_ptr<spdlog::logger> Log::s_EventLogger;
@@ -11,6 +12,7 @@ namespace Rocket
     {
         spdlog::set_pattern("%^[%T] %n: %v%$");
 
+        s_EmptyLogger = spdlog::stdout_color_mt("Empty");
         s_CoreLogger = spdlog::stdout_color_mt("Rocket");
         s_ClientLogger = spdlog::stdout_color_mt("App");
         s_EventLogger = spdlog::stdout_color_mt("Event");
