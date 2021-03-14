@@ -124,6 +124,12 @@ uint64_t update_along_mat(const Vec<Variant>& data, const uint64_t state)
 
 bool action_on_edge(const Vec<Variant>& input, const Vec<Variant>& target)
 {
+    RK_CORE_ASSERT(input.size() == target.size(), "Data Size Unmatch");
+    // Check Motor Data
+    for(int i = 2; i < 2 + 10; ++i)
+    {
+
+    }
     // if finished, return true
     return false;
 }
