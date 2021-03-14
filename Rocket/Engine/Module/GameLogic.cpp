@@ -20,15 +20,24 @@ void GameLogic::Tick(Timestep ts)
 {
     // Update state machine to finish state transfer
     bool result = m_StateMachine->GetTransferFinish();
-    if(!result)
+    if(!result && m_CurrentInputData.size() > 0)
     {
-        m_StateMachine->UpdateAction(m_CurrentStateData);
+        // Update Action
+        m_StateMachine->UpdateAction(m_CurrentInputData);
     }
-    else if(m_PendingStateData.size() > 0)
+    else if(result && m_PendingStateData.size() > 0)
     {
-        result = m_StateMachine->Update(m_PendingStateData);
+        result = m_StateMachine->UpdateEdge(m_PendingStateData);
         m_PendingStateData.clear();
     }
+}
+
+bool GameLogic::OnResponseEvent(EventPtr& e)
+{
+    RK_CORE_TRACE("Set Input Data");
+    m_CurrentInputData.assign(e->Var.begin(), e->Var.end());
+    m_StateMachine->UpdateAction(m_CurrentInputData);
+    m_CurrentInputData.clear();
 }
 
 bool GameLogic::OnUIEvent(EventPtr& e)
@@ -43,7 +52,7 @@ bool GameLogic::OnUIEvent(EventPtr& e)
         return false;
     }
     m_PendingStateData.clear();
-    result = m_StateMachine->Update(e->Var);
+    result = m_StateMachine->UpdateEdge(e->Var);
     m_CurrentStateData.assign(e->Var.begin(), e->Var.end());
     return result;
 }

@@ -49,7 +49,7 @@ namespace Rocket
         void SetInitState(Ref<StateNode> init);
         void ResetToInitState();
         bool UpdateAction(const Vec<Variant>& data);
-        bool Update(const Vec<Variant>& data);
+        bool UpdateEdge(const Vec<Variant>& data);
         bool GetTransferFinish() { return isTransferFinish; }
 
     private:

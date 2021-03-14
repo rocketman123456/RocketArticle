@@ -122,14 +122,20 @@ uint64_t update_along_mat(const Vec<Variant>& data, const uint64_t state)
     return edge;
 }
 
+static bool is_near(float i, float j, float esp = 1e-3)
+{
+    return std::abs(i - j) <= esp;
+}
+
 bool action_on_edge(const Vec<Variant>& input, const Vec<Variant>& target)
 {
     RK_CORE_ASSERT(input.size() == target.size(), "Data Size Unmatch");
+    bool result = true;
     // Check Motor Data
     for(int i = 2; i < 2 + 10; ++i)
     {
-
+        result = result & is_near(input[i].asFloat, target[i].asFloat);
     }
     // if finished, return true
-    return false;
+    return result;
 }

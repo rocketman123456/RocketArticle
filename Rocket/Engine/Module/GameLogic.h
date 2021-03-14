@@ -21,10 +21,12 @@ namespace Rocket
         Ref<StateMachine> GetStateMachine() { return m_StateMachine; }
 
         bool OnUIEvent(EventPtr& e);
+        bool OnResponseEvent(EventPtr& e);
 
     private:
         Ref<StateMachine> m_StateMachine = nullptr;
         Vec<Variant> m_CurrentStateData;
+        Vec<Variant> m_CurrentInputData;
         Vec<Variant> m_PendingStateData;
     };
 
