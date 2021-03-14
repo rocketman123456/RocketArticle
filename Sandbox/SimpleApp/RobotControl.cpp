@@ -119,8 +119,6 @@ uint64_t update_along_mat(const Vec<Variant>& data, const uint64_t state)
     uint64_t edge_id = transfer_edge_mat(state_id, action_id);
     uint64_t edge = Get2Map(edge_2_mat, edge_id);
 
-    //RK_CORE_TRACE("Get Edge {}:{}", StateMachineHashTable::GetStringFromId(edge), edge);
-
     return edge;
 }
 
