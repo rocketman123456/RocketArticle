@@ -31,11 +31,6 @@ namespace Rocket
     {
         StateEdge(const String& _name);
 
-        void Reset()
-        {
-            finished = false;
-        }
-
         Ref<StateNode> parent;
         Ref<StateNode> child;
         ActionFunction actionFun;

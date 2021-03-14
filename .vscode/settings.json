@@ -118,7 +118,8 @@
         "nonlinearoptimization": "cpp",
         "core": "cpp",
         "any": "cpp",
-        "scoped_allocator": "cpp"
+        "scoped_allocator": "cpp",
+        "matrixfunctions": "cpp"
     },
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

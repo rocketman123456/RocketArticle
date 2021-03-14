@@ -80,6 +80,7 @@ namespace Rocket
             RK_CORE_ASSERT(ret, "Register window_resize Failed");
             ret = g_EventManager->AddListener(REGISTER_DELEGATE_CLASS(WindowManager::OnWindowResize, *g_WindowManager), EventHashTable::HashString("window_resize"));
             RK_CORE_ASSERT(ret, "Register window_resize Failed");
+
             ret = g_EventManager->AddListener(REGISTER_DELEGATE_CLASS(GameLogic::OnUIEvent, *g_GameLogic), EventHashTable::HashString("ui_event_logic"));
             RK_CORE_ASSERT(ret, "Register ui_event_logic Failed");
         }
@@ -92,144 +93,177 @@ namespace Rocket
 
         // Setup Game Logic
         {
-            Eigen::Matrix<uint64_t, 6, 6> stateTransferMatrix = Eigen::Matrix<uint64_t, 6, 6>::Zero();
-            stateTransferMatrix(0, 0) = 0;
+            Ref<StateNode> init = CreateRef<StateNode>("init"); init->transferFun = update_along_mat;
+
+            Ref<StateNode> rot_00 = CreateRef<StateNode>("rot_00"); rot_00->transferFun = update_along_mat;
+            Ref<StateNode> rot_01 = CreateRef<StateNode>("rot_01"); rot_01->transferFun = update_along_mat;
+            Ref<StateNode> rot_02 = CreateRef<StateNode>("rot_02"); rot_02->transferFun = update_along_mat;
+
+            Ref<StateNode> move_00 = CreateRef<StateNode>("move_00"); move_00->transferFun = update_along_mat;
+            Ref<StateNode> move_01 = CreateRef<StateNode>("move_01"); move_01->transferFun = update_along_mat;
+            Ref<StateNode> move_02 = CreateRef<StateNode>("move_02"); move_02->transferFun = update_along_mat;
+            Ref<StateNode> move_03 = CreateRef<StateNode>("move_03"); move_03->transferFun = update_along_mat;
+            Ref<StateNode> move_04 = CreateRef<StateNode>("move_04"); move_04->transferFun = update_along_mat;
+            Ref<StateNode> move_05 = CreateRef<StateNode>("move_05"); move_05->transferFun = update_along_mat;
+
+            // Set init 0
+            {
+                Ref<StateEdge> edge_01 = CreateRef<StateEdge>("edge_01");
+                //RK_CORE_INFO("edge_01 : {}", edge_01->id);
+                edge_01->parent = init;
+                edge_01->child = rot_00;
+                edge_01->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
+
+                Ref<StateEdge> edge_04 = CreateRef<StateEdge>("edge_04");
+                edge_04->parent = init;
+                edge_04->child = move_00;
+                edge_04->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
+
+                init->AddEgde(edge_01);
+                init->AddEgde(edge_04);
+            }
+            
+            // Set rot_00 1
+            {
+                Ref<StateEdge> edge_10 = CreateRef<StateEdge>("edge_10");
+                edge_10->parent = rot_00;
+                edge_10->child = init;
+                edge_10->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
+
+                Ref<StateEdge> edge_12 = CreateRef<StateEdge>("edge_12");
+                edge_12->parent = rot_00;
+                edge_12->child = rot_01;
+                edge_12->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
+
+                rot_00->AddEgde(edge_10);
+                rot_00->AddEgde(edge_12);
+            }
+
+            // Set rot_01 2
+            {
+                Ref<StateEdge> edge_23 = CreateRef<StateEdge>("edge_23");
+                edge_23->parent = rot_01;
+                edge_23->child = rot_02;
+                edge_23->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
+
+                rot_01->AddEgde(edge_23);
+            }
+            
+            // Set rot_02 3
+            {
+                Ref<StateEdge> edge_31 = CreateRef<StateEdge>("edge_31");
+                edge_31->parent = rot_02;
+                edge_31->child = rot_00;
+                edge_31->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
+
+                rot_02->AddEgde(edge_31);
+            }
+
+            // Set move_00 4
+            {
+                Ref<StateEdge> edge_40 = CreateRef<StateEdge>("edge_40");
+                edge_40->parent = move_00;
+                edge_40->child = init;
+                edge_40->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
+
+                Ref<StateEdge> edge_45 = CreateRef<StateEdge>("edge_45");
+                edge_45->parent = move_00;
+                edge_45->child = move_01;
+                edge_45->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
+
+                move_00->AddEgde(edge_40);
+                move_00->AddEgde(edge_45);
+            }
+
+            // Set move_01 5
+            {
+                Ref<StateEdge> edge_50 = CreateRef<StateEdge>("edge_50");
+                edge_50->parent = move_01;
+                edge_50->child = init;
+                edge_50->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
+
+                Ref<StateEdge> edge_56 = CreateRef<StateEdge>("edge_56");
+                edge_56->parent = move_01;
+                edge_56->child = move_02;
+                edge_56->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
+
+                move_01->AddEgde(edge_50);
+                move_01->AddEgde(edge_56);
+            }
+
+            // Set move_02 6
+            {
+                Ref<StateEdge> edge_60 = CreateRef<StateEdge>("edge_60");
+                edge_60->parent = move_02;
+                edge_60->child = init;
+                edge_60->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
+
+                Ref<StateEdge> edge_67 = CreateRef<StateEdge>("edge_67");
+                edge_67->parent = move_02;
+                edge_67->child = move_03;
+                edge_67->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
+
+                move_02->AddEgde(edge_60);
+                move_02->AddEgde(edge_67);
+            }
+            
+            // Set move_03 7
+            {
+                Ref<StateEdge> edge_70 = CreateRef<StateEdge>("edge_70");
+                edge_70->parent = move_03;
+                edge_70->child = init;
+                edge_70->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
+
+                Ref<StateEdge> edge_78 = CreateRef<StateEdge>("edge_78");
+                edge_78->parent = move_03;
+                edge_78->child = move_04;
+                edge_78->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
+
+                move_03->AddEgde(edge_70);
+                move_03->AddEgde(edge_78);
+            }
+
+            // Set move_04 8
+            {
+                Ref<StateEdge> edge_80 = CreateRef<StateEdge>("edge_80");
+                edge_80->parent = move_04;
+                edge_80->child = init;
+                edge_80->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
+
+                Ref<StateEdge> edge_89 = CreateRef<StateEdge>("edge_89");
+                edge_89->parent = move_04;
+                edge_89->child = move_05;
+                edge_89->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
+
+                move_04->AddEgde(edge_80);
+                move_04->AddEgde(edge_89);
+            }
+
+            // Set move_05 9
+            {
+                Ref<StateEdge> edge_90 = CreateRef<StateEdge>("edge_90");
+                edge_90->parent = move_05;
+                edge_90->child = init;
+                edge_90->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
+
+                Ref<StateEdge> edge_94 = CreateRef<StateEdge>("edge_94");
+                edge_94->parent = move_05;
+                edge_94->child = move_00;
+                edge_94->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
+
+                move_05->AddEgde(edge_90);
+                move_05->AddEgde(edge_94);
+            }
+
+            initialize_variable();
             Ref<StateMachine> stateMachine = CreateRef<StateMachine>("Robot Control");
-
-            Ref<StateNode> init = CreateRef<StateNode>("init"); init->transferFun = init_2_other;
-
-            Ref<StateNode> rot_00 = CreateRef<StateNode>("rot_00"); rot_00->transferFun = rot_00_2_other;
-            Ref<StateNode> rot_01 = CreateRef<StateNode>("rot_01"); rot_01->transferFun = rot_01_2_other;
-            Ref<StateNode> rot_02 = CreateRef<StateNode>("rot_02"); rot_02->transferFun = rot_02_2_other;
-
-            Ref<StateNode> move_00 = CreateRef<StateNode>("move_00"); move_00->transferFun = move_00_2_other;
-            Ref<StateNode> move_01 = CreateRef<StateNode>("move_01"); move_01->transferFun = move_01_2_other;
-            Ref<StateNode> move_02 = CreateRef<StateNode>("move_02"); move_02->transferFun = move_02_2_other;
-            Ref<StateNode> move_03 = CreateRef<StateNode>("move_03"); move_03->transferFun = move_03_2_other;
-            Ref<StateNode> move_04 = CreateRef<StateNode>("move_04"); move_04->transferFun = move_04_2_other;
-            Ref<StateNode> move_05 = CreateRef<StateNode>("move_05"); move_05->transferFun = move_05_2_other;
-
-            // Set init
-            {
-                Ref<StateEdge> egde_02 = CreateRef<StateEdge>("egde_02");
-                egde_02->parent = init;
-                egde_02->child = rot_00;
-                egde_02->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
-
-                Ref<StateEdge> egde_03 = CreateRef<StateEdge>("egde_03");
-                egde_03->parent = init;
-                egde_03->child = move_00;
-                egde_03->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
-
-                init->AddEgde(egde_02);
-                init->AddEgde(egde_03);
-            }
-            
-            // Set rot_00
-            {
-                Ref<StateEdge> egde_20 = CreateRef<StateEdge>("egde_20");
-                egde_20->parent = rot_00;
-                egde_20->child = init;
-                egde_20->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
-
-                Ref<StateEdge> egde_21 = CreateRef<StateEdge>("egde_21");
-                egde_21->parent = rot_00;
-                egde_21->child = rot_01;
-                egde_21->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
-
-                rot_00->AddEgde(egde_20);
-                rot_00->AddEgde(egde_21);
-            }
-
-            // Set rot_01
-            {
-                Ref<StateEdge> egde_22 = CreateRef<StateEdge>("egde_22");
-                egde_22->parent = rot_01;
-                egde_22->child = rot_02;
-                egde_22->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
-
-                rot_01->AddEgde(egde_22);
-            }
-            
-            // Set rot_02
-            {
-                Ref<StateEdge> egde_23 = CreateRef<StateEdge>("egde_23");
-                egde_23->parent = rot_02;
-                egde_23->child = rot_00;
-                egde_23->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
-
-                rot_02->AddEgde(egde_23);
-            }
-
-            // Set move_00
-            {
-                Ref<StateEdge> egde_30 = CreateRef<StateEdge>("egde_30");
-                egde_30->parent = move_00;
-                egde_30->child = init;
-                egde_30->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
-
-                Ref<StateEdge> egde_31 = CreateRef<StateEdge>("egde_31");
-                egde_31->parent = move_00;
-                egde_31->child = move_01;
-                egde_31->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
-
-                move_00->AddEgde(egde_30);
-                move_00->AddEgde(egde_31);
-            }
-
-            // Set move_01
-            {
-                Ref<StateEdge> egde_32 = CreateRef<StateEdge>("egde_32");
-                egde_32->parent = move_01;
-                egde_32->child = move_02;
-                egde_32->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
-
-                move_01->AddEgde(egde_32);
-            }
-
-            // Set move_02
-            {
-                Ref<StateEdge> egde_33 = CreateRef<StateEdge>("egde_33");
-                egde_33->parent = move_02;
-                egde_33->child = move_03;
-                egde_33->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
-
-                move_02->AddEgde(egde_33);
-            }
-            
-            // Set move_03
-            {
-                Ref<StateEdge> egde_34 = CreateRef<StateEdge>("egde_34");
-                egde_34->parent = move_03;
-                egde_34->child = move_04;
-                egde_34->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
-
-                move_03->AddEgde(egde_34);
-            }
-
-            // Set move_04
-            {
-                Ref<StateEdge> egde_35 = CreateRef<StateEdge>("egde_35");
-                egde_35->parent = move_04;
-                egde_35->child = move_05;
-                egde_35->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
-
-                move_04->AddEgde(egde_35);
-            }
-
-            // Set move_05
-            {
-                Ref<StateEdge> egde_36 = CreateRef<StateEdge>("egde_36");
-                egde_36->parent = move_05;
-                egde_36->child = move_00;
-                egde_36->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
-
-                move_05->AddEgde(egde_36);
-            }
-
             stateMachine->SetInitState(init);
-
             g_GameLogic->SetStateMachine(stateMachine);
+        }
+
+        // hash test
+        {
+            auto hash_result = "hash"_hash;
         }
     }
 

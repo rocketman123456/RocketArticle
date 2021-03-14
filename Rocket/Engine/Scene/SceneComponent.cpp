@@ -1,4 +1,5 @@
 #include "Scene/SceneComponent.h"
+#include "Utils/Portable.h"
 
 #include <iostream>
 #include <crossguid/guid.hpp>

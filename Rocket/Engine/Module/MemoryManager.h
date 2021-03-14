@@ -2,6 +2,7 @@
 #pragma once
 #include "Interface/IMemoryManager.h"
 #include "Common/BlockAllocator.h"
+#include "Utils/Hashing.h"
 #include "Utils/Portable.h"
 
 #include <functional>

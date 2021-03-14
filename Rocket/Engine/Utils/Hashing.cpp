@@ -4,7 +4,16 @@ using namespace Rocket;
 
 static uint64_t _HashString_(const String& str, UMap<uint64_t, String>& id_map)
 {
-    uint64_t result = std::hash<String>{}(str);
+    //uint64_t result = 0;
+    // From Google Chrome
+    //for (auto it = str.cbegin(); it != str.cend(); ++it) {
+    //    result = (result * 131) + *it;
+    //    //RK_CORE_TRACE("{}", *it);
+    //}
+    //uint64_t result = std::hash<std::string>()(str);
+    //uint64_t result = std::hash<String>{}(str);
+    uint64_t result = Rocket::hash(str);
+
     auto it = id_map.find(result);
     if (it != id_map.end())
     {
@@ -29,7 +38,8 @@ static const String& _GetStringFromId_(uint64_t id, UMap<uint64_t, String>& id_m
     {
         return it->second;
     }
-    RK_CORE_ASSERT(false, "Hash String Table Don't Have String ID");
+    RK_CORE_WARN("Hash String Table Don't Have String ID {}", id);
+    return "";
 }
 
 ImplementHashTable(StateMachineHashTable);

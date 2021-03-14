@@ -16,5 +16,17 @@
             "externalConsole": false,
             "MIMode": "lldb"
         }
+        {
+            "name": "(lldb) SimpleApp Win",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/Sandbox/SimpleApp/Debug/SimpleApp.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        }
     ]
 }

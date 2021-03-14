@@ -15,6 +15,13 @@ void StateNode::AddEgde(const Ref<StateEdge>& edge)
 
 Ref<StateEdge> StateNode::GetEdge(uint64_t id)
 {
+#if defined(RK_DEBUG)
+    //for(auto it : edgeList)
+    //{
+    //    RK_CORE_TRACE("Edge List {}:{}, address:{}", StateMachineHashTable::GetStringFromId(it.first), it.first, (uint64_t)it.second.get());
+    //}
+#endif
+
     auto it = edgeList.find(id);
     if(it != edgeList.end())
         return it->second;
@@ -58,13 +65,16 @@ bool StateMachine::Update(const Vec<Variant>& data)
     // Get Edge to Follow
     if(!currentEdge)
     {
-        auto edge_id = currStateNode->transferFun(data, currentState);
+        uint64_t edge_id = currStateNode->transferFun(data, currentState);
+        //RK_CORE_TRACE("Get Edge Id : {}", edge_id);
         currentEdge = currStateNode->GetEdge(edge_id);
         if(!currentEdge)
         {
+            RK_CORE_TRACE("Get null Edge");
             return false;
         }
-        // Set Edge Data
+        // Init Edge Data
+        isTransferFinish = false;
         currentEdge->finished = false;
         currentEdge->data.assign(data.begin(), data.end());
         RK_CORE_TRACE("Get New Edge {}", currentEdge->name);
@@ -72,18 +82,6 @@ bool StateMachine::Update(const Vec<Variant>& data)
     else
     {
         RK_CORE_TRACE("Keep Update Along Edge {}", currentEdge->name);
-        return false;
-    }
-    // Step 2
-    // Take Edge Action
-    if(!currentEdge->finished)
-    {
-        bool result = UpdateAction(data);
-        return result;
-    }
-    else
-    {
-        RK_CORE_TRACE("Edge Action Unfinish {}", currentEdge->name);
         return false;
     }
 }

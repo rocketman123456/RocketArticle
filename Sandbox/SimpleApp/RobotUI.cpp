@@ -5,17 +5,13 @@
 
 using namespace Rocket;
 
+void RobotUI::CalculateRobot()
+{
+
+}
+
 void RobotUI::Draw()
 {
-    EventVarVec var;
-    var.resize(5);
-    // Event Type
-    var[0].type = Variant::TYPE_STRING_ID;
-    var[0].asStringId = EventHashTable::HashString("ui_event_logic");
-    // Action
-    var[1].type = Variant::TYPE_STRING_ID;
-    var[1].asStringId = 0;
-
     ImGui::Begin("Rocket", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::Text("Hello, world!");
     ImGui::Text("Rocket Vulkan Render");
@@ -79,35 +75,33 @@ void RobotUI::Draw()
 
     ImGui::ShowDemoWindow();
 
-    if(init)
+    EventVarVec var;
+    var.resize(2 + 10 + 10);
+
+    if(init || walk || rotation)
     {
-        var[1].asStringId = StateMachineHashTable::HashString("init_pos");
-        var[2].type = Variant::TYPE_DOUBLE;
-        var[2].asDouble = 0;
-        var[3].type = Variant::TYPE_DOUBLE;
-        var[3].asDouble = 0;
-        var[3].type = Variant::TYPE_INT32;
-        var[3].asDouble = 0;
+        // Event Type
+        var[0].type = Variant::TYPE_STRING_ID;
+        var[0].asStringId = EventHashTable::HashString("ui_event_logic");
+        // Action
+        var[1].type = Variant::TYPE_STRING_ID;
+        var[1].asStringId = 0;
     }
-    if(walk)
+
+    if(init) { var[1].asStringId = StateMachineHashTable::HashString("init_pos"); }
+    if(walk) { var[1].asStringId = StateMachineHashTable::HashString("walk"); }
+    if(rotation) { var[1].asStringId = StateMachineHashTable::HashString("rotation"); }
+
+    for(int i = 0; i < 10 ; ++i)
     {
-        var[1].asStringId = StateMachineHashTable::HashString("walk");
-        var[2].type = Variant::TYPE_DOUBLE;
-        var[2].asDouble = angle_x;
-        var[3].type = Variant::TYPE_DOUBLE;
-        var[3].asDouble = angle_y;
-        var[3].type = Variant::TYPE_INT32;
-        var[3].asDouble = direction;
+        var[2 + i].type = Variant::TYPE_FLOAT;
+        var[2 + i].asFloat = motor_data[i];
     }
-    if(rotation)
+
+    for(int i = 0; i < 10 ; ++i)
     {
-        var[1].asStringId = StateMachineHashTable::HashString("rotation");
-        var[2].type = Variant::TYPE_DOUBLE;
-        var[2].asDouble = angle_x;
-        var[3].type = Variant::TYPE_DOUBLE;
-        var[3].asDouble = angle_y;
-        var[3].type = Variant::TYPE_INT32;
-        var[3].asDouble = direction;
+        var[12 + i].type = Variant::TYPE_INT32;
+        var[12 + i].asFloat = valve_data[i];
     }
 
     if(init || walk || rotation)

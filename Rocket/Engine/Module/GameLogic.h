@@ -25,6 +25,7 @@ namespace Rocket
     private:
         Ref<StateMachine> m_StateMachine = nullptr;
         Vec<Variant> m_CurrentStateData;
+        Vec<Variant> m_PendingStateData;
     };
 
     GameLogic* GetGameLogic();
