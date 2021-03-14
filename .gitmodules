@@ -85,3 +85,6 @@
 [submodule "Thirdparty/marl"]
 	path = Thirdparty/marl
 	url = https://github.com/google/marl.git
+[submodule "Thirdparty/CSerialPort"]
+	path = Thirdparty/CSerialPort
+	url = https://github.com/itas109/CSerialPort
