@@ -1,4 +1,5 @@
 #pragma once
+#include "Core/Core.h"
 
 #include "CSerialPort/SerialPort.h"
 #include "CSerialPort/SerialPortInfo.h"

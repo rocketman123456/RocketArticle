@@ -27,14 +27,6 @@ static uint64_t Get2Map(const UMap<uint64_t, uint64_t>& map, uint64_t input)
     return UINT_MAX;
 }
 
-static void log_state_transfer(const uint64_t action, const uint64_t state)
-{
-    RK_CORE_TRACE("Current State {}, Get Action {}", 
-        GlobalHashTable::GetStringFromId("StateMachine"_hash, state),
-        GlobalHashTable::GetStringFromId("StateMachine"_hash, action)
-    );
-}
-
 #define ACTION_MAT_ID(action) action_2_mat[GlobalHashTable::HashString("StateMachine"_hash, action)]
 #define NODE_MAT_ID(node) node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, node)]
 #define EDGE_MAT_ID(edge) edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, edge)]
@@ -45,50 +37,52 @@ void initialize_variable()
     transfer_edge_mat = Eigen::Matrix<uint64_t, Eigen::Dynamic, Eigen::Dynamic>(12, 3);
 
     // Action id
-    action_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "init_pos")] = 0;
-    action_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "rotation")] = 1;
-    action_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "walk")] = 2;
+    ACTION_MAT_ID("init_pos") = 0;
+    ACTION_MAT_ID("rotation") = 1;
+    ACTION_MAT_ID("walk") = 2;
 
     // Node id
-    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "init")] = 0;
-    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "rot_00")] = 1;
-    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "rot_01")] = 2;
-    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "rot_02")] = 3;
-    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "move_00")] = 4;
-    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "move_01")] = 5;
-    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "move_02")] = 6;
-    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "move_03")] = 7;
-    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "move_04")] = 8;
-    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "move_05")] = 9;
-    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "rot_rec_0")] = 10;
-    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "rot_rec_1")] = 11;
+    NODE_MAT_ID("init") = 0;
+    NODE_MAT_ID("rot_00") = 1;
+    NODE_MAT_ID("rot_01") = 2;
+    NODE_MAT_ID("rot_02") = 3;
+    NODE_MAT_ID("move_00") = 4;
+    NODE_MAT_ID("move_01") = 5;
+    NODE_MAT_ID("move_02") = 6;
+    NODE_MAT_ID("move_03") = 7;
+    NODE_MAT_ID("move_04") = 8;
+    NODE_MAT_ID("move_05") = 9;
+    NODE_MAT_ID("rot_rec_0") = 10;
+    NODE_MAT_ID("rot_rec_1") = 11;
 
     // Edge id
-    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_01")] = 0;
-    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_04")] = 1;
+    EDGE_MAT_ID("edge_01") = 0;
+    EDGE_MAT_ID("edge_04") = 1;
 
-    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_10")] = 2;
-    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_12")] = 3;
-    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_23")] = 4;
-    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_32")] = 5;
+    EDGE_MAT_ID("edge_10") = 2;
+    EDGE_MAT_ID("edge_12") = 3;
+    EDGE_MAT_ID("edge_23") = 4;
+    EDGE_MAT_ID("edge_32") = 5;
 
-    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_45")] = 6;
-    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_56")] = 7;
-    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_67")] = 8;
-    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_78")] = 9;
-    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_89")] = 10;
-    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_94")] = 11;
+    EDGE_MAT_ID("edge_45") = 6;
+    EDGE_MAT_ID("edge_56") = 7;
+    EDGE_MAT_ID("edge_67") = 8;
+    EDGE_MAT_ID("edge_78") = 9;
+    EDGE_MAT_ID("edge_89") = 10;
+    EDGE_MAT_ID("edge_94") = 11;
 
-    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_40")] = 12;
-    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_50")] = 13;
-    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_60")] = 14;
-    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_70")] = 15;
-    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_80")] = 16;
-    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_90")] = 17;
-    // rot_00 to init
-    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_3_10")] = 18;
-    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_10_11")] = 19;
-    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_11_1")] = 20;
+    EDGE_MAT_ID("edge_40") = 12;
+    EDGE_MAT_ID("edge_50") = 13;
+    EDGE_MAT_ID("edge_60") = 14;
+    EDGE_MAT_ID("edge_70") = 15;
+    EDGE_MAT_ID("edge_80") = 16;
+    EDGE_MAT_ID("edge_90") = 17;
+
+    EDGE_MAT_ID("edge_3_10") = 18;
+    EDGE_MAT_ID("edge_10_11") = 19;
+    EDGE_MAT_ID("edge_11_1") = 20;
+
+    EDGE_MAT_ID("empty") = UINT64_MAX;
 
     // init
     transfer_edge_mat(0, 0) = EDGE_MAT_ID("empty"); transfer_edge_mat(0, 1) = EDGE_MAT_ID("edge_01"); transfer_edge_mat(0, 2) = EDGE_MAT_ID("edge_04");
@@ -111,13 +105,18 @@ void initialize_variable()
 uint64_t update_along_mat(const Vec<Variant>& data, const uint64_t state)
 {
     uint64_t action = data[1].asStringId;
-    log_state_transfer(action, state);
-
     uint64_t action_id = Get2Mat(action_2_mat, action);
     uint64_t state_id = Get2Mat(node_2_mat, state);
     uint64_t edge_id = transfer_edge_mat(state_id, action_id);
     uint64_t edge = Get2Map(edge_2_mat, edge_id);
 
+    RK_CORE_TRACE("state_id {}, action_id {}, edge_id {}", state_id, action_id, edge_id);
+    RK_CORE_TRACE("Current State {}, Get Action {}, Along Edge {}", 
+        GlobalHashTable::GetStringFromId("StateMachine"_hash, state),
+        GlobalHashTable::GetStringFromId("StateMachine"_hash, action),
+        GlobalHashTable::GetStringFromId("StateMachine"_hash, edge)
+    );
+    
     return edge;
 }
 

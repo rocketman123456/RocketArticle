@@ -114,7 +114,6 @@ namespace Rocket
             // Set init 0
             {
                 Ref<StateEdge> edge_01 = CreateRef<StateEdge>("edge_01");
-                //RK_CORE_INFO("edge_01 : {}", edge_01->id);
                 edge_01->parent = init;
                 edge_01->child = rot_00;
                 edge_01->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
