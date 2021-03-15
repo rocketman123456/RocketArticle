@@ -69,6 +69,9 @@ add_library( RocketEngine
     # Process
     Process/Process.h
     Process/Process.cpp
+    # Reflection
+    Reflection/Reflection.h
+    Reflection/Reflection.cpp
     # Render
     #   Dispatch
     Render/DispatchPass/BaseDispatchPass.h

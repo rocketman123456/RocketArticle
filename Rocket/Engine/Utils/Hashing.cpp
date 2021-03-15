@@ -6,7 +6,7 @@ static const uint64_t _HashString_(const String& str, UMap<uint64_t, String>& id
 {
     uint64_t result = 0;
     if(type == 1)
-        for (auto it = str.cbegin(); it != str.cend(); ++it)
+        for (auto it = str.cbegin(); it != str.cend(); ++it) 
             result = (result * 131) + *it;
     else if(type == 2)
         result = std::hash<String>()(str);
@@ -37,13 +37,17 @@ static const uint64_t _HashString_(const String& str, UMap<uint64_t, String>& id
 
 static const String& _GetStringFromId_(uint64_t id, UMap<uint64_t, String>& id_map)
 {
+    static String empty = "";
     auto it = id_map.find(id);
     if (it != id_map.end())
     {
         return it->second;
     }
-    RK_CORE_WARN("Hash String Table Don't Have String ID {}", id);
-    return "";
+    else
+    {
+        RK_CORE_WARN("Hash String Table Don't Have String ID {}", id);
+        return empty;
+    }
 }
 
 UMap<uint64_t, UMap<uint64_t, String>> GlobalHashTable::IdStringMap;
@@ -66,12 +70,16 @@ uint64_t GlobalHashTable::HashString(const uint64_t type_id, const String& str)
 
 const String& GlobalHashTable::GetStringFromId(const uint64_t type_id, uint64_t id)
 {
+    static String empty = "";
     auto it = IdStringMap.find(type_id);
     if(it != IdStringMap.end())
     {
         auto& result = _GetStringFromId_(id, it->second); 
         return result; 
     }
-    RK_CORE_WARN("Hash String Table Don't Have String ID {}", id);
-    return "";
+    else
+    {
+        RK_CORE_WARN("Hash String Table Don't Have String ID {}", id);
+        return empty;
+    }
 }
