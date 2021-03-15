@@ -67,12 +67,6 @@
 [submodule "Thirdparty/gli"]
 	path = Thirdparty/gli
 	url = https://github.com/g-truc/gli.git
-[submodule "Thirdparty/UDRefl"]
-	path = Thirdparty/UDRefl
-	url = https://github.com/Ubpa/UDRefl.git
-[submodule "Thirdparty/USRefl"]
-	path = Thirdparty/USRefl
-	url = https://github.com/Ubpa/USRefl.git
 [submodule "Thirdparty/graphviz"]
 	path = Thirdparty/graphviz
 	url = https://gitlab.com/graphviz/graphviz.git
