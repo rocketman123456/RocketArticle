@@ -23,7 +23,7 @@ void SceneManager::Tick(Timestep ts)
 
 bool SceneManager::SetActiveScene(const String& name)
 {
-    auto id = SceneHashTable::HashString(name);
+    auto id = GlobalHashTable::HashString("Scene"_hash, name);
     auto findIt = m_SceneList.find(id);
     if (findIt == m_SceneList.end())
     {
@@ -37,7 +37,7 @@ bool SceneManager::SetActiveScene(const String& name)
 
 bool SceneManager::AddScene(Ref<Scene> scene)
 {
-    auto id = SceneHashTable::HashString(scene->GetName());
+    auto id = GlobalHashTable::HashString("Scene"_hash, scene->GetName());
     auto findIt = m_SceneList.find(id);
     if (findIt != m_SceneList.end())
     {
@@ -50,7 +50,7 @@ bool SceneManager::AddScene(Ref<Scene> scene)
 
 bool SceneManager::RemoveScene(const String& name)
 {
-    auto id = SceneHashTable::HashString(name);
+    auto id = GlobalHashTable::HashString("Scene"_hash, name);
     auto findIt = m_SceneList.find(id);
     if (findIt != m_SceneList.end())
     {

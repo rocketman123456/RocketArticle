@@ -2,17 +2,18 @@
 
 using namespace Rocket;
 
-static uint64_t _HashString_(const String& str, UMap<uint64_t, String>& id_map)
+static const uint64_t _HashString_(const String& str, UMap<uint64_t, String>& id_map, int type = 3)
 {
-    //uint64_t result = 0;
-    // From Google Chrome
-    //for (auto it = str.cbegin(); it != str.cend(); ++it) {
-    //    result = (result * 131) + *it;
-    //    //RK_CORE_TRACE("{}", *it);
-    //}
-    //uint64_t result = std::hash<std::string>()(str);
-    //uint64_t result = std::hash<String>{}(str);
-    uint64_t result = Rocket::hash(str);
+    uint64_t result = 0;
+    if(type == 1)
+        for (auto it = str.cbegin(); it != str.cend(); ++it)
+            result = (result * 131) + *it;
+    else if(type == 2)
+        result = std::hash<String>()(str);
+    else if(type == 3)
+        result = std::hash<String>{}(str);
+    else if(type == 4)
+        result = Rocket::hash(str);
 
     auto it = id_map.find(result);
     if (it != id_map.end())
@@ -27,8 +28,11 @@ static uint64_t _HashString_(const String& str, UMap<uint64_t, String>& id_map)
             return 0;
         }
     }
-    id_map[result] = str;
-    return result;
+    else
+    {
+        id_map[result] = str;
+        return result;
+    }
 }
 
 static const String& _GetStringFromId_(uint64_t id, UMap<uint64_t, String>& id_map)
@@ -42,8 +46,32 @@ static const String& _GetStringFromId_(uint64_t id, UMap<uint64_t, String>& id_m
     return "";
 }
 
-ImplementHashTable(StateMachineHashTable);
-ImplementHashTable(EventHashTable);
-ImplementHashTable(AssetHashTable);
-ImplementHashTable(GraphicsHashTable);
-ImplementHashTable(SceneHashTable);
+UMap<uint64_t, UMap<uint64_t, String>> GlobalHashTable::IdStringMap;
+
+uint64_t GlobalHashTable::HashString(const uint64_t type_id, const String& str)
+{
+    auto it = IdStringMap.find(type_id);
+    if(it != IdStringMap.end())
+    {
+        auto result = _HashString_(str, it->second); 
+        return result; 
+    }
+    else
+    {
+        IdStringMap[type_id] = {};
+        auto result = _HashString_(str, IdStringMap[type_id]);
+        return result; 
+    }
+}
+
+const String& GlobalHashTable::GetStringFromId(const uint64_t type_id, uint64_t id)
+{
+    auto it = IdStringMap.find(type_id);
+    if(it != IdStringMap.end())
+    {
+        auto& result = _GetStringFromId_(id, it->second); 
+        return result; 
+    }
+    RK_CORE_WARN("Hash String Table Don't Have String ID {}", id);
+    return "";
+}

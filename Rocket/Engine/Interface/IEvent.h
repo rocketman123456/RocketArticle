@@ -24,7 +24,7 @@ namespace Rocket
 		virtual ~IEvent() = default;
 
 		[[nodiscard]] virtual EventType GetEventType() const { return Var[0].asStringId; }
-		[[nodiscard]] virtual const String& GetName() const { return EventHashTable::GetStringFromId(GetEventType()); }
+		[[nodiscard]] virtual const String& GetName() const { return GlobalHashTable::GetStringFromId("Event"_hash, GetEventType()); }
 		[[nodiscard]] virtual const String& ToString() const { return GetName(); }
 
 		[[nodiscard]] int32_t GetInt32(uint32_t index) { RK_CORE_ASSERT(index < Var.size(), "event index error"); return Var[index].asInt32; }

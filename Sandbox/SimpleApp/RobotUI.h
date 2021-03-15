@@ -16,6 +16,10 @@ private:
     int32_t direction;
     bool showRobotState = true;
 
+    double W = 0;
+    double L = 0;
+    double h = 0;
+    int motor_id = 0;
     float motor_data[10] = {0};
     uint8_t valve_data[10] = {0};
 };

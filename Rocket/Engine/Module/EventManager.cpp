@@ -53,7 +53,7 @@ void EventManager::SetupCallback()
         EventVarVec var;
         var.resize(1);
         var[0].type = Variant::TYPE_STRING_ID;
-        var[0].asStringId = EventHashTable::HashString("window_refresh");
+        var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "window_refresh");
         EventPtr event = CreateRef<Event>(var);
 
         data.EventCallback(event);
@@ -66,7 +66,7 @@ void EventManager::SetupCallback()
         EventVarVec var;
         var.resize(4);
         var[0].type = Variant::TYPE_STRING_ID;
-        var[0].asStringId = EventHashTable::HashString("window_resize");
+        var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "window_resize");
         var[1].type = Variant::TYPE_INT32;
         var[1].asInt32 = width;
         var[2].type = Variant::TYPE_INT32;
@@ -85,7 +85,7 @@ void EventManager::SetupCallback()
         EventVarVec var;
         var.resize(1);
         var[0].type = Variant::TYPE_STRING_ID;
-        var[0].asStringId = EventHashTable::HashString("window_close");
+        var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "window_close");
         EventPtr event = CreateRef<Event>(var);
 
         data.EventCallback(event);
@@ -106,15 +106,15 @@ void EventManager::SetupCallback()
 		switch (action)
 		{
             case GLFW_PRESS: {
-                var[0].asStringId = EventHashTable::HashString("key_press");
+                var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "key_press");
                 var[2].asInt32 = 0;
             } break;
             case GLFW_RELEASE: {
-                var[0].asStringId = EventHashTable::HashString("key_release");
+                var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "key_release");
                 var[2].asInt32 = 0;
             } break;
             case GLFW_REPEAT: {
-                var[0].asStringId = EventHashTable::HashString("key_repeat");
+                var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "key_repeat");
                 var[2].asInt32 = 1;
             } break;
 		}
@@ -129,7 +129,7 @@ void EventManager::SetupCallback()
         EventVarVec var;
         var.resize(2);
         var[0].type = Variant::TYPE_STRING_ID;
-        var[0].asStringId = EventHashTable::HashString("key_char_code");
+        var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "key_char_code");
         var[1].type = Variant::TYPE_INT32;
         var[1].asInt32 = keycode;
         EventPtr event = CreateRef<Event>(var);
@@ -150,10 +150,10 @@ void EventManager::SetupCallback()
 		switch (action)
 		{
             case GLFW_PRESS: {
-                var[0].asStringId = EventHashTable::HashString("mouse_button_press");
+                var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "mouse_button_press");
             } break;
             case GLFW_RELEASE: {
-                var[0].asStringId = EventHashTable::HashString("mouse_button_release");
+                var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "mouse_button_release");
             } break;
 		}
         EventPtr event = CreateRef<Event>(var);
@@ -168,7 +168,7 @@ void EventManager::SetupCallback()
         EventVarVec var;
         var.resize(3);
         var[0].type = Variant::TYPE_STRING_ID;
-        var[0].asStringId = EventHashTable::HashString("mouse_scroll");
+        var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "mouse_scroll");
         var[1].type = Variant::TYPE_DOUBLE;
         var[1].asDouble = xOffset;
         var[2].type = Variant::TYPE_DOUBLE;
@@ -185,7 +185,7 @@ void EventManager::SetupCallback()
         EventVarVec var;
         var.resize(3);
         var[0].type = Variant::TYPE_STRING_ID;
-        var[0].asStringId = EventHashTable::HashString("mouse_move");
+        var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "mouse_move");
         var[1].type = Variant::TYPE_DOUBLE;
         var[1].asDouble = xPos;
         var[2].type = Variant::TYPE_DOUBLE;
@@ -211,8 +211,8 @@ void EventManager::OnEvent(EventPtr& event)
     bool ret = false;
     //RK_EVENT_TRACE("Callback Event {0}", *event);
     auto event_type = event->GetEventType();
-    auto id_1 = EventHashTable::HashString("window_close");
-    auto id_2 = EventHashTable::HashString("window_resize");
+    auto id_1 = GlobalHashTable::HashString("Event"_hash, "window_close");
+    auto id_2 = GlobalHashTable::HashString("Event"_hash, "window_resize");
     if(event_type == id_1 || event_type == id_2)
         ret = QueueEvent(event);
     else
@@ -344,7 +344,7 @@ bool EventManager::RemoveListener(const EventListenerDelegate& eventDelegate, co
             if (eventDelegate == (*it))
             {
                 listeners.erase(it);
-                RK_EVENT_TRACE("Successfully removed delegate function from event type {0}", EventHashTable::GetStringFromId(type));
+                RK_EVENT_TRACE("Successfully removed delegate function from event type {0}", GlobalHashTable::GetStringFromId("Event"_hash, type));
                 success = true;
                 break;
             }

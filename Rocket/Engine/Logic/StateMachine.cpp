@@ -5,8 +5,8 @@
 
 using namespace Rocket;
 
-StateNode::StateNode(const String& _name) : name(_name) { id = StateMachineHashTable::HashString(name); }
-StateEdge::StateEdge(const String& _name) : name(_name) { id = StateMachineHashTable::HashString(name); }
+StateNode::StateNode(const String& _name) : name(_name) { id = GlobalHashTable::HashString("StateMachine"_hash, name); }
+StateEdge::StateEdge(const String& _name) : name(_name) { id = GlobalHashTable::HashString("StateMachine"_hash, name); }
 
 void StateNode::AddEgde(const Ref<StateEdge>& edge)
 {
@@ -16,10 +16,10 @@ void StateNode::AddEgde(const Ref<StateEdge>& edge)
 Ref<StateEdge> StateNode::GetEdge(uint64_t id)
 {
 #if defined(RK_DEBUG)
-    //for(auto it : edgeList)
-    //{
-    //    RK_CORE_TRACE("Edge List {}:{}, address:{}", StateMachineHashTable::GetStringFromId(it.first), it.first, (uint64_t)it.second.get());
-    //}
+    for(auto it : edgeList)
+    {
+        RK_CORE_TRACE("Edge List {}:{}, address:{}", GlobalHashTable::GetStringFromId("StateMachine"_hash, it.first), it.first, (uint64_t)it.second.get());
+    }
 #endif
 
     auto it = edgeList.find(id);
@@ -43,6 +43,12 @@ void StateMachine::ResetToInitState()
 
 bool StateMachine::UpdateAction(const Vec<Variant>& input)
 {
+    // Empty edge always finish action
+    if(!currentEdge)
+    {
+        RK_CORE_TRACE("Empty Edge, No Action");
+        return true;
+    }
     RK_CORE_TRACE("Update Along Edge {}", currentEdge->name);
     bool result = currentEdge->actionFun(input, currentEdge->data);
     currentEdge->finished = result;
@@ -60,7 +66,7 @@ bool StateMachine::UpdateAction(const Vec<Variant>& input)
 
 bool StateMachine::UpdateEdge(const Vec<Variant>& target)
 {
-    RK_CORE_TRACE("State Machine Update on Action {}", StateMachineHashTable::GetStringFromId(target[1].asStringId));
+    RK_CORE_TRACE("State Machine Update on Action {}", GlobalHashTable::GetStringFromId("StateMachine"_hash, target[1].asStringId));
     // Get Edge to Follow
     if(!currentEdge)
     {

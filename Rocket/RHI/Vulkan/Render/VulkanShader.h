@@ -10,7 +10,7 @@ namespace Rocket
     class VulkanShader : implements Shader
     {
     public:
-        VulkanShader(const String& name) : m_NameId(AssetHashTable::HashString(name)) {}
+        VulkanShader(const String& name) : m_NameId(GlobalHashTable::HashString("Asset"_hash, name)) {}
         VulkanShader(const VulkanShader& rhs) = default;
         VulkanShader(VulkanShader&& rhs) = default;
         virtual ~VulkanShader() = default;
@@ -40,7 +40,7 @@ namespace Rocket
 		bool SetMatrix3f(const String& name, const Matrix3f& value) final;
 		bool SetMatrix4f(const String& name, const Matrix4f& value) final;
 
-        const String& GetName() const final { return AssetHashTable::GetStringFromId(m_NameId); }
+        const String& GetName() const final { return GlobalHashTable::GetStringFromId("Asset"_hash, m_NameId); }
 		uint32_t GetRenderId() const final { return m_RendererId; }
 
         Vec<VkShaderModule>& GetShader() { return m_Shader; }

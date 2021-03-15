@@ -24,31 +24,21 @@ namespace Rocket
         [[nodiscard]] static uint64_t Hash(const T& t) { return std::hash<T>{}(t); }
     };
 
-#define DeclareHashTable \
-    public:\
-        [[nodiscard]] static uint64_t HashString(const String& str);\
-        [[nodiscard]] static const String& GetStringFromId(uint64_t id);\
-    protected:\
-        static UMap<uint64_t, String> IdStringMap;
-
-#define ImplementHashTable(class_name) \
-    UMap<uint64_t, String> class_name::IdStringMap;\
-    uint64_t class_name::HashString(const String& str)\
-    { uint64_t result = _HashString_(str, IdStringMap); return result; }\
-    const String& class_name::GetStringFromId(uint64_t id)\
-    { auto& result = _GetStringFromId_(id, IdStringMap); return result; }
-
-    class StateMachineHashTable { DeclareHashTable; };
-    class EventHashTable { DeclareHashTable; };
-    class AssetHashTable { DeclareHashTable; };
-    class GraphicsHashTable { DeclareHashTable; };
-    class SceneHashTable { DeclareHashTable; };
+    class GlobalHashTable 
+    {
+    public:
+        [[nodiscard]] static uint64_t HashString(const uint64_t type_id, const String& str);
+        [[nodiscard]] static const String& GetStringFromId(const uint64_t type_id, uint64_t id);
+    protected:
+        static UMap<uint64_t, UMap<uint64_t, String>> IdStringMap;
+    };
 
     namespace details
     {
         template<class>struct hasher;
         template<>
-        struct hasher<std::string> {
+        struct hasher<std::string>
+        {
             uint64_t constexpr operator()(char const *input) const { return *input ? static_cast<unsigned int>(*input) + 33 * (*this)(input + 1) : 5381; }
             uint64_t operator()( const std::string& str ) const { return (*this)(str.c_str()); }
         };

@@ -14,6 +14,7 @@ int GameLogic::Initialize()
 
 void GameLogic::Finalize()
 {
+    m_StateMachine.reset();
 }
 
 void GameLogic::Tick(Timestep ts)
@@ -38,6 +39,7 @@ bool GameLogic::OnResponseEvent(EventPtr& e)
     m_CurrentInputData.assign(e->Var.begin(), e->Var.end());
     m_StateMachine->UpdateAction(m_CurrentInputData);
     m_CurrentInputData.clear();
+    return false;
 }
 
 bool GameLogic::OnUIEvent(EventPtr& e)
@@ -46,7 +48,7 @@ bool GameLogic::OnUIEvent(EventPtr& e)
     if(!result)
     {
         RK_EVENT_TRACE("UI Event {} - StateMachine is in Transfer", 
-            EventHashTable::GetStringFromId(e->Var[0].asStringId)
+            GlobalHashTable::GetStringFromId("Event"_hash, e->Var[0].asStringId)
         );
         m_PendingStateData.assign(e->Var.begin(), e->Var.end());
         return false;

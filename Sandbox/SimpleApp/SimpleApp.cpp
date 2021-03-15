@@ -74,15 +74,17 @@ namespace Rocket
         // Register Event Listener
         {
             bool ret = false;
-            ret = g_EventManager->AddListener(REGISTER_DELEGATE_CLASS(Application::OnWindowClose, *g_Application), EventHashTable::HashString("window_close"));
+            ret = g_EventManager->AddListener(REGISTER_DELEGATE_CLASS(Application::OnWindowClose, *g_Application), GlobalHashTable::HashString("Event"_hash, "window_close"));
             RK_CORE_ASSERT(ret, "Register window_close Failed");
-            ret = g_EventManager->AddListener(REGISTER_DELEGATE_CLASS(GraphicsManager::OnWindowResize, *g_GraphicsManager), EventHashTable::HashString("window_resize"));
+            ret = g_EventManager->AddListener(REGISTER_DELEGATE_CLASS(GraphicsManager::OnWindowResize, *g_GraphicsManager), GlobalHashTable::HashString("Event"_hash, "window_resize"));
             RK_CORE_ASSERT(ret, "Register window_resize Failed");
-            ret = g_EventManager->AddListener(REGISTER_DELEGATE_CLASS(WindowManager::OnWindowResize, *g_WindowManager), EventHashTable::HashString("window_resize"));
+            ret = g_EventManager->AddListener(REGISTER_DELEGATE_CLASS(WindowManager::OnWindowResize, *g_WindowManager), GlobalHashTable::HashString("Event"_hash, "window_resize"));
             RK_CORE_ASSERT(ret, "Register window_resize Failed");
 
-            ret = g_EventManager->AddListener(REGISTER_DELEGATE_CLASS(GameLogic::OnUIEvent, *g_GameLogic), EventHashTable::HashString("ui_event_logic"));
+            ret = g_EventManager->AddListener(REGISTER_DELEGATE_CLASS(GameLogic::OnUIEvent, *g_GameLogic), GlobalHashTable::HashString("Event"_hash, "ui_event_logic"));
             RK_CORE_ASSERT(ret, "Register ui_event_logic Failed");
+            ret = g_EventManager->AddListener(REGISTER_DELEGATE_CLASS(GameLogic::OnResponseEvent, *g_GameLogic), GlobalHashTable::HashString("Event"_hash, "ui_event_response"));
+            RK_CORE_ASSERT(ret, "Register ui_event_response Failed");
         }
 
         // Add Robot UI
@@ -98,6 +100,9 @@ namespace Rocket
             Ref<StateNode> rot_00 = CreateRef<StateNode>("rot_00"); rot_00->transferFun = update_along_mat;
             Ref<StateNode> rot_01 = CreateRef<StateNode>("rot_01"); rot_01->transferFun = update_along_mat;
             Ref<StateNode> rot_02 = CreateRef<StateNode>("rot_02"); rot_02->transferFun = update_along_mat;
+
+            Ref<StateNode> rot_rec_0 = CreateRef<StateNode>("rot_rec_0"); rot_rec_0->transferFun = update_along_mat;
+            Ref<StateNode> rot_rec_1 = CreateRef<StateNode>("rot_rec_1"); rot_rec_1->transferFun = update_along_mat;
 
             Ref<StateNode> move_00 = CreateRef<StateNode>("move_00"); move_00->transferFun = update_along_mat;
             Ref<StateNode> move_01 = CreateRef<StateNode>("move_01"); move_01->transferFun = update_along_mat;
@@ -139,6 +144,22 @@ namespace Rocket
                 rot_00->AddEgde(edge_12);
             }
 
+            // Set rot_rec
+            {
+                Ref<StateEdge> edge_10_11 = CreateRef<StateEdge>("edge_10_11");
+                edge_10_11->parent = rot_rec_0;
+                edge_10_11->child = rot_rec_1;
+                edge_10_11->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
+
+                Ref<StateEdge> edge_11_1 = CreateRef<StateEdge>("edge_11_1");
+                edge_11_1->parent = rot_rec_1;
+                edge_11_1->child = rot_00;
+                edge_11_1->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
+
+                rot_rec_0->AddEgde(edge_10_11);
+                rot_rec_1->AddEgde(edge_11_1);
+            }
+
             // Set rot_01 2
             {
                 Ref<StateEdge> edge_23 = CreateRef<StateEdge>("edge_23");
@@ -151,12 +172,18 @@ namespace Rocket
             
             // Set rot_02 3
             {
-                Ref<StateEdge> edge_31 = CreateRef<StateEdge>("edge_31");
-                edge_31->parent = rot_02;
-                edge_31->child = rot_00;
-                edge_31->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
+                Ref<StateEdge> edge_32 = CreateRef<StateEdge>("edge_32");
+                edge_32->parent = rot_02;
+                edge_32->child = rot_01;
+                edge_32->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
 
-                rot_02->AddEgde(edge_31);
+                Ref<StateEdge> edge_3_10 = CreateRef<StateEdge>("edge_3_10");
+                edge_3_10->parent = rot_02;
+                edge_3_10->child = rot_rec_0;
+                edge_3_10->actionFun = [](const Vec<Variant>&, const Vec<Variant>&){ return true; };
+
+                rot_02->AddEgde(edge_32);
+                rot_02->AddEgde(edge_3_10);
             }
 
             // Set move_00 4

@@ -30,83 +30,82 @@ static uint64_t Get2Map(const UMap<uint64_t, uint64_t>& map, uint64_t input)
 static void log_state_transfer(const uint64_t action, const uint64_t state)
 {
     RK_CORE_TRACE("Current State {}, Get Action {}", 
-        StateMachineHashTable::GetStringFromId(state),
-        StateMachineHashTable::GetStringFromId(action)
+        GlobalHashTable::GetStringFromId("StateMachine"_hash, state),
+        GlobalHashTable::GetStringFromId("StateMachine"_hash, action)
     );
 }
 
+#define ACTION_MAT_ID(action) action_2_mat[GlobalHashTable::HashString("StateMachine"_hash, action)]
+#define NODE_MAT_ID(node) node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, node)]
+#define EDGE_MAT_ID(edge) edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, edge)]
+
 void initialize_variable()
 {
-    transfer_node_mat = Eigen::Matrix<uint64_t, Eigen::Dynamic, Eigen::Dynamic>(10, 3);
-    transfer_edge_mat = Eigen::Matrix<uint64_t, Eigen::Dynamic, Eigen::Dynamic>(10, 3);
-
-    // init
-    transfer_node_mat(0, 0) = 0; transfer_node_mat(0, 1) = 1; transfer_node_mat(0, 2) = 4;
-    // rot
-    transfer_node_mat(1, 0) =          0; transfer_node_mat(1, 1) = 2; transfer_node_mat(1, 2) = UINT64_MAX;
-    transfer_node_mat(2, 0) = UINT64_MAX; transfer_node_mat(2, 1) = 3; transfer_node_mat(2, 2) = UINT64_MAX;
-    transfer_node_mat(3, 0) = UINT64_MAX; transfer_node_mat(3, 1) = 1; transfer_node_mat(3, 2) = UINT64_MAX;
-    // move
-    transfer_node_mat(4, 0) = 0; transfer_node_mat(4, 1) = UINT64_MAX; transfer_node_mat(4, 2) = 5;
-    transfer_node_mat(5, 0) = 0; transfer_node_mat(5, 1) = UINT64_MAX; transfer_node_mat(5, 2) = 6;
-    transfer_node_mat(6, 0) = 0; transfer_node_mat(6, 1) = UINT64_MAX; transfer_node_mat(6, 2) = 7;
-    transfer_node_mat(7, 0) = 0; transfer_node_mat(7, 1) = UINT64_MAX; transfer_node_mat(7, 2) = 8;
-    transfer_node_mat(8, 0) = 0; transfer_node_mat(8, 1) = UINT64_MAX; transfer_node_mat(8, 2) = 9;
-    transfer_node_mat(9, 0) = 0; transfer_node_mat(9, 1) = UINT64_MAX; transfer_node_mat(9, 2) = 4;
-
-    // init
-    transfer_edge_mat(0, 0) = UINT64_MAX; transfer_edge_mat(0, 1) = 0; transfer_edge_mat(0, 2) = 1;
-    // rot
-    transfer_edge_mat(1, 0) =          2; transfer_edge_mat(1, 1) = 3; transfer_edge_mat(1, 2) = UINT64_MAX;
-    transfer_edge_mat(2, 0) = UINT64_MAX; transfer_edge_mat(2, 1) = 4; transfer_edge_mat(2, 2) = UINT64_MAX;
-    transfer_edge_mat(3, 0) = UINT64_MAX; transfer_edge_mat(3, 1) = 5; transfer_edge_mat(3, 2) = UINT64_MAX;
-    // move
-    transfer_edge_mat(4, 0) = 12; transfer_edge_mat(4, 1) = UINT64_MAX; transfer_edge_mat(4, 2) = 6;
-    transfer_edge_mat(5, 0) = 13; transfer_edge_mat(5, 1) = UINT64_MAX; transfer_edge_mat(5, 2) = 7;
-    transfer_edge_mat(6, 0) = 14; transfer_edge_mat(6, 1) = UINT64_MAX; transfer_edge_mat(6, 2) = 8;
-    transfer_edge_mat(7, 0) = 15; transfer_edge_mat(7, 1) = UINT64_MAX; transfer_edge_mat(7, 2) = 9;
-    transfer_edge_mat(8, 0) = 16; transfer_edge_mat(8, 1) = UINT64_MAX; transfer_edge_mat(8, 2) = 10;
-    transfer_edge_mat(9, 0) = 17; transfer_edge_mat(9, 1) = UINT64_MAX; transfer_edge_mat(9, 2) = 11;
+    transfer_node_mat = Eigen::Matrix<uint64_t, Eigen::Dynamic, Eigen::Dynamic>(12, 3);
+    transfer_edge_mat = Eigen::Matrix<uint64_t, Eigen::Dynamic, Eigen::Dynamic>(12, 3);
 
     // Action id
-    action_2_mat[StateMachineHashTable::HashString("init_pos")] = 0;
-    action_2_mat[StateMachineHashTable::HashString("rotation")] = 1;
-    action_2_mat[StateMachineHashTable::HashString("walk")] = 2;
-
-    // Edge id
-    edge_2_mat[StateMachineHashTable::HashString("edge_01")] = 0;
-    edge_2_mat[StateMachineHashTable::HashString("edge_04")] = 1;
-
-    edge_2_mat[StateMachineHashTable::HashString("edge_10")] = 2;
-    edge_2_mat[StateMachineHashTable::HashString("edge_12")] = 3;
-    edge_2_mat[StateMachineHashTable::HashString("edge_23")] = 4;
-    edge_2_mat[StateMachineHashTable::HashString("edge_31")] = 5;
-
-    edge_2_mat[StateMachineHashTable::HashString("edge_45")] = 6;
-    edge_2_mat[StateMachineHashTable::HashString("edge_56")] = 7;
-    edge_2_mat[StateMachineHashTable::HashString("edge_67")] = 8;
-    edge_2_mat[StateMachineHashTable::HashString("edge_78")] = 9;
-    edge_2_mat[StateMachineHashTable::HashString("edge_89")] = 10;
-    edge_2_mat[StateMachineHashTable::HashString("edge_94")] = 11;
-
-    edge_2_mat[StateMachineHashTable::HashString("edge_40")] = 12;
-    edge_2_mat[StateMachineHashTable::HashString("edge_50")] = 13;
-    edge_2_mat[StateMachineHashTable::HashString("edge_60")] = 14;
-    edge_2_mat[StateMachineHashTable::HashString("edge_70")] = 15;
-    edge_2_mat[StateMachineHashTable::HashString("edge_80")] = 16;
-    edge_2_mat[StateMachineHashTable::HashString("edge_90")] = 17;
+    action_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "init_pos")] = 0;
+    action_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "rotation")] = 1;
+    action_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "walk")] = 2;
 
     // Node id
-    node_2_mat[StateMachineHashTable::HashString("init")] = 0;
-    node_2_mat[StateMachineHashTable::HashString("rot_00")] = 1;
-    node_2_mat[StateMachineHashTable::HashString("rot_01")] = 2;
-    node_2_mat[StateMachineHashTable::HashString("rot_02")] = 3;
-    node_2_mat[StateMachineHashTable::HashString("move_00")] = 4;
-    node_2_mat[StateMachineHashTable::HashString("move_01")] = 5;
-    node_2_mat[StateMachineHashTable::HashString("move_02")] = 6;
-    node_2_mat[StateMachineHashTable::HashString("move_03")] = 7;
-    node_2_mat[StateMachineHashTable::HashString("move_04")] = 8;
-    node_2_mat[StateMachineHashTable::HashString("move_05")] = 9;
+    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "init")] = 0;
+    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "rot_00")] = 1;
+    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "rot_01")] = 2;
+    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "rot_02")] = 3;
+    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "move_00")] = 4;
+    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "move_01")] = 5;
+    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "move_02")] = 6;
+    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "move_03")] = 7;
+    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "move_04")] = 8;
+    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "move_05")] = 9;
+    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "rot_rec_0")] = 10;
+    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "rot_rec_1")] = 11;
+
+    // Edge id
+    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_01")] = 0;
+    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_04")] = 1;
+
+    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_10")] = 2;
+    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_12")] = 3;
+    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_23")] = 4;
+    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_32")] = 5;
+
+    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_45")] = 6;
+    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_56")] = 7;
+    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_67")] = 8;
+    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_78")] = 9;
+    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_89")] = 10;
+    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_94")] = 11;
+
+    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_40")] = 12;
+    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_50")] = 13;
+    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_60")] = 14;
+    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_70")] = 15;
+    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_80")] = 16;
+    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_90")] = 17;
+    // rot_00 to init
+    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_3_10")] = 18;
+    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_10_11")] = 19;
+    edge_2_mat[GlobalHashTable::HashString("StateMachine"_hash, "edge_11_1")] = 20;
+
+    // init
+    transfer_edge_mat(0, 0) = EDGE_MAT_ID("empty"); transfer_edge_mat(0, 1) = EDGE_MAT_ID("edge_01"); transfer_edge_mat(0, 2) = EDGE_MAT_ID("edge_04");
+    // rot
+    transfer_edge_mat(1, 0) = EDGE_MAT_ID("edge_10"); transfer_edge_mat(1, 1) = EDGE_MAT_ID("edge_12"); transfer_edge_mat(1, 2) = EDGE_MAT_ID("empty");
+    transfer_edge_mat(2, 0) = EDGE_MAT_ID("empty"); transfer_edge_mat(2, 1) = EDGE_MAT_ID("edge_23"); transfer_edge_mat(2, 2) = EDGE_MAT_ID("empty");
+    transfer_edge_mat(3, 0) = EDGE_MAT_ID("edge_3_10"); transfer_edge_mat(3, 1) = EDGE_MAT_ID("edge_32"); transfer_edge_mat(3, 2) = EDGE_MAT_ID("empty");
+    // move
+    transfer_edge_mat(4, 0) = EDGE_MAT_ID("edge_40"); transfer_edge_mat(4, 1) = EDGE_MAT_ID("empty"); transfer_edge_mat(4, 2) = EDGE_MAT_ID("edge_45");
+    transfer_edge_mat(5, 0) = EDGE_MAT_ID("edge_50"); transfer_edge_mat(5, 1) = EDGE_MAT_ID("empty"); transfer_edge_mat(5, 2) = EDGE_MAT_ID("edge_56");
+    transfer_edge_mat(6, 0) = EDGE_MAT_ID("edge_60"); transfer_edge_mat(6, 1) = EDGE_MAT_ID("empty"); transfer_edge_mat(6, 2) = EDGE_MAT_ID("edge_67");
+    transfer_edge_mat(7, 0) = EDGE_MAT_ID("edge_70"); transfer_edge_mat(7, 1) = EDGE_MAT_ID("empty"); transfer_edge_mat(7, 2) = EDGE_MAT_ID("edge_78");
+    transfer_edge_mat(8, 0) = EDGE_MAT_ID("edge_80"); transfer_edge_mat(8, 1) = EDGE_MAT_ID("empty"); transfer_edge_mat(8, 2) = EDGE_MAT_ID("edge_89");
+    transfer_edge_mat(9, 0) = EDGE_MAT_ID("edge_90"); transfer_edge_mat(9, 1) = EDGE_MAT_ID("empty"); transfer_edge_mat(9, 2) = EDGE_MAT_ID("edge_94");
+    // rot_rec
+    transfer_edge_mat(10, 0) = EDGE_MAT_ID("edge_10_11"); transfer_edge_mat(10, 1) = EDGE_MAT_ID("empty"); transfer_edge_mat(10, 2) = EDGE_MAT_ID("empty");
+    transfer_edge_mat(11, 0) = EDGE_MAT_ID("edge_11_1"); transfer_edge_mat(11, 1) = EDGE_MAT_ID("empty"); transfer_edge_mat(11, 2) = EDGE_MAT_ID("empty");
 }
 
 uint64_t update_along_mat(const Vec<Variant>& data, const uint64_t state)
