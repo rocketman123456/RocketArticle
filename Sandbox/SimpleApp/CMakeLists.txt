@@ -6,6 +6,7 @@ add_executable( SimpleApp
     SimpleApp.cpp
     RobotControl.cpp
     RobotUI.cpp
+    RobotSerialPort.cpp
 )
 target_link_libraries( SimpleApp PRIVATE
     RocketEngine 
