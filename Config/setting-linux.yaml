@@ -1,2 +1,3 @@
 asset_path: /home/developer/Program/CppCode/RocketArticle/Asset/
 config_path: /home/developer/Program/CppCode/RocketArticle/Config/
+serial_port: /dev/tty

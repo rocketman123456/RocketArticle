@@ -1,11 +1,14 @@
 #pragma once
 #include "Core/Core.h"
-#include "Utils/Queue.h"
+#include "Utils/BlockingQueue.h"
 
-class simple_thread_pool
+#include <future>
+#include <algorithm>
+
+class SimpleThreadPool
 {
 public:
-	explicit simple_thread_pool(uint32_t threads = std::thread::hardware_concurrency())
+	explicit SimpleThreadPool(uint32_t threads = std::thread::hardware_concurrency())
 	{
 		if (!threads)
 			throw std::invalid_argument("Invalid thread count!");
@@ -24,7 +27,7 @@ public:
 			m_threads.emplace_back(worker);
 	}
 
-	~simple_thread_pool()
+	~SimpleThreadPool()
 	{
 		m_queue.done();
 		for (auto &thread : m_threads)
@@ -60,10 +63,10 @@ private:
 	Threads m_threads;
 };
 
-class advance_thread_pool
+class AdvanceThreadPool
 {
 public:
-	explicit advance_thread_pool(uint32_t threads = std::thread::hardware_concurrency())
+	explicit AdvanceThreadPool(uint32_t threads = std::thread::hardware_concurrency())
 		: m_queues(threads), m_count(threads)
 	{
 		if (!threads)
@@ -86,7 +89,7 @@ public:
 			m_threads.emplace_back(worker, i);
 	}
 
-	~advance_thread_pool()
+	~AdvanceThreadPool()
 	{
 		for (auto &queue : m_queues)
 			queue.done();

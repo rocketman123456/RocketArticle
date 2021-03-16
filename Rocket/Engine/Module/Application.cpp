@@ -69,8 +69,8 @@ bool Application::OnWindowClose(EventPtr& e)
 {
     RK_CORE_TRACE("Application::OnWindowClose");
     SetRunningState(false);
-    e->Handled = true;
-    return true;
+    e->Handled = false;
+    return false;
 }
 
 bool Application::OnWindowResize(EventPtr& event)
