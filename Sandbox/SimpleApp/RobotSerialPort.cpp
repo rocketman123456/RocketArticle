@@ -1,4 +1,5 @@
 #include "RobotSerialPort.h"
+#include "Module/EventManager.h"
 
 using namespace Rocket;
 using namespace itas109;

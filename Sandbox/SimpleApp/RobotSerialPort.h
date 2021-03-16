@@ -1,8 +1,9 @@
 #pragma once
 #include "Core/Core.h"
 #include "Interface/IRuntimeModule.h"
-#include "Module/EventManager.h"
+#include "Event/Event.h"
 #include "Utils/Timer.h"
+#include "Utils/Variant.h"
 
 #include "CSerialPort/SerialPort.h"
 #include "CSerialPort/SerialPortInfo.h"
@@ -16,6 +17,34 @@
 #endif
 
 #include <atomic>
+
+class ReadSlot : public has_slots<>
+{
+public:
+    ReadSlot(itas109::CSerialPort * sp) : recLen(-1), p_sp(sp) {}
+
+	void OnReadMessage()
+	{
+		//read
+        recLen = p_sp->readAllData(str);
+
+		if(recLen > 0)
+		{
+			countRead++;
+			str[recLen] = '\0';
+            RK_CORE_TRACE("receive data : {}, receive data : {}, receive count : {}", str, recLen, countRead);
+		}
+	};
+
+private:
+	ReadSlot() = default;
+
+private:
+    itas109::CSerialPort * p_sp;
+	char str[1024];
+	int recLen;
+    int countRead = 0;
+};
 
 class SerialPortModule : implements Rocket::IRuntimeModule
 {
