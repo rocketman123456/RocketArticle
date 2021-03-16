@@ -15,7 +15,7 @@ EventManager* Rocket::GetEventManager() { return new EventManager(true); }
 
 int EventManager::Initialize()
 {
-    g_EventTimer = new Rocket::ElapseTimer();
+    g_EventTimer = new ElapseTimer();
     g_EventTimer->Start();
 
     m_ActiveEventQueue = 0;
@@ -321,7 +321,7 @@ bool EventManager::AddListener(const EventListenerDelegate& eventDelegate, const
     for (auto it = eventListenerList.begin(); it != eventListenerList.end(); ++it)
     {
         // Must use function pointer as listener
-        if (eventDelegate == (*it))
+        if (eventDelegate == *it)
         {
             RK_EVENT_WARN("Attempting to double-register a delegate");
             return false;

@@ -4,6 +4,7 @@
 #include "Event/Event.h"
 #include "Utils/Timer.h"
 #include "Utils/ThreadSafeQueue.h"
+#include "Utils/Delegate.h"
 
 #include <entt/entt.hpp>
 #include <functional>
@@ -18,16 +19,24 @@ namespace Rocket
 {
     using EventCallbackFn = std::function<void(EventPtr &)>;
     using EventListenerFnptr = bool(*)(EventPtr&);
-    using EventListenerDelegate = entt::delegate<bool(EventPtr&)>;
-    // std::function cannot compare, so use entt
-    //using EventListenerDelegate = std::function<bool(EventPtr&)>;
+    using EventListenerDelegate = Delegate<bool(EventPtr&)>;
     using EventListenerList = std::list<EventListenerDelegate>;
     using EventListenerMap = Map<EventType, EventListenerList>;
     using EventQueue = std::list<EventPtr>;
     using EventThreadQueue = ThreadSafeQueue<EventPtr>;
 
-#define REGISTER_DELEGATE_CLASS(f,x) EventListenerDelegate{entt::connect_arg<&f>, x}
-#define REGISTER_DELEGATE_FN(f) EventListenerDelegate{entt::connect_arg<&f>}
+#define REGISTER_DELEGATE_CLASS(c,f,x,name) {\
+    bool ret = false;\
+    EventListenerDelegate delegate; \
+    delegate.Bind<c,&f>(x); \
+    ret = g_EventManager->AddListener(delegate, GlobalHashTable::HashString("Event"_hash, #name)); \
+    RK_CORE_ASSERT(ret, "Register Delegate "#f" To "#name" Failed");}
+#define REGISTER_DELEGATE_FN(f,name) {\
+    bool ret = false;\
+    EventListenerDelegate delegate; \
+    delegate.Bind<&f>(); \
+    ret = g_EventManager->AddListener(delegate, GlobalHashTable::HashString("Event"_hash, #name)); \
+    RK_CORE_ASSERT(ret, "Register Delegate "#f" To "#name" Failed");}
 
     class EventManager : implements IRuntimeModule
     {

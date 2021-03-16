@@ -73,18 +73,11 @@ namespace Rocket
     {
         // Register Event Listener
         {
-            bool ret = false;
-            ret = g_EventManager->AddListener(REGISTER_DELEGATE_CLASS(Application::OnWindowClose, *g_Application), GlobalHashTable::HashString("Event"_hash, "window_close"));
-            RK_CORE_ASSERT(ret, "Register window_close Failed");
-            ret = g_EventManager->AddListener(REGISTER_DELEGATE_CLASS(GraphicsManager::OnWindowResize, *g_GraphicsManager), GlobalHashTable::HashString("Event"_hash, "window_resize"));
-            RK_CORE_ASSERT(ret, "Register window_resize Failed");
-            ret = g_EventManager->AddListener(REGISTER_DELEGATE_CLASS(WindowManager::OnWindowResize, *g_WindowManager), GlobalHashTable::HashString("Event"_hash, "window_resize"));
-            RK_CORE_ASSERT(ret, "Register window_resize Failed");
-
-            ret = g_EventManager->AddListener(REGISTER_DELEGATE_CLASS(GameLogic::OnUIEvent, *g_GameLogic), GlobalHashTable::HashString("Event"_hash, "ui_event_logic"));
-            RK_CORE_ASSERT(ret, "Register ui_event_logic Failed");
-            ret = g_EventManager->AddListener(REGISTER_DELEGATE_CLASS(GameLogic::OnResponseEvent, *g_GameLogic), GlobalHashTable::HashString("Event"_hash, "ui_event_response"));
-            RK_CORE_ASSERT(ret, "Register ui_event_response Failed");
+            REGISTER_DELEGATE_CLASS(Application, Application::OnWindowClose, g_Application, window_close);
+            REGISTER_DELEGATE_CLASS(GraphicsManager, GraphicsManager::OnWindowResize, g_GraphicsManager, window_resize);
+            REGISTER_DELEGATE_CLASS(WindowManager, WindowManager::OnWindowResize, g_WindowManager, window_resize);
+            REGISTER_DELEGATE_CLASS(GameLogic, GameLogic::OnUIEvent, g_GameLogic, ui_event_logic);
+            REGISTER_DELEGATE_CLASS(GameLogic, GameLogic::OnResponseEvent, g_GameLogic, ui_event_response);
         }
 
         // Add Robot UI

@@ -3,5 +3,9 @@
 
 namespace Rocket
 {
-    static String GenerateName();
+    class GenerateName
+    {
+    public:
+        static String Generate();
+    };
 }

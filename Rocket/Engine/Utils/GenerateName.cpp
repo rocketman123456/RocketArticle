@@ -5,7 +5,7 @@
 using namespace xg;
 using namespace Rocket;
 
-String Rocket::GenerateName()
+String GenerateName::Generate()
 {
     auto id = newGuid();
 	return id.str();

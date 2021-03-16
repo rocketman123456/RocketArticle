@@ -65,4 +65,7 @@ namespace Rocket
         uint64_t previousState;
         uint64_t nextState;
     };
+
+#define CREATE_NODE(name,f) Ref<StateNode> name = CreateRef<StateNode>(#name); name->transferFun = f;
+
 }
