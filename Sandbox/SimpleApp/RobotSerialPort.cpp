@@ -51,6 +51,15 @@ bool SerialPortModule::OnWindowClose(EventPtr& e)
     return false;
 }
 
+bool SerialPortModule::OnAction(EventPtr& e)
+{
+    static char str[1024];
+    RK_CORE_TRACE("Send Data Through Serial Port");
+    str[0] = 'H';str[1] = 'e';str[2] = 'l';str[3] = 'l';str[4] = 'o';str[5] = '\0';
+    m_SerialPort.writeData(str, 5);
+    return false;
+}
+
 void SerialPortModule::MainLoop()
 {
     while(m_IsRunning)

@@ -8,14 +8,6 @@
 #include "CSerialPort/SerialPort.h"
 #include "CSerialPort/SerialPortInfo.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#define imsleep(microsecond) Sleep(microsecond) // ms
-#else
-#include <unistd.h>
-#define imsleep(microsecond) usleep(1000 * microsecond) // ms
-#endif
-
 #include <atomic>
 
 class ReadSlot : public has_slots<>
@@ -59,6 +51,7 @@ public:
 
     void MainLoop();
     bool OnWindowClose(Rocket::EventPtr& e);
+    bool OnAction(Rocket::EventPtr& e);
 private:
     std::atomic<bool> m_IsRunning = true;
     ElapseTimer m_Timer;
