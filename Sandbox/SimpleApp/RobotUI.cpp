@@ -121,8 +121,8 @@ void RobotUI::Calculation()
     var[1].type = Variant::TYPE_STRING_ID;
     var[1].asStringId = 0;
 
-    if(init) { var[1].asStringId = GlobalHashTable::HashString("StateMachine"_hash, "init_pos"); }
-    if(walk) { var[1].asStringId = GlobalHashTable::HashString("StateMachine"_hash, "walk"); }
+    if(init) { var[1].asStringId = GlobalHashTable::HashString("StateMachine"_hash, "initialize"); }
+    if(walk) { var[1].asStringId = GlobalHashTable::HashString("StateMachine"_hash, "movement"); }
     if(rotation) { var[1].asStringId = GlobalHashTable::HashString("StateMachine"_hash, "rotation"); }
 
     if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "init") && rotation)
@@ -184,13 +184,38 @@ void RobotUI::Calculation()
         angle_x_prev = angle_x_curr;
         angle_y_prev = angle_y_curr;
     }
+    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_02") && init)
+    {
+        if(rotate_mode == 0)
+        {
+            CalculateRotation(angle_x_prev, 0, var);
+            EventPtr event = CreateRef<Event>(var);
+            g_EventManager->QueueEvent(event);
+
+            CalculateRotation(0, 0, var);
+            event = CreateRef<Event>(var);
+            g_EventManager->QueueEvent(event);
+        }
+        else if(rotate_mode == 1)
+        {
+            CalculateRotation(0, angle_y_prev, var);
+            EventPtr event = CreateRef<Event>(var);
+            g_EventManager->QueueEvent(event);
+
+            CalculateRotation(0, 0, var);
+            event = CreateRef<Event>(var);
+            g_EventManager->QueueEvent(event);
+        }
+        
+        angle_x_prev = angle_x_curr;
+        angle_y_prev = angle_y_curr;
+    }
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "init") && walk)
     {
         CalculateMovement(0, var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
-    // TODO : change state machine
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_00") && walk)
     {
         CalculateMovement(1, var);
@@ -223,7 +248,13 @@ void RobotUI::Calculation()
     }
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_05") && walk)
     {
-        CalculateMovement(0, var);
+        CalculateMovement(6, var);
+        EventPtr event = CreateRef<Event>(var);
+        g_EventManager->QueueEvent(event);
+    }
+    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_06") && walk)
+    {
+        CalculateMovement(1, var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }

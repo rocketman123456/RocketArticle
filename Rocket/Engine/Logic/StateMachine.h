@@ -36,6 +36,7 @@ namespace Rocket
         ActionFunction actionFun;
         uint64_t id;
         String name;
+        String action_name;
         bool finished = false;
         Vec<Variant> data;
     };
@@ -52,6 +53,7 @@ namespace Rocket
         bool UpdateEdge(const Vec<Variant>& data);
         bool GetTransferFinish() { return isTransferFinish; }
 
+        Ref<StateNode> GetInitNode() { return initStateNode; }
         Ref<StateNode> GetCurrentNode() { return currStateNode; }
         Ref<StateEdge> GetCurrentEdge() { return currentEdge; }
 

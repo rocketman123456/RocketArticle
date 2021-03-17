@@ -203,6 +203,7 @@ bool AssetLoader::SyncOpenAndWriteStringToTextFile(const String& fileName, const
     Ref<uint8_t> data = Ref<uint8_t>(new uint8_t[sz + 1], [](uint8_t* v){ delete[]v; });
     memcpy(data.get(), content.data(), sz);
     data.get()[sz] = '\0';
+    buf.SetData(data, sz + 1);
     bool result = SyncOpenAndWriteText(fileName, buf);
     return result;
 }
