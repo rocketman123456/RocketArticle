@@ -6,6 +6,9 @@
 #include <unordered_set>
 #include <utility>
 
+// For Physics Module
+using Real = float;
+
 using Vector2f = Eigen::Vector2f;
 using Vector3f = Eigen::Vector3f;
 using Vector4f = Eigen::Vector4f;
@@ -44,7 +47,7 @@ using EdgeSet = Rocket::USet<EdgePtr>;
 static Vector4f GetMin(const Vector4f& x, const Vector4f& y)
 {
 	Vector4f result;
-	for (int i = 0; i < 3; ++i)
+	for (int i = 0; i < 4; ++i)
 	{
 		result[i] = (y[i] < x[i]) ? y[i] : x[i];
 	}
@@ -54,7 +57,7 @@ static Vector4f GetMin(const Vector4f& x, const Vector4f& y)
 static Vector4f GetMax(const Vector4f& x, const Vector4f& y)
 {
 	Vector4f result;
-	for (int i = 0; i < 3; ++i)
+	for (int i = 0; i < 4; ++i)
 	{
 		result[i] = (x[i] < y[i]) ? y[i] : x[i];
 	}
@@ -84,7 +87,7 @@ static Vector3f GetMax(const Vector3f& x, const Vector3f& y)
 static Vector2f GetMin(const Vector2f& x, const Vector2f& y)
 {
 	Vector2f result;
-	for (int i = 0; i < 3; ++i)
+	for (int i = 0; i < 2; ++i)
 	{
 		result[i] = (y[i] < x[i]) ? y[i] : x[i];
 	}
@@ -94,7 +97,7 @@ static Vector2f GetMin(const Vector2f& x, const Vector2f& y)
 static Vector2f GetMax(const Vector2f& x, const Vector2f& y)
 {
 	Vector2f result;
-	for (int i = 0; i < 3; ++i)
+	for (int i = 0; i < 2; ++i)
 	{
 		result[i] = (x[i] < y[i]) ? y[i] : x[i];
 	}

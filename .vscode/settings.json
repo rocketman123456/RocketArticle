@@ -120,7 +120,8 @@
         "any": "cpp",
         "scoped_allocator": "cpp",
         "matrixfunctions": "cpp",
-        "*.inc": "cpp"
+        "*.inc": "cpp",
+        "tensor": "cpp"
     },
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

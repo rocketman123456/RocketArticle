@@ -50,7 +50,8 @@ bool GameLogic::OnUIEvent(EventPtr& e)
         RK_EVENT_TRACE("UI Event {} - StateMachine is in Transfer", 
             GlobalHashTable::GetStringFromId("Event"_hash, e->Var[0].asStringId)
         );
-        m_PendingStateData.assign(e->Var.begin(), e->Var.end());
+        if(m_PendingStateData.size() == 0)
+            m_PendingStateData.assign(e->Var.begin(), e->Var.end());
         return false;
     }
     m_PendingStateData.clear();

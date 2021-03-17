@@ -43,6 +43,8 @@ add_library( RocketEngine
     # Logic
     Logic/StateMachine.h
     Logic/StateMachine.cpp
+    Logic/StateMachineSerializer.h
+    Logic/StateMachineSerializer.cpp
     # Module
     Module/Application.h
     Module/Application.cpp

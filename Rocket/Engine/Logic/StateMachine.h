@@ -52,6 +52,9 @@ namespace Rocket
         bool UpdateEdge(const Vec<Variant>& data);
         bool GetTransferFinish() { return isTransferFinish; }
 
+        Ref<StateNode> GetCurrentNode() { return currStateNode; }
+        Ref<StateEdge> GetCurrentEdge() { return currentEdge; }
+
     private:
         String name;
         Ref<StateNode> initStateNode = nullptr;

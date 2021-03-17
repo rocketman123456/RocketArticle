@@ -71,6 +71,7 @@ void initialize_variable()
     EDGE_MAT_ID("edge_32") = 5;
 
     EDGE_MAT_ID("edge_45") = 6;
+
     EDGE_MAT_ID("edge_56") = 7;
     EDGE_MAT_ID("edge_67") = 8;
     EDGE_MAT_ID("edge_78") = 9;
@@ -117,6 +118,7 @@ void initialize_variable()
     transfer_edge_mat(7, 0) = EDGE_MAT_ID("edge_7_16"); transfer_edge_mat(7, 1) = EDGE_MAT_ID("empty"); transfer_edge_mat(7, 2) = EDGE_MAT_ID("edge_78");
     transfer_edge_mat(8, 0) = EDGE_MAT_ID("edge_8_16"); transfer_edge_mat(8, 1) = EDGE_MAT_ID("empty"); transfer_edge_mat(8, 2) = EDGE_MAT_ID("edge_89");
     transfer_edge_mat(9, 0) = EDGE_MAT_ID("edge_9_15"); transfer_edge_mat(9, 1) = EDGE_MAT_ID("empty"); transfer_edge_mat(9, 2) = EDGE_MAT_ID("edge_94");
+    //transfer_edge_mat(9, 0) = EDGE_MAT_ID("edge_9_15"); transfer_edge_mat(9, 1) = EDGE_MAT_ID("empty"); transfer_edge_mat(9, 2) = EDGE_MAT_ID("edge_94");
     // rot_rec
     transfer_edge_mat(10, 0) = EDGE_MAT_ID("edge_10_11"); transfer_edge_mat(10, 1) = EDGE_MAT_ID("empty"); transfer_edge_mat(10, 2) = EDGE_MAT_ID("empty");
     transfer_edge_mat(11, 0) = EDGE_MAT_ID("edge_11_1"); transfer_edge_mat(11, 1) = EDGE_MAT_ID("empty"); transfer_edge_mat(11, 2) = EDGE_MAT_ID("empty");
@@ -127,7 +129,6 @@ void initialize_variable()
     transfer_edge_mat(15, 0) = EDGE_MAT_ID("edge_15_16"); transfer_edge_mat(15, 1) = EDGE_MAT_ID("empty"); transfer_edge_mat(15, 2) = EDGE_MAT_ID("empty");
     transfer_edge_mat(16, 0) = EDGE_MAT_ID("edge_16_17"); transfer_edge_mat(16, 1) = EDGE_MAT_ID("empty"); transfer_edge_mat(16, 2) = EDGE_MAT_ID("empty");
     transfer_edge_mat(17, 0) = EDGE_MAT_ID("edge_17_0"); transfer_edge_mat(17, 1) = EDGE_MAT_ID("empty"); transfer_edge_mat(17, 2) = EDGE_MAT_ID("empty");
-
 }
 
 uint64_t update_along_mat(const Vec<Variant>& data, const uint64_t state)
