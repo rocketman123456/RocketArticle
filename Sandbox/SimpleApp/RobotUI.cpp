@@ -39,17 +39,16 @@ void RobotUI::DrawRobotState()
     if (progress >= +1.1f) { progress = +1.1f; progress_dir *= -1.0f; }
     if (progress <= -0.1f) { progress = -0.1f; progress_dir *= -1.0f; }
 
-    ImGui::ProgressBar(progress, ImVec2(0.0f, 0.0f)); ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x); ImGui::Text("Progress Bar 01");
-    
-    ImGui::PlotLines("Lines 01", values, IM_ARRAYSIZE(values), values_offset, overlay, -1.0f, 1.0f, ImVec2(0, 80.0f));
-    ImGui::PlotLines("Lines 02", values, IM_ARRAYSIZE(values), values_offset, overlay, -1.0f, 1.0f, ImVec2(0, 80.0f));
-    ImGui::PlotLines("Lines 03", values, IM_ARRAYSIZE(values), values_offset, overlay, -1.0f, 1.0f, ImVec2(0, 80.0f));
-    ImGui::PlotLines("Lines 04", values, IM_ARRAYSIZE(values), values_offset, overlay, -1.0f, 1.0f, ImVec2(0, 80.0f));
-    ImGui::PlotLines("Lines 05", values, IM_ARRAYSIZE(values), values_offset, overlay, -1.0f, 1.0f, ImVec2(0, 80.0f));
-    ImGui::PlotLines("Lines 06", values, IM_ARRAYSIZE(values), values_offset, overlay, -1.0f, 1.0f, ImVec2(0, 80.0f));
-    ImGui::PlotLines("Lines 07", values, IM_ARRAYSIZE(values), values_offset, overlay, -1.0f, 1.0f, ImVec2(0, 80.0f));
-    ImGui::PlotLines("Lines 08", values, IM_ARRAYSIZE(values), values_offset, overlay, -1.0f, 1.0f, ImVec2(0, 80.0f));
-    
+    for(int i = 0; i < 10; ++i)
+    {
+        uint64_t offset = std::max((int64_t)0, (int64_t)(motor_data[i].size() - max_motor_data_store));
+        char label[16] = {};
+        sprintf(label, "Motor %2d", i);
+        float result = CalculateProgress(motor_data_start[i], motor_data_target[i], motor_data_curr[i]);
+        ImGui::ProgressBar(result, ImVec2(0.0f, 0.0f)); ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x); ImGui::Text("Motor Progress %2d", i);
+        ImGui::PlotLines(label, motor_data[i].data(), motor_data[i].size(), offset, overlay, -1.0f, 1.0f, ImVec2(0, 80.0f));
+    }
+
     ImGui::End();
 }
 
@@ -106,8 +105,22 @@ void RobotUI::Draw()
 
     //ImGui::ShowDemoWindow();
 
-    // Select Robot Calculation
     Calculation();
+}
+
+bool RobotUI::OnResponseEvent(EventPtr& e)
+{
+    for(int i = 0; i < 10; ++i)
+    {
+        float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        motor_data[i].push_back(r);
+        //motor_data[i].push(e->Var[2 + i].asFloat);
+        //if(motor_data[i].size() > max_motor_data_store)
+        //{
+        //    motor_data[i];
+        //}
+    }
+    return false;
 }
 
 void RobotUI::Calculation()
@@ -210,6 +223,13 @@ void RobotUI::Calculation()
         angle_x_prev = angle_x_curr;
         angle_y_prev = angle_y_curr;
     }
+    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_rec_02") && init)
+    {
+        // inner leg down
+        EventPtr event = CreateRef<Event>(var);
+        g_EventManager->QueueEvent(event);
+    }
+
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "init") && walk)
     {
         CalculateMovement(0, var);
@@ -258,12 +278,91 @@ void RobotUI::Calculation()
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
+
+    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_01") && init)
+    {
+        CalculateMovementRecover(0, var);
+        EventPtr event = CreateRef<Event>(var);
+        g_EventManager->QueueEvent(event);
+    }
+    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_02") && init)
+    {
+        CalculateMovementRecover(0, var);
+        EventPtr event = CreateRef<Event>(var);
+        g_EventManager->QueueEvent(event);
+    }
+    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_03") && init)
+    {
+        CalculateMovementRecover(0, var);
+        EventPtr event = CreateRef<Event>(var);
+        g_EventManager->QueueEvent(event);
+    }
+    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_04") && init)
+    {
+        CalculateMovementRecover(0, var);
+        EventPtr event = CreateRef<Event>(var);
+        g_EventManager->QueueEvent(event);
+    }
+    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_05") && init)
+    {
+        CalculateMovementRecover(0, var);
+        EventPtr event = CreateRef<Event>(var);
+        g_EventManager->QueueEvent(event);
+    }
+    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_06") && init)
+    {
+        CalculateMovementRecover(0, var);
+        EventPtr event = CreateRef<Event>(var);
+        g_EventManager->QueueEvent(event);
+    }
+
+    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_out_up") && init)
+    {
+        CalculateMovementRecover(0, var);
+        EventPtr event = CreateRef<Event>(var);
+        g_EventManager->QueueEvent(event);
+    }
+    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_out_mid") && init)
+    {
+        CalculateMovementRecover(0, var);
+        EventPtr event = CreateRef<Event>(var);
+        g_EventManager->QueueEvent(event);
+    }
+    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_out_down") && init)
+    {
+        CalculateMovementRecover(0, var);
+        EventPtr event = CreateRef<Event>(var);
+        g_EventManager->QueueEvent(event);
+    }
+
+    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_in_up") && init)
+    {
+        CalculateMovementRecover(0, var);
+        EventPtr event = CreateRef<Event>(var);
+        g_EventManager->QueueEvent(event);
+    }
+    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_in_mid") && init)
+    {
+        CalculateMovementRecover(0, var);
+        EventPtr event = CreateRef<Event>(var);
+        g_EventManager->QueueEvent(event);
+    }
+    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_in_down") && init)
+    {
+        CalculateMovementRecover(0, var);
+        EventPtr event = CreateRef<Event>(var);
+        g_EventManager->QueueEvent(event);
+    }
 }
 
 float RobotUI::CalculateProgress(float start, float end, float current)
 {
     float total = end - start;
     float delta = current - start;
+    if(total < 1e-4)
+    {
+        return 1;
+    }
     float progress = delta / total;
     return progress;
 }
@@ -348,4 +447,9 @@ void RobotUI::CalculateMovement(int32_t stage, EventVarVec& var)
         var[12 + i].type = Variant::TYPE_INT32;
         var[12 + i].asFloat = valve_data_target[i];
     }
+}
+
+void RobotUI::CalculateMovementRecover(int32_t stage, EventVarVec& var)
+{
+
 }

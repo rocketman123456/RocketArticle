@@ -5,14 +5,7 @@
 
 using namespace Rocket;
 
-// TODO : make this as function input
-// TODO : use struct to warp it
-UMap<uint64_t, uint64_t> node_2_mat;
-//UMap<uint64_t, uint64_t> edge_2_mat;
-UMap<uint64_t, uint64_t> action_2_mat;
-Eigen::Matrix<uint64_t, Eigen::Dynamic, Eigen::Dynamic> transfer_edge_mat;
-
-Ref<StateMachine> StateMachineSerializer::Deserialize(const String& name, TransferFunction transfer, ActionFunction action)
+Ref<StateMachine> StateMachineSerializer::Deserialize(const String& name)
 {
     String asset_path = g_AssetLoader->GetAssetPath();
     String full_path = asset_path + name;
@@ -28,9 +21,11 @@ Ref<StateMachine> StateMachineSerializer::Deserialize(const String& name, Transf
     uint64_t node_count = 0;
     uint64_t edge_count = 0;
 
+    Ref<StateMachine> stateMachine = CreateRef<StateMachine>(name);
+
     String init_name = root["init_node"].as<String>();
 
-    node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, init_name)] = node_count;
+    stateMachine->node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, init_name)] = node_count;
     node_count++;
 
     auto it_yaml = root["edge"].begin();
@@ -46,7 +41,7 @@ Ref<StateMachine> StateMachineSerializer::Deserialize(const String& name, Transf
         auto action_find = action_map.find(action_name);
         if(action_find == action_map.end())
         {
-            action_2_mat[GlobalHashTable::HashString("StateMachine"_hash, action_name)] = action_count;
+            stateMachine->action_2_mat[GlobalHashTable::HashString("StateMachine"_hash, action_name)] = action_count;
             action_map[action_name] = action_count;
             action_count++;
         }
@@ -56,25 +51,25 @@ Ref<StateMachine> StateMachineSerializer::Deserialize(const String& name, Transf
         if(node_parent == node_map.end())
         {
             node_map[parent_name] = CreateRef<StateNode>(parent_name);
-            node_map[parent_name]->transferFun = transfer;
+            node_map[parent_name]->transferFun = std::bind(&StateMachine::update_along_mat, stateMachine.get(), std::placeholders::_1, std::placeholders::_2 );
 
-            node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, parent_name)] = node_count;
+            stateMachine->node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, parent_name)] = node_count;
             node_count++;
         }
         
         if(node_child == node_map.end())
         {
             node_map[child_name] = CreateRef<StateNode>(child_name);
-            node_map[child_name]->transferFun = transfer;
+            node_map[child_name]->transferFun = std::bind(&StateMachine::update_along_mat, stateMachine.get(), std::placeholders::_1, std::placeholders::_2 );
             
-            node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, child_name)] = node_count;
+            stateMachine->node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, child_name)] = node_count;
             node_count++;
         }
 
         edge_map[edge_name] = CreateRef<StateEdge>(edge_name);
         edge_map[edge_name]->parent = node_map[parent_name];
         edge_map[edge_name]->child = node_map[child_name];
-        edge_map[edge_name]->actionFun = action;
+        edge_map[edge_name]->actionFun = std::bind(&StateMachine::action_on_edge, stateMachine.get(), std::placeholders::_1, std::placeholders::_2 );
         edge_map[edge_name]->action_name = action_name;
 
         action_node_pair[GlobalHashTable::HashString("StateMachine"_hash, edge_name)] = {
@@ -88,16 +83,15 @@ Ref<StateMachine> StateMachineSerializer::Deserialize(const String& name, Transf
     }
 
     // Make Transfer Mat
-    transfer_edge_mat = Eigen::Matrix<uint64_t, Eigen::Dynamic, Eigen::Dynamic>(node_count, action_count);
+    stateMachine->transfer_edge_mat = Eigen::Matrix<uint64_t, Eigen::Dynamic, Eigen::Dynamic>(node_count, action_count);
 
     for(int i = 0; i < node_count; ++i)
         for(int j = 0; j < action_count; ++j)
-            transfer_edge_mat(i, j) = GlobalHashTable::HashString("StateMachine"_hash, "null");
+            stateMachine->transfer_edge_mat(i, j) = GlobalHashTable::HashString("StateMachine"_hash, "null");
 
     for(auto it = action_node_pair.begin(); it != action_node_pair.end(); ++it)
-        transfer_edge_mat(node_2_mat[it->second.first], action_2_mat[it->second.second]) = it->first;
+        stateMachine->transfer_edge_mat(stateMachine->node_2_mat[it->second.first], stateMachine->action_2_mat[it->second.second]) = it->first;
 
-    Ref<StateMachine> stateMachine = CreateRef<StateMachine>(name);
     stateMachine->SetInitState(node_map[init_name]);
     return stateMachine;
 }

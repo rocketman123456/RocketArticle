@@ -2,16 +2,17 @@
 #include "Event/Event.h"
 #include "Logic/StateMachine.h"
 #include "Render/DrawBasic/UI.h"
-#include "RobotControl.h"
 
 class RobotUI : implements Rocket::UIContext
 {
 public:
     void Draw() final;
+    bool OnResponseEvent(Rocket::EventPtr& e);
 private:
     void Calculation();
     void CalculateRotation(double x, double y, Rocket::EventVarVec& var);
     void CalculateMovement(int32_t stage, Rocket::EventVarVec& var);
+    void CalculateMovementRecover(int32_t stage, Rocket::EventVarVec& var);
     float CalculateProgress(float start, float end, float current);
 
     void DrawRobotSetting();
@@ -44,6 +45,11 @@ private:
     double up_height = 0;
     int32_t direction = 0;
 
+    const int32_t max_motor_data_store = 100 * 10;
+    Rocket::Vec<float> motor_data[10];
+
+    float motor_data_start[10] = {0};
+    uint8_t valve_data_start[10] = {0};
     float motor_data_prev[10] = {0};
     uint8_t valve_data_prev[10] = {0};
     float motor_data_curr[10] = {0};

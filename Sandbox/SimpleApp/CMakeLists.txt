@@ -4,7 +4,7 @@ if(Apple)
 endif()
 add_executable( SimpleApp
     SimpleApp.cpp
-    RobotControl.cpp
+    #RobotControl.cpp
     RobotUI.cpp
     RobotSerialPort.cpp
 )

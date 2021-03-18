@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/Core.h"
+#include "Common/GeomMath.h"
 #include "Utils/Variant.h"
 
 #include <functional>
@@ -41,6 +42,8 @@ namespace Rocket
         Vec<Variant> data;
     };
 
+    class StateMachineSerializer;
+
     class StateMachine
     {
     public:
@@ -57,6 +60,15 @@ namespace Rocket
         Ref<StateNode> GetCurrentNode() { return currStateNode; }
         Ref<StateEdge> GetCurrentEdge() { return currentEdge; }
 
+        // For Node and Edge Function
+        uint64_t update_along_mat(const Vec<Variant>& data, const uint64_t state);
+        bool action_on_edge(const Vec<Variant>& input, const Vec<Variant>& target);
+
+    private:
+        static uint64_t Get2Mat(const UMap<uint64_t, uint64_t>& map, uint64_t input);
+        static uint64_t Get2Map(const UMap<uint64_t, uint64_t>& map, uint64_t input);
+        static bool is_near(float i, float j, float esp = 1e-3);
+
     private:
         String name;
         Ref<StateNode> initStateNode = nullptr;
@@ -69,8 +81,12 @@ namespace Rocket
         uint64_t currentState;
         uint64_t previousState;
         uint64_t nextState;
+
+        // For Node and Edge Function
+        Eigen::Matrix<uint64_t, Eigen::Dynamic, Eigen::Dynamic> transfer_edge_mat;
+        UMap<uint64_t, uint64_t> node_2_mat;
+        UMap<uint64_t, uint64_t> action_2_mat;
+
+        friend class StateMachineSerializer;
     };
-
-#define CREATE_NODE(name,f) Ref<StateNode> name = CreateRef<StateNode>(#name); name->transferFun = f;
-
 }

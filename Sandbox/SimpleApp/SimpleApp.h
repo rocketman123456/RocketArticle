@@ -2,7 +2,6 @@
 #include "Module/Application.h"
 #include "Utils/ThreadPool.h"
 
-#include "RobotControl.h"
 #include "RobotUI.h"
 #include "RobotSerialPort.h"
 

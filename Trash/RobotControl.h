@@ -5,8 +5,6 @@
 // TransferFunction uint64_t(const Vec<Variant>&, const uint64_t) // Action, State
 // ActionFunction bool(const Vec<Variant>&, const Vec<Variant>&) // Input data, Target data
 
-void initialize_variable();
-
 // Robot State Transfer function
 uint64_t update_along_mat(const Rocket::Vec<Rocket::Variant>&, const uint64_t);
 

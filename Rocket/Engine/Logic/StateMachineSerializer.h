@@ -12,7 +12,7 @@ namespace Rocket
         StateMachineSerializer() = default;
         ~StateMachineSerializer() = default;
     public:
-        static Ref<StateMachine> Deserialize(const String& name, TransferFunction transfer, ActionFunction action);
+        static Ref<StateMachine> Deserialize(const String& name);
         static void Serialize(const String& name, Ref<StateMachine> stateMachine);
     };
 }

@@ -31,6 +31,7 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     #set(CMAKE_NM            "/usr/bin/gcc-nm-10")
     #set(CMAKE_OBJDUMP       "/usr/bin/gcov-dump-10")
     #set(CMAKE_RANLIB        "/usr/bin/gcc-ranlib-10")
+    set(LLVM_EXTERNAL_VISIBILITY OFF)
 endif ()
 
 project( Rocket )

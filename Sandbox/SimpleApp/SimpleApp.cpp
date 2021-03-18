@@ -92,16 +92,16 @@ void SimpleApp::PostInitializeModule()
     // Add Robot UI
     {
         auto ui = g_GraphicsManager->GetUI();
-        ui->AddContext(CreateRef<RobotUI>());
+        auto ui_context = CreateRef<RobotUI>();
+        ui->AddContext(ui_context);
+
+        auto ui_raw_ptr = ui_context.get();
+        REGISTER_DELEGATE_CLASS(RobotUI, RobotUI::OnResponseEvent, ui_raw_ptr, ui_event_response);
     }
 
     // Add State Machine
     {
-        Ref<StateMachine> stateMachine = StateMachineSerializer::Deserialize(
-            "Logic/robot-state-machine.yaml",
-            update_along_mat,
-            action_on_edge
-        );
+        Ref<StateMachine> stateMachine = StateMachineSerializer::Deserialize("Logic/robot-state-machine.yaml");
         g_GameLogic->SetStateMachine(stateMachine);
 
         StateMachineSerializer::Serialize("Logic/robot-control.yaml", stateMachine);
@@ -109,9 +109,7 @@ void SimpleApp::PostInitializeModule()
 
     // Begin Serial Thread
     {
-        m_ThreadPool.enqueue_work([](){
-            g_SerialPort->MainLoop();
-        });
+        m_ThreadPool.enqueue_work([](){ g_SerialPort->MainLoop(); });
     }
 }
 
@@ -121,7 +119,7 @@ void SimpleApp::PreInitialize()
     Ref<Scene> scene = CreateRef<Scene>("Test Scene");
     Scope<SceneNode> root_node = CreateScope<SceneNode>("Root Node");
     Scope<SceneNode> cam_node = CreateScope<SceneNode>("Camera Node");
-    Scope<SceneNode> mesh_node = CreateScope<SceneNode>("Mesh Node");
+    //Scope<SceneNode> mesh_node = CreateScope<SceneNode>("Mesh Node");
 
     Ref<SceneCamera> cam = CreateRef<SceneCamera>();
 
@@ -157,11 +155,11 @@ void SimpleApp::PreInitialize()
     scene->SetPrimaryCameraTransform(Matrix4f::Identity());
 
     root_node->AddChild(*cam_node);
-    root_node->AddChild(*mesh_node);
+    //root_node->AddChild(*mesh_node);
 
-    Vec<Scope<SceneComponent>> mesh_components;
-    //mesh_components.push_back(std::move(mesh));
     scene->AddNode(std::move(root_node));
+    //Vec<Scope<SceneComponent>> mesh_components;
+    //mesh_components.push_back(std::move(mesh));
     //scene->SetComponents(mesh->GetType(), std::move(mesh_components));
 
     auto ret_1 = g_SceneManager->AddScene(scene);

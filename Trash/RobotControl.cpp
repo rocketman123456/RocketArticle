@@ -6,7 +6,6 @@ using namespace Rocket;
 
 extern Eigen::Matrix<uint64_t, Eigen::Dynamic, Eigen::Dynamic> transfer_edge_mat;
 extern UMap<uint64_t, uint64_t> node_2_mat;
-//extern UMap<uint64_t, uint64_t> edge_2_mat;
 extern UMap<uint64_t, uint64_t> action_2_mat;
 
 static uint64_t Get2Mat(const UMap<uint64_t, uint64_t>& map, uint64_t input)
