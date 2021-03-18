@@ -11,42 +11,18 @@ using namespace Rocket;
 void RobotUI::DrawRobotState()
 {
     ImGui::Begin("Robot State", &showRobotState);
-    static float arr[] = { 0.6f, 0.1f, 1.0f, 0.5f, 0.92f, 0.1f, 0.2f };
-
-    static float values[90] = {};
-    static int values_offset = 0;
-    static double refresh_time = 0.0;
-    if (refresh_time == 0.0)
-        refresh_time = ImGui::GetTime();
-    while (refresh_time < ImGui::GetTime()) // Create data at fixed 60 Hz rate for the demo
-    {
-        static float phase = 0.0f;
-        values[values_offset] = cosf(phase);
-        values_offset = (values_offset + 1) % IM_ARRAYSIZE(values);
-        phase += 0.10f * values_offset;
-        refresh_time += 1.0f / 60.0f;
-    }
-
-    float average = 0.0f;
-    for (int n = 0; n < IM_ARRAYSIZE(values); n++)
-        average += values[n];
-    average /= (float)IM_ARRAYSIZE(values);
-    char overlay[32];
-    sprintf(overlay, "avg %f", average);
-
-    static float progress = 0.0f, progress_dir = 1.0f;
-    progress += progress_dir * 0.4f * ImGui::GetIO().DeltaTime;
-    if (progress >= +1.1f) { progress = +1.1f; progress_dir *= -1.0f; }
-    if (progress <= -0.1f) { progress = -0.1f; progress_dir *= -1.0f; }
-
+    
     for(int i = 0; i < 10; ++i)
     {
         uint64_t offset = std::max((int64_t)0, (int64_t)(motor_data[i].size() - max_motor_data_store));
+        uint64_t data_size = std::min((int64_t)motor_data[i].size(), (int64_t)max_motor_data_store);
         char label[16] = {};
         sprintf(label, "Motor %2d", i);
+        char overlay[32];
+        sprintf(overlay, "size %d", (uint32_t)motor_data[i].size());
         float result = CalculateProgress(motor_data_start[i], motor_data_target[i], motor_data_curr[i]);
         ImGui::ProgressBar(result, ImVec2(0.0f, 0.0f)); ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x); ImGui::Text("Motor Progress %2d", i);
-        ImGui::PlotLines(label, motor_data[i].data(), motor_data[i].size(), offset, overlay, -1.0f, 1.0f, ImVec2(0, 80.0f));
+        ImGui::PlotLines(label, motor_data[i].data(), data_size, offset, overlay, -1.0f, 1.0f, ImVec2(0, 80.0f));
     }
 
     ImGui::End();
@@ -68,12 +44,39 @@ void RobotUI::DrawRobotSetting()
     ImGui::Combo("select rotation mode", &rotate_mode, modes, IM_ARRAYSIZE(modes));
     const char* motors[] = { "motor 01", "motor 02", "motor 03", "motor 04", "motor 05", "motor 06", "motor 07", "motor 08", "motor 09", "motor 10"};
     ImGui::Combo("select motor", &motor_id, motors, IM_ARRAYSIZE(motors));
-    get_motor_data = ImGui::Button("Get Data");
-    ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
-    ImGui::InputFloat("Motor", &motor_data_target[motor_id], 0.001);
-    ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+
+    ImGui::Separator();
+    ImGui::InputFloat("Motor", &motor_data_target[motor_id], 0.001); 
     set_motor_data = ImGui::Button("Set Data");
     reset_motor = ImGui::Button("Reset Motor");
+    {
+        EventVarVec var;
+        var.resize(4);
+        var[0].type = Variant::TYPE_STRING_ID;
+        var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "ui_event_motor");
+        var[1].type = Variant::TYPE_UINT32;
+        var[1].asUInt32 = motor_id;
+        if(set_motor_data)
+        {
+            var[2].type = Variant::TYPE_UINT32;
+            var[2].asUInt32 = 1;
+        }
+        else if(reset_motor)
+        {
+            var[2].type = Variant::TYPE_UINT32;
+            var[2].asUInt32 = 2;
+
+            motor_data_target[motor_id] = 0;
+        }
+        var[3].type = Variant::TYPE_FLOAT;
+        var[3].asFloat = motor_data_target[motor_id];
+
+        if(get_motor_data || set_motor_data || reset_motor)
+        {
+            EventPtr event = CreateRef<Event>(var);
+            g_EventManager->QueueEvent(event);
+        }
+    }
 
     ImGui::Separator();
     ImGui::Checkbox("Show Robot State", &showRobotState);
@@ -103,8 +106,6 @@ void RobotUI::Draw()
 
     node_curr = g_GameLogic->GetStateMachine()->GetCurrentNode();
 
-    //ImGui::ShowDemoWindow();
-
     Calculation();
 }
 
@@ -112,13 +113,9 @@ bool RobotUI::OnResponseEvent(EventPtr& e)
 {
     for(int i = 0; i < 10; ++i)
     {
-        float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-        motor_data[i].push_back(r);
-        //motor_data[i].push(e->Var[2 + i].asFloat);
-        //if(motor_data[i].size() > max_motor_data_store)
-        //{
-        //    motor_data[i];
-        //}
+        //float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        motor_data_curr[i] = e->Var[2 + i].asFloat;
+        motor_data[i].push_back(motor_data_curr[i]);
     }
     return false;
 }
@@ -138,9 +135,24 @@ void RobotUI::Calculation()
     if(walk) { var[1].asStringId = GlobalHashTable::HashString("StateMachine"_hash, "movement"); }
     if(rotation) { var[1].asStringId = GlobalHashTable::HashString("StateMachine"_hash, "rotation"); }
 
+    //--------------------------------------------------------------//
+    //--------------------------------------------------------------//
+    //--------------------------------------------------------------//
     if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "init") && rotation)
     {
         // Move Inner Up
+        motor_data_target[0] = 0;
+        motor_data_target[1] = -up_height;
+        motor_data_target[2] = -up_height;
+        motor_data_target[3] = 0;
+        motor_data_target[4] = 0;
+        motor_data_target[5] = -up_height;
+        motor_data_target[6] = -up_height;
+        motor_data_target[7] = 0;
+        motor_data_target[8] = 0;
+        motor_data_target[9] = 0;
+
+        SetEventData(var);
 
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
@@ -149,21 +161,25 @@ void RobotUI::Calculation()
     {
         if(rotate_mode == 0)
         {
-            CalculateRotation(angle_x_prev, angle_y_curr, var);
+            CalculateRotation(angle_x_prev, angle_y_curr);
+            SetEventData(var);
             EventPtr event = CreateRef<Event>(var);
             g_EventManager->QueueEvent(event);
 
-            CalculateRotation(angle_x_curr, angle_y_curr, var);
+            CalculateRotation(angle_x_curr, angle_y_curr);
+            SetEventData(var);
             event = CreateRef<Event>(var);
             g_EventManager->QueueEvent(event);
         }
         else if(rotate_mode == 1)
         {
-            CalculateRotation(angle_x_curr, angle_y_prev, var);
+            CalculateRotation(angle_x_curr, angle_y_prev);
+            SetEventData(var);
             EventPtr event = CreateRef<Event>(var);
             g_EventManager->QueueEvent(event);
 
-            CalculateRotation(angle_x_curr, angle_y_curr, var);
+            CalculateRotation(angle_x_curr, angle_y_curr);
+            SetEventData(var);
             event = CreateRef<Event>(var);
             g_EventManager->QueueEvent(event);
         }
@@ -175,21 +191,25 @@ void RobotUI::Calculation()
     {
         if(rotate_mode == 0)
         {
-            CalculateRotation(angle_x_prev, angle_y_curr, var);
+            CalculateRotation(angle_x_prev, angle_y_curr);
+            SetEventData(var);
             EventPtr event = CreateRef<Event>(var);
             g_EventManager->QueueEvent(event);
 
-            CalculateRotation(angle_x_curr, angle_y_curr, var);
+            CalculateRotation(angle_x_curr, angle_y_curr);
+            SetEventData(var);
             event = CreateRef<Event>(var);
             g_EventManager->QueueEvent(event);
         }
         else if(rotate_mode == 1)
         {
-            CalculateRotation(angle_x_curr, angle_y_prev, var);
+            CalculateRotation(angle_x_curr, angle_y_prev);
+            SetEventData(var);
             EventPtr event = CreateRef<Event>(var);
             g_EventManager->QueueEvent(event);
 
-            CalculateRotation(angle_x_curr, angle_y_curr, var);
+            CalculateRotation(angle_x_curr, angle_y_curr);
+            SetEventData(var);
             event = CreateRef<Event>(var);
             g_EventManager->QueueEvent(event);
         }
@@ -197,25 +217,32 @@ void RobotUI::Calculation()
         angle_x_prev = angle_x_curr;
         angle_y_prev = angle_y_curr;
     }
+    //--------------------------------------------------------------//
+    //--------------------------------------------------------------//
+    //--------------------------------------------------------------//
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_02") && init)
     {
         if(rotate_mode == 0)
         {
-            CalculateRotation(angle_x_prev, 0, var);
+            CalculateRotation(angle_x_prev, 0);
+            SetEventData(var);
             EventPtr event = CreateRef<Event>(var);
             g_EventManager->QueueEvent(event);
 
-            CalculateRotation(0, 0, var);
+            CalculateRotation(0, 0);
+            SetEventData(var);
             event = CreateRef<Event>(var);
             g_EventManager->QueueEvent(event);
         }
         else if(rotate_mode == 1)
         {
-            CalculateRotation(0, angle_y_prev, var);
+            CalculateRotation(0, angle_y_prev);
+            SetEventData(var);
             EventPtr event = CreateRef<Event>(var);
             g_EventManager->QueueEvent(event);
 
-            CalculateRotation(0, 0, var);
+            CalculateRotation(0, 0);
+            SetEventData(var);
             event = CreateRef<Event>(var);
             g_EventManager->QueueEvent(event);
         }
@@ -225,134 +252,191 @@ void RobotUI::Calculation()
     }
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_rec_02") && init)
     {
-        // inner leg down
+        // no action
+        SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
+    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_00") && init)
+    {
+        // inner leg down
+        motor_data_target[0] = 0;
+        motor_data_target[1] = 0;
+        motor_data_target[2] = 0;
+        motor_data_target[3] = 0;
+        motor_data_target[4] = 0;
+        motor_data_target[5] = 0;
+        motor_data_target[6] = 0;
+        motor_data_target[7] = 0;
+        motor_data_target[8] = 0;
+        motor_data_target[9] = 0;
 
+        SetEventData(var);
+
+        EventPtr event = CreateRef<Event>(var);
+        g_EventManager->QueueEvent(event);
+    }
+    //--------------------------------------------------------------//
+    //--------------------------------------------------------------//
+    //--------------------------------------------------------------//
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "init") && walk)
     {
-        CalculateMovement(0, var);
+        CalculateMovement(0);
+        SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_00") && walk)
     {
-        CalculateMovement(1, var);
+        CalculateMovement(1);
+        SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_01") && walk)
     {
-        CalculateMovement(2, var);
+        CalculateMovement(2);
+        SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_02") && walk)
     {
-        CalculateMovement(3, var);
+        CalculateMovement(3);
+        SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_03") && walk)
     {
-        CalculateMovement(4, var);
+        CalculateMovement(4);
+        SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_04") && walk)
     {
-        CalculateMovement(5, var);
+        CalculateMovement(5);
+        SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_05") && walk)
     {
-        CalculateMovement(6, var);
+        CalculateMovement(6);
+        SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_06") && walk)
     {
-        CalculateMovement(1, var);
+        CalculateMovement(1);
+        SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
-
+    //--------------------------------------------------------------//
+    //--------------------------------------------------------------//
+    //--------------------------------------------------------------//
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_01") && init)
     {
-        CalculateMovementRecover(0, var);
+        CalculateMovementRecover(1);
+        SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_02") && init)
     {
-        CalculateMovementRecover(0, var);
+        CalculateMovementRecover(0);
+        SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_03") && init)
     {
-        CalculateMovementRecover(0, var);
+        CalculateMovementRecover(4);
+        SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_04") && init)
     {
-        CalculateMovementRecover(0, var);
+        CalculateMovementRecover(4);
+        SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_05") && init)
     {
-        CalculateMovementRecover(0, var);
+        CalculateMovementRecover(3);
+        SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_06") && init)
     {
-        CalculateMovementRecover(0, var);
+        CalculateMovementRecover(1);
+        SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
-
+    //--------------------------------------------------------------//
+    //--------------------------------------------------------------//
+    //--------------------------------------------------------------//
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_out_up") && init)
     {
-        CalculateMovementRecover(0, var);
+        CalculateMovementRecover(1);
+        SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_out_mid") && init)
     {
-        CalculateMovementRecover(0, var);
+        CalculateMovementRecover(2);
+        SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_out_down") && init)
     {
-        CalculateMovementRecover(0, var);
+        CalculateMovementRecover(6);
+        SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
-
+    //--------------------------------------------------------------//
+    //--------------------------------------------------------------//
+    //--------------------------------------------------------------//
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_in_up") && init)
     {
-        CalculateMovementRecover(0, var);
+        CalculateMovementRecover(4);
+        SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_in_mid") && init)
     {
-        CalculateMovementRecover(0, var);
+        CalculateMovementRecover(5);
+        SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
     else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_in_down") && init)
     {
-        CalculateMovementRecover(0, var);
+        CalculateMovementRecover(6);
+        SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
+    //--------------------------------------------------------------//
+    //--------------------------------------------------------------//
+    //--------------------------------------------------------------//
+    //else if(init || rotation || walk)
+    //{
+    //    SetEventData(var);
+    //    EventPtr event = CreateRef<Event>(var);
+    //    g_EventManager->QueueEvent(event);
+    //}
 }
 
 float RobotUI::CalculateProgress(float start, float end, float current)
@@ -364,10 +448,32 @@ float RobotUI::CalculateProgress(float start, float end, float current)
         return 1;
     }
     float progress = delta / total;
+    progress = std::clamp(progress, 0.0f, 1.0f);
     return progress;
 }
 
-void RobotUI::CalculateRotation(double x, double y, EventVarVec& var)
+void RobotUI::SetEventData(Rocket::EventVarVec& var)
+{
+    for(int i = 0; i < 10; ++i)
+    {
+        motor_data_start[i] = motor_data_curr[i];
+    }
+
+    // set motor data
+    for(int i = 0; i < 10 ; ++i)
+    {
+        var[2 + i].type = Variant::TYPE_FLOAT;
+        var[2 + i].asFloat = motor_data_target[i];
+    }
+    // set valve data
+    for(int i = 0; i < 10 ; ++i)
+    {
+        var[12 + i].type = Variant::TYPE_INT32;
+        var[12 + i].asFloat = valve_data_target[i];
+    }
+}
+
+void RobotUI::CalculateRotation(double x, double y)
 {
     double L0, L1, L2, L3;
     L0 = h;
@@ -386,70 +492,203 @@ void RobotUI::CalculateRotation(double x, double y, EventVarVec& var)
         L3 = sqrt(cos(ty)*cos(ty)*(W*sin(tx) - h*cos(tx))*(W*sin(tx) - h*cos(tx)) + (sin(ty)*sin(ty)*(W*cos(tx) + h*sin(tx))*(W*cos(tx) + h*sin(tx)))/(cos(ty)*cos(ty)) + (sin(tx)*sin(tx)*(W*cos(tx) + h*sin(tx))*(W*cos(tx) + h*sin(tx)))/(cos(tx)*cos(tx)*cos(ty)*cos(ty)));
     }
 
-    // set motor data
-    for(int i = 0; i < 10 ; ++i)
-    {
-        var[2 + i].type = Variant::TYPE_FLOAT;
-        var[2 + i].asFloat = motor_data_target[i];
-    }
-    // set valve data
-    for(int i = 0; i < 10 ; ++i)
-    {
-        var[12 + i].type = Variant::TYPE_INT32;
-        var[12 + i].asFloat = valve_data_target[i];
-    }
+    motor_data_target[0] = L2 - h;
+    motor_data_target[1] = -up_height;
+    motor_data_target[2] = -up_height;
+    motor_data_target[3] = L3 - h;
+    motor_data_target[4] = 0;
+    motor_data_target[5] = -up_height;
+    motor_data_target[6] = -up_height;
+    motor_data_target[7] = L1 - h;
+    motor_data_target[8] = 0;
+    motor_data_target[9] = 0;
+    
+    valve_data_target[0] = 0;
+    valve_data_target[1] = 0;
+    valve_data_target[2] = 0;
+    valve_data_target[3] = 1;
+    valve_data_target[4] = 1;
+    valve_data_target[5] = 1;
+    valve_data_target[6] = 1;
+    valve_data_target[7] = 1;
+    valve_data_target[8] = 0;
+    valve_data_target[9] = 1;
 }
 
-void RobotUI::CalculateMovement(int32_t stage, EventVarVec& var)
+void RobotUI::CalculateMovement(int32_t stage)
 {
-    double motor_pos[10] = {0};
-
     switch(stage)
     {
     case 0:
+        motor_data_target[0] = -up_height;
+        motor_data_target[1] = 0;
+        motor_data_target[2] = 0;
+        motor_data_target[3] = -up_height;
+        motor_data_target[4] = -up_height;
+        motor_data_target[5] = 0;
+        motor_data_target[6] = 0;
+        motor_data_target[7] = -up_height;
+        motor_data_target[8] = 0;
+        motor_data_target[9] = 0;
         break;
     case 1:
+        motor_data_target[0] = -up_height;
+        motor_data_target[1] = 0;
+        motor_data_target[2] = 0;
+        motor_data_target[3] = -up_height;
+        motor_data_target[4] = -up_height;
+        motor_data_target[5] = 0;
+        motor_data_target[6] = 0;
+        motor_data_target[7] = -up_height;
+        motor_data_target[8] = stride;
+        motor_data_target[9] = stride;
         break;
     case 2:
+        motor_data_target[0] = 0;
+        motor_data_target[1] = 0;
+        motor_data_target[2] = 0;
+        motor_data_target[3] = 0;
+        motor_data_target[4] = 0;
+        motor_data_target[5] = 0;
+        motor_data_target[6] = 0;
+        motor_data_target[7] = 0;
+        motor_data_target[8] = stride;
+        motor_data_target[9] = stride;
         break;
     case 3:
+        motor_data_target[0] = 0;
+        motor_data_target[1] = -up_height;
+        motor_data_target[2] = -up_height;
+        motor_data_target[3] = 0;
+        motor_data_target[4] = 0;
+        motor_data_target[5] = -up_height;
+        motor_data_target[6] = -up_height;
+        motor_data_target[7] = 0;
+        motor_data_target[8] = stride;
+        motor_data_target[9] = stride;
         break;
     case 4:
+        motor_data_target[0] = 0;
+        motor_data_target[1] = -up_height;
+        motor_data_target[2] = -up_height;
+        motor_data_target[3] = 0;
+        motor_data_target[4] = 0;
+        motor_data_target[5] = -up_height;
+        motor_data_target[6] = -up_height;
+        motor_data_target[7] = 0;
+        motor_data_target[8] = -stride;
+        motor_data_target[9] = -stride;
         break;
     case 5:
+        motor_data_target[0] = 0;
+        motor_data_target[1] = 0;
+        motor_data_target[2] = 0;
+        motor_data_target[3] = 0;
+        motor_data_target[4] = 0;
+        motor_data_target[5] = 0;
+        motor_data_target[6] = 0;
+        motor_data_target[7] = 0;
+        motor_data_target[8] = -stride;
+        motor_data_target[9] = -stride;
+        break;
+    case 6:
+        motor_data_target[0] = -up_height;
+        motor_data_target[1] = 0;
+        motor_data_target[2] = 0;
+        motor_data_target[3] = -up_height;
+        motor_data_target[4] = -up_height;
+        motor_data_target[5] = 0;
+        motor_data_target[6] = 0;
+        motor_data_target[7] = -up_height;
+        motor_data_target[8] = -stride;
+        motor_data_target[9] = -stride;
         break;
     default:
         break;
     }
 
-    if(direction > 0)
+    float sign = (direction > 0) - (direction < 0);
+    motor_data_target[8] *= sign;
+    motor_data_target[9] *= sign;
+    
+    for(int i = 0; i < 10; ++i)
     {
-
-    }
-    else if(direction < 0)
-    {
-
-    }
-    else
-    {
-
-    }
-
-    // set motor data
-    for(int i = 0; i < 10 ; ++i)
-    {
-        var[2 + i].type = Variant::TYPE_FLOAT;
-        var[2 + i].asFloat = motor_data_target[i];
-    }
-    // set valve data
-    for(int i = 0; i < 10 ; ++i)
-    {
-        var[12 + i].type = Variant::TYPE_INT32;
-        var[12 + i].asFloat = valve_data_target[i];
+        valve_data_target[i] = 0;
     }
 }
 
-void RobotUI::CalculateMovementRecover(int32_t stage, EventVarVec& var)
+void RobotUI::CalculateMovementRecover(int32_t stage)
 {
-
+    switch(stage)
+    {
+    case 0:
+        motor_data_target[0] = -up_height;
+        motor_data_target[1] = 0;
+        motor_data_target[2] = 0;
+        motor_data_target[3] = -up_height;
+        motor_data_target[4] = -up_height;
+        motor_data_target[5] = 0;
+        motor_data_target[6] = 0;
+        motor_data_target[7] = -up_height;
+        //motor_data_target[8] = 0;
+        //motor_data_target[9] = 0;
+        break;
+    case 1:
+        motor_data_target[0] = -up_height;
+        motor_data_target[1] = 0;
+        motor_data_target[2] = 0;
+        motor_data_target[3] = -up_height;
+        motor_data_target[4] = -up_height;
+        motor_data_target[5] = 0;
+        motor_data_target[6] = 0;
+        motor_data_target[7] = -up_height;
+        motor_data_target[8] = 0;
+        motor_data_target[9] = 0;
+        break;
+    case 3:
+        motor_data_target[0] = 0;
+        motor_data_target[1] = -up_height;
+        motor_data_target[2] = -up_height;
+        motor_data_target[3] = 0;
+        motor_data_target[4] = 0;
+        motor_data_target[5] = -up_height;
+        motor_data_target[6] = -up_height;
+        motor_data_target[7] = 0;
+        //motor_data_target[8] = 0;
+        //motor_data_target[9] = 0;
+        break;
+    case 4:
+        motor_data_target[0] = 0;
+        motor_data_target[1] = -up_height;
+        motor_data_target[2] = -up_height;
+        motor_data_target[3] = 0;
+        motor_data_target[4] = 0;
+        motor_data_target[5] = -up_height;
+        motor_data_target[6] = -up_height;
+        motor_data_target[7] = 0;
+        motor_data_target[8] = 0;
+        motor_data_target[9] = 0;
+        break;
+    case 2:
+    case 5:
+    case 6:
+        motor_data_target[0] = 0;
+        motor_data_target[1] = 0;
+        motor_data_target[2] = 0;
+        motor_data_target[3] = 0;
+        motor_data_target[4] = 0;
+        motor_data_target[5] = 0;
+        motor_data_target[6] = 0;
+        motor_data_target[7] = 0;
+        motor_data_target[8] = 0;
+        motor_data_target[9] = 0;
+        break;
+    default:
+        break;
+    }
+    
+    for(int i = 0; i < 10; ++i)
+    {
+        valve_data_target[i] = 0;
+    }
 }

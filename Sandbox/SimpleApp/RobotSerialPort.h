@@ -32,7 +32,7 @@ private:
 	ReadSlot() = default;
 
 private:
-    itas109::CSerialPort * p_sp;
+    itas109::CSerialPort* p_sp;
 	char str[1024];
 	int recLen;
     int countRead = 0;
@@ -52,10 +52,13 @@ public:
     void MainLoop();
     bool OnWindowClose(Rocket::EventPtr& e);
     bool OnAction(Rocket::EventPtr& e);
+    bool OnMotor(Rocket::EventPtr& e);
 private:
     std::atomic<bool> m_IsRunning = true;
     ElapseTimer m_Timer;
     itas109::CSerialPort m_SerialPort;
+    Rocket::Queue<Rocket::EventVarVec> m_Vars;
+    bool m_UseFakeData = false;
 };
 
 extern SerialPortModule* g_SerialPort;
