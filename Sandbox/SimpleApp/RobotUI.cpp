@@ -40,6 +40,10 @@ void RobotUI::DrawRobotSetting()
     rotation = ImGui::Button("Rotation");
 
     ImGui::Separator();
+    if(node_curr)
+        ImGui::TextColored(ImVec4({1.0, 0.0, 0.0, 1.0}), "Current State : %s", node_curr->name.c_str());
+
+    ImGui::Separator();
     const char* modes[] = { "mode 01", "mode 02"};
     ImGui::Combo("select rotation mode", &rotate_mode, modes, IM_ARRAYSIZE(modes));
     const char* motors[] = { "motor 01", "motor 02", "motor 03", "motor 04", "motor 05", "motor 06", "motor 07", "motor 08", "motor 09", "motor 10"};
@@ -120,6 +124,32 @@ bool RobotUI::OnResponseEvent(EventPtr& e)
     return false;
 }
 
+RobotUI::RobotUI()
+{
+    node_calculate_stage[GlobalHashTable::HashString("StateMachine"_hash, "init")] = 0;
+    node_calculate_stage[GlobalHashTable::HashString("StateMachine"_hash, "move_00")] = 1;
+    node_calculate_stage[GlobalHashTable::HashString("StateMachine"_hash, "move_01")] = 2;
+    node_calculate_stage[GlobalHashTable::HashString("StateMachine"_hash, "move_02")] = 3;
+    node_calculate_stage[GlobalHashTable::HashString("StateMachine"_hash, "move_03")] = 4;
+    node_calculate_stage[GlobalHashTable::HashString("StateMachine"_hash, "move_04")] = 5;
+    node_calculate_stage[GlobalHashTable::HashString("StateMachine"_hash, "move_05")] = 6;
+    node_calculate_stage[GlobalHashTable::HashString("StateMachine"_hash, "move_06")] = 1;
+    
+    node_recovery_stage[GlobalHashTable::HashString("StateMachine"_hash, "move_01")] = 1;
+    node_recovery_stage[GlobalHashTable::HashString("StateMachine"_hash, "move_02")] = 0;
+    node_recovery_stage[GlobalHashTable::HashString("StateMachine"_hash, "move_03")] = 4;
+    node_recovery_stage[GlobalHashTable::HashString("StateMachine"_hash, "move_04")] = 4;
+    node_recovery_stage[GlobalHashTable::HashString("StateMachine"_hash, "move_05")] = 3;
+    node_recovery_stage[GlobalHashTable::HashString("StateMachine"_hash, "move_06")] = 1;
+
+    node_recovery_stage[GlobalHashTable::HashString("StateMachine"_hash, "move_out_up")] = 1;
+    node_recovery_stage[GlobalHashTable::HashString("StateMachine"_hash, "move_out_mid")] = 2;
+    node_recovery_stage[GlobalHashTable::HashString("StateMachine"_hash, "move_out_down")] = 6;
+    node_recovery_stage[GlobalHashTable::HashString("StateMachine"_hash, "move_in_up")] = 4;
+    node_recovery_stage[GlobalHashTable::HashString("StateMachine"_hash, "move_in_mid")] = 5;
+    node_recovery_stage[GlobalHashTable::HashString("StateMachine"_hash, "move_in_down")] = 6;
+}
+
 void RobotUI::Calculation()
 {
     EventVarVec var;
@@ -138,199 +168,79 @@ void RobotUI::Calculation()
     //--------------------------------------------------------------//
     //--------------------------------------------------------------//
     //--------------------------------------------------------------//
-    if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "init") && rotation)
-    {
-        // Move Inner Up
-        motor_data_target[0] = 0;
-        motor_data_target[1] = -up_height;
-        motor_data_target[2] = -up_height;
-        motor_data_target[3] = 0;
-        motor_data_target[4] = 0;
-        motor_data_target[5] = -up_height;
-        motor_data_target[6] = -up_height;
-        motor_data_target[7] = 0;
-        motor_data_target[8] = 0;
-        motor_data_target[9] = 0;
-
-        SetEventData(var);
-
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->QueueEvent(event);
-    }
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_00") && rotation)
-    {
-        if(rotate_mode == 0)
-        {
-            CalculateRotation(angle_x_prev, angle_y_curr);
-            SetEventData(var);
-            EventPtr event = CreateRef<Event>(var);
-            g_EventManager->QueueEvent(event);
-
-            CalculateRotation(angle_x_curr, angle_y_curr);
-            SetEventData(var);
-            event = CreateRef<Event>(var);
-            g_EventManager->QueueEvent(event);
-        }
-        else if(rotate_mode == 1)
-        {
-            CalculateRotation(angle_x_curr, angle_y_prev);
-            SetEventData(var);
-            EventPtr event = CreateRef<Event>(var);
-            g_EventManager->QueueEvent(event);
-
-            CalculateRotation(angle_x_curr, angle_y_curr);
-            SetEventData(var);
-            event = CreateRef<Event>(var);
-            g_EventManager->QueueEvent(event);
-        }
-        
-        angle_x_prev = angle_x_curr;
-        angle_y_prev = angle_y_curr;
-    }
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_02") && rotation)
-    {
-        if(rotate_mode == 0)
-        {
-            CalculateRotation(angle_x_prev, angle_y_curr);
-            SetEventData(var);
-            EventPtr event = CreateRef<Event>(var);
-            g_EventManager->QueueEvent(event);
-
-            CalculateRotation(angle_x_curr, angle_y_curr);
-            SetEventData(var);
-            event = CreateRef<Event>(var);
-            g_EventManager->QueueEvent(event);
-        }
-        else if(rotate_mode == 1)
-        {
-            CalculateRotation(angle_x_curr, angle_y_prev);
-            SetEventData(var);
-            EventPtr event = CreateRef<Event>(var);
-            g_EventManager->QueueEvent(event);
-
-            CalculateRotation(angle_x_curr, angle_y_curr);
-            SetEventData(var);
-            event = CreateRef<Event>(var);
-            g_EventManager->QueueEvent(event);
-        }
-        
-        angle_x_prev = angle_x_curr;
-        angle_y_prev = angle_y_curr;
-    }
-    //--------------------------------------------------------------//
-    //--------------------------------------------------------------//
-    //--------------------------------------------------------------//
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_02") && init)
-    {
-        if(rotate_mode == 0)
-        {
-            CalculateRotation(angle_x_prev, 0);
-            SetEventData(var);
-            EventPtr event = CreateRef<Event>(var);
-            g_EventManager->QueueEvent(event);
-
-            CalculateRotation(0, 0);
-            SetEventData(var);
-            event = CreateRef<Event>(var);
-            g_EventManager->QueueEvent(event);
-        }
-        else if(rotate_mode == 1)
-        {
-            CalculateRotation(0, angle_y_prev);
-            SetEventData(var);
-            EventPtr event = CreateRef<Event>(var);
-            g_EventManager->QueueEvent(event);
-
-            CalculateRotation(0, 0);
-            SetEventData(var);
-            event = CreateRef<Event>(var);
-            g_EventManager->QueueEvent(event);
-        }
-        
-        angle_x_prev = angle_x_curr;
-        angle_y_prev = angle_y_curr;
-    }
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_rec_02") && init)
-    {
-        // no action
-        SetEventData(var);
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->QueueEvent(event);
-    }
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_00") && init)
+    if(
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "init") && rotation) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_00") && init) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_rec_02") && init))
     {
         // inner leg down
         motor_data_target[0] = 0;
-        motor_data_target[1] = 0;
-        motor_data_target[2] = 0;
+        motor_data_target[1] = rotation ? -up_height : 0;
+        motor_data_target[2] = rotation ? -up_height : 0;
         motor_data_target[3] = 0;
         motor_data_target[4] = 0;
-        motor_data_target[5] = 0;
-        motor_data_target[6] = 0;
+        motor_data_target[5] = rotation ? -up_height : 0;
+        motor_data_target[6] = rotation ? -up_height : 0;
         motor_data_target[7] = 0;
         motor_data_target[8] = 0;
         motor_data_target[9] = 0;
 
         SetEventData(var);
+        EventPtr event = CreateRef<Event>(var);
+        g_EventManager->QueueEvent(event);
+    }
+    else if(
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_00") && rotation) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_02") && rotation) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_02") && init))
+    {
+        if(init)
+        {
+            angle_y_curr = angle_x_curr = 0;
+        }
 
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->QueueEvent(event);
+        if(rotate_mode == 0)
+        {
+            CalculateRotation(angle_x_prev, angle_y_curr);
+            SetEventData(var);
+            EventPtr event = CreateRef<Event>(var);
+            g_EventManager->QueueEvent(event);
+
+            CalculateRotation(angle_x_curr, angle_y_curr);
+            SetEventData(var);
+            event = CreateRef<Event>(var);
+            g_EventManager->QueueEvent(event);
+        }
+        else if(rotate_mode == 1)
+        {
+            CalculateRotation(angle_x_curr, angle_y_prev);
+            SetEventData(var);
+            EventPtr event = CreateRef<Event>(var);
+            g_EventManager->QueueEvent(event);
+
+            CalculateRotation(angle_x_curr, angle_y_curr);
+            SetEventData(var);
+            event = CreateRef<Event>(var);
+            g_EventManager->QueueEvent(event);
+        }
+        
+        angle_x_prev = angle_x_curr;
+        angle_y_prev = angle_y_curr;
     }
     //--------------------------------------------------------------//
     //--------------------------------------------------------------//
     //--------------------------------------------------------------//
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "init") && walk)
+    else if(
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "init") && walk) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_00") && walk) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_01") && walk) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_02") && walk) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_03") && walk) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_04") && walk) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_05") && walk) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_06") && walk))
     {
-        CalculateMovement(0);
-        SetEventData(var);
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->QueueEvent(event);
-    }
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_00") && walk)
-    {
-        CalculateMovement(1);
-        SetEventData(var);
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->QueueEvent(event);
-    }
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_01") && walk)
-    {
-        CalculateMovement(2);
-        SetEventData(var);
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->QueueEvent(event);
-    }
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_02") && walk)
-    {
-        CalculateMovement(3);
-        SetEventData(var);
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->QueueEvent(event);
-    }
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_03") && walk)
-    {
-        CalculateMovement(4);
-        SetEventData(var);
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->QueueEvent(event);
-    }
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_04") && walk)
-    {
-        CalculateMovement(5);
-        SetEventData(var);
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->QueueEvent(event);
-    }
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_05") && walk)
-    {
-        CalculateMovement(6);
-        SetEventData(var);
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->QueueEvent(event);
-    }
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_06") && walk)
-    {
-        CalculateMovement(1);
+        CalculateMovement(node_calculate_stage.at(node_curr->id));
         SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
@@ -338,105 +248,25 @@ void RobotUI::Calculation()
     //--------------------------------------------------------------//
     //--------------------------------------------------------------//
     //--------------------------------------------------------------//
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_01") && init)
+    else if(
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_01") && init) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_02") && init) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_03") && init) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_04") && init) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_05") && init) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_06") && init) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_out_up") && init) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_out_mid") && init) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_out_down") && init) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_in_up") && init) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_in_mid") && init) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_in_down") && init))
     {
-        CalculateMovementRecover(1);
+        CalculateMovementRecover(node_recovery_stage.at(node_curr->id));
         SetEventData(var);
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->QueueEvent(event);
     }
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_02") && init)
-    {
-        CalculateMovementRecover(0);
-        SetEventData(var);
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->QueueEvent(event);
-    }
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_03") && init)
-    {
-        CalculateMovementRecover(4);
-        SetEventData(var);
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->QueueEvent(event);
-    }
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_04") && init)
-    {
-        CalculateMovementRecover(4);
-        SetEventData(var);
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->QueueEvent(event);
-    }
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_05") && init)
-    {
-        CalculateMovementRecover(3);
-        SetEventData(var);
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->QueueEvent(event);
-    }
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_06") && init)
-    {
-        CalculateMovementRecover(1);
-        SetEventData(var);
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->QueueEvent(event);
-    }
-    //--------------------------------------------------------------//
-    //--------------------------------------------------------------//
-    //--------------------------------------------------------------//
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_out_up") && init)
-    {
-        CalculateMovementRecover(1);
-        SetEventData(var);
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->QueueEvent(event);
-    }
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_out_mid") && init)
-    {
-        CalculateMovementRecover(2);
-        SetEventData(var);
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->QueueEvent(event);
-    }
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_out_down") && init)
-    {
-        CalculateMovementRecover(6);
-        SetEventData(var);
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->QueueEvent(event);
-    }
-    //--------------------------------------------------------------//
-    //--------------------------------------------------------------//
-    //--------------------------------------------------------------//
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_in_up") && init)
-    {
-        CalculateMovementRecover(4);
-        SetEventData(var);
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->QueueEvent(event);
-    }
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_in_mid") && init)
-    {
-        CalculateMovementRecover(5);
-        SetEventData(var);
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->QueueEvent(event);
-    }
-    else if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "move_in_down") && init)
-    {
-        CalculateMovementRecover(6);
-        SetEventData(var);
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->QueueEvent(event);
-    }
-    //--------------------------------------------------------------//
-    //--------------------------------------------------------------//
-    //--------------------------------------------------------------//
-    //else if(init || rotation || walk)
-    //{
-    //    SetEventData(var);
-    //    EventPtr event = CreateRef<Event>(var);
-    //    g_EventManager->QueueEvent(event);
-    //}
 }
 
 float RobotUI::CalculateProgress(float start, float end, float current)
@@ -454,14 +284,10 @@ float RobotUI::CalculateProgress(float start, float end, float current)
 
 void RobotUI::SetEventData(Rocket::EventVarVec& var)
 {
-    for(int i = 0; i < 10; ++i)
-    {
-        motor_data_start[i] = motor_data_curr[i];
-    }
-
     // set motor data
     for(int i = 0; i < 10 ; ++i)
     {
+        motor_data_start[i] = motor_data_curr[i];
         var[2 + i].type = Variant::TYPE_FLOAT;
         var[2 + i].asFloat = motor_data_target[i];
     }
@@ -503,6 +329,7 @@ void RobotUI::CalculateRotation(double x, double y)
     motor_data_target[8] = 0;
     motor_data_target[9] = 0;
     
+    // TODO : re number motor and valve
     valve_data_target[0] = 0;
     valve_data_target[1] = 0;
     valve_data_target[2] = 0;
@@ -669,8 +496,8 @@ void RobotUI::CalculateMovementRecover(int32_t stage)
         motor_data_target[8] = 0;
         motor_data_target[9] = 0;
         break;
-    case 2:
-    case 5:
+    case 2: [[fallthrough]];
+    case 5: [[fallthrough]];
     case 6:
         motor_data_target[0] = 0;
         motor_data_target[1] = 0;

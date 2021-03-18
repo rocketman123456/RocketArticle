@@ -2,7 +2,6 @@
 #include "Interface/IRuntimeModule.h"
 #include "Interface/IDrawPass.h"
 #include "Interface/IDispatchPass.h"
-#include "Common/GeomMath.h"
 #include "Module/PipelineStateManager.h"
 #include "Render/FrameStructure.h"
 #include "Render/DrawBasic/Shader.h"
@@ -10,6 +9,7 @@
 #include "Render/DrawBasic/VertexArray.h"
 #include "Render/DrawBasic/UniformBuffer.h"
 #include "Render/DrawBasic/UI.h"
+#include "Math/GeomMath.h"
 #include "Event/Event.h"
 #include "Scene/Scene.h"
 

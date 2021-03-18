@@ -1,7 +1,7 @@
 #include "Logic/StateMachineSerializer.h"
 #include "Module/AssetLoader.h"
+#include "Math/GeomMath.h"
 #include "Utils/Hashing.h"
-#include "Common/GeomMath.h"
 
 using namespace Rocket;
 

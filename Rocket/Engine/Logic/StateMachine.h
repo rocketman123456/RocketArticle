@@ -1,6 +1,6 @@
 #pragma once
 #include "Core/Core.h"
-#include "Common/GeomMath.h"
+#include "Math/GeomMath.h"
 #include "Utils/Variant.h"
 
 #include <functional>

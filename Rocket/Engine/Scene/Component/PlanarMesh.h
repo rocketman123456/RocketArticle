@@ -1,7 +1,7 @@
 #pragma once
 #include "Scene/Component/Model.h"
 #include "Render/DrawBasic/Texture.h"
-#include "Common/GeomMath.h"
+#include "Math/GeomMath.h"
 
 namespace Rocket
 {

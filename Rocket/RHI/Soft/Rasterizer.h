@@ -4,7 +4,7 @@
 
 #pragma once
 #include "Core/Core.h"
-#include "Common/GeomMath.h"
+#include "Math/GeomMath.h"
 #include "Triangle.h"
 #include <algorithm>
 #include <Eigen/Eigen>

@@ -8,7 +8,6 @@ add_library( RocketEngine
     Common/Buffer.h
     Common/CommandParser.h
     Common/ConfigLoader.h
-    Common/GeomMath.h
     Common/Mallocator.h
     Common/Window.h
     # Core
@@ -45,6 +44,11 @@ add_library( RocketEngine
     Logic/StateMachine.cpp
     Logic/StateMachineSerializer.h
     Logic/StateMachineSerializer.cpp
+    # Math
+    Math/BasicFunction.h
+    Math/BasicFunction.cpp
+    Math/GeomMath.h
+    Math/YamlMath.h
     # Module
     Module/Application.h
     Module/Application.cpp
@@ -143,5 +147,4 @@ add_library( RocketEngine
     Utils/ThreadSafeQueue.h
     Utils/Timer.h
     Utils/Variant.h
-    Utils/YamlMath.h
 )

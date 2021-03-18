@@ -1,6 +1,6 @@
 #include "Scene/SceneSerializer.h"
 #include "Module/AssetLoader.h"
-#include "Utils/YamlMath.h"
+#include "Math/YamlMath.h"
 #include "Utils/Hashing.h"
 
 namespace Rocket

@@ -1,6 +1,6 @@
 #pragma once
 #include "Core/Core.h"
-#include "Common/GeomMath.h"
+#include "Math/GeomMath.h"
 
 #define MAX_LIGHTS 100
 

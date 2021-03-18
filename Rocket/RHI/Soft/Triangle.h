@@ -6,7 +6,7 @@
 #define RASTERIZER_TRIANGLE_H
 
 #include "Core/Core.h"
-#include "Common/GeomMath.h"
+#include "Math/GeomMath.h"
 
 class Triangle
 {

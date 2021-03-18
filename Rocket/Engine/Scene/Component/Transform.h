@@ -1,6 +1,6 @@
 #pragma once
 #include "Scene/SceneComponent.h"
-#include "Common/GeomMath.h"
+#include "Math/GeomMath.h"
 
 namespace Rocket
 {

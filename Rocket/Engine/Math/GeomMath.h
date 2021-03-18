@@ -3,7 +3,6 @@
 
 //#define EIGEN_DONT_ALIGN_STATICALLY
 #include <Eigen/Eigen>
-#include <unordered_set>
 #include <utility>
 
 // For Physics Module
