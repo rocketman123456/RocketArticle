@@ -26,19 +26,19 @@ namespace Rocket
 
         static void Init(LogLevel level = LogLevel::TRACE);
 
-        inline static void SetChannel(const std::string& channel) { s_EmptyLogger = s_EmptyLogger->clone(channel); }
-        inline static std::shared_ptr<spdlog::logger>& GetEmptyLogger() { return s_EmptyLogger; }
-        inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
-        inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
-        inline static std::shared_ptr<spdlog::logger>& GetEventLogger() { return s_EventLogger; }
-        inline static std::shared_ptr<spdlog::logger>& GetGraphicsLogger() { return s_GraphicsLogger; }
+        inline static void SetChannel(const std::string& channel) { s_empty_logger_ = s_empty_logger_->clone(channel); }
+        inline static std::shared_ptr<spdlog::logger>& GetEmptyLogger() { return s_empty_logger_; }
+        inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_core_logger_; }
+        inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_client_logger_; }
+        inline static std::shared_ptr<spdlog::logger>& GetEventLogger() { return s_event_logger_; }
+        inline static std::shared_ptr<spdlog::logger>& GetGraphicsLogger() { return s_graphics_logger_; }
 
     private:
-        static std::shared_ptr<spdlog::logger> s_EmptyLogger;
-        static std::shared_ptr<spdlog::logger> s_CoreLogger;
-        static std::shared_ptr<spdlog::logger> s_ClientLogger;
-        static std::shared_ptr<spdlog::logger> s_EventLogger;
-        static std::shared_ptr<spdlog::logger> s_GraphicsLogger;
+        static std::shared_ptr<spdlog::logger> s_empty_logger_;
+        static std::shared_ptr<spdlog::logger> s_core_logger_;
+        static std::shared_ptr<spdlog::logger> s_client_logger_;
+        static std::shared_ptr<spdlog::logger> s_event_logger_;
+        static std::shared_ptr<spdlog::logger> s_graphics_logger_;
     };
 } // namespace Rocket
 

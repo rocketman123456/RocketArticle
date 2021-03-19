@@ -14,16 +14,16 @@ namespace Rocket
 
 	struct ProfileResult
 	{
-		std::string Name;
+		std::string name;
 
-		FloatingPointMicroseconds Start;
-		std::chrono::microseconds ElapsedTime;
-		std::thread::id ThreadID;
+		FloatingPointMicroseconds start;
+		std::chrono::microseconds elapsed_time;
+		std::thread::id thread_id;
 	};
 
 	struct InstrumentationSession
 	{
-		std::string Name;
+		std::string name;
 	};
 
 	class Instrumentor
@@ -34,8 +34,8 @@ namespace Rocket
 
 		void BeginSession(const std::string& name, const std::string& filepath = "results.json")
 		{
-			std::lock_guard lock(m_Mutex);
-			if (m_CurrentSession)
+			std::lock_guard<std::mutex> lock(mutex_);
+			if (current_session_)
 			{
 				// If there is already a current session, then close it before beginning new one.
 				// Subsequent profiling output meant for the original session will end up in the
@@ -43,15 +43,15 @@ namespace Rocket
 				// profiling output.
 				if (Log::GetCoreLogger()) // Edge case: BeginSession() might be before Log::Init()
 				{
-					RK_CORE_ERROR("Instrumentor::BeginSession('{0}') when session '{1}' already open.", name, m_CurrentSession->Name);
+					RK_CORE_ERROR("Instrumentor::BeginSession('{0}') when session '{1}' already open.", name, current_session_->name);
 				}
 				InternalEndSession();
 			}
-			m_OutputStream.open(filepath);
+			output_stream_.open(filepath);
 
-			if (m_OutputStream.is_open())
+			if (output_stream_.is_open())
 			{
-				m_CurrentSession = new InstrumentationSession({ name });
+				current_session_ = new InstrumentationSession({ name });
 				WriteHeader();
 			}
 			else
@@ -65,7 +65,7 @@ namespace Rocket
 
 		void EndSession()
 		{
-			std::lock_guard lock(m_Mutex);
+			std::lock_guard<std::mutex> lock(mutex_);
 			InternalEndSession();
 		}
 
@@ -76,19 +76,19 @@ namespace Rocket
 			json << std::setprecision(3) << std::fixed;
 			json << ",{";
 			json << "\"cat\":\"function\",";
-			json << "\"dur\":" << (result.ElapsedTime.count()) << ',';
-			json << "\"name\":\"" << result.Name << "\",";
+			json << "\"dur\":" << (result.elapsed_time.count()) << ',';
+			json << "\"name\":\"" << result.name << "\",";
 			json << "\"ph\":\"X\",";
 			json << "\"pid\":0,";
-			json << "\"tid\":\"" << result.ThreadID << "\",";
-			json << "\"ts\":" << result.Start.count();
+			json << "\"tid\":\"" << result.thread_id << "\",";
+			json << "\"ts\":" << result.start.count();
 			json << "}";
 
-			std::lock_guard lock(m_Mutex);
-			if (m_CurrentSession)
+			std::lock_guard<std::mutex> lock(mutex_);
+			if (current_session_)
 			{
-				m_OutputStream << json.str();
-				m_OutputStream.flush();
+				output_stream_ << json.str();
+				output_stream_.flush();
 			}
 		}
 
@@ -100,7 +100,7 @@ namespace Rocket
 
 	private:
 		Instrumentor()
-			: m_CurrentSession(nullptr)
+			: current_session_(nullptr)
 		{
 		}
 
@@ -111,65 +111,65 @@ namespace Rocket
 
 		void WriteHeader()
 		{
-			m_OutputStream << "{\"otherData\": {},\"traceEvents\":[{}";
-			m_OutputStream.flush();
+			output_stream_ << "{\"otherData\": {},\"traceEvents\":[{}";
+			output_stream_.flush();
 		}
 
 		void WriteFooter()
 		{
-			m_OutputStream << "]}";
-			m_OutputStream.flush();
+			output_stream_ << "]}";
+			output_stream_.flush();
 		}
 
-		// Note: you must already own lock on m_Mutex before
+		// Note: you must already own lock on mutex_ before
 		// calling InternalEndSession()
 		void InternalEndSession()
 		{
-			if (m_CurrentSession)
+			if (current_session_)
 			{
 				WriteFooter();
-				m_OutputStream.close();
-				delete m_CurrentSession;
-				m_CurrentSession = nullptr;
+				output_stream_.close();
+				delete current_session_;
+				current_session_ = nullptr;
 			}
 		}
 
 	private:
-		std::mutex m_Mutex;
-		InstrumentationSession* m_CurrentSession;
-		std::ofstream m_OutputStream;
+		std::mutex mutex_;
+		InstrumentationSession* current_session_;
+		std::ofstream output_stream_;
 	};
 
 	class InstrumentationTimer
 	{
 	public:
 		InstrumentationTimer(const char* name)
-			: m_Name(name), m_Stopped(false)
+			: name_(name), stopped_(false)
 		{
-			m_StartTimepoint = std::chrono::steady_clock::now();
+			start_time_ = std::chrono::steady_clock::now();
 		}
 
 		~InstrumentationTimer()
 		{
-			if (!m_Stopped)
+			if (!stopped_)
 				Stop();
 		}
 
 		void Stop()
 		{
 			auto endTimepoint = std::chrono::steady_clock::now();
-			auto highResStart = FloatingPointMicroseconds{ m_StartTimepoint.time_since_epoch() };
-			auto elapsedTime = std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch() - std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimepoint).time_since_epoch();
+			auto highResStart = FloatingPointMicroseconds{ start_time_.time_since_epoch() };
+			auto elapsedTime = std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch() - std::chrono::time_point_cast<std::chrono::microseconds>(start_time_).time_since_epoch();
 
-			Instrumentor::Get().WriteProfile({ m_Name, highResStart, elapsedTime, std::this_thread::get_id() });
+			Instrumentor::Get().WriteProfile({ name_, highResStart, elapsedTime, std::this_thread::get_id() });
 
-			m_Stopped = true;
+			stopped_ = true;
 		}
 
 	private:
-		const char* m_Name;
-		std::chrono::time_point<std::chrono::steady_clock> m_StartTimepoint;
-		bool m_Stopped;
+		const char* name_;
+		std::chrono::time_point<std::chrono::steady_clock> start_time_;
+		bool stopped_;
 	};
 
 	namespace InstrumentorUtils
@@ -177,7 +177,7 @@ namespace Rocket
 		template <size_t N>
 		struct ChangeResult
 		{
-			char Data[N];
+			char data[N];
 		};
 
 		template <size_t N, size_t K>
@@ -194,7 +194,7 @@ namespace Rocket
 					matchIndex++;
 				if (matchIndex == K - 1)
 					srcIndex += matchIndex;
-				result.Data[dstIndex++] = expr[srcIndex] == '"' ? '\'' : expr[srcIndex];
+				result.data[dstIndex++] = expr[srcIndex] == '"' ? '\'' : expr[srcIndex];
 				srcIndex++;
 			}
 			return result;
@@ -227,8 +227,8 @@ namespace Rocket
 #define RK_PROFILE_BEGIN_SESSION(name, filepath) ::Rocket::Instrumentor::Get().BeginSession(name, filepath)
 #define RK_PROFILE_END_SESSION() ::Rocket::Instrumentor::Get().EndSession()
 #define RK_PROFILE_SCOPE_LINE2(name, line) \
-	/*constexpr auto fixedName##line = ::Rocket::InstrumentorUtils::CleanupOutputString(name, "__cdecl ");*/ \
-	/*::Rocket::InstrumentationTimer timer##line(fixedName##line.Data)*/ \
+	/*constexpr auto fixedname##line = ::Rocket::InstrumentorUtils::CleanupOutputString(name, "__cdecl ");*/ \
+	/*::Rocket::InstrumentationTimer timer##line(fixedname##line.Data)*/ \
 	::Rocket::InstrumentationTimer timer##line(name)
 #define RK_PROFILE_SCOPE_LINE(name, line) RK_PROFILE_SCOPE_LINE2(name, line)
 #define RK_PROFILE_SCOPE(name) RK_PROFILE_SCOPE_LINE(name, __LINE__)

@@ -20,24 +20,24 @@ namespace Rocket
 	Interface IEvent
 	{
 	public:
-		IEvent(const EventVarVec& var) : Var(var) { TimeStamp = g_EventTimer->GetExactTime(); }
+		IEvent(const EventVarVec& var) : variable(var) { time_stamp = g_EventTimer->GetExactTime(); }
 		virtual ~IEvent() = default;
 
-		[[nodiscard]] virtual EventType GetEventType() const { return Var[0].asStringId; }
+		[[nodiscard]] virtual EventType GetEventType() const { return variable[0].asStringId; }
 		[[nodiscard]] virtual const String& GetName() const { return GlobalHashTable::GetStringFromId("Event"_hash, GetEventType()); }
 		[[nodiscard]] virtual const String& ToString() const { return GetName(); }
 
-		[[nodiscard]] int32_t GetInt32(uint32_t index) { RK_CORE_ASSERT(index < Var.size(), "event index error"); return Var[index].asInt32; }
-		[[nodiscard]] uint32_t GetUInt32(uint32_t index) { RK_CORE_ASSERT(index < Var.size(), "event index error"); return Var[index].asUInt32; }
-		[[nodiscard]] float GetFloat(uint32_t index) { RK_CORE_ASSERT(index < Var.size(), "event index error"); return Var[index].asFloat; }
-		[[nodiscard]] double GetDouble(uint32_t index) { RK_CORE_ASSERT(index < Var.size(), "event index error"); return Var[index].asDouble; }
-		[[nodiscard]] bool GetBool(uint32_t index) { RK_CORE_ASSERT(index < Var.size(), "event index error"); return Var[index].asBool; }
-		[[nodiscard]] void* GetPointer(uint32_t index) { RK_CORE_ASSERT(index < Var.size(), "event index error"); return Var[index].asPointer; }
-		[[nodiscard]] string_id GetStringId(uint32_t index) { RK_CORE_ASSERT(index < Var.size(), "event index error"); return Var[index].asStringId; }
+		[[nodiscard]] int32_t GetInt32(uint32_t index) { RK_CORE_ASSERT(index < variable.size(), "event index error"); return variable[index].asInt32; }
+		[[nodiscard]] uint32_t GetUInt32(uint32_t index) { RK_CORE_ASSERT(index < variable.size(), "event index error"); return variable[index].asUInt32; }
+		[[nodiscard]] float GetFloat(uint32_t index) { RK_CORE_ASSERT(index < variable.size(), "event index error"); return variable[index].asFloat; }
+		[[nodiscard]] double GetDouble(uint32_t index) { RK_CORE_ASSERT(index < variable.size(), "event index error"); return variable[index].asDouble; }
+		[[nodiscard]] bool GetBool(uint32_t index) { RK_CORE_ASSERT(index < variable.size(), "event index error"); return variable[index].asBool; }
+		[[nodiscard]] void* GetPointer(uint32_t index) { RK_CORE_ASSERT(index < variable.size(), "event index error"); return variable[index].asPointer; }
+		[[nodiscard]] string_id GetStringId(uint32_t index) { RK_CORE_ASSERT(index < variable.size(), "event index error"); return variable[index].asStringId; }
 
-		bool Handled = false;
-		double TimeStamp = 0.0f;
-		Vec<Variant> Var;
+		bool handled = false;
+		double time_stamp = 0.0f;
+		Vec<Variant> variable;
 	};
 
 	using EventPtr = Ref<IEvent>;
@@ -45,27 +45,27 @@ namespace Rocket
 	inline std::ostream& operator<<(std::ostream& os, const IEvent &e)
 	{
 		os << e.ToString();
-		for (uint32_t i = 0; i < e.Var.size(); ++i)
+		for (uint32_t i = 0; i < e.variable.size(); ++i)
 		{
-			switch (e.Var[i].type)
+			switch (e.variable[i].type)
 			{
 			case Variant::TYPE_INT32:
-				os << "[" << e.Var[i].asInt32 << "]";
+				os << "[" << e.variable[i].asInt32 << "]";
 				break;
 			case Variant::TYPE_UINT32:
-				os << "[" << e.Var[i].asUInt32 << "]";
+				os << "[" << e.variable[i].asUInt32 << "]";
 				break;
 			case Variant::TYPE_FLOAT:
-				os << "[" << e.Var[i].asFloat << "]";
+				os << "[" << e.variable[i].asFloat << "]";
 				break;
 			case Variant::TYPE_DOUBLE:
-				os << "[" << e.Var[i].asDouble << "]";
+				os << "[" << e.variable[i].asDouble << "]";
 				break;
 			case Variant::TYPE_POINTER:
-				os << "[" << e.Var[i].asPointer << "]";
+				os << "[" << e.variable[i].asPointer << "]";
 				break;
 			case Variant::TYPE_STRING_ID:
-				os << "[" << e.Var[i].asStringId << "]";
+				os << "[" << e.variable[i].asStringId << "]";
 				break;
 			default:
 				RK_EVENT_ERROR("Unknow Event Data Type");

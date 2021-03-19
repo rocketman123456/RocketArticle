@@ -47,8 +47,8 @@ namespace Rocket
         {
             if(m_Global)
             {
-                RK_CORE_ASSERT(!s_Instance, "Global EventManager already exists!");
-                s_Instance = this;
+                RK_CORE_ASSERT(!instance_, "Global EventManager already exists!");
+                instance_ = this;
             }
         }
         virtual ~EventManager() = default;
@@ -96,7 +96,7 @@ namespace Rocket
         ElapseTimer    m_Timer;
         
     private:
-        static EventManager* s_Instance;
+        static EventManager* instance_;
     };
 
     EventManager* GetEventManager();

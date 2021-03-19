@@ -2,53 +2,53 @@
 
 namespace Rocket
 {
-    std::shared_ptr<spdlog::logger> Log::s_EmptyLogger;
-    std::shared_ptr<spdlog::logger> Log::s_CoreLogger;
-    std::shared_ptr<spdlog::logger> Log::s_ClientLogger;
-    std::shared_ptr<spdlog::logger> Log::s_EventLogger;
-    std::shared_ptr<spdlog::logger> Log::s_GraphicsLogger;
+    std::shared_ptr<spdlog::logger> Log::s_empty_logger_;
+    std::shared_ptr<spdlog::logger> Log::s_core_logger_;
+    std::shared_ptr<spdlog::logger> Log::s_client_logger_;
+    std::shared_ptr<spdlog::logger> Log::s_event_logger_;
+    std::shared_ptr<spdlog::logger> Log::s_graphics_logger_;
 
     void Log::Init(LogLevel level)
     {
         spdlog::set_pattern("%^[%T] %n: %v%$");
 
-        s_EmptyLogger = spdlog::stdout_color_mt("Empty");
-        s_CoreLogger = spdlog::stdout_color_mt("Rocket");
-        s_ClientLogger = spdlog::stdout_color_mt("App");
-        s_EventLogger = spdlog::stdout_color_mt("Event");
-        s_GraphicsLogger = spdlog::stdout_color_mt("Graphics");
+        s_empty_logger_ = spdlog::stdout_color_mt("Empty");
+        s_core_logger_ = spdlog::stdout_color_mt("Rocket");
+        s_client_logger_ = spdlog::stdout_color_mt("App");
+        s_event_logger_ = spdlog::stdout_color_mt("Event");
+        s_graphics_logger_ = spdlog::stdout_color_mt("Graphics");
 
         switch(level)
         {
         case LogLevel::TRACE:
-            s_CoreLogger->set_level(spdlog::level::trace);
-            s_ClientLogger->set_level(spdlog::level::trace);
-            s_EventLogger->set_level(spdlog::level::trace);
-            s_GraphicsLogger->set_level(spdlog::level::trace);
+            s_core_logger_->set_level(spdlog::level::trace);
+            s_client_logger_->set_level(spdlog::level::trace);
+            s_event_logger_->set_level(spdlog::level::trace);
+            s_graphics_logger_->set_level(spdlog::level::trace);
             break;
         case LogLevel::INFO:
-            s_CoreLogger->set_level(spdlog::level::info);
-            s_ClientLogger->set_level(spdlog::level::info);
-            s_EventLogger->set_level(spdlog::level::info);
-            s_GraphicsLogger->set_level(spdlog::level::info);
+            s_core_logger_->set_level(spdlog::level::info);
+            s_client_logger_->set_level(spdlog::level::info);
+            s_event_logger_->set_level(spdlog::level::info);
+            s_graphics_logger_->set_level(spdlog::level::info);
             break;
         case LogLevel::WARN:
-            s_CoreLogger->set_level(spdlog::level::warn);
-            s_ClientLogger->set_level(spdlog::level::warn);
-            s_EventLogger->set_level(spdlog::level::warn);
-            s_GraphicsLogger->set_level(spdlog::level::warn);
+            s_core_logger_->set_level(spdlog::level::warn);
+            s_client_logger_->set_level(spdlog::level::warn);
+            s_event_logger_->set_level(spdlog::level::warn);
+            s_graphics_logger_->set_level(spdlog::level::warn);
             break;
         case LogLevel::ERR:
-            s_CoreLogger->set_level(spdlog::level::err);
-            s_ClientLogger->set_level(spdlog::level::err);
-            s_EventLogger->set_level(spdlog::level::err);
-            s_GraphicsLogger->set_level(spdlog::level::err);
+            s_core_logger_->set_level(spdlog::level::err);
+            s_client_logger_->set_level(spdlog::level::err);
+            s_event_logger_->set_level(spdlog::level::err);
+            s_graphics_logger_->set_level(spdlog::level::err);
             break;
         case LogLevel::CRITICAL:
-            s_CoreLogger->set_level(spdlog::level::critical);
-            s_ClientLogger->set_level(spdlog::level::critical);
-            s_EventLogger->set_level(spdlog::level::critical);
-            s_GraphicsLogger->set_level(spdlog::level::critical);
+            s_core_logger_->set_level(spdlog::level::critical);
+            s_client_logger_->set_level(spdlog::level::critical);
+            s_event_logger_->set_level(spdlog::level::critical);
+            s_graphics_logger_->set_level(spdlog::level::critical);
             break;
         }
     }

@@ -14,5 +14,5 @@
 #endif
 
 #include <cstdint>
-using four_char_enum = int32_t;
-#define ENUM(e) enum class e : four_char_enum
+using FourCharEnum = int32_t;
+#define ENUM(e) enum class e : FourCharEnum

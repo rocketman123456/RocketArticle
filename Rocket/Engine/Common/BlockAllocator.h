@@ -6,12 +6,12 @@ namespace Rocket
     struct BlockHeader
     {
         // union-ed with data
-        BlockHeader* pNext;
+        BlockHeader* next;
     };
 
     struct PageHeader
     {
-        PageHeader* pNext;
+        PageHeader* next;
         BlockHeader* Blocks() { return reinterpret_cast<BlockHeader*>(this + 1); }
     };
 
@@ -37,30 +37,30 @@ namespace Rocket
     private:
 #if defined(RK_DEBUG)
         // fill a free page with debug patterns
-        void FillFreePage(PageHeader* pPage);
+        void FillFreePage(PageHeader* page);
         // fill a block with debug patterns
-        void FillFreeBlock(BlockHeader* pBlock);
+        void FillFreeBlock(BlockHeader* block);
         // fill an allocated block with debug patterns
-        void FillAllocatedBlock(BlockHeader* pBlock);
+        void FillAllocatedBlock(BlockHeader* block);
 #endif
 
         // gets the next block
-        BlockHeader* NextBlock(BlockHeader* pBlock);
+        BlockHeader* NextBlock(BlockHeader* block);
 
         // the page list
-        PageHeader* m_pPageList = nullptr;
+        PageHeader* page_list_ = nullptr;
 
         // the free block list
-        BlockHeader* m_pFreeList = nullptr;
+        BlockHeader* free_list_ = nullptr;
 
-        size_t m_szPageSize;
-        size_t m_szAlignmentSize;
-        size_t m_szBlockSize;
-        size_t m_nBlocksPerPage;
+        size_t page_size_;
+        size_t alignment_size_;
+        size_t block_size_;
+        size_t blocks_per_page_;
 
         // statistics
-        size_t m_nPages;
-        size_t m_nBlocks;
-        size_t m_nFreeBlocks;
+        size_t pages_;
+        size_t blocks_;
+        size_t free_blocks_;
     };
 }

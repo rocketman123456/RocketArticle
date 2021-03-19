@@ -8,7 +8,7 @@
 using namespace Rocket;
 
 BlockAllocator::BlockAllocator(size_t data_size, size_t page_size, size_t alignment)
-    : m_pPageList(nullptr), m_pFreeList(nullptr)
+    : page_list_(nullptr), free_list_(nullptr)
 {
     Reset(data_size, page_size, alignment);
 }
@@ -17,7 +17,7 @@ void BlockAllocator::Reset(size_t data_size, size_t page_size, size_t alignment)
 {
     FreeAll();
 
-    m_szPageSize = page_size;
+    page_size_ = page_size;
 
     size_t minimal_size = (sizeof(BlockHeader) > data_size) ? sizeof(BlockHeader) : data_size;
     // this magic only works when alignment is 2^n, which should general be the
@@ -26,56 +26,56 @@ void BlockAllocator::Reset(size_t data_size, size_t page_size, size_t alignment)
 #if defined(RK_DEBUG)
     RK_CORE_ASSERT(alignment > 0 && ((alignment & (alignment - 1))) == 0, "Alignment Error");
 #endif
-    m_szBlockSize = RK_ALIGN(minimal_size, alignment);
+    block_size_ = RK_ALIGN(minimal_size, alignment);
 
-    m_szAlignmentSize = m_szBlockSize - minimal_size;
+    alignment_size_ = block_size_ - minimal_size;
 
-    m_nBlocksPerPage = (m_szPageSize - sizeof(PageHeader)) / m_szBlockSize;
+    blocks_per_page_ = (page_size_ - sizeof(PageHeader)) / block_size_;
 }
 
 void* BlockAllocator::Allocate(size_t size)
 {
-    assert(size <= m_szBlockSize);
+    assert(size <= block_size_);
     return Allocate();
 }
 
 void* BlockAllocator::Allocate()
 {
-    if (!m_pFreeList)
+    if (!free_list_)
     {
         // allocate a new page
-        //PageHeader* pNewPage = reinterpret_cast<PageHeader*>(new uint8_t[m_szPageSize]);
-        auto* pNewPage = reinterpret_cast<PageHeader*>(g_MemoryManager->AllocatePage(m_szPageSize));
-        ++m_nPages;
-        m_nBlocks += m_nBlocksPerPage;
-        m_nFreeBlocks += m_nBlocksPerPage;
+        //PageHeader* pNewPage = reinterpret_cast<PageHeader*>(new uint8_t[page_size_]);
+        auto* pNewPage = reinterpret_cast<PageHeader*>(g_MemoryManager->AllocatePage(page_size_));
+        ++pages_;
+        blocks_ += blocks_per_page_;
+        free_blocks_ += blocks_per_page_;
 
 #if defined(RK_DEBUG)
         FillFreePage(pNewPage);
 #endif
 
-        if (m_pPageList)
-            pNewPage->pNext = m_pPageList;
+        if (page_list_)
+            pNewPage->next = page_list_;
         else
-            pNewPage->pNext = nullptr;
+            pNewPage->next = nullptr;
 
-        m_pPageList = pNewPage;
+        page_list_ = pNewPage;
 
-        BlockHeader* pBlock = pNewPage->Blocks();
+        BlockHeader* block = pNewPage->Blocks();
         // link each block in the page
-        for (uint32_t i = 0; i < m_nBlocksPerPage - 1; i++)
+        for (uint32_t i = 0; i < blocks_per_page_ - 1; i++)
         {
-            pBlock->pNext = NextBlock(pBlock);
-            pBlock = NextBlock(pBlock);
+            block->next = NextBlock(block);
+            block = NextBlock(block);
         }
-        pBlock->pNext = nullptr;
+        block->next = nullptr;
 
-        m_pFreeList = pNewPage->Blocks();
+        free_list_ = pNewPage->Blocks();
     }
 
-    BlockHeader* freeBlock = m_pFreeList;
-    m_pFreeList = m_pFreeList->pNext;
-    --m_nFreeBlocks;
+    BlockHeader* freeBlock = free_list_;
+    free_list_ = free_list_->next;
+    --free_blocks_;
 
 #if defined(RK_DEBUG)
     FillAllocatedBlock(freeBlock);
@@ -92,64 +92,64 @@ void BlockAllocator::Free(void* p)
     FillFreeBlock(block);
 #endif
 
-    block->pNext = m_pFreeList;
-    m_pFreeList = block;
-    ++m_nFreeBlocks;
+    block->next = free_list_;
+    free_list_ = block;
+    ++free_blocks_;
 }
 
 void BlockAllocator::FreeAll()
 {
-    PageHeader* pPage = m_pPageList;
+    PageHeader* pPage = page_list_;
     while (pPage)
     {
         PageHeader* _p = pPage;
-        pPage = pPage->pNext;
+        pPage = pPage->next;
         g_MemoryManager->FreePage(reinterpret_cast<void*>(_p));
         //delete[] reinterpret_cast<uint8_t*>(_p);
     }
 
-    m_pPageList = nullptr;
-    m_pFreeList = nullptr;
+    page_list_ = nullptr;
+    free_list_ = nullptr;
 
-    m_nPages = 0;
-    m_nBlocks = 0;
-    m_nFreeBlocks = 0;
+    pages_ = 0;
+    blocks_ = 0;
+    free_blocks_ = 0;
 }
 
 #if defined(RK_DEBUG)
-void BlockAllocator::FillFreePage(PageHeader* pPage)
+void BlockAllocator::FillFreePage(PageHeader* page)
 {
     // page header
-    pPage->pNext = nullptr;
+    page->next = nullptr;
 
     // blocks
-    BlockHeader* pBlock = pPage->Blocks();
-    for (uint32_t i = 0; i < m_nBlocksPerPage; i++)
+    BlockHeader* block = page->Blocks();
+    for (uint32_t i = 0; i < blocks_per_page_; i++)
     {
-        FillFreeBlock(pBlock);
-        pBlock = NextBlock(pBlock);
+        FillFreeBlock(block);
+        block = NextBlock(block);
     }
 }
 
-void BlockAllocator::FillFreeBlock(BlockHeader* pBlock)
+void BlockAllocator::FillFreeBlock(BlockHeader* block)
 {
     // block header + data
-    memset(pBlock, PATTERN_FREE, m_szBlockSize - m_szAlignmentSize);
+    memset(block, PATTERN_FREE, block_size_ - alignment_size_);
 
     // alignment
-    memset(reinterpret_cast<uint8_t*>(pBlock) + m_szBlockSize - m_szAlignmentSize, PATTERN_ALIGN, m_szAlignmentSize);
+    memset(reinterpret_cast<uint8_t*>(block) + block_size_ - alignment_size_, PATTERN_ALIGN, alignment_size_);
 }
 
-void BlockAllocator::FillAllocatedBlock(BlockHeader* pBlock) {
+void BlockAllocator::FillAllocatedBlock(BlockHeader* block) {
     // block header + data
-    memset(pBlock, PATTERN_ALLOC, m_szBlockSize - m_szAlignmentSize);
+    memset(block, PATTERN_ALLOC, block_size_ - alignment_size_);
 
     // alignment
-    memset(reinterpret_cast<uint8_t*>(pBlock) + m_szBlockSize - m_szAlignmentSize, PATTERN_ALIGN, m_szAlignmentSize);
+    memset(reinterpret_cast<uint8_t*>(block) + block_size_ - alignment_size_, PATTERN_ALIGN, alignment_size_);
 }
 #endif
 
-BlockHeader* BlockAllocator::NextBlock(BlockHeader* pBlock)
+BlockHeader* BlockAllocator::NextBlock(BlockHeader* block)
 {
-    return reinterpret_cast<BlockHeader*>(reinterpret_cast<uint8_t*>(pBlock) + m_szBlockSize);
+    return reinterpret_cast<BlockHeader*>(reinterpret_cast<uint8_t*>(block) + block_size_);
 }

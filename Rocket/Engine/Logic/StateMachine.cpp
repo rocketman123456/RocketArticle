@@ -10,20 +10,20 @@ StateEdge::StateEdge(const String& _name) : name(_name) { id = GlobalHashTable::
 
 void StateNode::AddEgde(const Ref<StateEdge>& edge)
 {
-    edgeList[edge->id] = edge;
+    edge_list[edge->id] = edge;
 }
 
 Ref<StateEdge> StateNode::GetEdge(uint64_t id)
 {
 #if defined(RK_DEBUG)
-    for(auto it : edgeList)
+    for(auto it : edge_list)
     {
         RK_CORE_TRACE("Edge List {}:{}, address:{}", GlobalHashTable::GetStringFromId("StateMachine"_hash, it.first), it.first, (uint64_t)it.second.get());
     }
 #endif
 
-    auto it = edgeList.find(id);
-    if(it != edgeList.end())
+    auto it = edge_list.find(id);
+    if(it != edge_list.end())
         return it->second;
     else
         return nullptr;
@@ -31,35 +31,35 @@ Ref<StateEdge> StateNode::GetEdge(uint64_t id)
 
 void StateMachine::SetInitState(Ref<StateNode> init)
 {
-    initStateNode = init;
-    currStateNode = init;
-    currentState = init->id;
+    init_state_node_ = init;
+    curr_state_node_ = init;
+    current_state_ = init->id;
 }
 
 void StateMachine::ResetToInitState()
 {
-    currStateNode = initStateNode;
+    curr_state_node_ = init_state_node_;
 }
 
 bool StateMachine::UpdateAction(const Vec<Variant>& input)
 {
     // Empty edge always finish action
-    if(!currentEdge)
+    if(!current_edge_)
     {
         RK_CORE_TRACE("Empty Edge, No Action");
         return true;
     }
-    RK_CORE_TRACE("Update Along Edge {}", currentEdge->name);
-    bool result = currentEdge->actionFun(input, currentEdge->data);
-    currentEdge->finished = result;
-    isTransferFinish = result;
+    RK_CORE_TRACE("Update Along Edge {}", current_edge_->name);
+    bool result = current_edge_->action_function(input, current_edge_->data);
+    current_edge_->finished = result;
+    is_transfer_finish_ = result;
     // Check Action Result
-    if(currentEdge->finished)
+    if(current_edge_->finished)
     {
-        RK_CORE_TRACE("Update To State {}", currentEdge->child->name);
-        currStateNode = currentEdge->child;
-        currentState = currStateNode->id;
-        currentEdge = nullptr;
+        RK_CORE_TRACE("Update To State {}", current_edge_->child->name);
+        curr_state_node_ = current_edge_->child;
+        current_state_ = curr_state_node_->id;
+        current_edge_ = nullptr;
     }
     return result;
 }
@@ -68,26 +68,26 @@ bool StateMachine::UpdateEdge(const Vec<Variant>& target)
 {
     RK_CORE_TRACE("State Machine Update on Action {}", GlobalHashTable::GetStringFromId("StateMachine"_hash, target[1].asStringId));
     // Get Edge to Follow
-    if(!currentEdge)
+    if(!current_edge_)
     {
-        uint64_t edge_id = currStateNode->transferFun(target, currentState);
+        uint64_t edge_id = curr_state_node_->transfer_function(target, current_state_);
         //RK_CORE_TRACE("Get Edge Id : {}", edge_id);
-        currentEdge = currStateNode->GetEdge(edge_id);
-        if(!currentEdge)
+        current_edge_ = curr_state_node_->GetEdge(edge_id);
+        if(!current_edge_)
         {
             RK_CORE_TRACE("Get null Edge");
             return false;
         }
         // Init Edge Data
-        isTransferFinish = false;
-        currentEdge->finished = false;
+        is_transfer_finish_ = false;
+        current_edge_->finished = false;
         // target data
-        currentEdge->data.assign(target.begin(), target.end());
-        RK_CORE_TRACE("Get New Edge {}", currentEdge->name);
+        current_edge_->data.assign(target.begin(), target.end());
+        RK_CORE_TRACE("Get New Edge {}", current_edge_->name);
     }
     else
     {
-        RK_CORE_TRACE("Keep Update Along Edge {}", currentEdge->name);
+        RK_CORE_TRACE("Keep Update Along Edge {}", current_edge_->name);
         return false;
     }
 }
@@ -112,9 +112,9 @@ uint64_t StateMachine::Get2Map(const UMap<uint64_t, uint64_t>& map, uint64_t inp
 uint64_t StateMachine::update_along_mat(const Vec<Variant>& data, const uint64_t state)
 {
     uint64_t action = data[1].asStringId;
-    uint64_t action_id = Get2Mat(action_2_mat, action);
-    uint64_t state_id = Get2Mat(node_2_mat, state);
-    uint64_t edge_id = transfer_edge_mat(state_id, action_id);
+    uint64_t action_id = Get2Mat(action_2_mat_, action);
+    uint64_t state_id = Get2Mat(node_2_mat_, state);
+    uint64_t edge_id = transfer_edge_mat_(state_id, action_id);
     uint64_t edge = edge_id;
 
     RK_CORE_TRACE("state_id {}, action_id {}, edge_id {}", state_id, action_id, edge_id);

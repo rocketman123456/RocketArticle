@@ -118,7 +118,7 @@ bool RobotUI::OnResponseEvent(EventPtr& e)
     for(int i = 0; i < 10; ++i)
     {
         //float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-        motor_data_curr[i] = e->Var[2 + i].asFloat;
+        motor_data_curr[i] = e->variable[2 + i].asFloat;
         motor_data[i].push_back(motor_data_curr[i]);
     }
     return false;

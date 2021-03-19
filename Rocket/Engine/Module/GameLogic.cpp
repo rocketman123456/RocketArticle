@@ -36,7 +36,7 @@ void GameLogic::Tick(Timestep ts)
 bool GameLogic::OnResponseEvent(EventPtr& e)
 {
     RK_CORE_TRACE("Set Input Data");
-    m_CurrentInputData.assign(e->Var.begin(), e->Var.end());
+    m_CurrentInputData.assign(e->variable.begin(), e->variable.end());
     m_StateMachine->UpdateAction(m_CurrentInputData);
     m_CurrentInputData.clear();
     return false;
@@ -48,14 +48,14 @@ bool GameLogic::OnUIEvent(EventPtr& e)
     if(!result)
     {
         RK_EVENT_TRACE("UI Event {} - StateMachine is in Transfer", 
-            GlobalHashTable::GetStringFromId("Event"_hash, e->Var[0].asStringId)
+            GlobalHashTable::GetStringFromId("Event"_hash, e->variable[0].asStringId)
         );
         if(m_PendingStateData.size() == 0)
-            m_PendingStateData.assign(e->Var.begin(), e->Var.end());
+            m_PendingStateData.assign(e->variable.begin(), e->variable.end());
         return false;
     }
     m_PendingStateData.clear();
-    result = m_StateMachine->UpdateEdge(e->Var);
-    m_CurrentStateData.assign(e->Var.begin(), e->Var.end());
+    result = m_StateMachine->UpdateEdge(e->variable);
+    m_CurrentStateData.assign(e->variable.begin(), e->variable.end());
     return false;
 }

@@ -7,7 +7,7 @@ namespace Rocket
     Interface IApplication : implements IRuntimeModule
     {
     public:
-        IApplication() : m_IsRunning(true) {}
+        IApplication() : is_running_(true) {}
         virtual ~IApplication() = default;
 
         virtual void LoadConfig(const Ref<ConfigLoader>& config) = 0;
@@ -20,10 +20,10 @@ namespace Rocket
         virtual void PostInitializeModule() = 0;
         virtual void FinalizeModule() = 0;
         
-        bool IsRunning() { return m_IsRunning; }
-        void SetRunningState(bool state) { m_IsRunning = state; }
+        bool IsRunning() { return is_running_; }
+        void SetRunningState(bool state) { is_running_ = state; }
     protected:
-        bool m_IsRunning;
+        bool is_running_;
     };
 
     IApplication *CreateApplicationInstance();

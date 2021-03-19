@@ -11,29 +11,29 @@ int main(int argc, char **argv)
     RK_CORE_WARN("Initialize Log");
 
     RK_PROFILE_BEGIN_SESSION("ReadComfig", "RocketProfile-Startup.json");
-    Ref<CommandParser> Parser = Ref<CommandParser>(new CommandParser(argc, argv));
-    RK_CORE_INFO("CommandParser : {0}", Parser->ToString());
+    Ref<CommandParser> parser = Ref<CommandParser>(new CommandParser(argc, argv));
+    RK_CORE_INFO("CommandParser : {0}", parser->ToString());
     
     String command;
     if(argc > 1)
-        command = Parser->GetCommand(1);
+        command = parser->get_command(1);
     else
         command = ProjectSourceDir;
 
-    Ref<ConfigLoader> Loader  = Ref<ConfigLoader>(new ConfigLoader(command));
+    Ref<ConfigLoader> loader  = Ref<ConfigLoader>(new ConfigLoader(command));
     
-    int ret = Loader->Initialize();
+    int ret = loader->Initialize();
     if(ret != 0)
     {
         RK_CORE_ERROR("Config Loader Initialize Failed");
         return 1;
     }
-    RK_CORE_INFO("ConfigLoader : {0}", Loader->ToString());
+    RK_CORE_INFO("ConfigLoader : {0}", loader->ToString());
     RK_PROFILE_END_SESSION();
     
     RK_PROFILE_BEGIN_SESSION("Initialize", "RocketProfile-Initialize.json");
     auto app = CreateApplication();
-    app->LoadConfig(Loader);
+    app->LoadConfig(loader);
 
     app->PreInitializeModule();
     if (app->InitializeModule() != 0)
@@ -52,31 +52,31 @@ int main(int argc, char **argv)
     app->PostInitialize();
     RK_PROFILE_END_SESSION();
 
-    float CountTime = 0.0f;
-    int32_t CountFrame = 0;
+    float count_time = 0.0f;
+    int32_t count_fps = 0;
 
-    ElapseTimer Timer;
-    Timer.Start();
+    ElapseTimer timer;
+    timer.Start();
 
     RK_PROFILE_BEGIN_SESSION("RunLoop", "RocketProfile-RunLoop.json");
     while (app->IsRunning())
     {
         PROFILE_SCOPE_CPU(MainLoop, 0);
 
-        double Duration = Timer.GetTickTime();
+        double duration = timer.GetTickTime();
 
-        CountFrame++;
-        CountTime += Duration;
+        count_fps++;
+        count_time += duration;
 
-        if(CountTime >= 1000.0f)
+        if(count_time >= 1000.0f)
         {
             //RK_TRACE("FPS : {}", CountFrame);
-            CountFrame = 0;
-            CountTime = 0.0f;
+            count_fps = 0;
+            count_time = 0.0f;
         }
 
 	    PROFILE_BEGIN_CPU_SAMPLE(ApplicationUpdate, 0);
-	    app->Tick(Duration);
+	    app->Tick(duration);
 	    PROFILE_END_CPU_SAMPLE();
     }
     RK_PROFILE_END_SESSION();

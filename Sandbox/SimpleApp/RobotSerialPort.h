@@ -55,7 +55,7 @@ public:
     bool OnAction(Rocket::EventPtr& e);
     bool OnMotor(Rocket::EventPtr& e);
 private:
-    std::atomic<bool> m_IsRunning = true;
+    std::atomic<bool> is_running_ = true;
     ElapseTimer m_Timer;
     itas109::CSerialPort m_SerialPort;
     Rocket::Queue<Rocket::EventVarVec> m_Vars;

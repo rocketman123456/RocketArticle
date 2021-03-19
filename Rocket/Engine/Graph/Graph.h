@@ -6,13 +6,13 @@
 
 namespace Rocket
 {
-	struct Edge
+	struct GraphEdge
 	{
 		size_t Id;
 		size_t From;
 		size_t To;
 		nlohmann::json options;
-		Edge(size_t id, size_t s, size_t t) : Id(id), From(s), To(t) {};
+		GraphEdge(size_t id, size_t s, size_t t) : Id(id), From(s), To(t) {};
 	};
 
 	class Graph
@@ -88,7 +88,7 @@ namespace Rocket
 
 	private:
 		size_t							m_NextId = 1;
-		Vec<Edge>                       m_Adj;
+		Vec<GraphEdge>                       m_Adj;
 		UMap<size_t, Scope<GraphNode>>	m_Nodes;
 		UMap<String, size_t>			m_Refs;
 		String                          m_Name;

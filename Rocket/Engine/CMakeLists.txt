@@ -72,6 +72,9 @@ add_library( RocketEngine
     Module/SceneManager.cpp
     Module/WindowManager.h
     Module/WindowManager.cpp
+    # Physics
+    Physics/Particle.h
+    Physics/Particle.cpp
     # Process
     Process/Process.h
     Process/Process.cpp

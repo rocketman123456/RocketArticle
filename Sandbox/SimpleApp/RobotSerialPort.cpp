@@ -52,7 +52,7 @@ void SerialPortModule::Finalize()
 
 bool SerialPortModule::OnWindowClose(EventPtr& e)
 {
-    m_IsRunning = false;
+    is_running_ = false;
     return false;
 }
 
@@ -60,7 +60,7 @@ bool SerialPortModule::OnAction(EventPtr& e)
 {
     m_Lock.lock();
     //m_Vars.push(e->Var);
-    m_Vars.emplace(e->Var.begin(), e->Var.end());
+    m_Vars.emplace(e->variable.begin(), e->variable.end());
     m_Lock.unlock();
     RK_CORE_TRACE("Send Control Data");
     static char str[1024];
@@ -71,9 +71,9 @@ bool SerialPortModule::OnAction(EventPtr& e)
 
 bool SerialPortModule::OnMotor(Rocket::EventPtr& e)
 {
-    uint32_t motor_id = e->Var[1].asUInt32;
-    uint32_t command = e->Var[2].asUInt32;
-    uint32_t data = e->Var[3].asFloat;
+    uint32_t motor_id = e->variable[1].asUInt32;
+    uint32_t command = e->variable[2].asUInt32;
+    uint32_t data = e->variable[3].asFloat;
     RK_CORE_TRACE("Send Motor Data");
     static char str[1024];
     str[0] = 'H';str[1] = 'e';str[2] = 'l';str[3] = 'l';str[4] = 'o';str[5] = '\0';
@@ -83,7 +83,7 @@ bool SerialPortModule::OnMotor(Rocket::EventPtr& e)
 
 void SerialPortModule::MainLoop()
 {
-    while(m_IsRunning)
+    while(is_running_)
     {
         double elapsed = m_Timer.GetElapsedTime();
         if(elapsed >= 50)

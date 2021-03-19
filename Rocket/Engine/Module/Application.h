@@ -9,13 +9,13 @@ namespace Rocket
     public:
         Application()
         {
-            RK_CORE_ASSERT(!s_Instance, "Application already exists!");
-            s_Instance = this;
+            RK_CORE_ASSERT(!instance_, "Application already exists!");
+            instance_ = this;
         }
         virtual ~Application() = default;
 
         virtual void LoadConfig(const Ref<ConfigLoader>& config) override;
-        inline const Ref<ConfigLoader>& GetConfig() const { return m_Config; }
+        inline const Ref<ConfigLoader>& GetConfig() const { return config_; }
 
         virtual int Initialize() final;
         virtual void Finalize() final;
@@ -27,24 +27,24 @@ namespace Rocket
 
         virtual void Tick(Timestep ts) final;
 
-        static Application& Get() { return *s_Instance; }
+        static Application& Get() { return *instance_; }
 
         // Event Call Back
         bool OnWindowClose(EventPtr& e);
         bool OnWindowResize(EventPtr& e);
 
     protected:
-        bool m_Running = true;
-        bool m_Minimized = false;
-        bool m_Parallel = true;
+        bool running_ = true;
+        bool minimized_ = false;
+        bool parallel_ = true;
         // Modules
-        Vec<IRuntimeModule*> m_Modules;
+        Vec<IRuntimeModule*> modules_;
         // Config
-        Ref<ConfigLoader> m_Config;
-        String m_AssetPath;
+        Ref<ConfigLoader> config_;
+        String asset_path_;
         
     private:
-        static Application* s_Instance;
+        static Application* instance_;
     };
 
     // Implement This Function to Create Different Applications

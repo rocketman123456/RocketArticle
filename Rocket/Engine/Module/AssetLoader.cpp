@@ -15,7 +15,7 @@ AssetLoader* Rocket::GetAssetLoader() { return new AssetLoader(); }
 int AssetLoader::Initialize()
 {
     auto config = g_Application->GetConfig();
-    m_AssetPath = config->GetAssetPath();
+    asset_path_ = config->GetAssetPath();
     return 0;
 }
 
@@ -27,9 +27,9 @@ void AssetLoader::Tick(Timestep ts)
 {
 }
 
-AssetFilePtr AssetLoader::SyncOpenAndReadTexture(const String& filePath, int32_t* width, int32_t* height, int32_t* channels, int32_t desired_channel)
+AssetFilePtr AssetLoader::SyncOpenAndReadTexture(const String& file_path, int32_t* width, int32_t* height, int32_t* channels, int32_t desired_channel)
 {
-    Buffer buffer = SyncOpenAndReadBinary(filePath);
+    Buffer buffer = SyncOpenAndReadBinary(file_path);
 
     stbi_set_flip_vertically_on_load(1);
 	stbi_uc* data = nullptr;
@@ -44,10 +44,10 @@ void AssetLoader::SyncCloseTexture(AssetFilePtr data)
     stbi_image_free(data);
 }
 
-Vec<AssetFilePtr> AssetLoader::SyncOpenAndReadTextureCube(const Vec<String>& filePaths, int32_t* width, int32_t* height, int32_t* channels, int32_t desired_channel)
+Vec<AssetFilePtr> AssetLoader::SyncOpenAndReadTextureCube(const Vec<String>& file_paths, int32_t* width, int32_t* height, int32_t* channels, int32_t desired_channel)
 {
     Vec<AssetFilePtr> result;
-    for (auto file_name : filePaths)
+    for (auto file_name : file_paths)
     {
         Buffer buffer = SyncOpenAndReadBinary(file_name);
 
@@ -71,7 +71,7 @@ void AssetLoader::SyncCloseTextureCube(Vec<AssetFilePtr>& datas)
 
 Texture2DAsset AssetLoader::SyncLoadTexture2D(const String& filename)
 {
-    String fullPath = m_AssetPath + filename;
+    String fullPath = asset_path_ + filename;
     auto data = gli::load(fullPath.c_str());
     RK_CORE_TRACE("Open Texture 2D {}, {}, {}", fullPath, data.size(), data.levels());
     Texture2DAsset pic(data);
@@ -81,7 +81,7 @@ Texture2DAsset AssetLoader::SyncLoadTexture2D(const String& filename)
 
 TextureCubeAsset AssetLoader::SyncLoadTextureCube(const String& filename)
 {
-    String fullPath = m_AssetPath + filename;
+    String fullPath = asset_path_ + filename;
     auto data = gli::load(fullPath.c_str());
     RK_CORE_TRACE("Open Texture Cube {}", fullPath);
     TextureCubeAsset pic(data);
@@ -91,7 +91,7 @@ TextureCubeAsset AssetLoader::SyncLoadTextureCube(const String& filename)
 
 void AssetLoader::SyncOpenAndReadAudio(const String& filename, uint32_t* buffer_in)
 {
-    String fullPath = m_AssetPath + filename;
+    String fullPath = asset_path_ + filename;
     RK_CORE_TRACE("Open Audio {}", fullPath);
     
     ALuint buffer = 0;
@@ -183,10 +183,10 @@ void AssetLoader::SyncCloseAudio(uint32_t* buffer)
     alDeleteBuffers(1, buffer);
 }
 
-String AssetLoader::SyncOpenAndReadTextFileToString(const String& fileName)
+String AssetLoader::SyncOpenAndReadTextFileToString(const String& file_name)
 {
     String result;
-    Buffer buffer = SyncOpenAndReadText(fileName);
+    Buffer buffer = SyncOpenAndReadText(file_name);
     if (buffer.GetDataSize())
     {
         char* content = reinterpret_cast<char*>(buffer.GetData().get());
@@ -196,7 +196,7 @@ String AssetLoader::SyncOpenAndReadTextFileToString(const String& fileName)
     return result;
 }
 
-bool AssetLoader::SyncOpenAndWriteStringToTextFile(const String& fileName, const String& content)
+bool AssetLoader::SyncOpenAndWriteStringToTextFile(const String& file_name, const String& content)
 {
     Buffer buf;
     size_t sz = content.size();
@@ -204,14 +204,14 @@ bool AssetLoader::SyncOpenAndWriteStringToTextFile(const String& fileName, const
     memcpy(data.get(), content.data(), sz);
     data.get()[sz] = '\0';
     buf.SetData(data, sz + 1);
-    bool result = SyncOpenAndWriteText(fileName, buf);
+    bool result = SyncOpenAndWriteText(file_name, buf);
     return result;
 }
 
 AssetFilePtr AssetLoader::OpenFile(const String& name, AssetOpenMode mode)
 {
     FILE* fp = nullptr;
-    String fullPath = m_AssetPath + name;
+    String fullPath = asset_path_ + name;
     RK_CORE_TRACE("Open File Full Path : {}", fullPath);
 
     switch(mode)
@@ -241,9 +241,9 @@ AssetFilePtr AssetLoader::OpenFile(const String& name, AssetOpenMode mode)
     }
 }
 
-Buffer AssetLoader::SyncOpenAndReadText(const String& filePath)
+Buffer AssetLoader::SyncOpenAndReadText(const String& file_path)
 {
-    AssetFilePtr fp = OpenFile(filePath, AssetOpenMode::RK_OPEN_TEXT);
+    AssetFilePtr fp = OpenFile(file_path, AssetOpenMode::RK_OPEN_TEXT);
     Buffer buff;
 
     if(fp)
@@ -253,7 +253,7 @@ Buffer AssetLoader::SyncOpenAndReadText(const String& filePath)
         Ref<uint8_t> data = Ref<uint8_t>(new uint8_t[length + 1], [](uint8_t* v){ delete[]v; });
         length = fread(data.get(), 1, length, static_cast<FILE*>(fp));
 #ifdef RK_DEBUG
-        RK_CORE_TRACE("Read file '{}', {} bytes", filePath, length);
+        RK_CORE_TRACE("Read file '{}', {} bytes", file_path, length);
 #endif
         data.get()[length] = '\0';
         buff.SetData(data, length);
@@ -261,14 +261,14 @@ Buffer AssetLoader::SyncOpenAndReadText(const String& filePath)
         CloseFile(fp);
     }
     else
-        RK_CORE_ERROR("Error opening file '{}'", filePath);
+        RK_CORE_ERROR("Error opening file '{}'", file_path);
 
     return buff;
 }
 
-Buffer AssetLoader::SyncOpenAndReadBinary(const String& filePath)
+Buffer AssetLoader::SyncOpenAndReadBinary(const String& file_path)
 {
-    AssetFilePtr fp = OpenFile(filePath, AssetOpenMode::RK_OPEN_BINARY);
+    AssetFilePtr fp = OpenFile(file_path, AssetOpenMode::RK_OPEN_BINARY);
     Buffer buff;
 
     if(fp)
@@ -277,21 +277,21 @@ Buffer AssetLoader::SyncOpenAndReadBinary(const String& filePath)
         Ref<uint8_t> data = Ref<uint8_t>(new uint8_t[length], [](uint8_t* v){ delete[]v; });
         length = fread(data.get(), 1, length, static_cast<FILE*>(fp));
 #ifdef RK_DEBUG
-        RK_CORE_TRACE("Read file '{}', {} bytes", filePath, length);
+        RK_CORE_TRACE("Read file '{}', {} bytes", file_path, length);
 #endif
         buff.SetData(data, length);
 
         CloseFile(fp);
     }
     else
-        RK_CORE_ERROR("Error opening file '{}'", filePath);
+        RK_CORE_ERROR("Error opening file '{}'", file_path);
 
     return buff;
 }
 
-bool AssetLoader::SyncOpenAndWriteText(const String& filePath, const Buffer& buf)
+bool AssetLoader::SyncOpenAndWriteText(const String& file_path, const Buffer& buf)
 {
-    AssetFilePtr fp = OpenFile(filePath, AssetOpenMode::RK_WRITE_TEXT);
+    AssetFilePtr fp = OpenFile(file_path, AssetOpenMode::RK_WRITE_TEXT);
     if(!fp)
     {
         RK_CORE_ERROR("Write Text to File Open File Error");
@@ -302,9 +302,9 @@ bool AssetLoader::SyncOpenAndWriteText(const String& filePath, const Buffer& buf
     return true;
 }
 
-bool AssetLoader::SyncOpenAndWriteBinary(const String& filePath, const Buffer& buf)
+bool AssetLoader::SyncOpenAndWriteBinary(const String& file_path, const Buffer& buf)
 {
-    AssetFilePtr fp = OpenFile(filePath, AssetOpenMode::RK_WRITE_BINARY);
+    AssetFilePtr fp = OpenFile(file_path, AssetOpenMode::RK_WRITE_BINARY);
     if(!fp)
     {
         RK_CORE_ERROR("Write Text to File Open File Error");

@@ -123,7 +123,9 @@
         "*.inc": "cpp",
         "tensor": "cpp",
         "slist": "cpp",
-        "cfenv": "cpp"
+        "cfenv": "cpp",
+        "*.def": "cpp",
+        "*.lst": "cpp"
     },
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

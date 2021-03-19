@@ -14,7 +14,7 @@ static void GLFWErrorCallback(int error, const char *description)
 
 void WindowImplement::Initialize()
 {
-	RK_CORE_INFO("Creating Window {0} ({1}, {2})", m_Props.Title, m_Props.Width, m_Props.Height);
+	RK_CORE_INFO("Creating Window {0} ({1}, {2})", props_.title, props_.width, props_.height);
 
 	if (s_GLFWWindowCount == 0)
 	{
@@ -49,16 +49,16 @@ void WindowImplement::Initialize()
 #endif
 	//glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-	m_Window = glfwCreateWindow((int)m_Props.Width, (int)m_Props.Height, m_Props.Title.c_str(), nullptr, nullptr);
+	window_ = glfwCreateWindow((int)props_.width, (int)props_.height, props_.title.c_str(), nullptr, nullptr);
 	++s_GLFWWindowCount;
 
 	// Get Frame Buffer Size
-	glfwGetFramebufferSize(m_Window, &m_Props.Width, &m_Props.Height);
+	glfwGetFramebufferSize(window_, &props_.width, &props_.height);
 }
 
 void WindowImplement::Finalize()
 {
-	glfwDestroyWindow(m_Window);
+	glfwDestroyWindow(window_);
 	--s_GLFWWindowCount;
 
 	if (s_GLFWWindowCount == 0)

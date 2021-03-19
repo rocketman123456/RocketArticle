@@ -13,9 +13,9 @@ int WindowManager::Initialize()
     auto config = g_Application->GetConfig();
 
     WindowProps prop;
-    prop.Title = config->GetConfigInfo<String>("Graphics", "window_title");
-    prop.Width = config->GetConfigInfo<uint32_t>("Graphics", "window_width");
-    prop.Height = config->GetConfigInfo<uint32_t>("Graphics", "window_height");
+    prop.title = config->GetConfigInfo<String>("Graphics", "window_title");
+    prop.width = config->GetConfigInfo<uint32_t>("Graphics", "window_width");
+    prop.height = config->GetConfigInfo<uint32_t>("Graphics", "window_height");
 #if defined(PLATFORM_WINDOWS) || defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
     m_Window = CreateRef<WindowImplement>(prop);
 #else

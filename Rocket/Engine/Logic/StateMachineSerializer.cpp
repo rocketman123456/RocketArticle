@@ -25,7 +25,7 @@ Ref<StateMachine> StateMachineSerializer::Deserialize(const String& name)
 
     String init_name = root["init_node"].as<String>();
 
-    stateMachine->node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, init_name)] = node_count;
+    stateMachine->node_2_mat_[GlobalHashTable::HashString("StateMachine"_hash, init_name)] = node_count;
     node_count++;
 
     auto it_yaml = root["edge"].begin();
@@ -41,7 +41,7 @@ Ref<StateMachine> StateMachineSerializer::Deserialize(const String& name)
         auto action_find = action_map.find(action_name);
         if(action_find == action_map.end())
         {
-            stateMachine->action_2_mat[GlobalHashTable::HashString("StateMachine"_hash, action_name)] = action_count;
+            stateMachine->action_2_mat_[GlobalHashTable::HashString("StateMachine"_hash, action_name)] = action_count;
             action_map[action_name] = action_count;
             action_count++;
         }
@@ -51,25 +51,25 @@ Ref<StateMachine> StateMachineSerializer::Deserialize(const String& name)
         if(node_parent == node_map.end())
         {
             node_map[parent_name] = CreateRef<StateNode>(parent_name);
-            node_map[parent_name]->transferFun = std::bind(&StateMachine::update_along_mat, stateMachine.get(), std::placeholders::_1, std::placeholders::_2 );
+            node_map[parent_name]->transfer_function = std::bind(&StateMachine::update_along_mat, stateMachine.get(), std::placeholders::_1, std::placeholders::_2 );
 
-            stateMachine->node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, parent_name)] = node_count;
+            stateMachine->node_2_mat_[GlobalHashTable::HashString("StateMachine"_hash, parent_name)] = node_count;
             node_count++;
         }
         
         if(node_child == node_map.end())
         {
             node_map[child_name] = CreateRef<StateNode>(child_name);
-            node_map[child_name]->transferFun = std::bind(&StateMachine::update_along_mat, stateMachine.get(), std::placeholders::_1, std::placeholders::_2 );
+            node_map[child_name]->transfer_function = std::bind(&StateMachine::update_along_mat, stateMachine.get(), std::placeholders::_1, std::placeholders::_2 );
             
-            stateMachine->node_2_mat[GlobalHashTable::HashString("StateMachine"_hash, child_name)] = node_count;
+            stateMachine->node_2_mat_[GlobalHashTable::HashString("StateMachine"_hash, child_name)] = node_count;
             node_count++;
         }
 
         edge_map[edge_name] = CreateRef<StateEdge>(edge_name);
         edge_map[edge_name]->parent = node_map[parent_name];
         edge_map[edge_name]->child = node_map[child_name];
-        edge_map[edge_name]->actionFun = std::bind(&StateMachine::action_on_edge, stateMachine.get(), std::placeholders::_1, std::placeholders::_2 );
+        edge_map[edge_name]->action_function = std::bind(&StateMachine::action_on_edge, stateMachine.get(), std::placeholders::_1, std::placeholders::_2 );
         edge_map[edge_name]->action_name = action_name;
 
         action_node_pair[GlobalHashTable::HashString("StateMachine"_hash, edge_name)] = {
@@ -83,14 +83,14 @@ Ref<StateMachine> StateMachineSerializer::Deserialize(const String& name)
     }
 
     // Make Transfer Mat
-    stateMachine->transfer_edge_mat = Eigen::Matrix<uint64_t, Eigen::Dynamic, Eigen::Dynamic>(node_count, action_count);
+    stateMachine->transfer_edge_mat_ = Eigen::Matrix<uint64_t, Eigen::Dynamic, Eigen::Dynamic>(node_count, action_count);
 
     for(int i = 0; i < node_count; ++i)
         for(int j = 0; j < action_count; ++j)
-            stateMachine->transfer_edge_mat(i, j) = GlobalHashTable::HashString("StateMachine"_hash, "null");
+            stateMachine->transfer_edge_mat_(i, j) = GlobalHashTable::HashString("StateMachine"_hash, "null");
 
     for(auto it = action_node_pair.begin(); it != action_node_pair.end(); ++it)
-        stateMachine->transfer_edge_mat(stateMachine->node_2_mat[it->second.first], stateMachine->action_2_mat[it->second.second]) = it->first;
+        stateMachine->transfer_edge_mat_(stateMachine->node_2_mat_[it->second.first], stateMachine->action_2_mat_[it->second.second]) = it->first;
 
     stateMachine->SetInitState(node_map[init_name]);
     return stateMachine;
@@ -108,7 +108,7 @@ void StateMachineSerializer::Serialize(const String& name, Ref<StateMachine> sta
     while(!node_map.empty())
     {
         auto it = node_map.begin();
-        for(auto edge = it->second->edgeList.begin(); edge != it->second->edgeList.end(); ++edge)
+        for(auto edge = it->second->edge_list.begin(); edge != it->second->edge_list.end(); ++edge)
         {
             edge_map[edge->second->name] = edge->second;
             auto find_node = end_node_map.find(edge->second->child->name);

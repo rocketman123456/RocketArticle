@@ -7,27 +7,27 @@ namespace Rocket
     class CommandParser
     {
     public:
-        CommandParser(int argc, char **argv) : m_CommandCount(argc)
+        CommandParser(int argc, char **argv) : command_count_(argc)
         {
-            m_CommandList.clear();
+            command_list_.clear();
             for(int i = 0; i < argc; ++i)
             {
-                m_CommandList.push_back(argv[i]);
+                command_list_.push_back(argv[i]);
             }
             Parse();
         }
-        ~CommandParser() { m_CommandList.clear(); }
+        ~CommandParser() { command_list_.clear(); }
 
-        inline const String& GetCommand(int index)
+        inline const String& get_command(int index)
         {
-            RK_CORE_ASSERT(index < m_CommandCount, "Invalid Command Index");
-            return m_CommandList[index];
+            RK_CORE_ASSERT(index < command_count_, "Invalid Command Index");
+            return command_list_[index];
         }
 
-        inline const String& GetCommand(const String& var)
+        inline const String& get_command(const String& var)
         {
-            auto it = m_CommandMap.find(var);
-            RK_CORE_ASSERT(it != m_CommandMap.end(), "Invalid Command Index");
+            auto it = command_map.find(var);
+            RK_CORE_ASSERT(it != command_map.end(), "Invalid Command Index");
             return it->second;
         }
 
@@ -40,7 +40,7 @@ namespace Rocket
 		{
 			std::stringstream ss;
             ss << "Command : ";
-            for(auto command : m_CommandList)
+            for(auto command : command_list_)
             {
                 ss << "[" << command << "]";
             }
@@ -48,9 +48,9 @@ namespace Rocket
 		}
 
     private:
-        int32_t m_CommandCount;
-        Vec<String> m_CommandList;
-        UMap<String, String> m_CommandMap;
+        int32_t command_count_;
+        Vec<String> command_list_;
+        UMap<String, String> command_map;
     };
 
     inline std::ostream &operator << (std::ostream &os, const CommandParser &c)
