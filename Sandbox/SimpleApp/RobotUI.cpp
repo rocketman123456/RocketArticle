@@ -19,10 +19,10 @@ void RobotUI::DrawRobotState()
         char label[16] = {};
         sprintf(label, "Motor %2d", i);
         char overlay[32];
-        sprintf(overlay, "size %d", (uint32_t)motor_data[i].size());
+        sprintf(overlay, "size %d offset %d", (uint32_t)motor_data[i].size(), (uint32_t)offset);
         float result = CalculateProgress(motor_data_start[i], motor_data_target[i], motor_data_curr[i]);
         ImGui::ProgressBar(result, ImVec2(0.0f, 0.0f)); ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x); ImGui::Text("Motor Progress %2d", i);
-        ImGui::PlotLines(label, motor_data[i].data(), data_size, offset, overlay, -1.0f, 1.0f, ImVec2(0, 80.0f));
+        ImGui::PlotLines(label, motor_data[i].data() + offset, data_size, 0, overlay, 1.0f, -1.0f, ImVec2(0, 80.0f));
     }
 
     ImGui::End();

@@ -28,7 +28,7 @@ int SerialPortModule::Initialize()
         
         String portName = availablePortsList[port_num].portName;
         m_SerialPort.init(portName, baud_rate, Parity::ParityNone, DataBits::DataBits8, StopBits::StopOne);
-        m_SerialPort.open();
+        //m_SerialPort.open();
 
         m_UseFakeData = true;//!m_SerialPort.isOpened();
 		if(m_SerialPort.isOpened())
