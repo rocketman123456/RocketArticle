@@ -98,9 +98,6 @@ Ref<StateMachine> StateMachineSerializer::Deserialize(const String& name)
 
 void StateMachineSerializer::Serialize(const String& name, Ref<StateMachine> stateMachine)
 {
-    String asset_path = g_AssetLoader->GetAssetPath();
-    String full_path = asset_path + name;
-
     UMap<String, Ref<StateNode>> node_map;
     UMap<String, Ref<StateNode>> end_node_map;
     UMap<String, Ref<StateEdge>> edge_map;
@@ -120,8 +117,8 @@ void StateMachineSerializer::Serialize(const String& name, Ref<StateMachine> sta
                 node_map.insert({edge->second->child->name, edge->second->child});
             }
         }
-        node_map.erase(it);
         end_node_map[it->first] = it->second;
+        node_map.erase(it);
     }
 
     YAML::Emitter out;

@@ -29,6 +29,8 @@ namespace Rocket
             m_ConfigMap["Graphics"] = YAML::LoadFile(config_file);
             config_file = m_Path + "/Config/setting-event.yaml";
             m_ConfigMap["Event"] = YAML::LoadFile(config_file);
+            config_file = m_Path + "/Config/setting-serialport.yaml";
+            m_ConfigMap["SerialPort"] = YAML::LoadFile(config_file);
             return 0;
         }
 

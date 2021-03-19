@@ -104,7 +104,6 @@ void SimpleApp::PostInitializeModule()
     {
         Ref<StateMachine> stateMachine = StateMachineSerializer::Deserialize("Logic/robot-state-machine.yaml");
         g_GameLogic->SetStateMachine(stateMachine);
-
         StateMachineSerializer::Serialize("Logic/robot-control.yaml", stateMachine);
     }
 

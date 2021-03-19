@@ -6,7 +6,7 @@ namespace Rocket
     {
         auto _a = a.normalized();
         auto _c = _a.cross(b);
-        if(_c.squaredNorm() == 0.0) return;
+        if(_c.squaredNorm() == 0.0) return {};
         _c.normalize();
         auto _b = _c.cross(_a);
         return {_a, _b, _c};

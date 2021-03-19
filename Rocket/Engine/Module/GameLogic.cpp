@@ -57,5 +57,5 @@ bool GameLogic::OnUIEvent(EventPtr& e)
     m_PendingStateData.clear();
     result = m_StateMachine->UpdateEdge(e->Var);
     m_CurrentStateData.assign(e->Var.begin(), e->Var.end());
-    return result;
+    return false;
 }

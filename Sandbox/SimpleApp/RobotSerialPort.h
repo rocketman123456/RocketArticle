@@ -9,6 +9,7 @@
 #include "CSerialPort/SerialPortInfo.h"
 
 #include <atomic>
+#include <mutex>
 
 class ReadSlot : public has_slots<>
 {
@@ -59,6 +60,7 @@ private:
     itas109::CSerialPort m_SerialPort;
     Rocket::Queue<Rocket::EventVarVec> m_Vars;
     bool m_UseFakeData = false;
+    std::mutex m_Lock;
 };
 
 extern SerialPortModule* g_SerialPort;
