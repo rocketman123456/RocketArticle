@@ -109,7 +109,7 @@ void SimpleApp::PostInitializeModule()
 
     // Begin Serial Thread
     {
-        m_ThreadPool.enqueue_work([](){ g_SerialPort->MainLoop(); });
+        thread_pool_.enqueue_work([](){ g_SerialPort->MainLoop(); });
     }
 }
 

@@ -157,9 +157,9 @@ bool VulkanPipelineStateManager::InitializePipelineState(PipelineState** ppPipel
 
         uint32_t index = 0;
 
-        if (frameBufferInfo.ColorAttachment.size() != 0)
+        if (frameBufferInfo.color_attachment.size() != 0)
         {
-            for (auto color : frameBufferInfo.ColorAttachment)
+            for (auto color : frameBufferInfo.color_attachment)
             {
                 VkAttachmentDescription colorAttachment{};
                 colorAttachment.format = swapChainImageFormat;
@@ -183,7 +183,7 @@ bool VulkanPipelineStateManager::InitializePipelineState(PipelineState** ppPipel
             attachmentFlag = attachmentFlag | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
         }
 
-        if (frameBufferInfo.DepthAttachment != FRAME_TEXTURE_FORMAT::NONE)
+        if (frameBufferInfo.depth_attachment != FRAME_TEXTURE_FORMAT::NONE)
         {
             VkAttachmentDescription depthAttachment{};
             depthAttachment.format = FindDepthFormat(physicalDevice);
@@ -205,7 +205,7 @@ bool VulkanPipelineStateManager::InitializePipelineState(PipelineState** ppPipel
         }
 
         subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-        subpass.colorAttachmentCount = frameBufferInfo.ColorAttachment.size();
+        subpass.colorAttachmentCount = frameBufferInfo.color_attachment.size();
         subpass.pColorAttachments = colorAttachmentRefs.data();
         subpass.pDepthStencilAttachment = &depthAttachmentRef;
         subpass.pResolveAttachments = nullptr;
@@ -238,11 +238,11 @@ bool VulkanPipelineStateManager::InitializePipelineState(PipelineState** ppPipel
     for (auto ubo : ubolayouts)
     {
         VkDescriptorSetLayoutBinding bind{};
-        bind.binding = ubo.Binding;
-        bind.descriptorCount = ubo.Count;
-        bind.descriptorType = (VkDescriptorType)ubo.UniformType;
+        bind.binding = ubo.binding;
+        bind.descriptorCount = ubo.count;
+        bind.descriptorType = (VkDescriptorType)ubo.uniform_type;
         bind.pImmutableSamplers = nullptr;
-        bind.stageFlags = (VkShaderStageFlags)ubo.ShaderStage;
+        bind.stageFlags = (VkShaderStageFlags)ubo.shader_stage;
         bindings.push_back(bind);
     }
 
@@ -290,7 +290,7 @@ bool VulkanPipelineStateManager::InitializePipelineState(PipelineState** ppPipel
     Vec<VkVertexInputAttributeDescription> attributeDescriptions;
     for (auto layout : layouts)
     {
-        attributeDescriptions.push_back({ layout.Index, 0, ShaderDataTypeToVulkanBaseType(layout.Type), (uint32_t)layout.Offset });
+        attributeDescriptions.push_back({ layout.index, 0, ShaderDataTypeToVulkanBaseType(layout.type), (uint32_t)layout.offset });
     }
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};

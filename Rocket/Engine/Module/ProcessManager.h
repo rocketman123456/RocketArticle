@@ -26,12 +26,12 @@ namespace Rocket
         void UnPauseAllProcesses();
 
         // accessors
-        uint32_t GetProcessCount(void) const { return m_ProcessList.size(); }
+        uint32_t GetProcessCount(void) const { return process_list_.size(); }
     private:
         typedef std::list<StrongProcessPtr> ProcessList;
-        ProcessList m_ProcessList;
-        uint64_t m_SuccessCount = 0;
-        uint64_t m_FailCount = 0;
+        ProcessList process_list_;
+        uint64_t success_count_ = 0;
+        uint64_t fail_count_ = 0;
     };
 
     ProcessManager* GetProcessManager();

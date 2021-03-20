@@ -106,8 +106,8 @@ namespace Rocket
         void CreateCommandBuffers();
         void CreateSyncObjects();
 
-        void RecordCommandBuffer(uint32_t frameIndex);
-        void RecordGuiCommandBuffer(uint32_t frameIndex);
+        void RecordCommandBuffer(uint32_t frame_index);
+        void RecordGuiCommandBuffer(uint32_t frame_index);
 
         void CleanupSwapChain();
         void RecreateSwapChain();
@@ -118,7 +118,7 @@ namespace Rocket
         bool m_VSync = true;
         bool m_IsScenePrepared = false;
         bool m_IsRecreateSwapChain = false;
-        GLFWwindow* m_WindowHandle = nullptr;
+        GLFWwindow* window_handle_ = nullptr;
 
         //Ref<VulkanUI> m_VulkanUI = nullptr;
         Ref<VulkanDevice> m_LogicalDevice;

@@ -55,42 +55,42 @@ class Delegate<R(Args...)>
 
 public:
 	Delegate()
-		: m_instance(nullptr)
-		, m_proxy(nullptr)
+		: instance_(nullptr)
+		, proxy_(nullptr)
 	{
 	}
 
 	Delegate(const Delegate<R(Args...)>& obj)
-		: m_instance(obj.m_instance)
-		, m_proxy(obj.m_proxy)
+		: instance_(obj.instance_)
+		, proxy_(obj.proxy_)
 	{
 	}
 
 	template <R (*Function)(Args...)>
 	void Bind(void)
 	{
-		m_instance = nullptr;
-		m_proxy = &FunctionProxy<Function>;
+		instance_ = nullptr;
+		proxy_ = &FunctionProxy<Function>;
 	}
 
 	template <class C, R (C::*Function)(Args...)>
 	void Bind(C* instance)
 	{
-		m_instance = instance;
-		m_proxy = &MethodProxy<C, Function>;
+		instance_ = instance;
+		proxy_ = &MethodProxy<C, Function>;
 	}
 
 	template <class C, R (C::*Function)(Args...) const>
 	void Bind(const C* instance)
 	{
-		m_instance = const_cast<C*>(instance);
-		m_proxy = &ConstMethodProxy<C, Function>;
+		instance_ = const_cast<C*>(instance);
+		proxy_ = &ConstMethodProxy<C, Function>;
 	}
 
 	R Invoke(Args... args) const
 	{
-		assert((m_proxy != nullptr) && "Cannot invoke unbound Delegate. Call Bind() first.");
-		return m_proxy(m_instance, std::forward<Args>(args)...);
+		assert((proxy_ != nullptr) && "Cannot invoke unbound Delegate. Call Bind() first.");
+		return proxy_(instance_, std::forward<Args>(args)...);
 	}
 
 	R operator () (Args... args)
@@ -101,7 +101,7 @@ public:
 	// TODO : check if this function correct
 	bool operator == (Delegate& ps)
     {
-        if (this->m_instance == ps.m_instance && this->m_proxy == ps.m_proxy)
+        if (this->instance_ == ps.instance_ && this->proxy_ == ps.proxy_)
         {
 			return true;
         }
@@ -110,7 +110,7 @@ public:
 
 	bool operator == (const Delegate& ps) const
     {
-        if (this->m_instance == ps.m_instance && this->m_proxy == ps.m_proxy)
+        if (this->instance_ == ps.instance_ && this->proxy_ == ps.proxy_)
         {
 			return true;
         }
@@ -118,6 +118,6 @@ public:
     }
 
 private:
-	void* m_instance;
-	ProxyFunction m_proxy;
+	void* instance_;
+	ProxyFunction proxy_;
 };

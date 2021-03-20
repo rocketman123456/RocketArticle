@@ -59,9 +59,9 @@ namespace Rocket
 
         virtual bool OnWindowResize(EventPtr& e) = 0;
 
-        inline void AddInitPass(const Ref<IDispatchPass>& pass) { m_InitPasses.push_back(pass); }
-        inline void AddDispathcPass(const Ref<IDispatchPass>& pass) { m_DispatchPasses.push_back(pass); }
-        inline void AddDrawPass(const Ref<IDrawPass>& pass) { m_DrawPasses.push_back(pass); }
+        inline void AddInitPass(const Ref<IDispatchPass>& pass) { init_passes_.push_back(pass); }
+        inline void AddDispathcPass(const Ref<IDispatchPass>& pass) { dispatch_passes_.push_back(pass); }
+        inline void AddDrawPass(const Ref<IDrawPass>& pass) { draw_passes_.push_back(pass); }
 
         // For Debug
         virtual void DrawPoint(const Point3D &point, const Vector3f &color) {}
@@ -85,10 +85,10 @@ namespace Rocket
 
         Ref<FrameBuffer> GetFrameBuffer(const String& name);
 
-        Ref<UI> GetUI() { return m_UI; }
-        Ref<PipelineState> GetCurrentPipelineState() { return m_CurrentPipelineState; }
-        Ref<Scene> GetCurrentScene() { return m_CurrentScene; }
-        Ref<FrameBuffer> GetCurrentFrameBuffer() { return m_CurrentFrameBuffer; }
+        Ref<UI> GetUI() { return ui_; }
+        Ref<PipelineState> GetCurrentPipelineState() { return current_pipeline_state_; }
+        Ref<Scene> GetCurrentScene() { return current_scene_; }
+        Ref<FrameBuffer> GetCurrentFrameBuffer() { return current_frame_buffer_; }
     protected:
 
         void InitConstants() {}
@@ -97,27 +97,27 @@ namespace Rocket
         void CalculateLights();
 
     protected:
-        uint32_t m_FrameIndex;
-        uint32_t m_CurrentFrameIndex;
-        uint32_t m_MaxFrameInFlight;
+        uint32_t frame_index_;
+        uint32_t current_frame_index_;
+        uint32_t max_frame_in_flight_;
 
-        Vec<Frame> m_Frames;
-        Vec<Ref<UniformBuffer>> m_uboDrawFrameConstant;
-        Vec<Ref<UniformBuffer>> m_uboLightInfo;
-        Vec<Ref<UniformBuffer>> m_uboDrawBatchConstant;
-        Vec<Ref<UniformBuffer>> m_uboShadowMatricesConstant;
+        Vec<Frame> frames_;
+        Vec<Ref<UniformBuffer>> ubo_draw_frame_constant_;
+        Vec<Ref<UniformBuffer>> ubo_light_info_;
+        Vec<Ref<UniformBuffer>> ubo_draw_batch_constant_;
+        Vec<Ref<UniformBuffer>> ubo_shadow_matrices_constant_;
 
-        Vec<Ref<IDispatchPass>> m_InitPasses;
-        Vec<Ref<IDispatchPass>> m_DispatchPasses;
-        Vec<Ref<IDrawPass>> m_DrawPasses;
+        Vec<Ref<IDispatchPass>> init_passes_;
+        Vec<Ref<IDispatchPass>> dispatch_passes_;
+        Vec<Ref<IDrawPass>> draw_passes_;
 
-        UMap<String, Ref<FrameBuffer>> m_FrameBuffers;
+        UMap<String, Ref<FrameBuffer>> frame_buffers_;
 
-        Ref<UI> m_UI = nullptr;
-        Ref<PipelineState> m_CurrentPipelineState = nullptr;
-        Ref<Scene> m_CurrentScene = nullptr;
-        Ref<Shader> m_CurrentShader = nullptr;
-        Ref<FrameBuffer> m_CurrentFrameBuffer = nullptr;
+        Ref<UI> ui_ = nullptr;
+        Ref<PipelineState> current_pipeline_state_ = nullptr;
+        Ref<Scene> current_scene_ = nullptr;
+        Ref<Shader> current_shader_ = nullptr;
+        Ref<FrameBuffer> current_frame_buffer_ = nullptr;
     };
 
     GraphicsManager *GetGraphicsManager();

@@ -17,27 +17,27 @@ public:
 			while (true)
 			{
 				Proc f;
-				if (!m_queue.pop(f))
+				if (!queue_.pop(f))
 					break;
 				f();
 			}
 		};
 
 		for (auto i = 0; i < threads; ++i)
-			m_threads.emplace_back(worker);
+			threads_.emplace_back(worker);
 	}
 
 	~SimpleThreadPool()
 	{
-		m_queue.done();
-		for (auto &thread : m_threads)
+		queue_.done();
+		for (auto &thread : threads_)
 			thread.join();
 	}
 
 	template <typename F, typename... Args>
 	void enqueue_work(F &&f, Args &&... args)
 	{
-		m_queue.push([p = std::forward<F>(f), t = std::make_tuple(std::forward<Args>(args)...)]() { std::apply(p, t); });
+		queue_.push([p = std::forward<F>(f), t = std::make_tuple(std::forward<Args>(args)...)]() { std::apply(p, t); });
 	}
 
 	template <typename F, typename... Args>
@@ -49,7 +49,7 @@ public:
 		auto task = std::make_shared<task_type>(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
 		auto result = task->get_future();
 
-		m_queue.push([task]() { (*task)(); });
+		queue_.push([task]() { (*task)(); });
 
 		return result;
 	}
@@ -57,17 +57,17 @@ public:
 private:
 	using Proc = std::function<void(void)>;
 	using Queue = blocking_queue<Proc>;
-	Queue m_queue;
+	Queue queue_;
 
 	using Threads = std::vector<std::thread>;
-	Threads m_threads;
+	Threads threads_;
 };
 
 class AdvanceThreadPool
 {
 public:
 	explicit AdvanceThreadPool(uint32_t threads = std::thread::hardware_concurrency())
-		: m_queues(threads), m_count(threads)
+		: queues_(threads), count_(threads)
 	{
 		if (!threads)
 			throw std::invalid_argument("Invalid thread count!");
@@ -76,24 +76,24 @@ public:
 			while (true)
 			{
 				Proc f;
-				for (auto n = 0; n < m_count * K; ++n)
-					if (m_queues[(i + n) % m_count].try_pop(f))
+				for (auto n = 0; n < count_ * K; ++n)
+					if (queues_[(i + n) % count_].try_pop(f))
 						break;
-				if (!f && !m_queues[i].pop(f))
+				if (!f && !queues_[i].pop(f))
 					break;
 				f();
 			}
 		};
 
 		for (auto i = 0; i < threads; ++i)
-			m_threads.emplace_back(worker, i);
+			threads_.emplace_back(worker, i);
 	}
 
 	~AdvanceThreadPool()
 	{
-		for (auto &queue : m_queues)
+		for (auto &queue : queues_)
 			queue.done();
-		for (auto &thread : m_threads)
+		for (auto &thread : threads_)
 			thread.join();
 	}
 
@@ -101,13 +101,13 @@ public:
 	void enqueue_work(F &&f, Args &&... args)
 	{
 		auto work = [p = std::forward<F>(f), t = std::make_tuple(std::forward<Args>(args)...)]() { std::apply(p, t); };
-		auto i = m_index++;
+		auto i = index_++;
 
-		for (auto n = 0; n < m_count * K; ++n)
-			if (m_queues[(i + n) % m_count].try_push(work))
+		for (auto n = 0; n < count_ * K; ++n)
+			if (queues_[(i + n) % count_].try_push(work))
 				return;
 
-		m_queues[i % m_count].push(std::move(work));
+		queues_[i % count_].push(std::move(work));
 	}
 
 	template <typename F, typename... Args>
@@ -119,13 +119,13 @@ public:
 		auto task = std::make_shared<task_type>(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
 		auto work = [task]() { (*task)(); };
 		auto result = task->get_future();
-		auto i = m_index++;
+		auto i = index_++;
 
-		for (auto n = 0; n < m_count * K; ++n)
-			if (m_queues[(i + n) % m_count].try_push(work))
+		for (auto n = 0; n < count_ * K; ++n)
+			if (queues_[(i + n) % count_].try_push(work))
 				return result;
 
-		m_queues[i % m_count].push(std::move(work));
+		queues_[i % count_].push(std::move(work));
 
 		return result;
 	}
@@ -134,13 +134,13 @@ private:
 	using Proc = std::function<void(void)>;
 	using Queue = blocking_queue<Proc>;
 	using Queues = std::vector<Queue>;
-	Queues m_queues;
+	Queues queues_;
 
 	using Threads = std::vector<std::thread>;
-	Threads m_threads;
+	Threads threads_;
 
-	const uint32_t m_count;
-	std::atomic_uint m_index = 0;
+	const uint32_t count_;
+	std::atomic_uint index_ = 0;
 
 	inline static const uint32_t K = 2;
 };

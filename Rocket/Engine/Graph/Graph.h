@@ -8,17 +8,17 @@ namespace Rocket
 {
 	struct GraphEdge
 	{
-		size_t Id;
-		size_t From;
-		size_t To;
+		size_t id;
+		size_t from;
+		size_t to;
 		nlohmann::json options;
-		GraphEdge(size_t id, size_t s, size_t t) : Id(id), From(s), To(t) {};
+		GraphEdge(size_t i, size_t s, size_t t) : id(i), from(s), to(t) {};
 	};
 
 	class Graph
 	{
 	public:
-		Graph(const String& name) : m_Name(name) {}
+		Graph(const String& name) : name_(name) {}
 
 		static const size_t node_not_found = 0;
 
@@ -87,11 +87,11 @@ namespace Rocket
 		size_t NewId();
 
 	private:
-		size_t							m_NextId = 1;
-		Vec<GraphEdge>                       m_Adj;
-		UMap<size_t, Scope<GraphNode>>	m_Nodes;
-		UMap<String, size_t>			m_Refs;
-		String                          m_Name;
-		UMap<String, String>			m_StyleColors;
+		size_t							next_id_ = 1;
+		Vec<GraphEdge>                  adj_;
+		UMap<size_t, Scope<GraphNode>>	nodes_;
+		UMap<String, size_t>			refs_;
+		String                          name_;
+		UMap<String, String>			style_colors_;
 	};
 }

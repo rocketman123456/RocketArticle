@@ -56,11 +56,11 @@ public:
     bool OnMotor(Rocket::EventPtr& e);
 private:
     std::atomic<bool> is_running_ = true;
-    ElapseTimer m_Timer;
-    itas109::CSerialPort m_SerialPort;
-    Rocket::Queue<Rocket::EventVarVec> m_Vars;
-    bool m_UseFakeData = false;
-    std::mutex m_Lock;
+    ElapseTimer timer_;
+    itas109::CSerialPort serial_port_;
+    Rocket::Queue<Rocket::EventVarVec> vars_;
+    bool use_fake_data_ = false;
+    std::mutex lock_;
 };
 
 extern SerialPortModule* g_SerialPort;

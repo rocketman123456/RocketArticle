@@ -55,7 +55,7 @@ int VulkanGraphicsManager::Initialize()
     // Get Config
     auto config = g_Application->GetConfig();
     // Get Window Handle
-    m_WindowHandle = static_cast<GLFWwindow*>(g_WindowManager->GetNativeWindow());
+    window_handle_ = static_cast<GLFWwindow*>(g_WindowManager->GetNativeWindow());
     // Must be : 1, 2, 4, 8, 16, 32, 64
     m_MsaaSamples = (VkSampleCountFlagBits)config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
 
@@ -84,7 +84,7 @@ void VulkanGraphicsManager::Finalize()
 
     CleanupSwapChain();
 
-    m_UI->Finalize();
+    ui_->Finalize();
     m_VulkanSwapChain->Finalize();
     m_VulkanPipeline->Finalize();
 
@@ -98,7 +98,7 @@ void VulkanGraphicsManager::Finalize()
     }
 
     // Destroy SyncObjects
-    for (size_t i = 0; i < m_MaxFrameInFlight; i++)
+    for (size_t i = 0; i < max_frame_in_flight_; i++)
     {
         vkDestroySemaphore(m_Device, m_RenderFinishedSemaphores[i], nullptr);
         vkDestroySemaphore(m_Device, m_ImageAvailableSemaphores[i], nullptr);
@@ -124,7 +124,7 @@ void VulkanGraphicsManager::CleanupSwapChain()
     m_VulkanFrameBuffer->Finalize();
     //m_VulkanPipeline->Finalize();
     //m_VulkanSwapChain->Finalize();
-    //m_UI->Finalize();
+    //ui_->Finalize();
 
     RK_GRAPHICS_TRACE("CleanupSwapChain");
 }
@@ -135,10 +135,10 @@ void VulkanGraphicsManager::RecreateSwapChain()
     m_IsScenePrepared = false;
 
     int width = 0, height = 0;
-    glfwGetFramebufferSize(m_WindowHandle, &width, &height);
+    glfwGetFramebufferSize(window_handle_, &width, &height);
     while (width == 0 || height == 0)
     {
-        glfwGetFramebufferSize(m_WindowHandle, &width, &height);
+        glfwGetFramebufferSize(window_handle_, &width, &height);
         glfwWaitEvents();
     }
 
@@ -220,7 +220,7 @@ void VulkanGraphicsManager::SetupDebugMessenger()
 
 void VulkanGraphicsManager::CreateSurface()
 {
-    VK_CHECK(glfwCreateWindowSurface(m_Instance, m_WindowHandle, nullptr, &m_Surface));
+    VK_CHECK(glfwCreateWindowSurface(m_Instance, window_handle_, nullptr, &m_Surface));
 }
 
 void VulkanGraphicsManager::PickPhysicalDevice()
@@ -281,7 +281,7 @@ void VulkanGraphicsManager::CreateSwapChain()
     if (!m_VulkanSwapChain)
     {
         m_VulkanSwapChain = CreateRef<VulkanSwapChain>();
-        m_VulkanSwapChain->SetWindowHandle(m_WindowHandle);
+        m_VulkanSwapChain->SetWindowHandle(window_handle_);
     }
     m_VulkanSwapChain->Connect(m_Instance, m_PhysicalDevice, m_Device, m_Surface);
     m_VulkanSwapChain->Initialize(true);
@@ -307,7 +307,7 @@ void VulkanGraphicsManager::CreateGraphicsPipeline()
     if (!m_VulkanPipeline)
     {
         m_VulkanPipeline = CreateRef<VulkanPipeline>();
-        m_VulkanPipeline->SetWindowHandle(m_WindowHandle);
+        m_VulkanPipeline->SetWindowHandle(window_handle_);
         m_VulkanPipeline->SetMsaaSample(m_MsaaSamples);
     }
     m_VulkanPipeline->Connect(m_Instance, m_PhysicalDevice, m_Device, m_Surface);
@@ -325,7 +325,7 @@ void VulkanGraphicsManager::CreateFramebuffers()
     if (!m_VulkanFrameBuffer)
     {
         m_VulkanFrameBuffer = CreateRef<VulkanFrameBuffer>();
-        m_VulkanFrameBuffer->SetWindowHandle(m_WindowHandle);
+        m_VulkanFrameBuffer->SetWindowHandle(window_handle_);
         m_VulkanFrameBuffer->SetMsaaSample(m_MsaaSamples);
     }
     m_VulkanFrameBuffer->Connect(m_Device, m_PhysicalDevice, m_Surface, m_RenderPass, m_SwapChainImageViews);
@@ -348,9 +348,9 @@ void VulkanGraphicsManager::CreateFramebuffers()
 
 void VulkanGraphicsManager::CreateSyncObjects()
 {
-    m_ImageAvailableSemaphores.resize(m_MaxFrameInFlight);
-    m_RenderFinishedSemaphores.resize(m_MaxFrameInFlight);
-    m_InFlightFences.resize(m_MaxFrameInFlight);
+    m_ImageAvailableSemaphores.resize(max_frame_in_flight_);
+    m_RenderFinishedSemaphores.resize(max_frame_in_flight_);
+    m_InFlightFences.resize(max_frame_in_flight_);
     m_ImagesInFlight.resize(m_SwapChainImages.size(), VK_NULL_HANDLE);
 
     VkSemaphoreCreateInfo semaphoreInfo{};
@@ -360,7 +360,7 @@ void VulkanGraphicsManager::CreateSyncObjects()
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-    for (size_t i = 0; i < m_MaxFrameInFlight; i++)
+    for (size_t i = 0; i < max_frame_in_flight_; i++)
     {
         VK_CHECK(vkCreateSemaphore(m_Device, &semaphoreInfo, nullptr, &m_ImageAvailableSemaphores[i]));
         VK_CHECK(vkCreateSemaphore(m_Device, &semaphoreInfo, nullptr, &m_RenderFinishedSemaphores[i]));
@@ -370,17 +370,17 @@ void VulkanGraphicsManager::CreateSyncObjects()
 
 void VulkanGraphicsManager::InitGui()
 {
-    if (!m_UI)
+    if (!ui_)
     {
-        m_UI = CreateRef<VulkanUI>();
-        auto vulkanUI = static_cast<VulkanUI*>(m_UI.get());
-        vulkanUI->SetWindowHandle(m_WindowHandle);
+        ui_ = CreateRef<VulkanUI>();
+        auto vulkanUI = static_cast<VulkanUI*>(ui_.get());
+        vulkanUI->SetWindowHandle(window_handle_);
     }
-    auto vulkanUI = static_cast<VulkanUI*>(m_UI.get());
-    vulkanUI->Connect(m_Instance, m_LogicalDevice, m_RenderPass, m_GraphicsQueue, m_PipelineCache, m_MsaaSamples, m_MaxFrameInFlight);
-    m_UI->Initialize();
+    auto vulkanUI = static_cast<VulkanUI*>(ui_.get());
+    vulkanUI->Connect(m_Instance, m_LogicalDevice, m_RenderPass, m_GraphicsQueue, m_PipelineCache, m_MsaaSamples, max_frame_in_flight_);
+    ui_->Initialize();
 
-    m_UI->UpdataOverlay(m_SwapChainExtent.width, m_SwapChainExtent.height);
+    ui_->UpdataOverlay(m_SwapChainExtent.width, m_SwapChainExtent.height);
 }
 
 void VulkanGraphicsManager::CreateCommandBuffers()
@@ -650,9 +650,9 @@ void VulkanGraphicsManager::EndScene()
     {
         //vkFreeCommandBuffers(m_Device, m_CommandPool, static_cast<uint32_t>(m_CommandBuffers.size()), m_CommandBuffers.data());
         //m_CommandBuffers.clear();
-        //m_CommandBuffers.resize(m_MaxFrameInFlight);
+        //m_CommandBuffers.resize(max_frame_in_flight_);
 
-        //m_UI->Finalize();
+        //ui_->Finalize();
 
         // Clear DescriptorPool / DescriptorSet
         vkDestroyDescriptorPool(m_Device, m_DescriptorPool, nullptr);
@@ -706,13 +706,13 @@ void VulkanGraphicsManager::SetPipelineState(const Ref<PipelineState>& pipelineS
 {
 }
 
-void VulkanGraphicsManager::RecordCommandBuffer(uint32_t frameIndex)
+void VulkanGraphicsManager::RecordCommandBuffer(uint32_t frame_index)
 {
     // Record Command Buffer
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-    VK_CHECK(vkBeginCommandBuffer(m_CommandBuffers[frameIndex], &beginInfo));
+    VK_CHECK(vkBeginCommandBuffer(m_CommandBuffers[frame_index], &beginInfo));
 
     std::array<VkClearValue, 2> clearValues{};
     clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -721,72 +721,72 @@ void VulkanGraphicsManager::RecordCommandBuffer(uint32_t frameIndex)
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = m_RenderPass;
-    renderPassInfo.framebuffer = m_SwapChainFramebuffers[frameIndex];
+    renderPassInfo.framebuffer = m_SwapChainFramebuffers[frame_index];
     renderPassInfo.renderArea.offset = { 0, 0 };
     renderPassInfo.renderArea.extent = m_SwapChainExtent;
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
 
-    vkCmdBeginRenderPass(m_CommandBuffers[frameIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBeginRenderPass(m_CommandBuffers[frame_index], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
     {
         VkViewport viewport{};
         viewport.width = (float)m_SwapChainExtent.width;
         viewport.height = (float)m_SwapChainExtent.height;
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
-        vkCmdSetViewport(m_CommandBuffers[frameIndex], 0, 1, &viewport);
+        vkCmdSetViewport(m_CommandBuffers[frame_index], 0, 1, &viewport);
 
         VkRect2D scissor{};
         scissor.extent = { (uint32_t)m_SwapChainExtent.width, (uint32_t)m_SwapChainExtent.height };
-        vkCmdSetScissor(m_CommandBuffers[frameIndex], 0, 1, &scissor);
+        vkCmdSetScissor(m_CommandBuffers[frame_index], 0, 1, &scissor);
 
-        vkCmdBindPipeline(m_CommandBuffers[frameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
+        vkCmdBindPipeline(m_CommandBuffers[frame_index], VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
         VkBuffer vertexBuffers[] = { m_VertexBuffer };
         VkDeviceSize offsets[] = { 0 };
-        vkCmdBindVertexBuffers(m_CommandBuffers[frameIndex], 0, 1, vertexBuffers, offsets);
-        vkCmdBindIndexBuffer(m_CommandBuffers[frameIndex], m_IndexBuffer, 0, VK_INDEX_TYPE_UINT32);
-        vkCmdBindDescriptorSets(m_CommandBuffers[frameIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescriptorSets[frameIndex], 0, nullptr);
-        vkCmdDrawIndexed(m_CommandBuffers[frameIndex], static_cast<uint32_t>(m_Indices.size()), 1, 0, 0, 0);
+        vkCmdBindVertexBuffers(m_CommandBuffers[frame_index], 0, 1, vertexBuffers, offsets);
+        vkCmdBindIndexBuffer(m_CommandBuffers[frame_index], m_IndexBuffer, 0, VK_INDEX_TYPE_UINT32);
+        vkCmdBindDescriptorSets(m_CommandBuffers[frame_index], VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &m_DescriptorSets[frame_index], 0, nullptr);
+        vkCmdDrawIndexed(m_CommandBuffers[frame_index], static_cast<uint32_t>(m_Indices.size()), 1, 0, 0, 0);
     }
-    vkCmdEndRenderPass(m_CommandBuffers[frameIndex]);
+    vkCmdEndRenderPass(m_CommandBuffers[frame_index]);
 
-    VK_CHECK(vkEndCommandBuffer(m_CommandBuffers[frameIndex]));
+    VK_CHECK(vkEndCommandBuffer(m_CommandBuffers[frame_index]));
 }
 
-void VulkanGraphicsManager::RecordGuiCommandBuffer(uint32_t frameIndex)
+void VulkanGraphicsManager::RecordGuiCommandBuffer(uint32_t frame_index)
 {
     // Record And Submit Gui Command
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-    VK_CHECK(vkBeginCommandBuffer(m_GuiCommandBuffer[frameIndex], &beginInfo));
+    VK_CHECK(vkBeginCommandBuffer(m_GuiCommandBuffer[frame_index], &beginInfo));
 
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = m_GuiRenderPass;
-    renderPassInfo.framebuffer = m_SwapChainFramebuffers[frameIndex];
+    renderPassInfo.framebuffer = m_SwapChainFramebuffers[frame_index];
     renderPassInfo.renderArea.offset = { 0, 0 };
     renderPassInfo.renderArea.extent = m_SwapChainExtent;
 
-    vkCmdBeginRenderPass(m_GuiCommandBuffer[frameIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBeginRenderPass(m_GuiCommandBuffer[frame_index], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
     {
         VkViewport viewport{};
         viewport.width = (float)m_SwapChainExtent.width;
         viewport.height = (float)m_SwapChainExtent.height;
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
-        vkCmdSetViewport(m_GuiCommandBuffer[frameIndex], 0, 1, &viewport);
+        vkCmdSetViewport(m_GuiCommandBuffer[frame_index], 0, 1, &viewport);
 
         VkRect2D scissor{};
         scissor.extent = { (uint32_t)m_SwapChainExtent.width, (uint32_t)m_SwapChainExtent.height };
-        vkCmdSetScissor(m_GuiCommandBuffer[frameIndex], 0, 1, &scissor);
+        vkCmdSetScissor(m_GuiCommandBuffer[frame_index], 0, 1, &scissor);
         // TODO : use uniform function
-        auto vulkanUI = static_cast<VulkanUI*>(m_UI.get());
-        vulkanUI->Draw(m_GuiCommandBuffer[frameIndex]);
+        auto vulkanUI = static_cast<VulkanUI*>(ui_.get());
+        vulkanUI->Draw(m_GuiCommandBuffer[frame_index]);
     }
-    vkCmdEndRenderPass(m_GuiCommandBuffer[frameIndex]);
+    vkCmdEndRenderPass(m_GuiCommandBuffer[frame_index]);
 
-    VK_CHECK(vkEndCommandBuffer(m_GuiCommandBuffer[frameIndex]));
+    VK_CHECK(vkEndCommandBuffer(m_GuiCommandBuffer[frame_index]));
 }
 
 void VulkanGraphicsManager::BeginFrame(const Frame& frame)
@@ -799,10 +799,10 @@ void VulkanGraphicsManager::BeginFrame(const Frame& frame)
 
     //RK_GRAPHICS_TRACE("Begin Frame");
     //RK_CORE_TRACE("width : {}, height : {}", m_SwapChainExtent.width, m_SwapChainExtent.height);
-    m_UI->UpdataOverlay(m_SwapChainExtent.width, m_SwapChainExtent.height);
+    ui_->UpdataOverlay(m_SwapChainExtent.width, m_SwapChainExtent.height);
 
-    vkWaitForFences(m_Device, 1, &m_InFlightFences[m_CurrentFrameIndex], VK_TRUE, UINT64_MAX);
-    VkResult acquireResult = m_VulkanSwapChain->AcquireNextImage(m_ImageAvailableSemaphores[m_CurrentFrameIndex], &m_FrameIndex);
+    vkWaitForFences(m_Device, 1, &m_InFlightFences[current_frame_index_], VK_TRUE, UINT64_MAX);
+    VkResult acquireResult = m_VulkanSwapChain->AcquireNextImage(m_ImageAvailableSemaphores[current_frame_index_], &frame_index_);
     
     if (acquireResult == VK_ERROR_OUT_OF_DATE_KHR) {
         m_IsRecreateSwapChain = true;
@@ -813,16 +813,16 @@ void VulkanGraphicsManager::BeginFrame(const Frame& frame)
         VK_CHECK(acquireResult);
     }
 
-    if (m_ImagesInFlight[m_FrameIndex] != VK_NULL_HANDLE) {
-        vkWaitForFences(m_Device, 1, &m_ImagesInFlight[m_FrameIndex], VK_TRUE, UINT64_MAX);
+    if (m_ImagesInFlight[frame_index_] != VK_NULL_HANDLE) {
+        vkWaitForFences(m_Device, 1, &m_ImagesInFlight[frame_index_], VK_TRUE, UINT64_MAX);
     }
-    m_ImagesInFlight[m_FrameIndex] = m_InFlightFences[m_CurrentFrameIndex];
+    m_ImagesInFlight[frame_index_] = m_InFlightFences[current_frame_index_];
 
-    UpdateUniformBuffer(m_FrameIndex);
+    UpdateUniformBuffer(frame_index_);
 
     // TODO : move this to draw batch
-    //RecordCommandBuffer(m_FrameIndex);
-    RecordGuiCommandBuffer(m_FrameIndex);
+    //RecordCommandBuffer(frame_index_);
+    RecordGuiCommandBuffer(frame_index_);
 
     m_SubmitBuffers.clear();
 }
@@ -833,36 +833,36 @@ void VulkanGraphicsManager::EndFrame(const Frame& frame)
         return;
     if(m_IsRecreateSwapChain)
     {
-        //m_UI->PostAction();
+        //ui_->PostAction();
         return;
     }
 
-    m_SubmitBuffers.push_back(m_CommandBuffers[m_FrameIndex]);
-    m_SubmitBuffers.push_back(m_GuiCommandBuffer[m_FrameIndex]);
+    m_SubmitBuffers.push_back(m_CommandBuffers[frame_index_]);
+    m_SubmitBuffers.push_back(m_GuiCommandBuffer[frame_index_]);
 
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = &m_ImageAvailableSemaphores[m_CurrentFrameIndex];
+    submitInfo.pWaitSemaphores = &m_ImageAvailableSemaphores[current_frame_index_];
     submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = &m_RenderFinishedSemaphores[m_CurrentFrameIndex];
+    submitInfo.pSignalSemaphores = &m_RenderFinishedSemaphores[current_frame_index_];
     submitInfo.commandBufferCount = static_cast<uint32_t>(m_SubmitBuffers.size());
     submitInfo.pCommandBuffers = m_SubmitBuffers.data();
     submitInfo.pWaitDstStageMask = waitStages;
 
-    vkResetFences(m_Device, 1, &m_InFlightFences[m_CurrentFrameIndex]);
-    VK_CHECK(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFences[m_CurrentFrameIndex]));
+    vkResetFences(m_Device, 1, &m_InFlightFences[current_frame_index_]);
+    VK_CHECK(vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFences[current_frame_index_]));
 
-    //m_UI->PostAction();
+    //ui_->PostAction();
 
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores = &m_RenderFinishedSemaphores[m_CurrentFrameIndex];
+    presentInfo.pWaitSemaphores = &m_RenderFinishedSemaphores[current_frame_index_];
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = &m_SwapChain;
-    presentInfo.pImageIndices = &m_FrameIndex;
+    presentInfo.pImageIndices = &frame_index_;
 
     VkResult presentResult = vkQueuePresentKHR(m_PresentQueue, &presentInfo);
 
@@ -876,7 +876,7 @@ void VulkanGraphicsManager::EndFrame(const Frame& frame)
         VK_CHECK(presentResult);
     }
 
-    m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_MaxFrameInFlight;
+    current_frame_index_ = (current_frame_index_ + 1) % max_frame_in_flight_;
     //RK_GRAPHICS_TRACE("End Frame");
 }
 

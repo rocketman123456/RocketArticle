@@ -2,84 +2,84 @@
 #include "Core/Core.h"
 #include "Utils/Timer.h"
 
-class semaphore
+class Semaphore
 {
 public:
-	explicit semaphore(uint32_t count = 0)
-		: m_count(count) {}
+	explicit Semaphore(uint32_t count = 0)
+		: count_(count) {}
 
 	void post()
 	{
 		{
-			std::unique_lock lock(m_mutex);
-			++m_count;
+			std::unique_lock lock(mutex_);
+			++count_;
 		}
-		m_cv.notify_one();
+		cv_.notify_one();
 	}
 
 	void post(uint32_t count)
 	{
 		{
-			std::unique_lock lock(m_mutex);
-			m_count += count;
+			std::unique_lock lock(mutex_);
+			count_ += count;
 		}
-		m_cv.notify_all();
+		cv_.notify_all();
 	}
 
 	void wait()
 	{
-		std::unique_lock lock(m_mutex);
-		m_cv.wait(lock, [this]() { return m_count != 0; });
-		--m_count;
+		std::unique_lock lock(mutex_);
+		cv_.wait(lock, [this]() { return count_ != 0; });
+		--count_;
 	}
 
 	template <typename Rep, typename Period>
 	bool wait_for(const std::chrono::duration<Rep, Period> &t)
 	{
-		std::unique_lock lock(m_mutex);
-		if (!m_cv.wait_for(lock, t, [this]() { return m_count != 0; }))
+		std::unique_lock lock(mutex_);
+		if (!cv_.wait_for(lock, t, [this]() { return count_ != 0; }))
 			return false;
-		--m_count;
+		--count_;
 		return true;
 	}
 
 	template <typename Clock, typename Duration>
 	bool wait_until(const std::chrono::time_point<Clock, Duration> &t)
 	{
-		std::unique_lock lock(m_mutex);
-		if (!m_cv.wait_until(lock, t, [this]() { return m_count != 0; }))
+		std::unique_lock lock(mutex_);
+		if (!cv_.wait_until(lock, t, [this]() { return count_ != 0; }))
 			return false;
-		--m_count;
+		--count_;
 		return true;
 	}
 
 private:
-	uint32_t m_count;
-	std::mutex m_mutex;
-	std::condition_variable m_cv;
+	uint32_t count_;
+	std::mutex mutex_;
+	std::condition_variable cv_;
 };
 
-class fast_semaphore
+class FastSemaphore
 {
 public:
-	explicit fast_semaphore(uint32_t count = 0)
-		: m_count(count), m_semaphore(0) {}
+	explicit FastSemaphore(uint32_t count = 0)
+		: count_(count), semaphore_(0) {}
 
 	void post()
 	{
-		int count = m_count.fetch_add(1, std::memory_order_release);
+		int count = count_.fetch_add(1, std::memory_order_release);
 		if (count < 0)
-			m_semaphore.post();
+			semaphore_.post();
 	}
 
 	void wait()
 	{
-		int count = m_count.fetch_sub(1, std::memory_order_acquire);
+		int count = count_.fetch_sub(1, std::memory_order_acquire);
 		if (count < 1)
-			m_semaphore.wait();
+			semaphore_.wait();
 	}
 
 private:
-	std::atomic_int m_count;
-	semaphore m_semaphore;
+	std::atomic_int count_;
+	Semaphore semaphore_;
 };

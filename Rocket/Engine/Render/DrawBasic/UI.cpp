@@ -49,9 +49,26 @@ void UI::Finalize()
     ImGui::DestroyContext();
 }
 
+void UI::AddContext(const Ref<UIContext>& context) 
+{ 
+    contexts_.push_back(context); 
+}
+
+void UI::RemoveContext(const String& name)
+{
+    for(auto it = contexts_.begin(); it != contexts_.end(); ++it)
+    {
+        if(it->get()->name == name)
+        {
+            // TODO : remove ui context
+            break;
+        }
+    }
+}
+
 void UI::DrawUI()
 {
-    for(auto context : contexts)
+    for(auto context : contexts_)
     {
         context->Draw();
     }

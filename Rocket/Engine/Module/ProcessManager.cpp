@@ -12,7 +12,7 @@ int ProcessManager::Initialize()
 void ProcessManager::Finalize()
 {
     AbortAllProcesses(true);
-    m_ProcessList.clear();
+    process_list_.clear();
 }
 
 void ProcessManager::Tick(Timestep ts)
@@ -20,7 +20,7 @@ void ProcessManager::Tick(Timestep ts)
     PROFILE_BEGIN_CPU_SAMPLE(ProcessManagerUpdate, 0);
 
     auto result_i = UpdateProcesses(ts.GetMilliseconds());
-    //RK_CORE_TRACE("Process Success {0}, Fail {1}", m_SuccessCount, m_FailCount);
+    //RK_CORE_TRACE("Process Success {0}, Fail {1}", success_count_, fail_count_);
 
     PROFILE_END_CPU_SAMPLE();
 }
@@ -34,8 +34,8 @@ uint64_t ProcessManager::UpdateProcesses(unsigned long deltaMs)
     uint64_t successCount = 0;
     uint64_t failCount = 0;
 
-    ProcessList::iterator it = m_ProcessList.begin();
-    while (it != m_ProcessList.end())
+    ProcessList::iterator it = process_list_.begin();
+    while (it != process_list_.end())
     {
         // grab the next process
         StrongProcessPtr pCurrProcess = (*it);
@@ -88,12 +88,12 @@ uint64_t ProcessManager::UpdateProcesses(unsigned long deltaMs)
             }
 
             // remove the process and destroy it
-            m_ProcessList.erase(thisIt);
+            process_list_.erase(thisIt);
         }
     }
 
-    m_SuccessCount = successCount;
-    m_FailCount = failCount;
+    success_count_ = successCount;
+    fail_count_ = failCount;
     return (static_cast<uint64_t>(successCount << 32) | static_cast<uint64_t>(failCount));
 }
 
@@ -102,7 +102,7 @@ uint64_t ProcessManager::UpdateProcesses(unsigned long deltaMs)
 //---------------------------------------------------------------------------------------------------------------------
 WeakProcessPtr ProcessManager::AttachProcess(StrongProcessPtr pProcess)
 {
-    m_ProcessList.push_front(pProcess);
+    process_list_.push_front(pProcess);
     return WeakProcessPtr(pProcess);
 }
 
@@ -112,8 +112,8 @@ WeakProcessPtr ProcessManager::AttachProcess(StrongProcessPtr pProcess)
 //---------------------------------------------------------------------------------------------------------------------
 void ProcessManager::AbortAllProcesses(bool immediate)
 {
-    ProcessList::iterator it = m_ProcessList.begin();
-    while (it != m_ProcessList.end())
+    ProcessList::iterator it = process_list_.begin();
+    while (it != process_list_.end())
     {
         ProcessList::iterator tempIt = it;
         ++it;
@@ -125,7 +125,7 @@ void ProcessManager::AbortAllProcesses(bool immediate)
             if (immediate)
             {
                 pProcess->OnAbort();
-                m_ProcessList.erase(tempIt);
+                process_list_.erase(tempIt);
             }
         }
     }
@@ -133,8 +133,8 @@ void ProcessManager::AbortAllProcesses(bool immediate)
 
 void ProcessManager::PauseAllProcesses()
 {
-    ProcessList::iterator it = m_ProcessList.begin();
-    while (it != m_ProcessList.end())
+    ProcessList::iterator it = process_list_.begin();
+    while (it != process_list_.end())
     {
         StrongProcessPtr pProcess = *it;
         if (pProcess->IsAlive())
@@ -147,8 +147,8 @@ void ProcessManager::PauseAllProcesses()
 
 void ProcessManager::UnPauseAllProcesses()
 {
-    ProcessList::iterator it = m_ProcessList.begin();
-    while (it != m_ProcessList.end())
+    ProcessList::iterator it = process_list_.begin();
+    while (it != process_list_.end())
     {
         StrongProcessPtr pProcess = *it;
         if (pProcess->IsAlive())

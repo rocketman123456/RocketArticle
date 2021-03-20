@@ -30,7 +30,7 @@ namespace Rocket
         [[nodiscard]] static uint64_t HashString(const uint64_t type_id, const String& str);
         [[nodiscard]] static const String& GetStringFromId(const uint64_t type_id, uint64_t id);
     protected:
-        static UMap<uint64_t, UMap<uint64_t, String>> IdStringMap;
+        static UMap<uint64_t, UMap<uint64_t, String>> id_string_map;
     };
 
     namespace details

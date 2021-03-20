@@ -11,7 +11,7 @@ namespace Rocket
     {
     public:
         RUNTIME_MODULE_TYPE(SimpleApp);
-        SimpleApp() : m_ThreadPool(2) {}
+        SimpleApp() : thread_pool_(2) {}
         virtual ~SimpleApp() = default;
 
         void PreInitializeModule() final;
@@ -21,6 +21,6 @@ namespace Rocket
         void PostInitialize() final;
 
     private:
-        AdvanceThreadPool m_ThreadPool;
+        AdvanceThreadPool thread_pool_;
     };
 }

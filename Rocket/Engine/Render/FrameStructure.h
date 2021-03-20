@@ -21,37 +21,37 @@ namespace Rocket
 
     struct alignas(16) MaterialTextures
     {
-        TextureId diffuseMap;   // 32 bytes
-        TextureId normalMap;    // 32 bytes
-        TextureId metallicMap;  // 32 bytes
-        TextureId roughnessMap; // 32 bytes
-        TextureId aoMap;        // 32 bytes
-        TextureId heightMap;    // 32 bytes
+        TextureId diffuse_map;   // 32 bytes
+        TextureId normal_map;    // 32 bytes
+        TextureId metallic_map;  // 32 bytes
+        TextureId roughness_map; // 32 bytes
+        TextureId ao_map;        // 32 bytes
+        TextureId height_map;    // 32 bytes
     };                          // total 192 bytes
 
     struct alignas(16) LightInfo
     {
-        Matrix4f lightViewMatrix;                   // 64 bytes
-        Matrix4f lightProjectionMatrix;             // 64 bytes
-        Vector4f lightPosition;                     // 16 bytes
-        Vector4f lightColor;                        // 16 bytes
-        Vector4f lightDirection;                    // 16 bytes
-        Vector4f lightDistAttenCurveParams[2];      // 32 bytes
-        Vector4f lightAngleAttenCurveParams[2];     // 32 bytes
+        Matrix4f light_view_mat;                   // 64 bytes
+        Matrix4f light_projection_mat;             // 64 bytes
+        Vector4f light_position;                     // 16 bytes
+        Vector4f light_color;                        // 16 bytes
+        Vector4f light_direction;                    // 16 bytes
+        Vector4f light_dist_atten_curve_params[2];      // 32 bytes
+        Vector4f light_angle_atten_curve_params[2];     // 32 bytes
     };                                              // total 240 bytes
 
     struct alignas(16) PerFrameConstants
     {
-        Matrix4f viewMatrix;        // 64 bytes
-        Matrix4f projectionMatrix;  // 64 bytes
-        Vector4f camPos;            // 16 bytes
-        int32_t  numLights;         // 4 bytes
+        Matrix4f view_mat;        // 64 bytes
+        Matrix4f projection_mat;  // 64 bytes
+        Vector4f cam_position;            // 16 bytes
+        int32_t  num_lights;         // 4 bytes
         int32_t  padding[3];        // 12 bytes
     };                              // total 160 bytes
 
     struct alignas(16) PerBatchConstants
     {
-        Matrix4f modelMatrix;  // 64 bytes
+        Matrix4f model_matrix;  // 64 bytes
     };
 
     struct DrawFrameContext : PerFrameConstants
@@ -66,11 +66,11 @@ namespace Rocket
 
     struct Frame
     {
-        int32_t frameIndex = 0;
-        DrawFrameContext frameContext;
-        Vec<Ref<DrawBatchContext>> batchContexts;
+        int32_t frame_index = 0;
+        DrawFrameContext frame_context;
+        Vec<Ref<DrawBatchContext>> batch_contexts;
     };
 
-    const size_t kSizePerFrameConstantBuffer = RK_ALIGN(sizeof(PerFrameConstants), 256);  // CB size is required to be 256-byte aligned.
-    const size_t kSizePerBatchConstantBuffer = RK_ALIGN(sizeof(PerBatchConstants), 256);  // CB size is required to be 256-byte aligned.
+    const size_t k_size_per_frame_constant_buffer = RK_ALIGN(sizeof(PerFrameConstants), 256);  // CB size is required to be 256-byte aligned.
+    const size_t k_size_per_batch_constant_buffer = RK_ALIGN(sizeof(PerBatchConstants), 256);  // CB size is required to be 256-byte aligned.
 }

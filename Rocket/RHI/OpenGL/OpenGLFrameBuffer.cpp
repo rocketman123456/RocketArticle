@@ -40,9 +40,9 @@ void OpenGLFrameBuffer::Invalidate()
 	glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 	
 	// Bind Color Texture
-	if (m_Specification.ColorAttachment.size())
+	if (m_Specification.color_attachment.size())
 	{
-		auto sz = m_Specification.ColorAttachment.size();
+		auto sz = m_Specification.color_attachment.size();
 		m_ColorAttachments.resize(sz);
 		m_ColorSpecifications.resize(sz);
 
@@ -51,25 +51,25 @@ void OpenGLFrameBuffer::Invalidate()
 
 		for (size_t i = 0; i < m_ColorAttachments.size(); i++)
 		{
-			if(m_Specification.Samples > 1)
+			if(m_Specification.samples > 1)
 			{
 				glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_ColorAttachments[i]);
-				switch (m_Specification.ColorAttachment[i])
+				switch (m_Specification.color_attachment[i])
 				{
 				case FRAME_TEXTURE_FORMAT::RGB8:
-					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.Samples, GL_RGB8, m_Specification.ColorWidth, m_Specification.ColorHeight, GL_TRUE);
+					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.samples, GL_RGB8, m_Specification.color_width, m_Specification.color_height, GL_TRUE);
 					break;
 				case FRAME_TEXTURE_FORMAT::RGBA8:
-					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.Samples, GL_RGBA8, m_Specification.ColorWidth, m_Specification.ColorHeight, GL_TRUE);
+					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.samples, GL_RGBA8, m_Specification.color_width, m_Specification.color_height, GL_TRUE);
 					break;
 				case FRAME_TEXTURE_FORMAT::RGBA16:
-					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.Samples, GL_RGBA16, m_Specification.ColorWidth, m_Specification.ColorHeight, GL_TRUE);
+					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.samples, GL_RGBA16, m_Specification.color_width, m_Specification.color_height, GL_TRUE);
 					break;
 				case FRAME_TEXTURE_FORMAT::RGB16F:
-					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.Samples, GL_RGB16F, m_Specification.ColorWidth, m_Specification.ColorHeight, GL_TRUE);
+					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.samples, GL_RGB16F, m_Specification.color_width, m_Specification.color_height, GL_TRUE);
 					break;
 				case FRAME_TEXTURE_FORMAT::RGBA16F:
-					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.Samples, GL_RGBA16F, m_Specification.ColorWidth, m_Specification.ColorHeight, GL_TRUE);
+					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.samples, GL_RGBA16F, m_Specification.color_width, m_Specification.color_height, GL_TRUE);
 					break;
 				default:
 					RK_GRAPHICS_ERROR("Frame Buffer Color Attachment Format Error");
@@ -82,22 +82,22 @@ void OpenGLFrameBuffer::Invalidate()
 			else
 			{
 				glBindTexture(GL_TEXTURE_2D, m_ColorAttachments[i]);
-				switch (m_Specification.ColorAttachment[i])
+				switch (m_Specification.color_attachment[i])
 				{
 				case FRAME_TEXTURE_FORMAT::RGB8:
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, m_Specification.ColorWidth, m_Specification.ColorHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, m_Specification.color_width, m_Specification.color_height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 					break;
 				case FRAME_TEXTURE_FORMAT::RGBA8:
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Specification.ColorWidth, m_Specification.ColorHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Specification.color_width, m_Specification.color_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 					break;
 				case FRAME_TEXTURE_FORMAT::RGBA16:
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, m_Specification.ColorWidth, m_Specification.ColorHeight, 0, GL_RGBA, GL_UNSIGNED_INT, NULL);
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, m_Specification.color_width, m_Specification.color_height, 0, GL_RGBA, GL_UNSIGNED_INT, NULL);
 					break;
 				case FRAME_TEXTURE_FORMAT::RGB16F:
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, m_Specification.ColorWidth, m_Specification.ColorHeight, 0, GL_RGB, GL_FLOAT, NULL);
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, m_Specification.color_width, m_Specification.color_height, 0, GL_RGB, GL_FLOAT, NULL);
 					break;
 				case FRAME_TEXTURE_FORMAT::RGBA16F:
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_Specification.ColorWidth, m_Specification.ColorHeight, 0, GL_RGBA, GL_FLOAT, NULL);
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_Specification.color_width, m_Specification.color_height, 0, GL_RGBA, GL_FLOAT, NULL);
 					break;
 				default:
 					RK_GRAPHICS_ERROR("Frame Buffer Color Attachment Format Error");
@@ -128,21 +128,21 @@ void OpenGLFrameBuffer::Invalidate()
 	}
 
 	// Bind Depth Texture
-	if(m_Specification.DepthAttachment != FRAME_TEXTURE_FORMAT::NONE)
+	if(m_Specification.depth_attachment != FRAME_TEXTURE_FORMAT::NONE)
 	{
 		glGenTextures(1, &m_DepthAttachment);
 		//glActiveTexture(GL_TEXTURE0);
 
-		if (m_Specification.Samples > 1)
+		if (m_Specification.samples > 1)
 		{
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_DepthAttachment);
-			switch (m_Specification.DepthAttachment)
+			switch (m_Specification.depth_attachment)
 			{
 			case FRAME_TEXTURE_FORMAT::DEPTH24:
-				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.Samples, GL_RGB8, m_Specification.DepthWidth, m_Specification.DepthHeight, GL_TRUE);
+				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.samples, GL_RGB8, m_Specification.depth_width, m_Specification.depth_height, GL_TRUE);
 				break;
 			case FRAME_TEXTURE_FORMAT::DEPTH24STENCIL8:
-				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.Samples, GL_RGBA8, m_Specification.DepthWidth, m_Specification.DepthHeight, GL_TRUE);
+				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, m_Specification.samples, GL_RGBA8, m_Specification.depth_width, m_Specification.depth_height, GL_TRUE);
 				break;
 			default:
 				RK_GRAPHICS_ERROR("Frame Buffer Color Attachment Format Error");
@@ -151,7 +151,7 @@ void OpenGLFrameBuffer::Invalidate()
 
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 
-			switch (m_Specification.DepthAttachment)
+			switch (m_Specification.depth_attachment)
 			{
 			case FRAME_TEXTURE_FORMAT::DEPTH24:
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, m_DepthAttachment, 0);
@@ -167,13 +167,13 @@ void OpenGLFrameBuffer::Invalidate()
 		else
 		{
 			glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
-			switch (m_Specification.DepthAttachment)
+			switch (m_Specification.depth_attachment)
 			{
 			case FRAME_TEXTURE_FORMAT::DEPTH24:
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_Specification.ColorWidth, m_Specification.ColorHeight, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, m_Specification.color_width, m_Specification.color_height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
 				break;
 			case FRAME_TEXTURE_FORMAT::DEPTH24STENCIL8:
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_STENCIL_ATTACHMENT, m_Specification.ColorWidth, m_Specification.ColorHeight, 0, GL_DEPTH_STENCIL_ATTACHMENT, GL_UNSIGNED_BYTE, NULL);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_STENCIL_ATTACHMENT, m_Specification.color_width, m_Specification.color_height, 0, GL_DEPTH_STENCIL_ATTACHMENT, GL_UNSIGNED_BYTE, NULL);
 				break;
 			default:
 				RK_GRAPHICS_ERROR("Frame Buffer Color Attachment Format Error");
@@ -190,7 +190,7 @@ void OpenGLFrameBuffer::Invalidate()
 
 			glBindTexture(GL_TEXTURE_2D, 0);
 
-			switch (m_Specification.DepthAttachment)
+			switch (m_Specification.depth_attachment)
 			{
 			case FRAME_TEXTURE_FORMAT::DEPTH24:
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachment, 0); 
@@ -224,7 +224,7 @@ void OpenGLFrameBuffer::Bind(FRAME_BIND_MODE mode)
 		break;
 	}
 
-	glViewport(0, 0, m_Specification.ColorWidth, m_Specification.ColorHeight);
+	glViewport(0, 0, m_Specification.color_width, m_Specification.color_height);
 }
 
 void OpenGLFrameBuffer::Unbind()
@@ -239,9 +239,9 @@ void OpenGLFrameBuffer::Resize(uint32_t width, uint32_t height)
 		RK_GRAPHICS_WARN("Attempted to rezize framebuffer to {0}, {1}", width, height);
 		return;
 	}
-	m_Specification.ColorWidth = width;
-	m_Specification.ColorHeight = height;
-	m_Specification.DepthWidth = width;
-	m_Specification.DepthHeight = height;
+	m_Specification.color_width = width;
+	m_Specification.color_height = height;
+	m_Specification.depth_width = width;
+	m_Specification.depth_height = height;
 	Invalidate();
 }

@@ -30,28 +30,28 @@ namespace Rocket
 
     struct BufferElement
 	{
-		String Name;
-		ShaderDataType Type;
-		uint32_t Size = 0;
-		size_t Offset = 0;
-		bool Normalized = false;
+		String name;
+		ShaderDataType type;
+		uint32_t size = 0;
+		size_t offset = 0;
+		bool normalized = false;
 
-		uint32_t Index = 0;
-		uint32_t Binding = 0;
-		uint32_t Count = 0;
-		uint32_t ShaderStage = 0;
-		uint32_t UniformType = 0;
+		uint32_t index = 0;
+		uint32_t binding = 0;
+		uint32_t count = 0;
+		uint32_t shader_stage = 0;
+		uint32_t uniform_type = 0;
 
 		BufferElement() = default;
 
-		BufferElement(ShaderDataType type, const String& name, bool normalized = false)
-			: Name(name), Type(type), Size(ShaderDataTypeSize(type)), Normalized(normalized) {}
-		BufferElement(const String& name, uint32_t binding, uint32_t count, uint32_t stage, uint32_t type, bool normalized = false)
-			: Name(name), Binding(binding), Count(count), ShaderStage(stage), UniformType(type), Normalized(normalized) {}
+		BufferElement(ShaderDataType type, const String& name_, bool normalized = false)
+			: name(name_), type(type), size(ShaderDataTypeSize(type)), normalized(normalized) {}
+		BufferElement(const String& name_, uint32_t binding_, uint32_t count_, uint32_t stage, uint32_t type, bool normalize = false)
+			: name(name_), binding(binding_), count(count_), shader_stage(stage), uniform_type(type), normalized(normalize) {}
 
 		uint32_t GetComponentCount() const
 		{
-			switch (Type)
+			switch (type)
 			{
             case ShaderDataType::Float:   return 1;
             case ShaderDataType::Vec2f:   return 2;
@@ -75,33 +75,33 @@ namespace Rocket
 	public:
 		BufferLayout() = default;
 		BufferLayout(std::initializer_list<BufferElement> elements)
-			: m_Elements(elements) { CalculateOffsetsAndStride(); }
+			: elements(elements) { CalculateOffsetsAndStride(); }
 
-		uint32_t GetStride() const { return m_Stride; }
-		const Vec<BufferElement>& GetElements() const { return m_Elements; }
-		void SetLayout(std::initializer_list<BufferElement> elements) { m_Elements = elements; }
+		uint32_t GetStride() const { return stride; }
+		const Vec<BufferElement>& GetElements() const { return elements; }
+		void SetLayout(std::initializer_list<BufferElement> elements) { elements = elements; }
 
-		Vec<BufferElement>::iterator begin() { return m_Elements.begin(); }
-		Vec<BufferElement>::iterator end() { return m_Elements.end(); }
-		Vec<BufferElement>::const_iterator begin() const { return m_Elements.begin(); }
-		Vec<BufferElement>::const_iterator end() const { return m_Elements.end(); }
+		Vec<BufferElement>::iterator begin() { return elements.begin(); }
+		Vec<BufferElement>::iterator end() { return elements.end(); }
+		Vec<BufferElement>::const_iterator begin() const { return elements.begin(); }
+		Vec<BufferElement>::const_iterator end() const { return elements.end(); }
 	private:
 		void CalculateOffsetsAndStride()
 		{
 			uint32_t index;
 			size_t offset = 0;
-			m_Stride = 0;
-			for (auto& element : m_Elements)
+			stride = 0;
+			for (auto& element : elements)
 			{
-				element.Index = index;
-				element.Offset = offset;
+				element.index = index;
+				element.offset = offset;
 				index += 1;
-				offset += element.Size;
-				m_Stride += element.Size;
+				offset += element.size;
+				stride += element.size;
 			}
 		}
 	private:
-		Vec<BufferElement> m_Elements;
-		uint32_t m_Stride = 0;
+		Vec<BufferElement> elements;
+		uint32_t stride = 0;
 	};
 }

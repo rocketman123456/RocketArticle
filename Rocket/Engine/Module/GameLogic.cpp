@@ -14,48 +14,48 @@ int GameLogic::Initialize()
 
 void GameLogic::Finalize()
 {
-    m_StateMachine.reset();
+    state_machine_.reset();
 }
 
 void GameLogic::Tick(Timestep ts)
 {
     // Update state machine to finish state transfer
-    bool result = m_StateMachine->GetTransferFinish();
-    if(!result && m_CurrentInputData.size() > 0)
+    bool result = state_machine_->GetTransferFinish();
+    if(!result && current_input_data_.size() > 0)
     {
         // Update Action
-        m_StateMachine->UpdateAction(m_CurrentInputData);
+        state_machine_->UpdateAction(current_input_data_);
     }
-    else if(result && m_PendingStateData.size() > 0)
+    else if(result && pending_state_data_.size() > 0)
     {
-        result = m_StateMachine->UpdateEdge(m_PendingStateData);
-        m_PendingStateData.clear();
+        result = state_machine_->UpdateEdge(pending_state_data_);
+        pending_state_data_.clear();
     }
 }
 
 bool GameLogic::OnResponseEvent(EventPtr& e)
 {
     RK_CORE_TRACE("Set Input Data");
-    m_CurrentInputData.assign(e->variable.begin(), e->variable.end());
-    m_StateMachine->UpdateAction(m_CurrentInputData);
-    m_CurrentInputData.clear();
+    current_input_data_.assign(e->variable.begin(), e->variable.end());
+    state_machine_->UpdateAction(current_input_data_);
+    current_input_data_.clear();
     return false;
 }
 
 bool GameLogic::OnUIEvent(EventPtr& e)
 {
-    bool result = m_StateMachine->GetTransferFinish();
+    bool result = state_machine_->GetTransferFinish();
     if(!result)
     {
         RK_EVENT_TRACE("UI Event {} - StateMachine is in Transfer", 
             GlobalHashTable::GetStringFromId("Event"_hash, e->variable[0].asStringId)
         );
-        if(m_PendingStateData.size() == 0)
-            m_PendingStateData.assign(e->variable.begin(), e->variable.end());
+        if(pending_state_data_.size() == 0)
+            pending_state_data_.assign(e->variable.begin(), e->variable.end());
         return false;
     }
-    m_PendingStateData.clear();
-    result = m_StateMachine->UpdateEdge(e->variable);
-    m_CurrentStateData.assign(e->variable.begin(), e->variable.end());
+    pending_state_data_.clear();
+    result = state_machine_->UpdateEdge(e->variable);
+    current_state_data_.assign(e->variable.begin(), e->variable.end());
     return false;
 }

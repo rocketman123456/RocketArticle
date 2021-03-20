@@ -83,7 +83,7 @@ namespace Rocket
         virtual void DestroyPipelineState(PipelineState& pipelineState) {}
 
     protected:
-        Map<String, Ref<PipelineState>> m_pipelineStates;
+        Map<String, Ref<PipelineState>> pipeline_states_;
     };
 
     PipelineStateManager* GetPipelineStateManager();

@@ -44,7 +44,7 @@ int AudioManager::Initialize()
 
 void AudioManager::Finalize()
 {
-    for (auto it = m_AudioStore.begin(); it != m_AudioStore.end(); ++it)
+    for (auto it = audio_storage_.begin(); it != audio_storage_.end(); ++it)
     {
         alDeleteSources(1, &it->second.source);
         alDeleteBuffers(1, &it->second.buffer);
@@ -74,8 +74,8 @@ void AudioManager::LoadAudio(const std::string& filename)
     name = filename;
     
     // Check If Resource is Loaded
-    auto it = m_AudioStore.find(name);
-    if (it != m_AudioStore.end())
+    auto it = audio_storage_.find(name);
+    if (it != audio_storage_.end())
     {
         RK_CORE_INFO("Audio Resource {0} is Loaded", name);
         return;
@@ -86,7 +86,7 @@ void AudioManager::LoadAudio(const std::string& filename)
     
     RK_CORE_ASSERT(alGetError() == AL_NO_ERROR, "Failed to setup sound source");
     
-    m_AudioStore[name] = { buffer, source };
+    audio_storage_[name] = { buffer, source };
 }
 
 ALuint AudioManager::Load(const String& filename)
@@ -175,12 +175,12 @@ ALuint AudioManager::Load(const String& filename)
 void AudioManager::PlayAudio(const String& name)
 {
     // Check Resource Load
-    auto it = m_AudioStore.find(name);
-    if (it != m_AudioStore.end())
+    auto it = audio_storage_.find(name);
+    if (it != audio_storage_.end())
     {
-        auto buffer = m_AudioStore[name].buffer;
+        auto buffer = audio_storage_[name].buffer;
         //g_ProcessManager->AttachProcess(CreateRef<AudioProcess>(buffer));
-        //std::thread _thread(&AudioManager::Play, this, std::ref(m_AudioStore[name]));
+        //std::thread _thread(&AudioManager::Play, this, std::ref(audio_storage_[name]));
         //if(_thread.joinable())
         //    _thread.detach();
     }

@@ -42,8 +42,8 @@ namespace Rocket
         };
 
     private:
-        State m_state;             // the current state of the process
-        StrongProcessPtr m_pChild; // the child process, if any
+        State state_;             // the current state of the process
+        StrongProcessPtr child_; // the child process, if any
 
     public:
         // construction
@@ -52,7 +52,7 @@ namespace Rocket
 
     protected:
         // interface; these functions should be overridden by the subclass as needed
-        virtual void OnInit(void) { m_state = RUNNING; }  // called during the first update; responsible for setting the initial state (typically RUNNING)
+        virtual void OnInit(void) { state_ = RUNNING; }  // called during the first update; responsible for setting the initial state (typically RUNNING)
         virtual void OnUpdate(unsigned long deltaMs) = 0; // called every frame
         virtual void OnSuccess(void) {}                   // called if the process succeeds (see below)
         virtual void OnFail(void) {}                      // called if the process fails (see below)
@@ -68,19 +68,19 @@ namespace Rocket
         inline void UnPause(void);
 
         // accessors
-        State GetState(void) const { return m_state; }
-        bool IsAlive(void) const { return (m_state == RUNNING || m_state == PAUSED); }
-        bool IsDead(void) const { return (m_state == SUCCEEDED || m_state == FAILED || m_state == ABORTED); }
-        bool IsRemoved(void) const { return (m_state == REMOVED); }
-        bool IsPaused(void) const { return m_state == PAUSED; }
+        State GetState(void) const { return state_; }
+        bool IsAlive(void) const { return (state_ == RUNNING || state_ == PAUSED); }
+        bool IsDead(void) const { return (state_ == SUCCEEDED || state_ == FAILED || state_ == ABORTED); }
+        bool IsRemoved(void) const { return (state_ == REMOVED); }
+        bool IsPaused(void) const { return state_ == PAUSED; }
 
         // child functions
         inline void AttachChild(StrongProcessPtr pChild);
         StrongProcessPtr RemoveChild(void);                   // releases ownership of the child
-        StrongProcessPtr PeekChild(void) { return m_pChild; } // doesn't release ownership of the child
+        StrongProcessPtr PeekChild(void) { return child_; } // doesn't release ownership of the child
 
     private:
-        void SetState(State newState) { m_state = newState; }
+        void SetState(State newState) { state_ = newState; }
     };
 
     //---------------------------------------------------------------------------------------------------------------------
@@ -88,36 +88,36 @@ namespace Rocket
     //---------------------------------------------------------------------------------------------------------------------
     inline void Process::Succeed(void)
     {
-        RK_CORE_ASSERT(m_state == RUNNING || m_state == PAUSED, "Process Success");
-        m_state = SUCCEEDED;
+        RK_CORE_ASSERT(state_ == RUNNING || state_ == PAUSED, "Process Success");
+        state_ = SUCCEEDED;
     }
 
     inline void Process::Fail(void)
     {
-        RK_CORE_ASSERT(m_state == RUNNING || m_state == PAUSED, "Process Fail");
-        m_state = FAILED;
+        RK_CORE_ASSERT(state_ == RUNNING || state_ == PAUSED, "Process Fail");
+        state_ = FAILED;
     }
 
     inline void Process::AttachChild(StrongProcessPtr pChild)
     {
-        if (m_pChild)
-            m_pChild->AttachChild(pChild);
+        if (child_)
+            child_->AttachChild(pChild);
         else
-            m_pChild = pChild;
+            child_ = pChild;
     }
 
     inline void Process::Pause(void)
     {
-        if (m_state == RUNNING)
-            m_state = PAUSED;
+        if (state_ == RUNNING)
+            state_ = PAUSED;
         else
             RK_CORE_WARN("Attempting to pause a process that isn't running");
     }
 
     inline void Process::UnPause(void)
     {
-        if (m_state == PAUSED)
-            m_state = RUNNING;
+        if (state_ == PAUSED)
+            state_ = RUNNING;
         else
             RK_CORE_WARN("Attempting to unpause a process that isn't paused");
     }

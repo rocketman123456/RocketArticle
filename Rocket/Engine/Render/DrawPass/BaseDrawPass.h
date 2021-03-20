@@ -15,6 +15,6 @@ namespace Rocket
         BaseDrawPass() = default;
 
     protected:
-        Vec<Ref<IDrawSubPass>> m_DrawSubPasses;
+        Vec<Ref<IDrawSubPass>> draw_sub_passes_;
     };
 }  // namespace Rocket

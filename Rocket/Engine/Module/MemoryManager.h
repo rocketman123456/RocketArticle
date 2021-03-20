@@ -45,15 +45,15 @@ namespace Rocket
     private:
         struct MemoryAllocationInfo 
         {
-            size_t PageSize;
-            MemoryType PageMemoryType;
+            size_t page_size;
+            MemoryType page_memory_type;
         };
         
-        Map<void*, MemoryAllocationInfo> m_mapMemoryAllocationInfo;
+        Map<void*, MemoryAllocationInfo> map_memory_allocation_info_;
 
     private:
-        static size_t* m_pBlockSizeLookup;
-        static BlockAllocator* m_pAllocators;
+        static size_t* block_size_lookup_;
+        static BlockAllocator* allocators_;
     private:
         static BlockAllocator* LookUpAllocator(size_t size);
     };

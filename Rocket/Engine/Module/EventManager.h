@@ -43,9 +43,9 @@ namespace Rocket
     public:
         RUNTIME_MODULE_TYPE(EventManager);
 
-        EventManager(bool global = true) : m_Global(global) 
+        EventManager(bool global = true) : global_(global) 
         {
-            if(m_Global)
+            if(global_)
             {
                 RK_CORE_ASSERT(!instance_, "Global EventManager already exists!");
                 instance_ = this;
@@ -75,25 +75,25 @@ namespace Rocket
         void SetupCallback();
         void SetupListener();
         // Window attributes
-		void SetEventCallback(const EventCallbackFn& callback) { m_Data.EventCallback = callback; }
+		void SetEventCallback(const EventCallbackFn& callback) { window_data_.event_callback = callback; }
 
     private:
         struct WindowData
         {
-            std::string Title;
-            EventCallbackFn EventCallback;
+            std::string title;
+            EventCallbackFn event_callback;
         };
 
-        bool        m_Global;
-        GLFWwindow* m_WindowHandle = nullptr;
-        WindowData  m_Data;
+        bool        global_;
+        GLFWwindow* window_handle_ = nullptr;
+        WindowData  window_data_;
 
-        int32_t     m_ActiveEventQueue;
-        EventQueue  m_EventQueue[2];
-        EventThreadQueue m_EventThreadQueue;
-        EventListenerMap m_EventListener;
+        int32_t     active_event_queue_;
+        EventQueue  event_queue_[2];
+        EventThreadQueue event_thread_queue_;
+        EventListenerMap event_listener_;
         
-        ElapseTimer    m_Timer;
+        ElapseTimer    timer_;
         
     private:
         static EventManager* instance_;

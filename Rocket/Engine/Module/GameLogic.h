@@ -17,17 +17,17 @@ namespace Rocket
 
         void Tick(Timestep ts) final;
 
-        void SetStateMachine(const Ref<StateMachine>& stateMachine) { m_StateMachine = stateMachine; }
-        Ref<StateMachine> GetStateMachine() { return m_StateMachine; }
+        void SetStateMachine(const Ref<StateMachine>& stateMachine) { state_machine_ = stateMachine; }
+        Ref<StateMachine> GetStateMachine() { return state_machine_; }
 
         bool OnUIEvent(EventPtr& e);
         bool OnResponseEvent(EventPtr& e);
 
     private:
-        Ref<StateMachine> m_StateMachine = nullptr;
-        Vec<Variant> m_CurrentStateData;
-        Vec<Variant> m_CurrentInputData;
-        Vec<Variant> m_PendingStateData;
+        Ref<StateMachine> state_machine_ = nullptr;
+        Vec<Variant> current_state_data_;
+        Vec<Variant> current_input_data_;
+        Vec<Variant> pending_state_data_;
     };
 
     GameLogic* GetGameLogic();

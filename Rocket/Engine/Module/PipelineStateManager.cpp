@@ -22,7 +22,7 @@ bool PipelineStateManager::RegisterPipelineState(PipelineState& pipelineState)
     pPipelineState = &pipelineState;
     if (InitializePipelineState(&pPipelineState))
     {
-        m_pipelineStates.emplace(pipelineState.pipelineStateName, pPipelineState);
+        pipeline_states_.emplace(pipelineState.pipelineStateName, pPipelineState);
         return true;
     }
     return false;
@@ -30,39 +30,39 @@ bool PipelineStateManager::RegisterPipelineState(PipelineState& pipelineState)
 
 void PipelineStateManager::UnregisterPipelineState(PipelineState& pipelineState)
 {
-    const auto& it = m_pipelineStates.find(pipelineState.pipelineStateName);
-    if (it != m_pipelineStates.end())
+    const auto& it = pipeline_states_.find(pipelineState.pipelineStateName);
+    if (it != pipeline_states_.end())
     {
         DestroyPipelineState(*it->second);
     }
-    m_pipelineStates.erase(it);
+    pipeline_states_.erase(it);
 }
 
 void PipelineStateManager::Clear()
 {
-    for (auto it = m_pipelineStates.begin(); it != m_pipelineStates.end(); it++)
+    for (auto it = pipeline_states_.begin(); it != pipeline_states_.end(); it++)
     {
-        if (it != m_pipelineStates.end())
+        if (it != pipeline_states_.end())
         {
             DestroyPipelineState(*it->second);
         }
     }
-    m_pipelineStates.clear();
+    pipeline_states_.clear();
 
-    RK_GRAPHICS_ASSERT(m_pipelineStates.empty(), "Pipeline State Manager Clear ERROR");
+    RK_GRAPHICS_ASSERT(pipeline_states_.empty(), "Pipeline State Manager Clear ERROR");
     RK_GRAPHICS_INFO("Pipeline State Manager Clear has been called. ");
 }
 
 const Ref<PipelineState> PipelineStateManager::GetPipelineState(const String& name) const
 {
-    const auto& it = m_pipelineStates.find(name);
-    if (it != m_pipelineStates.end())
+    const auto& it = pipeline_states_.find(name);
+    if (it != pipeline_states_.end())
     {
         return it->second;
     }
     else
     {
-        RK_GRAPHICS_ASSERT(!m_pipelineStates.empty(), "Cannot Find Required Pipeline State");
+        RK_GRAPHICS_ASSERT(!pipeline_states_.empty(), "Cannot Find Required Pipeline State");
         return nullptr;
     }
 }
@@ -106,16 +106,16 @@ int PipelineStateManager::Initialize()
         pipelineState.renderTarget = RENDER_TARGET::NONE;
         //pipelineState.renderTarget = RENDER_TARGET::RENDER_FRAMEBUFFER;
         pipelineState.renderTargetName = "Draw2D Buffer";
-        pipelineState.frameBufferInfo.ColorWidth = window->GetWidth();
-        pipelineState.frameBufferInfo.ColorHeight = window->GetHeight();
-        pipelineState.frameBufferInfo.ColorAttachment = {
+        pipelineState.frameBufferInfo.color_width = window->GetWidth();
+        pipelineState.frameBufferInfo.color_height = window->GetHeight();
+        pipelineState.frameBufferInfo.color_attachment = {
             FRAME_TEXTURE_FORMAT::RGBA8
         };
-        pipelineState.frameBufferInfo.DepthWidth = window->GetWidth();
-        pipelineState.frameBufferInfo.DepthHeight = window->GetHeight();
-        pipelineState.frameBufferInfo.DepthAttachment = FRAME_TEXTURE_FORMAT::DEPTH24;
-        pipelineState.frameBufferInfo.Samples = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
-        pipelineState.frameBufferInfo.SwapChainTarget = false;
+        pipelineState.frameBufferInfo.depth_width = window->GetWidth();
+        pipelineState.frameBufferInfo.depth_height = window->GetHeight();
+        pipelineState.frameBufferInfo.depth_attachment = FRAME_TEXTURE_FORMAT::DEPTH24;
+        pipelineState.frameBufferInfo.samples = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
+        pipelineState.frameBufferInfo.swap_chain_target = false;
         RegisterPipelineState(pipelineState);
     }
     
@@ -145,16 +145,16 @@ int PipelineStateManager::Initialize()
         pipelineState.renderType = RENDER_TYPE::STATIC;
         pipelineState.renderTarget = RENDER_TARGET::NONE;
         pipelineState.renderTargetName = "Screen Buffer";
-        pipelineState.frameBufferInfo.ColorWidth = window->GetWidth();
-        pipelineState.frameBufferInfo.ColorHeight = window->GetHeight();
-        pipelineState.frameBufferInfo.ColorAttachment = {
+        pipelineState.frameBufferInfo.color_width = window->GetWidth();
+        pipelineState.frameBufferInfo.color_height = window->GetHeight();
+        pipelineState.frameBufferInfo.color_attachment = {
             FRAME_TEXTURE_FORMAT::RGBA8
         };
-        pipelineState.frameBufferInfo.DepthWidth = window->GetWidth();
-        pipelineState.frameBufferInfo.DepthHeight = window->GetHeight();
-        pipelineState.frameBufferInfo.DepthAttachment = FRAME_TEXTURE_FORMAT::DEPTH24;
-        pipelineState.frameBufferInfo.Samples = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
-        pipelineState.frameBufferInfo.SwapChainTarget = false;
+        pipelineState.frameBufferInfo.depth_width = window->GetWidth();
+        pipelineState.frameBufferInfo.depth_height = window->GetHeight();
+        pipelineState.frameBufferInfo.depth_attachment = FRAME_TEXTURE_FORMAT::DEPTH24;
+        pipelineState.frameBufferInfo.samples = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
+        pipelineState.frameBufferInfo.swap_chain_target = false;
         //RegisterPipelineState(pipelineState);
     }
     
@@ -184,20 +184,20 @@ int PipelineStateManager::Initialize()
         pipelineState.renderType = RENDER_TYPE::STATIC;
         pipelineState.renderTarget = RENDER_TARGET::NONE;
         pipelineState.renderTargetName = "PBR Buffer";
-        pipelineState.frameBufferInfo.ColorWidth = window->GetWidth();
-        pipelineState.frameBufferInfo.ColorHeight = window->GetHeight();
-        pipelineState.frameBufferInfo.ColorAttachment = {
+        pipelineState.frameBufferInfo.color_width = window->GetWidth();
+        pipelineState.frameBufferInfo.color_height = window->GetHeight();
+        pipelineState.frameBufferInfo.color_attachment = {
             FRAME_TEXTURE_FORMAT::RGBA8
         };
-        pipelineState.frameBufferInfo.DepthWidth = window->GetWidth();
-        pipelineState.frameBufferInfo.DepthHeight = window->GetHeight();
-        pipelineState.frameBufferInfo.DepthAttachment = FRAME_TEXTURE_FORMAT::DEPTH24;
-        pipelineState.frameBufferInfo.Samples = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
-        pipelineState.frameBufferInfo.SwapChainTarget = false;
+        pipelineState.frameBufferInfo.depth_width = window->GetWidth();
+        pipelineState.frameBufferInfo.depth_height = window->GetHeight();
+        pipelineState.frameBufferInfo.depth_attachment = FRAME_TEXTURE_FORMAT::DEPTH24;
+        pipelineState.frameBufferInfo.samples = config->GetConfigInfo<uint32_t>("Graphics", "msaa_sample_count");
+        pipelineState.frameBufferInfo.swap_chain_target = false;
         //RegisterPipelineState(pipelineState);
     }
     
-    RK_GRAPHICS_INFO("Pipeline State Manager Initialized. Add [{}] Pipelines", m_pipelineStates.size());
+    RK_GRAPHICS_INFO("Pipeline State Manager Initialized. Add [{}] Pipelines", pipeline_states_.size());
     return 0;
 }
 

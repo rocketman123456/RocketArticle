@@ -12,10 +12,10 @@ namespace Rocket
     public:
         ForwardGeometryPass()
         {
-            m_DrawSubPasses.push_back(CreateRef<Geometry2DSubPass>());
-            m_DrawSubPasses.push_back(CreateRef<GeometrySubPass>());
-            m_DrawSubPasses.push_back(CreateRef<SkyBoxSubPass>());
-            m_DrawSubPasses.push_back(CreateRef<GuiSubPass>());
+            draw_sub_passes_.push_back(CreateRef<Geometry2DSubPass>());
+            draw_sub_passes_.push_back(CreateRef<GeometrySubPass>());
+            draw_sub_passes_.push_back(CreateRef<SkyBoxSubPass>());
+            draw_sub_passes_.push_back(CreateRef<GuiSubPass>());
         }
     };
 }

@@ -50,20 +50,20 @@ static const String& _GetStringFromId_(uint64_t id, UMap<uint64_t, String>& id_m
     }
 }
 
-UMap<uint64_t, UMap<uint64_t, String>> GlobalHashTable::IdStringMap;
+UMap<uint64_t, UMap<uint64_t, String>> GlobalHashTable::id_string_map;
 
 uint64_t GlobalHashTable::HashString(const uint64_t type_id, const String& str)
 {
-    auto it = IdStringMap.find(type_id);
-    if(it != IdStringMap.end())
+    auto it = id_string_map.find(type_id);
+    if(it != id_string_map.end())
     {
         auto result = _HashString_(str, it->second); 
         return result; 
     }
     else
     {
-        IdStringMap[type_id] = {};
-        auto result = _HashString_(str, IdStringMap[type_id]);
+        id_string_map[type_id] = {};
+        auto result = _HashString_(str, id_string_map[type_id]);
         return result; 
     }
 }
@@ -71,8 +71,8 @@ uint64_t GlobalHashTable::HashString(const uint64_t type_id, const String& str)
 const String& GlobalHashTable::GetStringFromId(const uint64_t type_id, uint64_t id)
 {
     static String empty = "";
-    auto it = IdStringMap.find(type_id);
-    if(it != IdStringMap.end())
+    auto it = id_string_map.find(type_id);
+    if(it != id_string_map.end())
     {
         auto& result = _GetStringFromId_(id, it->second); 
         return result; 

@@ -14,23 +14,23 @@ void GuiSubPass::Draw(Frame& frame)
     
         // Count FPS
         {
-            double Duration = m_Timer.GetTickTime();
+            double Duration = timer_.GetTickTime();
     
-            m_CountFrame++;
-            m_CountTime += Duration;
+            count_fps_++;
+            count_time_ += Duration;
     
-            if (m_CountTime >= 1000.0f)
+            if (count_time_ >= 1000.0f)
             {
-                m_FPS = m_CountFrame;
-                m_CountFrame = 0;
-                m_CountTime = 0.0f;
+                fps_ = count_fps_;
+                count_fps_ = 0;
+                count_time_ = 0.0f;
             }
         }
         
         // Draw GUI
         //{
         //    ImGui::Begin("Hello, world!");
-        //    ImGui::Text("FPS : %d", m_FPS);
+        //    ImGui::Text("FPS : %d", fps_);
     
         //    //auto frame_buffer = g_GraphicsManager->GetFrameBuffer("Draw2D Buffer");
         //    //if (frame_buffer)
@@ -39,8 +39,8 @@ void GuiSubPass::Draw(Frame& frame)
         //    //    if (texture_id)
         //    //    {
         //    //        auto spec = frame_buffer->GetSpecification();
-        //    //        float width = spec.ColorWidth;
-        //    //        float height = spec.ColorHeight;
+        //    //        float width = spec.color_width;
+        //    //        float height = spec.color_height;
         //    //        ImGui::Image(reinterpret_cast<void*>(texture_id), ImVec2{ width, height }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
         //    //    }
         //    //}

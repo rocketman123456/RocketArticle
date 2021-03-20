@@ -18,13 +18,13 @@ namespace Rocket
         }
         ~CommandParser() { command_list_.clear(); }
 
-        inline const String& get_command(int index)
+        inline const String& GetCommand(int index)
         {
             RK_CORE_ASSERT(index < command_count_, "Invalid Command Index");
             return command_list_[index];
         }
 
-        inline const String& get_command(const String& var)
+        inline const String& GetCommand(const String& var)
         {
             auto it = command_map.find(var);
             RK_CORE_ASSERT(it != command_map.end(), "Invalid Command Index");

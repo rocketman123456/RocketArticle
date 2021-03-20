@@ -4,24 +4,24 @@ using namespace Rocket;
 
 Process::Process(void)
 {
-    m_state = UNINITIALIZED;
-    m_pChild.reset();
+    state_ = UNINITIALIZED;
+    child_.reset();
 }
 
 Process::~Process(void)
 {
-    if (m_pChild)
+    if (child_)
     {
-        m_pChild->OnAbort();
+        child_->OnAbort();
     }
 }
 
 StrongProcessPtr Process::RemoveChild(void)
 {
-    if (m_pChild)
+    if (child_)
     {
-        StrongProcessPtr pChild = m_pChild; // this keeps the child from getting destroyed when we clear it
-        m_pChild.reset();
+        StrongProcessPtr pChild = child_; // this keeps the child from getting destroyed when we clear it
+        child_.reset();
         return pChild;
     }
 

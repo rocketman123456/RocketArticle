@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     
     String command;
     if(argc > 1)
-        command = parser->get_command(1);
+        command = parser->GetCommand(1);
     else
         command = ProjectSourceDir;
 

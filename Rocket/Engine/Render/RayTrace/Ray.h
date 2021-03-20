@@ -4,9 +4,8 @@
 
 namespace Rocket
 {
-	class Ray
+	struct Ray
 	{
-	public:
         Ray(const Point3D& orig, const Vector3f& dir, double time = 0.0)
             : origin(orig), direction(dir), tm(time) {}
         Ray() = default;
@@ -17,7 +16,6 @@ namespace Rocket
         double Time() const { return tm; }
         Point3D At(double t) const { return origin + t * direction; }
 
-	public:
 		Point3D origin;
 		Vector3f direction;
 		double tm;

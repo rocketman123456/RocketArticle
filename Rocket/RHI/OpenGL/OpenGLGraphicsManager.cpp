@@ -139,9 +139,9 @@ int OpenGLGraphicsManager::Initialize()
     if(ret != 0)
         return ret;
 
-    m_WindowHandle = static_cast<GLFWwindow*>(g_WindowManager->GetNativeWindow());
+    window_handle_ = static_cast<GLFWwindow*>(g_WindowManager->GetNativeWindow());
 
-    glfwMakeContextCurrent(m_WindowHandle);
+    glfwMakeContextCurrent(window_handle_);
     int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
     RK_CORE_ASSERT(status, "Failed to Initialize GLAD");
 
@@ -169,12 +169,12 @@ int OpenGLGraphicsManager::Initialize()
     }
 
     // Init UBOs
-    for(size_t i = 0; i < m_MaxFrameInFlight; ++i)
+    for(size_t i = 0; i < max_frame_in_flight_; ++i)
     {
-        m_uboDrawFrameConstant[i] = CreateRef<OpenGLUniformBuffer>(sizeof(PerFrameConstants), DRAW_TYPE::STATIC);
-        m_uboDrawBatchConstant[i] = CreateRef<OpenGLUniformBuffer>(sizeof(PerBatchConstants), DRAW_TYPE::STATIC);
-        m_uboLightInfo[i] = CreateRef<OpenGLUniformBuffer>(sizeof(LightInfo), DRAW_TYPE::STATIC);;
-        m_uboShadowMatricesConstant[i] = nullptr;
+        ubo_draw_frame_constant_[i] = CreateRef<OpenGLUniformBuffer>(sizeof(PerFrameConstants), DRAW_TYPE::STATIC);
+        ubo_draw_batch_constant_[i] = CreateRef<OpenGLUniformBuffer>(sizeof(PerBatchConstants), DRAW_TYPE::STATIC);
+        ubo_light_info_[i] = CreateRef<OpenGLUniformBuffer>(sizeof(LightInfo), DRAW_TYPE::STATIC);;
+        ubo_shadow_matrices_constant_[i] = nullptr;
     }
 
     // ImGui Init
@@ -205,7 +205,7 @@ int OpenGLGraphicsManager::Initialize()
     // Load Fonts
     io.Fonts->AddFontDefault();
 
-    ImGui_ImplGlfw_InitForOpenGL(m_WindowHandle, true);
+    ImGui_ImplGlfw_InitForOpenGL(window_handle_, true);
     ImGui_ImplOpenGL3_Init("#version 410");
 
     return 0;
@@ -240,13 +240,13 @@ void OpenGLGraphicsManager::BeginScene(const Scene& scene)
 {
     GraphicsManager::BeginScene(scene);
 
-    if (!m_CurrentScene)
+    if (!current_scene_)
     {
         RK_GRAPHICS_INFO("No Active Scene");
         return;
     }
 
-    auto planar_meshes = m_CurrentScene->GetComponents<PlanarMesh>();
+    auto planar_meshes = current_scene_->GetComponents<PlanarMesh>();
     for (auto mesh : planar_meshes)
     {
         auto dbc = CreateRef<OpenGLDrawBatchContext>();
@@ -271,7 +271,7 @@ void OpenGLGraphicsManager::BeginScene(const Scene& scene)
         dbc->MaxTextures = mesh->GetTextureCount();
 
         // TODO : use real model matrix
-        dbc->modelMatrix = Matrix4f::Identity();
+        dbc->model_matrix = Matrix4f::Identity();
         // TODO : set draw element type and mode
         //  mode = GL_POINTS;
         //  mode = GL_LINES;
@@ -285,9 +285,9 @@ void OpenGLGraphicsManager::BeginScene(const Scene& scene)
         //  type = GL_UNSIGNED_INT;
         dbc->Type = GL_UNSIGNED_INT;
 
-        for (int32_t n = 0; n < m_MaxFrameInFlight; n++)
+        for (int32_t n = 0; n < max_frame_in_flight_; n++)
         {
-            m_Frames[n].batchContexts.push_back(dbc);
+            frames_[n].batch_contexts.push_back(dbc);
         }
     }
 }
@@ -304,8 +304,8 @@ void OpenGLGraphicsManager::BeginFrame(const Frame& frame)
     // Clear the screen and depth buffer.
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    SetPerFrameConstants(frame.frameContext);
-    SetLightInfo(frame.frameContext);
+    SetPerFrameConstants(frame.frame_context);
+    SetLightInfo(frame.frame_context);
 
     // TODO : move this function into standard pipeline
     ImGui_ImplOpenGL3_NewFrame();
@@ -315,44 +315,44 @@ void OpenGLGraphicsManager::BeginFrame(const Frame& frame)
 void OpenGLGraphicsManager::SetPerFrameConstants(const DrawFrameContext& context)
 {
     auto constant = static_cast<PerFrameConstants>(context);
-    m_uboDrawFrameConstant[m_CurrentFrameIndex]->SetSubData(&constant, 0, sizeof(PerFrameConstants));
+    ubo_draw_frame_constant_[current_frame_index_]->SetSubData(&constant, 0, sizeof(PerFrameConstants));
 }
 
 void OpenGLGraphicsManager::SetLightInfo(const DrawFrameContext& context)
 {
     //auto constant = static_cast<PerFrameConstants>(context.lightInfo);
-    //m_uboLightInfo[m_CurrentFrameIndex]->SetSubData(&constant, 0, sizeof(LightInfo));
+    //ubo_light_info_[m_CurrentFrameIndex]->SetSubData(&constant, 0, sizeof(LightInfo));
 }
 
 void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineState, const Frame &frame)
 {
-    m_CurrentPipelineState = pipelineState;
-    const OpenGLPipelineState* pPipelineState = dynamic_cast<const OpenGLPipelineState*>(m_CurrentPipelineState.get());
-    m_CurrentShader = pPipelineState->shaderProgram;
+    current_pipeline_state_ = pipelineState;
+    const OpenGLPipelineState* pPipelineState = dynamic_cast<const OpenGLPipelineState*>(current_pipeline_state_.get());
+    current_shader_ = pPipelineState->shaderProgram;
 
     // Set Frame Buffer
     if (pipelineState->renderTarget == RENDER_TARGET::NONE)
     {
-        m_CurrentFrameBuffer = nullptr;
+        current_frame_buffer_ = nullptr;
     }
     else
     {
-        auto it = m_FrameBuffers.find(pipelineState->renderTargetName);
-        if (it == m_FrameBuffers.end())
+        auto it = frame_buffers_.find(pipelineState->renderTargetName);
+        if (it == frame_buffers_.end())
         {
-            m_CurrentFrameBuffer = CreateRef<OpenGLFrameBuffer>(pipelineState->frameBufferInfo);
-            m_FrameBuffers[pipelineState->renderTargetName] = m_CurrentFrameBuffer;
+            current_frame_buffer_ = CreateRef<OpenGLFrameBuffer>(pipelineState->frameBufferInfo);
+            frame_buffers_[pipelineState->renderTargetName] = current_frame_buffer_;
         }
         else
         {
-            m_CurrentFrameBuffer = it->second;
+            current_frame_buffer_ = it->second;
         }
     }
 
     // Bind Framebuffer
-    if (m_CurrentFrameBuffer)
+    if (current_frame_buffer_)
     {
-        m_CurrentFrameBuffer->Bind(FRAME_BIND_MODE::FRAMEBUFFER);
+        current_frame_buffer_->Bind(FRAME_BIND_MODE::FRAMEBUFFER);
     }
 
     // Set OpenGL State
@@ -439,54 +439,54 @@ void OpenGLGraphicsManager::SetPipelineState(const Ref<PipelineState> &pipelineS
 
 void OpenGLGraphicsManager::BeginFrameBuffer(const Frame& frame)
 {
-    if (m_CurrentFrameBuffer)
+    if (current_frame_buffer_)
     {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
     // Set the color shader
-    m_CurrentShader->Bind();
+    current_shader_->Bind();
 
     // Bind PerFrameConstants
-    uint32_t shader_id = m_CurrentShader->GetRenderId();
+    uint32_t shader_id = current_shader_->GetRenderId();
     uint32_t frame_block_index = glGetUniformBlockIndex(shader_id, "PerFrameConstants");
     if (frame_block_index != GL_INVALID_INDEX)
     {
         int32_t blockSize;
         glGetActiveUniformBlockiv(shader_id, frame_block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
         RK_GRAPHICS_ASSERT(blockSize >= sizeof(PerFrameConstants), "PerFrameConstants Size Error");
-        m_uboDrawFrameConstant[m_CurrentFrameIndex]->BindShader(shader_id, frame_block_index, 0);
+        ubo_draw_frame_constant_[current_frame_index_]->BindShader(shader_id, frame_block_index, 0);
     }
 
     // Bind PerBatchConstants
-    shader_id = m_CurrentShader->GetRenderId();
+    shader_id = current_shader_->GetRenderId();
     frame_block_index = glGetUniformBlockIndex(shader_id, "PerBatchConstants");
     if (frame_block_index != GL_INVALID_INDEX)
     {
         int32_t blockSize;
         glGetActiveUniformBlockiv(shader_id, frame_block_index, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
         RK_GRAPHICS_ASSERT(blockSize >= sizeof(PerBatchConstants), "PerBatchConstants Size Error");
-        m_uboDrawBatchConstant[m_CurrentFrameIndex]->BindShader(shader_id, frame_block_index, 1);
+        ubo_draw_batch_constant_[current_frame_index_]->BindShader(shader_id, frame_block_index, 1);
     }
 
     // TODO : remove fixed 16, use graphics card capability
     int32_t samplers[16];
     for (uint32_t i = 0; i < 16; i++)
         samplers[i] = i;
-    m_CurrentShader->SetInt32Array("u_Textures", samplers, 16);
+    current_shader_->SetInt32Array("u_Textures", samplers, 16);
 }
 
 void OpenGLGraphicsManager::SetPerBatchConstants(const DrawBatchContext &context)
 {
     auto constant = static_cast<PerBatchConstants>(context);
-    m_uboDrawBatchConstant[m_CurrentFrameIndex]->SetSubData(&constant, 0, sizeof(PerBatchConstants));
+    ubo_draw_batch_constant_[current_frame_index_]->SetSubData(&constant, 0, sizeof(PerBatchConstants));
 }
 
 void OpenGLGraphicsManager::DrawBatch(const Frame &frame)
 {
     BeginFrameBuffer(frame);
-    for(auto& pDbc : frame.batchContexts)
+    for(auto& pDbc : frame.batch_contexts)
     {
         SetPerBatchConstants(*pDbc);
         const auto& dbc = dynamic_cast<const OpenGLDrawBatchContext&>(*pDbc);
@@ -506,9 +506,9 @@ void OpenGLGraphicsManager::DrawBatch(const Frame &frame)
 
 void OpenGLGraphicsManager::EndFrameBuffer(const Frame& frame)
 {
-    if (m_CurrentFrameBuffer)
+    if (current_frame_buffer_)
     {
-        m_CurrentFrameBuffer->Unbind();
+        current_frame_buffer_->Unbind();
     }
 }
 
@@ -533,7 +533,7 @@ void OpenGLGraphicsManager::EndFrame(const Frame& frame)
 
 void OpenGLGraphicsManager::SwapBuffers()
 {
-    glfwSwapBuffers(m_WindowHandle);
+    glfwSwapBuffers(window_handle_);
 }
 
 bool OpenGLGraphicsManager::Resize(int32_t width, int32_t height)

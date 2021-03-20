@@ -37,7 +37,7 @@ namespace Rocket
         void Play(AudioInfo& info);
 
     private:
-        UMap<String, AudioInfo> m_AudioStore;
+        UMap<String, AudioInfo> audio_storage_;
     };
 
     extern AudioManager* g_AudioManager;

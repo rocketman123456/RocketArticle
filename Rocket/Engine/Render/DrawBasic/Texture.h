@@ -34,11 +34,11 @@ namespace Rocket
 		SubTexture2D(const Ref<Texture2D>& texture, const Vector2f& min, const Vector2f& max);
 		SubTexture2D(const Ref<Texture2D>& texture, const Vector2f& coord, const Vector2f& cellSize, const Vector2f& spriteSize);
 
-		const Ref<Texture2D> GetTexture() { return m_Texture; }
-		const Vector2f* GetTexCoords() { return m_TexCoords; }
+		const Ref<Texture2D> GetTexture() { return texture_; }
+		const Vector2f* GetTexCoords() { return tex_coords_; }
 
 	private:
-		Ref<Texture2D> m_Texture;
-		Vector2f m_TexCoords[4];
+		Ref<Texture2D> texture_;
+		Vector2f tex_coords_[4];
 	};
 }

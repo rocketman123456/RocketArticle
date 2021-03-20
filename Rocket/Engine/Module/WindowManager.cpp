@@ -17,28 +17,28 @@ int WindowManager::Initialize()
     prop.width = config->GetConfigInfo<uint32_t>("Graphics", "window_width");
     prop.height = config->GetConfigInfo<uint32_t>("Graphics", "window_height");
 #if defined(PLATFORM_WINDOWS) || defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
-    m_Window = CreateRef<WindowImplement>(prop);
+    window_ = CreateRef<WindowImplement>(prop);
 #else
 	RK_CORE_ASSERT(false, "Unknown platform!");
 #endif
-    m_Window->Initialize();
+    window_->Initialize();
 
     return 0;
 }
 
 void WindowManager::Finalize()
 {
-    m_Window->Finalize();
+    window_->Finalize();
 }
 
 void WindowManager::Tick(Timestep ts)
 {
-    m_Window->Tick(ts);
+    window_->Tick(ts);
 }
 
 bool WindowManager::OnWindowResize(EventPtr& e)
 {
-    m_Window->SetWidth(e->GetUInt32(1));
-    m_Window->SetHeight(e->GetUInt32(2));
+    window_->SetWidth(e->GetUInt32(1));
+    window_->SetHeight(e->GetUInt32(2));
     return false;
 }

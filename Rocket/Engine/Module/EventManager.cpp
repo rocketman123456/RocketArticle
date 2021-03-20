@@ -18,17 +18,17 @@ int EventManager::Initialize()
     g_EventTimer = new ElapseTimer();
     g_EventTimer->Start();
 
-    m_ActiveEventQueue = 0;
+    active_event_queue_ = 0;
 
-    m_WindowHandle = static_cast<GLFWwindow*>(g_WindowManager->GetNativeWindow());
-    m_Data.Title = Application::Get().GetName();
+    window_handle_ = static_cast<GLFWwindow*>(g_WindowManager->GetNativeWindow());
+    window_data_.title = Application::Get().GetName();
         
-    glfwSetWindowUserPointer(m_WindowHandle, &m_Data);
+    glfwSetWindowUserPointer(window_handle_, &window_data_);
 
     SetupListener();
     SetupCallback();
 
-    m_Timer.Start();
+    timer_.Start();
 
     return 0;
 }
@@ -36,17 +36,17 @@ int EventManager::Initialize()
 void EventManager::SetupCallback()
 {
     // Set GLFW callbacks
-	glfwSetWindowSizeCallback(m_WindowHandle, [](GLFWwindow *window, int width, int height) {
+	glfwSetWindowSizeCallback(window_handle_, [](GLFWwindow *window, int width, int height) {
 		RK_EVENT_TRACE("glfwSetWindowSizeCallback");
         WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 	});
 
-	glfwSetWindowContentScaleCallback(m_WindowHandle, [](GLFWwindow *window, float xscale, float yscale) {
+	glfwSetWindowContentScaleCallback(window_handle_, [](GLFWwindow *window, float xscale, float yscale) {
 		RK_EVENT_TRACE("glfwSetWindowContentScaleCallback");
         WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 	});
 
-	glfwSetWindowRefreshCallback(m_WindowHandle, [](GLFWwindow *window) {
+	glfwSetWindowRefreshCallback(window_handle_, [](GLFWwindow *window) {
 		RK_EVENT_TRACE("glfwSetWindowRefreshCallback");
         WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
@@ -56,10 +56,10 @@ void EventManager::SetupCallback()
         var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "window_refresh");
         EventPtr event = CreateRef<Event>(var);
 
-        data.EventCallback(event);
+        data.event_callback(event);
 	});
 
-	glfwSetFramebufferSizeCallback(m_WindowHandle, [](GLFWwindow *window, int width, int height) {
+	glfwSetFramebufferSizeCallback(window_handle_, [](GLFWwindow *window, int width, int height) {
         RK_EVENT_TRACE("glfwSetFramebufferSizeCallback");
 		WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
@@ -75,10 +75,10 @@ void EventManager::SetupCallback()
         var[3].asInt32 = 0;
         EventPtr event = CreateRef<Event>(var);
 
-		data.EventCallback(event);
+		data.event_callback(event);
 	});
 
-	glfwSetWindowCloseCallback(m_WindowHandle, [](GLFWwindow *window) {
+	glfwSetWindowCloseCallback(window_handle_, [](GLFWwindow *window) {
         RK_EVENT_TRACE("glfwSetWindowCloseCallback");
 		WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
@@ -88,10 +88,10 @@ void EventManager::SetupCallback()
         var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "window_close");
         EventPtr event = CreateRef<Event>(var);
 
-        data.EventCallback(event);
+        data.event_callback(event);
 	});
 
-	glfwSetKeyCallback(m_WindowHandle, [](GLFWwindow *window, int key, int scancode, int action, int mods) {
+	glfwSetKeyCallback(window_handle_, [](GLFWwindow *window, int key, int scancode, int action, int mods) {
         //RK_EVENT_TRACE("glfwSetKeyCallback");
 		WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
@@ -119,10 +119,10 @@ void EventManager::SetupCallback()
             } break;
 		}
         EventPtr event = CreateRef<Event>(var);
-        data.EventCallback(event);
+        data.event_callback(event);
 	});
 
-	glfwSetCharCallback(m_WindowHandle, [](GLFWwindow *window, uint32_t keycode) {
+	glfwSetCharCallback(window_handle_, [](GLFWwindow *window, uint32_t keycode) {
         //RK_EVENT_TRACE("glfwSetCharCallback");
 		WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
@@ -134,10 +134,10 @@ void EventManager::SetupCallback()
         var[1].asInt32 = keycode;
         EventPtr event = CreateRef<Event>(var);
 
-        data.EventCallback(event);
+        data.event_callback(event);
 	});
 
-	glfwSetMouseButtonCallback(m_WindowHandle, [](GLFWwindow *window, int button, int action, int mods) {
+	glfwSetMouseButtonCallback(window_handle_, [](GLFWwindow *window, int button, int action, int mods) {
         //RK_EVENT_TRACE("glfwSetMouseButtonCallback");
 		WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
@@ -158,10 +158,10 @@ void EventManager::SetupCallback()
 		}
         EventPtr event = CreateRef<Event>(var);
         
-        data.EventCallback(event);
+        data.event_callback(event);
 	});
 
-	glfwSetScrollCallback(m_WindowHandle, [](GLFWwindow *window, double xOffset, double yOffset) {
+	glfwSetScrollCallback(window_handle_, [](GLFWwindow *window, double xOffset, double yOffset) {
         //RK_EVENT_TRACE("glfwSetScrollCallback");
 		WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
@@ -175,10 +175,10 @@ void EventManager::SetupCallback()
         var[2].asDouble = yOffset;
         EventPtr event = CreateRef<Event>(var);
 		
-        data.EventCallback(event);
+        data.event_callback(event);
 	});
 
-	glfwSetCursorPosCallback(m_WindowHandle, [](GLFWwindow *window, double xPos, double yPos) {
+	glfwSetCursorPosCallback(window_handle_, [](GLFWwindow *window, double xPos, double yPos) {
         //RK_EVENT_TRACE("glfwSetCursorPosCallback");
 		WindowData &data = *(WindowData *)glfwGetWindowUserPointer(window);
 
@@ -192,7 +192,7 @@ void EventManager::SetupCallback()
         var[2].asDouble = yPos;
         EventPtr event = CreateRef<Event>(var);
 
-		data.EventCallback(event);
+		data.event_callback(event);
 	});
 }
 
@@ -228,7 +228,7 @@ void EventManager::Tick(Timestep ts)
 
     //glfwPollEvents();
 
-    m_Timer.MarkLapping();
+    timer_.MarkLapping();
     bool result = Update();
     if(!result)
     {
@@ -240,15 +240,15 @@ void EventManager::Tick(Timestep ts)
 
 bool EventManager::Update(uint64_t maxMillis)
 {
-    double currMs = m_Timer.GetElapsedTime();
+    double currMs = timer_.GetElapsedTime();
     double maxMs = currMs + maxMillis;
 
     // This section added to handle events from other threads.
     EventPtr pRealtimeEvent;
-    while (m_EventThreadQueue.try_pop(pRealtimeEvent))
+    while (event_thread_queue_.try_pop(pRealtimeEvent))
     {
         QueueEvent(pRealtimeEvent);
-        currMs = m_Timer.GetElapsedTime();
+        currMs = timer_.GetElapsedTime();
         if (currMs >= maxMs)
         {
             RK_EVENT_WARN("A realtime process is spamming the event manager! {}", *pRealtimeEvent);
@@ -256,25 +256,25 @@ bool EventManager::Update(uint64_t maxMillis)
     }
 
     // swap active queues and clear the new queue after the swap
-    int queueToProcess = m_ActiveEventQueue;
-    m_ActiveEventQueue = (m_ActiveEventQueue + 1) % EVENTMANAGER_NUM_QUEUES;
-    m_EventQueue[m_ActiveEventQueue].clear();
+    int queueToProcess = active_event_queue_;
+    active_event_queue_ = (active_event_queue_ + 1) % EVENTMANAGER_NUM_QUEUES;
+    event_queue_[active_event_queue_].clear();
 
-    //RK_EVENT_INFO("Processing Event Queue {0} - {1} events to process", queueToProcess, m_EventQueue[queueToProcess].size());
+    //RK_EVENT_INFO("Processing Event Queue {0} - {1} events to process", queueToProcess, event_queue_[queueToProcess].size());
 
     // Process the queue
-    while (!m_EventQueue[queueToProcess].empty())
+    while (!event_queue_[queueToProcess].empty())
     {
         // pop the front of the queue
-        EventPtr pEvent = m_EventQueue[queueToProcess].front();
-        m_EventQueue[queueToProcess].pop_front();
+        EventPtr pEvent = event_queue_[queueToProcess].front();
+        event_queue_[queueToProcess].pop_front();
         RK_EVENT_TRACE("\tProcessing Event {0}", pEvent->GetName());
 
         const EventType& eventType = pEvent->GetEventType();
 
         // find all the delegate functions registered for this event
-        auto findIt = m_EventListener.find(eventType);
-        if (findIt != m_EventListener.end())
+        auto findIt = event_listener_.find(eventType);
+        if (findIt != event_listener_.end())
         {
             const EventListenerList& eventListeners = findIt->second;
             RK_EVENT_TRACE("\tFound {0} delegates", (unsigned long)eventListeners.size());
@@ -291,7 +291,7 @@ bool EventManager::Update(uint64_t maxMillis)
         }
 
         // check to see if time ran out
-        currMs = m_Timer.GetElapsedTime();
+        currMs = timer_.GetElapsedTime();
         if (currMs >= maxMs)
         {
             RK_EVENT_TRACE("Aborting event processing; time ran out");
@@ -301,14 +301,14 @@ bool EventManager::Update(uint64_t maxMillis)
         
     // If we couldn't process all of the events, push the remaining events to the new active queue.
     // Note: To preserve sequencing, go back-to-front, inserting them at the head of the active queue
-    bool queueFlushed = (m_EventQueue[queueToProcess].empty());
+    bool queueFlushed = (event_queue_[queueToProcess].empty());
     if (!queueFlushed)
     {
-        while (!m_EventQueue[queueToProcess].empty())
+        while (!event_queue_[queueToProcess].empty())
         {
-            EventPtr pEvent = m_EventQueue[queueToProcess].back();
-            m_EventQueue[queueToProcess].pop_back();
-            m_EventQueue[m_ActiveEventQueue].push_back(pEvent);
+            EventPtr pEvent = event_queue_[queueToProcess].back();
+            event_queue_[queueToProcess].pop_back();
+            event_queue_[active_event_queue_].push_back(pEvent);
         }
     }
         
@@ -317,7 +317,7 @@ bool EventManager::Update(uint64_t maxMillis)
 
 bool EventManager::AddListener(const EventListenerDelegate& eventDelegate, const EventType& type)
 {
-    EventListenerList& eventListenerList = m_EventListener[type];  // this will find or create the entry
+    EventListenerList& eventListenerList = event_listener_[type];  // this will find or create the entry
     for (auto it = eventListenerList.begin(); it != eventListenerList.end(); ++it)
     {
         // Must use function pointer as listener
@@ -334,8 +334,8 @@ bool EventManager::AddListener(const EventListenerDelegate& eventDelegate, const
 bool EventManager::RemoveListener(const EventListenerDelegate& eventDelegate, const EventType& type)
 {
     bool success = false;
-    auto findIt = m_EventListener.find(type);
-    if (findIt != m_EventListener.end())
+    auto findIt = event_listener_.find(type);
+    if (findIt != event_listener_.end())
     {
         EventListenerList& listeners = findIt->second;
         for (auto it = listeners.begin(); it != listeners.end(); ++it)
@@ -357,8 +357,8 @@ bool EventManager::TriggerEvent(EventPtr& event) const
 {
     //RK_EVENT_TRACE("Trigger Event : {}", event->GetName());
     bool processed = false;
-    auto findIt = m_EventListener.find(event->GetEventType());
-    if (findIt != m_EventListener.end())
+    auto findIt = event_listener_.find(event->GetEventType());
+    if (findIt != event_listener_.end())
     {
         const EventListenerList& eventListenerList = findIt->second;
         for (EventListenerList::const_iterator it = eventListenerList.begin(); it != eventListenerList.end(); ++it)
@@ -375,15 +375,15 @@ bool EventManager::TriggerEvent(EventPtr& event) const
 
 bool EventManager::QueueEvent(const EventPtr& event)
 {
-    RK_CORE_ASSERT(m_ActiveEventQueue >= 0, "EventManager Active Queue Error");
-    RK_CORE_ASSERT(m_ActiveEventQueue < EVENTMANAGER_NUM_QUEUES, "EventManager Active Queue Error");
+    RK_CORE_ASSERT(active_event_queue_ >= 0, "EventManager Active Queue Error");
+    RK_CORE_ASSERT(active_event_queue_ < EVENTMANAGER_NUM_QUEUES, "EventManager Active Queue Error");
 
     RK_EVENT_TRACE("Attempting to queue event: {0}", event->GetName());
 
-    auto findIt = m_EventListener.find(event->GetEventType());
-    if (findIt != m_EventListener.end())
+    auto findIt = event_listener_.find(event->GetEventType());
+    if (findIt != event_listener_.end())
     {
-        m_EventQueue[m_ActiveEventQueue].push_back(event);
+        event_queue_[active_event_queue_].push_back(event);
         RK_EVENT_TRACE("Successfully queued event: {0}", event->GetName());
         return true;
     }
@@ -396,21 +396,21 @@ bool EventManager::QueueEvent(const EventPtr& event)
 
 bool EventManager::ThreadSafeQueueEvent(const EventPtr& event)
 {
-    m_EventThreadQueue.push(event);
+    event_thread_queue_.push(event);
     return true;
 }
 
 bool EventManager::AbortEvent(const EventType& type, bool allOfType)
 {
-    RK_CORE_ASSERT(m_ActiveEventQueue >= 0, "EventManager Active Queue Error");
-    RK_CORE_ASSERT(m_ActiveEventQueue < EVENTMANAGER_NUM_QUEUES, "EventManager Active Queue Error");
+    RK_CORE_ASSERT(active_event_queue_ >= 0, "EventManager Active Queue Error");
+    RK_CORE_ASSERT(active_event_queue_ < EVENTMANAGER_NUM_QUEUES, "EventManager Active Queue Error");
 
     bool success = false;
-    EventListenerMap::iterator findIt = m_EventListener.find(type);
+    EventListenerMap::iterator findIt = event_listener_.find(type);
 
-    if (findIt != m_EventListener.end())
+    if (findIt != event_listener_.end())
     {
-        EventQueue& eventQueue = m_EventQueue[m_ActiveEventQueue];
+        EventQueue& eventQueue = event_queue_[active_event_queue_];
         auto it = eventQueue.begin();
         while (it != eventQueue.end())
         {

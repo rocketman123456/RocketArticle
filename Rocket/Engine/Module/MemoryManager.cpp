@@ -4,8 +4,8 @@ using namespace Rocket;
 
 MemoryManager* Rocket::GetMemoryManager() { return new MemoryManager(); }
 
-size_t* MemoryManager::m_pBlockSizeLookup = nullptr;
-BlockAllocator* MemoryManager::m_pAllocators = nullptr;
+size_t* MemoryManager::block_size_lookup_ = nullptr;
+BlockAllocator* MemoryManager::allocators_ = nullptr;
 
 std::ostream& Rocket::operator<<(std::ostream& out, MemoryType type)
 {
@@ -48,19 +48,19 @@ int MemoryManager::Initialize()
     if (!s_bInitialized)
     {
         // initialize block size lookup table
-        m_pBlockSizeLookup = new size_t[kMaxBlockSize + 1];
+        block_size_lookup_ = new size_t[kMaxBlockSize + 1];
         size_t j = 0;
         for (size_t i = 0; i <= kMaxBlockSize; i++)
         {
             if (i > kBlockSizes[j]) ++j;
-            m_pBlockSizeLookup[i] = j;
+            block_size_lookup_[i] = j;
         }
 
         // initialize the allocators
-        m_pAllocators = new BlockAllocator[kNumBlockSizes];
+        allocators_ = new BlockAllocator[kNumBlockSizes];
         for (size_t i = 0; i < kNumBlockSizes; i++)
         {
-            m_pAllocators[i].Reset(kBlockSizes[i], kPageSize, kAlignment);
+            allocators_[i].Reset(kBlockSizes[i], kPageSize, kAlignment);
         }
 
         s_bInitialized = true;
@@ -71,9 +71,9 @@ int MemoryManager::Initialize()
 
 void MemoryManager::Finalize() 
 { 
-    delete[] m_pAllocators;
-    delete[] m_pBlockSizeLookup;
-    assert(m_mapMemoryAllocationInfo.empty()); 
+    delete[] allocators_;
+    delete[] block_size_lookup_;
+    assert(map_memory_allocation_info_.empty()); 
 }
 
 void MemoryManager::Tick(Timestep ts) 
@@ -84,9 +84,9 @@ void MemoryManager::Tick(Timestep ts)
     if (count >= 1000.0f)
     {
         //RK_CORE_TRACE("Memory Manager Info:");
-        //for (auto info : m_mapMemoryAllocationInfo)
+        //for (auto info : map_memory_allocation_info_)
         //{
-        //    RK_CORE_TRACE("{}\t{}:{}", info.first, info.second.PageMemoryType, info.second.PageSize);
+        //    RK_CORE_TRACE("{}\t{}:{}", info.first, info.second.page_memory_type, info.second.page_size);
         //}
         count = 0.0f;
     }
@@ -101,7 +101,7 @@ BlockAllocator* MemoryManager::LookUpAllocator(size_t size)
 {
     // check eligibility for lookup
     if (size <= kMaxBlockSize)
-        return m_pAllocators + m_pBlockSizeLookup[size];
+        return allocators_ + block_size_lookup_[size];
     else
         return nullptr;
 }
@@ -135,7 +135,7 @@ void* MemoryManager::AllocatePage(size_t size)
     p = static_cast<uint8_t*>(malloc(size));
     if (p) {
         MemoryAllocationInfo info = {size, MemoryType::CPU};
-        m_mapMemoryAllocationInfo.insert({p, info});
+        map_memory_allocation_info_.insert({p, info});
     }
 
     return static_cast<void*>(p);
@@ -143,9 +143,9 @@ void* MemoryManager::AllocatePage(size_t size)
 
 void MemoryManager::FreePage(void* p)
 {
-    auto it = m_mapMemoryAllocationInfo.find(p);
-    if (it != m_mapMemoryAllocationInfo.end()) {
-        m_mapMemoryAllocationInfo.erase(it);
+    auto it = map_memory_allocation_info_.find(p);
+    if (it != map_memory_allocation_info_.end()) {
+        map_memory_allocation_info_.erase(it);
         free(p);
     }
 }

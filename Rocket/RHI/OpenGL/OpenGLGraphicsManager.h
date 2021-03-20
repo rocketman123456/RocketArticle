@@ -66,7 +66,7 @@ namespace Rocket
         bool Resize(int32_t width, int32_t height);
 
     private:
-        GLFWwindow* m_WindowHandle = nullptr;
+        GLFWwindow* window_handle_ = nullptr;
         bool m_VSync = true;
         int32_t m_Width;
         int32_t m_Height;

@@ -18,13 +18,13 @@ namespace Rocket
 
         bool OnWindowResize(EventPtr& e);
 
-        uint32_t GetWindowWidth() { return m_Window->GetWidth(); }
-        uint32_t GetWindowHeight() { return m_Window->GetHeight(); }
+        uint32_t GetWindowWidth() { return window_->GetWidth(); }
+        uint32_t GetWindowHeight() { return window_->GetHeight(); }
 
-        const Ref<Window> GetWindow() { return m_Window; }
-        void* GetNativeWindow() { return m_Window->GetNativeWindow(); }
+        const Ref<Window> GetWindow() { return window_; }
+        void* GetNativeWindow() { return window_->GetNativeWindow(); }
     private:
-        Ref<Window> m_Window;
+        Ref<Window> window_;
     };
 
     WindowManager* GetWindowManager();

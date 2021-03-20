@@ -10,6 +10,9 @@ namespace Rocket
 	{
 	public:
 		virtual void Draw() = 0;
+
+	public:
+		String name;
 	};
 
 	Interface UI
@@ -19,14 +22,13 @@ namespace Rocket
 		virtual void Finalize();
 		virtual void Draw() = 0;
 
-		void AddContext(const Ref<UIContext>& context) { contexts.push_back(context); }
-		// TODO : add remove ui function
+		void AddContext(const Ref<UIContext>& context);
+		void RemoveContext(const String& context);
 		void DrawUI();
 		virtual void UpdataOverlay(uint32_t width, uint32_t height);
 		virtual bool OnUIResponse(EventPtr& e);
 
 	protected:
-		// TODO : use map to store
-		Vec<Ref<UIContext>> contexts;
+		Vec<Ref<UIContext>> contexts_;
 	};
 }

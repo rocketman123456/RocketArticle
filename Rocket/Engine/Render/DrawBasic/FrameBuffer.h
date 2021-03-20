@@ -8,16 +8,16 @@ namespace Rocket
 
 	struct FramebufferSpec
 	{
-		uint32_t ColorWidth = 0;
-		uint32_t ColorHeight = 0;
-		uint32_t DepthWidth = 0;
-		uint32_t DepthHeight = 0;
-		uint32_t Samples = 1;
+		uint32_t color_width = 0;
+		uint32_t color_height = 0;
+		uint32_t depth_width = 0;
+		uint32_t depth_height = 0;
+		uint32_t samples = 1;
 
-		bool SwapChainTarget = false;
+		bool swap_chain_target = false;
 
-		Vec<FRAME_TEXTURE_FORMAT> ColorAttachment = {};
-		FRAME_TEXTURE_FORMAT DepthAttachment = FRAME_TEXTURE_FORMAT::NONE;
+		Vec<FRAME_TEXTURE_FORMAT> color_attachment = {};
+		FRAME_TEXTURE_FORMAT depth_attachment = FRAME_TEXTURE_FORMAT::NONE;
 	};
 
 	Interface FrameBuffer

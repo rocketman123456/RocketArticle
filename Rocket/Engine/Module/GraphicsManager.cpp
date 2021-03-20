@@ -10,34 +10,34 @@ using namespace Rocket;
 int GraphicsManager::Initialize()
 {
     // Add Init Pass
-    m_InitPasses.push_back(CreateRef<BRDFGenerate>());
-    //m_InitPasses.push_back(CreateRef<SkyBoxGenerate>());
+    init_passes_.push_back(CreateRef<BRDFGenerate>());
+    //init_passes_.push_back(CreateRef<SkyBoxGenerate>());
 
     // Get Max Frame In Flight
     auto& config = g_Application->GetConfig();
-    m_MaxFrameInFlight = config->GetConfigInfo<uint32_t>("Graphics", "max_frame_in_flight");
+    max_frame_in_flight_ = config->GetConfigInfo<uint32_t>("Graphics", "max_frame_in_flight");
 
     // Add Draw Pass
-    m_DrawPasses.push_back(CreateRef<ForwardGeometryPass>());
+    draw_passes_.push_back(CreateRef<ForwardGeometryPass>());
 
     // Init Frames Data
-    m_Frames.resize(m_MaxFrameInFlight);
-    for(size_t i = 0; i < m_MaxFrameInFlight; ++i)
+    frames_.resize(max_frame_in_flight_);
+    for(size_t i = 0; i < max_frame_in_flight_; ++i)
     {
-        m_Frames[i] = {};
+        frames_[i] = {};
     }
 
     // Init UBOs
-    m_uboDrawFrameConstant.resize(m_MaxFrameInFlight);
-    m_uboLightInfo.resize(m_MaxFrameInFlight);
-    m_uboDrawBatchConstant.resize(m_MaxFrameInFlight);
-    m_uboShadowMatricesConstant.resize(m_MaxFrameInFlight);
-    for(size_t i = 0; i < m_MaxFrameInFlight; ++i)
+    ubo_draw_frame_constant_.resize(max_frame_in_flight_);
+    ubo_light_info_.resize(max_frame_in_flight_);
+    ubo_draw_batch_constant_.resize(max_frame_in_flight_);
+    ubo_shadow_matrices_constant_.resize(max_frame_in_flight_);
+    for(size_t i = 0; i < max_frame_in_flight_; ++i)
     {
-        m_uboDrawFrameConstant[i] = nullptr;
-        m_uboDrawBatchConstant[i] = nullptr;
-        m_uboLightInfo[i] = nullptr;
-        m_uboShadowMatricesConstant[i] = nullptr;
+        ubo_draw_frame_constant_[i] = nullptr;
+        ubo_draw_batch_constant_[i] = nullptr;
+        ubo_light_info_[i] = nullptr;
+        ubo_shadow_matrices_constant_[i] = nullptr;
     }
 
     InitConstants();
@@ -56,31 +56,31 @@ void GraphicsManager::Tick(Timestep ts)
     {
         RK_GRAPHICS_WARN("No Active Scene");
     }
-    else if (!m_CurrentScene || m_CurrentScene->GetSceneChange() || m_CurrentScene != scene)
+    else if (!current_scene_ || current_scene_->GetSceneChange() || current_scene_ != scene)
     {
         EndScene();
-        m_CurrentScene = g_SceneManager->GetActiveScene();
-        BeginScene(*m_CurrentScene);
-        m_CurrentScene->SetSceneChange(false);
+        current_scene_ = g_SceneManager->GetActiveScene();
+        BeginScene(*current_scene_);
+        current_scene_->SetSceneChange(false);
     }
     
     UpdateConstants();
 
-    BeginFrame(m_Frames[m_CurrentFrameIndex]);
+    BeginFrame(frames_[current_frame_index_]);
     Draw();
-    EndFrame(m_Frames[m_CurrentFrameIndex]);
+    EndFrame(frames_[current_frame_index_]);
 
     Present();
 }
 
 void GraphicsManager::UpdateConstants()
 {
-    auto& frame = m_Frames[m_CurrentFrameIndex];
+    auto& frame = frames_[current_frame_index_];
 
-    for (auto& pDbc : frame.batchContexts)
+    for (auto& pDbc : frame.batch_contexts)
     {
         // TODO : implements scene update
-        //m_CurrentScene->Update();
+        //current_scene_->Update();
     }
 
     CalculateCameraMatrix();
@@ -92,9 +92,9 @@ void GraphicsManager::CalculateCameraMatrix()
     auto& scene = g_SceneManager->GetActiveScene();
     auto& camera = scene->GetPrimaryCamera();
     
-    m_Frames[m_CurrentFrameIndex].frameContext.projectionMatrix = camera->GetProjection();
-    m_Frames[m_CurrentFrameIndex].frameContext.viewMatrix = scene->GetPrimaryCameraTransform().inverse();
-    m_Frames[m_CurrentFrameIndex].frameContext.camPos = scene->GetPrimaryCameraTransform().block<4, 1>(0, 3);
+    frames_[current_frame_index_].frame_context.projection_mat = camera->GetProjection();
+    frames_[current_frame_index_].frame_context.view_mat = scene->GetPrimaryCameraTransform().inverse();
+    frames_[current_frame_index_].frame_context.cam_position = scene->GetPrimaryCameraTransform().block<4, 1>(0, 3);
 }
 
 void GraphicsManager::CalculateLights()
@@ -103,16 +103,16 @@ void GraphicsManager::CalculateLights()
 
 void GraphicsManager::Draw()
 {
-    auto& frame = m_Frames[m_CurrentFrameIndex];
+    auto& frame = frames_[current_frame_index_];
 
-    for (auto& pDispatchPass : m_DispatchPasses)
+    for (auto& pDispatchPass : dispatch_passes_)
     {
         pDispatchPass->BeginPass(frame);
         pDispatchPass->Dispatch(frame);
         pDispatchPass->EndPass(frame);
     }
 
-    for (auto& pDrawPass : m_DrawPasses)
+    for (auto& pDrawPass : draw_passes_)
     {
         pDrawPass->BeginPass(frame);
         pDrawPass->Draw(frame);
@@ -123,50 +123,50 @@ void GraphicsManager::Draw()
 void GraphicsManager::BeginScene(const Scene& scene)
 {
     // first, call init passes on frame 0
-    for (const auto& pPass : m_InitPasses)
+    for (const auto& pPass : init_passes_)
     {
-        pPass->BeginPass(m_Frames[0]);
-        pPass->Dispatch(m_Frames[0]);
-        pPass->EndPass(m_Frames[0]);
+        pPass->BeginPass(frames_[0]);
+        pPass->Dispatch(frames_[0]);
+        pPass->EndPass(frames_[0]);
     }
 
     auto config = g_Application->GetConfig();
 
-    for (uint32_t i = 0; i < m_MaxFrameInFlight; i++)
+    for (uint32_t i = 0; i < max_frame_in_flight_; i++)
     {
-        m_Frames[i] = m_Frames[0];
-        m_Frames[i].frameIndex = i;
+        frames_[i] = frames_[0];
+        frames_[i].frame_index = i;
     }
 }
 
 void GraphicsManager::EndScene()
 {
-    m_Frames.clear();
-    m_Frames.resize(m_MaxFrameInFlight);
+    frames_.clear();
+    frames_.resize(max_frame_in_flight_);
 
     // Clear Buffers
-    //m_uboDrawFrameConstant.clear();
-    //m_uboLightInfo.clear();
-    //m_uboDrawBatchConstant.clear();
-    //m_uboShadowMatricesConstant.clear();
+    //ubo_draw_frame_constant_.clear();
+    //ubo_light_info_.clear();
+    //ubo_draw_batch_constant_.clear();
+    //ubo_shadow_matrices_constant_.clear();
 
     // Regenerate Buffers
-    //m_uboDrawFrameConstant.resize(m_MaxFrameInFlight);
-    //m_uboLightInfo.resize(m_MaxFrameInFlight);
-    //m_uboDrawBatchConstant.resize(m_MaxFrameInFlight);
-    //m_uboShadowMatricesConstant.resize(m_MaxFrameInFlight);
+    //ubo_draw_frame_constant_.resize(max_frame_in_flight_);
+    //ubo_light_info_.resize(max_frame_in_flight_);
+    //ubo_draw_batch_constant_.resize(max_frame_in_flight_);
+    //ubo_shadow_matrices_constant_.resize(max_frame_in_flight_);
     
-    //for(size_t i = 0; i < m_MaxFrameInFlight; ++i)
+    //for(size_t i = 0; i < max_frame_in_flight_; ++i)
     //{
-    //    m_uboDrawFrameConstant[i] = nullptr;
-    //    m_uboLightInfo[i] = nullptr;
-    //    m_uboDrawBatchConstant[i] = nullptr;
-    //    m_uboShadowMatricesConstant[i] = nullptr;
+    //    ubo_draw_frame_constant_[i] = nullptr;
+    //    ubo_light_info_[i] = nullptr;
+    //    ubo_draw_batch_constant_[i] = nullptr;
+    //    ubo_shadow_matrices_constant_[i] = nullptr;
     //}
 
-    m_CurrentScene = nullptr;
-    //m_CurrentShader = nullptr;
-    //m_CurrentFrameBuffer = nullptr;
+    current_scene_ = nullptr;
+    //current_shader_ = nullptr;
+    //current_frame_buffer_ = nullptr;
 }
 
 void GraphicsManager::BeginFrame(const Frame& frame) 
@@ -175,13 +175,13 @@ void GraphicsManager::BeginFrame(const Frame& frame)
 
 void GraphicsManager::EndFrame(const Frame& frame) 
 { 
-    m_CurrentFrameIndex = (m_CurrentFrameIndex + 1) % m_MaxFrameInFlight; 
+    current_frame_index_ = (current_frame_index_ + 1) % max_frame_in_flight_; 
 }
 
 Ref<FrameBuffer> GraphicsManager::GetFrameBuffer(const String& name)
 { 
-    auto it = m_FrameBuffers.find(name);
-    if (it == m_FrameBuffers.end())
+    auto it = frame_buffers_.find(name);
+    if (it == frame_buffers_.end())
     {
         return nullptr;
     }

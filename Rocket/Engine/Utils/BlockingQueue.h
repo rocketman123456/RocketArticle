@@ -11,10 +11,10 @@ public:
 	push(const T &item)
 	{
 		{
-			std::unique_lock lock(m_mutex);
-			m_queue.push(item);
+			std::unique_lock lock(mutex_);
+			queue_.push(item);
 		}
-		m_ready.notify_one();
+		ready_.notify_one();
 	}
 
 	template <typename Q = T>
@@ -22,10 +22,10 @@ public:
 		push(T && item)
 	{
 		{
-			std::unique_lock lock(m_mutex);
-			m_queue.emplace(std::forward<T>(item));
+			std::unique_lock lock(mutex_);
+			queue_.emplace(std::forward<T>(item));
 		}
-		m_ready.notify_one();
+		ready_.notify_one();
 	}
 
 	template <typename Q = T>
@@ -33,12 +33,12 @@ public:
 	try_push(const T &item)
 	{
 		{
-			std::unique_lock lock(m_mutex, std::try_to_lock);
+			std::unique_lock lock(mutex_, std::try_to_lock);
 			if (!lock)
 				return false;
-			m_queue.push(item);
+			queue_.push(item);
 		}
-		m_ready.notify_one();
+		ready_.notify_one();
 		return true;
 	}
 
@@ -47,12 +47,12 @@ public:
 		try_push(T && item)
 	{
 		{
-			std::unique_lock lock(m_mutex, std::try_to_lock);
+			std::unique_lock lock(mutex_, std::try_to_lock);
 			if (!lock)
 				return false;
-			m_queue.emplace(std::forward<T>(item));
+			queue_.emplace(std::forward<T>(item));
 		}
-		m_ready.notify_one();
+		ready_.notify_one();
 		return true;
 	}
 
@@ -63,13 +63,13 @@ public:
 		bool>::type
 		pop(T & item)
 	{
-		std::unique_lock lock(m_mutex);
-		while (m_queue.empty() && !m_done)
-			m_ready.wait(lock);
-		if (m_queue.empty())
+		std::unique_lock lock(mutex_);
+		while (queue_.empty() && !done_)
+			ready_.wait(lock);
+		if (queue_.empty())
 			return false;
-		item = m_queue.front();
-		m_queue.pop();
+		item = queue_.front();
+		queue_.pop();
 		return true;
 	}
 
@@ -77,13 +77,13 @@ public:
 	typename std::enable_if<std::is_move_assignable<Q>::value, bool>::type
 		pop(T & item)
 	{
-		std::unique_lock lock(m_mutex);
-		while (m_queue.empty() && !m_done)
-			m_ready.wait(lock);
-		if (m_queue.empty())
+		std::unique_lock lock(mutex_);
+		while (queue_.empty() && !done_)
+			ready_.wait(lock);
+		if (queue_.empty())
 			return false;
-		item = std::move(m_queue.front());
-		m_queue.pop();
+		item = std::move(queue_.front());
+		queue_.pop();
 		return true;
 	}
 
@@ -94,11 +94,11 @@ public:
 		bool>::type
 		try_pop(T & item)
 	{
-		std::unique_lock lock(m_mutex, std::try_to_lock);
-		if (!lock || m_queue.empty())
+		std::unique_lock lock(mutex_, std::try_to_lock);
+		if (!lock || queue_.empty())
 			return false;
-		item = m_queue.front();
-		m_queue.pop();
+		item = queue_.front();
+		queue_.pop();
 		return true;
 	}
 
@@ -106,40 +106,40 @@ public:
 	typename std::enable_if<std::is_move_assignable<Q>::value, bool>::type
 		try_pop(T & item)
 	{
-		std::unique_lock lock(m_mutex, std::try_to_lock);
-		if (!lock || m_queue.empty())
+		std::unique_lock lock(mutex_, std::try_to_lock);
+		if (!lock || queue_.empty())
 			return false;
-		item = std::move(m_queue.front());
-		m_queue.pop();
+		item = std::move(queue_.front());
+		queue_.pop();
 		return true;
 	}
 
 	void done() noexcept
 	{
 		{
-			std::unique_lock lock(m_mutex);
-			m_done = true;
+			std::unique_lock lock(mutex_);
+			done_ = true;
 		}
-		m_ready.notify_all();
+		ready_.notify_all();
 	}
 
 	bool empty() const noexcept
 	{
-		std::scoped_lock lock(m_mutex);
-		return m_queue.empty();
+		std::scoped_lock lock(mutex_);
+		return queue_.empty();
 	}
 
 	uint32_t size() const noexcept
 	{
-		std::scoped_lock lock(m_mutex);
-		return m_queue.size();
+		std::scoped_lock lock(mutex_);
+		return queue_.size();
 	}
 
 private:
-	std::queue<T> m_queue;
-	mutable std::mutex m_mutex;
-	std::condition_variable m_ready;
-	bool m_done = false;
+	std::queue<T> queue_;
+	mutable std::mutex mutex_;
+	std::condition_variable ready_;
+	bool done_ = false;
 };
 
 template <typename T>
@@ -147,9 +147,9 @@ class fixed_blocking_queue
 {
 public:
 	explicit fixed_blocking_queue(uint32_t size)
-		: m_size(size), m_pushIndex(0), m_popIndex(0), m_count(0),
-		  m_data((T *)operator new(size * sizeof(T))),
-		  m_openSlots(size), m_fullSlots(0)
+		: size_(size), push_index_(0), pop_index_(0), count_(0),
+		  data_((T *)operator new(size * sizeof(T))),
+		  open_slots_(size), full_slots_(0)
 	{
 		if (!size)
 			throw std::invalid_argument("Invalid queue size!");
@@ -157,12 +157,12 @@ public:
 
 	~fixed_blocking_queue() noexcept
 	{
-		while (m_count--)
+		while (count_--)
 		{
-			m_data[m_popIndex].~T();
-			m_popIndex = ++m_popIndex % m_size;
+			data_[pop_index_].~T();
+			pop_index_ = ++pop_index_ % size_;
 		}
-		operator delete(m_data);
+		operator delete(data_);
 	}
 
 	template <typename Q = T>
@@ -172,14 +172,14 @@ public:
 		void>::type
 	push(const T &item) noexcept
 	{
-		m_openSlots.wait();
+		open_slots_.wait();
 		{
-			std::scoped_lock lock(m_cs);
-			new (m_data + m_pushIndex) T(item);
-			m_pushIndex = ++m_pushIndex % m_size;
-			++m_count;
+			std::scoped_lock lock(mutex_);
+			new (data_ + push_index_) T(item);
+			push_index_ = ++push_index_ % size_;
+			++count_;
 		}
-		m_fullSlots.post();
+		full_slots_.post();
 	}
 
 	template <typename Q = T>
@@ -189,22 +189,22 @@ public:
 		void>::type
 	push(const T &item)
 	{
-		m_openSlots.wait();
+		open_slots_.wait();
 		{
-			std::scoped_lock lock(m_cs);
+			std::scoped_lock lock(mutex_);
 			try
 			{
-				new (m_data + m_pushIndex) T(item);
+				new (data_ + push_index_) T(item);
 			}
 			catch (...)
 			{
-				m_openSlots.post();
+				open_slots_.post();
 				throw;
 			}
-			m_pushIndex = ++m_pushIndex % m_size;
-			++m_count;
+			push_index_ = ++push_index_ % size_;
+			++count_;
 		}
-		m_fullSlots.post();
+		full_slots_.post();
 	}
 
 	template <typename Q = T>
@@ -214,14 +214,14 @@ public:
 		void>::type
 	push(T &&item) noexcept
 	{
-		m_openSlots.wait();
+		open_slots_.wait();
 		{
-			std::scoped_lock lock(m_cs);
-			new (m_data + m_pushIndex) T(std::move(item));
-			m_pushIndex = ++m_pushIndex % m_size;
-			++m_count;
+			std::scoped_lock lock(mutex_);
+			new (data_ + push_index_) T(std::move(item));
+			push_index_ = ++push_index_ % size_;
+			++count_;
 		}
-		m_fullSlots.post();
+		full_slots_.post();
 	}
 
 	template <typename Q = T>
@@ -231,22 +231,22 @@ public:
 		void>::type
 	push(T &&item)
 	{
-		m_openSlots.wait();
+		open_slots_.wait();
 		{
-			std::scoped_lock lock(m_cs);
+			std::scoped_lock lock(mutex_);
 			try
 			{
-				new (m_data + m_pushIndex) T(std::move(item));
+				new (data_ + push_index_) T(std::move(item));
 			}
 			catch (...)
 			{
-				m_openSlots.post();
+				open_slots_.post();
 				throw;
 			}
-			m_pushIndex = ++m_pushIndex % m_size;
-			++m_count;
+			push_index_ = ++push_index_ % size_;
+			++count_;
 		}
-		m_fullSlots.post();
+		full_slots_.post();
 	}
 
 	template <typename Q = T>
@@ -256,16 +256,16 @@ public:
 		bool>::type
 	try_push(const T &item) noexcept
 	{
-		auto result = m_openSlots.wait_for(std::chrono::seconds(0));
+		auto result = open_slots_.wait_for(std::chrono::seconds(0));
 		if (!result)
 			return false;
 		{
-			std::scoped_lock lock(m_cs);
-			new (m_data + m_pushIndex) T(item);
-			m_pushIndex = ++m_pushIndex % m_size;
-			++m_count;
+			std::scoped_lock lock(mutex_);
+			new (data_ + push_index_) T(item);
+			push_index_ = ++push_index_ % size_;
+			++count_;
 		}
-		m_fullSlots.post();
+		full_slots_.post();
 		return true;
 	}
 
@@ -276,24 +276,24 @@ public:
 		bool>::type
 	try_push(const T &item)
 	{
-		auto result = m_openSlots.wait_for(std::chrono::seconds(0));
+		auto result = open_slots_.wait_for(std::chrono::seconds(0));
 		if (!result)
 			return false;
 		{
-			std::scoped_lock lock(m_cs);
+			std::scoped_lock lock(mutex_);
 			try
 			{
-				new (m_data + m_pushIndex) T(item);
+				new (data_ + push_index_) T(item);
 			}
 			catch (...)
 			{
-				m_openSlots.post();
+				open_slots_.post();
 				throw;
 			}
-			m_pushIndex = ++m_pushIndex % m_size;
-			++m_count;
+			push_index_ = ++push_index_ % size_;
+			++count_;
 		}
-		m_fullSlots.post();
+		full_slots_.post();
 		return true;
 	}
 
@@ -304,16 +304,16 @@ public:
 		bool>::type
 	try_push(T &&item) noexcept
 	{
-		auto result = m_openSlots.wait_for(std::chrono::seconds(0));
+		auto result = open_slots_.wait_for(std::chrono::seconds(0));
 		if (!result)
 			return false;
 		{
-			std::scoped_lock lock(m_cs);
-			new (m_data + m_pushIndex) T(std::move(item));
-			m_pushIndex = ++m_pushIndex % m_size;
-			++m_count;
+			std::scoped_lock lock(mutex_);
+			new (data_ + push_index_) T(std::move(item));
+			push_index_ = ++push_index_ % size_;
+			++count_;
 		}
-		m_fullSlots.post();
+		full_slots_.post();
 		return true;
 	}
 
@@ -324,24 +324,24 @@ public:
 		bool>::type
 	try_push(T &&item)
 	{
-		auto result = m_openSlots.wait_for(std::chrono::seconds(0));
+		auto result = open_slots_.wait_for(std::chrono::seconds(0));
 		if (!result)
 			return false;
 		{
-			std::scoped_lock lock(m_cs);
+			std::scoped_lock lock(mutex_);
 			try
 			{
-				new (m_data + m_pushIndex) T(std::move(item));
+				new (data_ + push_index_) T(std::move(item));
 			}
 			catch (...)
 			{
-				m_openSlots.post();
+				open_slots_.post();
 				throw;
 			}
-			m_pushIndex = ++m_pushIndex % m_size;
-			++m_count;
+			push_index_ = ++push_index_ % size_;
+			++count_;
 		}
-		m_fullSlots.post();
+		full_slots_.post();
 		return true;
 	}
 
@@ -352,15 +352,15 @@ public:
 		void>::type
 	pop(T &item) noexcept
 	{
-		m_fullSlots.wait();
+		full_slots_.wait();
 		{
-			std::scoped_lock lock(m_cs);
-			item = m_data[m_popIndex];
-			m_data[m_popIndex].~T();
-			m_popIndex = ++m_popIndex % m_size;
-			--m_count;
+			std::scoped_lock lock(mutex_);
+			item = data_[pop_index_];
+			data_[pop_index_].~T();
+			pop_index_ = ++pop_index_ % size_;
+			--count_;
 		}
-		m_openSlots.post();
+		open_slots_.post();
 	}
 
 	template <typename Q = T>
@@ -370,23 +370,23 @@ public:
 		void>::type
 	pop(T &item)
 	{
-		m_fullSlots.wait();
+		full_slots_.wait();
 		{
-			std::scoped_lock lock(m_cs);
+			std::scoped_lock lock(mutex_);
 			try
 			{
-				item = m_data[m_popIndex];
+				item = data_[pop_index_];
 			}
 			catch (...)
 			{
-				m_fullSlots.post();
+				full_slots_.post();
 				throw;
 			}
-			m_data[m_popIndex].~T();
-			m_popIndex = ++m_popIndex % m_size;
-			--m_count;
+			data_[pop_index_].~T();
+			pop_index_ = ++pop_index_ % size_;
+			--count_;
 		}
-		m_openSlots.post();
+		open_slots_.post();
 	}
 
 	template <typename Q = T>
@@ -396,15 +396,15 @@ public:
 		void>::type
 	pop(T &item) noexcept
 	{
-		m_fullSlots.wait();
+		full_slots_.wait();
 		{
-			std::scoped_lock lock(m_cs);
-			item = std::move(m_data[m_popIndex]);
-			m_data[m_popIndex].~T();
-			m_popIndex = ++m_popIndex % m_size;
-			--m_count;
+			std::scoped_lock lock(mutex_);
+			item = std::move(data_[pop_index_]);
+			data_[pop_index_].~T();
+			pop_index_ = ++pop_index_ % size_;
+			--count_;
 		}
-		m_openSlots.post();
+		open_slots_.post();
 	}
 
 	template <typename Q = T>
@@ -414,23 +414,23 @@ public:
 		void>::type
 	pop(T &item)
 	{
-		m_fullSlots.wait();
+		full_slots_.wait();
 		{
-			std::scoped_lock lock(m_cs);
+			std::scoped_lock lock(mutex_);
 			try
 			{
-				item = std::move(m_data[m_popIndex]);
+				item = std::move(data_[pop_index_]);
 			}
 			catch (...)
 			{
-				m_fullSlots.post();
+				full_slots_.post();
 				throw;
 			}
-			m_data[m_popIndex].~T();
-			m_popIndex = ++m_popIndex % m_size;
-			--m_count;
+			data_[pop_index_].~T();
+			pop_index_ = ++pop_index_ % size_;
+			--count_;
 		}
-		m_openSlots.post();
+		open_slots_.post();
 	}
 
 	template <typename Q = T>
@@ -440,17 +440,17 @@ public:
 		bool>::type
 	try_pop(T &item) noexcept
 	{
-		auto result = m_fullSlots.wait_for(std::chrono::seconds(0));
+		auto result = full_slots_.wait_for(std::chrono::seconds(0));
 		if (!result)
 			return false;
 		{
-			std::scoped_lock lock(m_cs);
-			item = m_data[m_popIndex];
-			m_data[m_popIndex].~T();
-			m_popIndex = ++m_popIndex % m_size;
-			--m_count;
+			std::scoped_lock lock(mutex_);
+			item = data_[pop_index_];
+			data_[pop_index_].~T();
+			pop_index_ = ++pop_index_ % size_;
+			--count_;
 		}
-		m_openSlots.post();
+		open_slots_.post();
 		return true;
 	}
 
@@ -461,25 +461,25 @@ public:
 		bool>::type
 	try_pop(T &item)
 	{
-		auto result = m_fullSlots.wait_for(std::chrono::seconds(0));
+		auto result = full_slots_.wait_for(std::chrono::seconds(0));
 		if (!result)
 			return false;
 		{
-			std::scoped_lock lock(m_cs);
+			std::scoped_lock lock(mutex_);
 			try
 			{
-				item = m_data[m_popIndex];
+				item = data_[pop_index_];
 			}
 			catch (...)
 			{
-				m_fullSlots.post();
+				full_slots_.post();
 				throw;
 			}
-			m_data[m_popIndex].~T();
-			m_popIndex = ++m_popIndex % m_size;
-			--m_count;
+			data_[pop_index_].~T();
+			pop_index_ = ++pop_index_ % size_;
+			--count_;
 		}
-		m_openSlots.post();
+		open_slots_.post();
 		return true;
 	}
 
@@ -490,17 +490,17 @@ public:
 		bool>::type
 	try_pop(T &item) noexcept
 	{
-		auto result = m_fullSlots.wait_for(std::chrono::seconds(0));
+		auto result = full_slots_.wait_for(std::chrono::seconds(0));
 		if (!result)
 			return false;
 		{
-			std::scoped_lock lock(m_cs);
-			item = std::move(m_data[m_popIndex]);
-			m_data[m_popIndex].~T();
-			m_popIndex = ++m_popIndex % m_size;
-			--m_count;
+			std::scoped_lock lock(mutex_);
+			item = std::move(data_[pop_index_]);
+			data_[pop_index_].~T();
+			pop_index_ = ++pop_index_ % size_;
+			--count_;
 		}
-		m_openSlots.post();
+		open_slots_.post();
 		return true;
 	}
 
@@ -511,61 +511,61 @@ public:
 		bool>::type
 	try_pop(T &item)
 	{
-		auto result = m_fullSlots.wait_for(std::chrono::seconds(0));
+		auto result = full_slots_.wait_for(std::chrono::seconds(0));
 		if (!result)
 			return false;
 		{
-			std::scoped_lock lock(m_cs);
+			std::scoped_lock lock(mutex_);
 			try
 			{
-				item = std::move(m_data[m_popIndex]);
+				item = std::move(data_[pop_index_]);
 			}
 			catch (...)
 			{
-				m_fullSlots.post();
+				full_slots_.post();
 				throw;
 			}
-			m_data[m_popIndex].~T();
-			m_popIndex = ++m_popIndex % m_size;
-			--m_count;
+			data_[pop_index_].~T();
+			pop_index_ = ++pop_index_ % size_;
+			--count_;
 		}
-		m_openSlots.post();
+		open_slots_.post();
 		return true;
 	}
 
 	bool empty() const noexcept
 	{
-		std::scoped_lock lock(m_cs);
-		return m_count == 0;
+		std::scoped_lock lock(mutex_);
+		return count_ == 0;
 	}
 
 	bool full() const noexcept
 	{
-		std::scoped_lock lock(m_cs);
-		return m_count == m_size;
+		std::scoped_lock lock(mutex_);
+		return count_ == size_;
 	}
 
 	uint32_t size() const noexcept
 	{
-		std::scoped_lock lock(m_cs);
-		return m_count;
+		std::scoped_lock lock(mutex_);
+		return count_;
 	}
 
 	uint32_t capacity() const noexcept
 	{
-		return m_size;
+		return size_;
 	}
 
 private:
-	const uint32_t m_size;
-	uint32_t m_pushIndex;
-	uint32_t m_popIndex;
-	uint32_t m_count;
-	T *m_data;
+	const uint32_t size_;
+	uint32_t push_index_;
+	uint32_t pop_index_;
+	uint32_t count_;
+	T *data_;
 
-	semaphore m_openSlots;
-	semaphore m_fullSlots;
-	mutable std::mutex m_cs;
+	Semaphore open_slots_;
+	Semaphore full_slots_;
+	mutable std::mutex mutex_;
 };
 
 template <typename T>
@@ -573,9 +573,9 @@ class atomic_blocking_queue
 {
 public:
 	explicit atomic_blocking_queue(uint32_t size)
-		: m_size(size), m_pushIndex(0), m_popIndex(0), m_count(0),
-		  m_data((T *)operator new(size * sizeof(T))),
-		  m_openSlots(size), m_fullSlots(0)
+		: size_(size), push_index_(0), pop_index_(0), count_(0),
+		  data_((T *)operator new(size * sizeof(T))),
+		  open_slots_(size), full_slots_(0)
 	{
 		if (!size)
 			throw std::invalid_argument("Invalid queue size!");
@@ -583,65 +583,65 @@ public:
 
 	~atomic_blocking_queue() noexcept
 	{
-		while (m_count--)
+		while (count_--)
 		{
-			m_data[m_popIndex].~T();
-			m_popIndex = ++m_popIndex % m_size;
+			data_[pop_index_].~T();
+			pop_index_ = ++pop_index_ % size_;
 		}
-		operator delete(m_data);
+		operator delete(data_);
 	}
 
 	template <typename Q = T>
 	typename std::enable_if<std::is_nothrow_copy_constructible<Q>::value, void>::type
 	push(const T &item) noexcept
 	{
-		m_openSlots.wait();
+		open_slots_.wait();
 
-		auto pushIndex = m_pushIndex.fetch_add(1);
-		new (m_data + (pushIndex % m_size)) T(item);
-		++m_count;
+		auto pushIndex = push_index_.fetch_add(1);
+		new (data_ + (pushIndex % size_)) T(item);
+		++count_;
 
-		auto expected = m_pushIndex.load();
-		while (!m_pushIndex.compare_exchange_weak(expected, m_pushIndex % m_size))
-			expected = m_pushIndex.load();
+		auto expected = push_index_.load();
+		while (!push_index_.compare_exchange_weak(expected, push_index_ % size_))
+			expected = push_index_.load();
 
-		m_fullSlots.post();
+		full_slots_.post();
 	}
 
 	template <typename Q = T>
 	typename std::enable_if<std::is_nothrow_move_constructible<Q>::value, void>::type
 	push(T &&item) noexcept
 	{
-		m_openSlots.wait();
+		open_slots_.wait();
 
-		auto pushIndex = m_pushIndex.fetch_add(1);
-		new (m_data + (pushIndex % m_size)) T(std::move(item));
-		++m_count;
+		auto pushIndex = push_index_.fetch_add(1);
+		new (data_ + (pushIndex % size_)) T(std::move(item));
+		++count_;
 
-		auto expected = m_pushIndex.load();
-		while (!m_pushIndex.compare_exchange_weak(expected, m_pushIndex % m_size))
-			expected = m_pushIndex.load();
+		auto expected = push_index_.load();
+		while (!push_index_.compare_exchange_weak(expected, push_index_ % size_))
+			expected = push_index_.load();
 
-		m_fullSlots.post();
+		full_slots_.post();
 	}
 
 	template <typename Q = T>
 	typename std::enable_if<std::is_nothrow_copy_constructible<Q>::value, bool>::type
 	try_push(const T &item) noexcept
 	{
-		auto result = m_openSlots.wait_for(std::chrono::seconds(0));
+		auto result = open_slots_.wait_for(std::chrono::seconds(0));
 		if (!result)
 			return false;
 
-		auto pushIndex = m_pushIndex.fetch_add(1);
-		new (m_data + (pushIndex % m_size)) T(item);
-		++m_count;
+		auto pushIndex = push_index_.fetch_add(1);
+		new (data_ + (pushIndex % size_)) T(item);
+		++count_;
 
-		auto expected = m_pushIndex.load();
-		while (!m_pushIndex.compare_exchange_weak(expected, m_pushIndex % m_size))
-			expected = m_pushIndex.load();
+		auto expected = push_index_.load();
+		while (!push_index_.compare_exchange_weak(expected, push_index_ % size_))
+			expected = push_index_.load();
 
-		m_fullSlots.post();
+		full_slots_.post();
 		return true;
 	}
 
@@ -649,19 +649,19 @@ public:
 	typename std::enable_if<std::is_nothrow_move_constructible<Q>::value, bool>::type
 	try_push(T &&item) noexcept
 	{
-		auto result = m_openSlots.wait_for(std::chrono::seconds(0));
+		auto result = open_slots_.wait_for(std::chrono::seconds(0));
 		if (!result)
 			return false;
 
-		auto pushIndex = m_pushIndex.fetch_add(1);
-		new (m_data + (pushIndex % m_size)) T(std::move(item));
-		++m_count;
+		auto pushIndex = push_index_.fetch_add(1);
+		new (data_ + (pushIndex % size_)) T(std::move(item));
+		++count_;
 
-		auto expected = m_pushIndex.load();
-		while (!m_pushIndex.compare_exchange_weak(expected, m_pushIndex % m_size))
-			expected = m_pushIndex.load();
+		auto expected = push_index_.load();
+		while (!push_index_.compare_exchange_weak(expected, push_index_ % size_))
+			expected = push_index_.load();
 
-		m_fullSlots.post();
+		full_slots_.post();
 		return true;
 	}
 
@@ -672,18 +672,18 @@ public:
 		void>::type
 	pop(T &item) noexcept
 	{
-		m_fullSlots.wait();
+		full_slots_.wait();
 
-		auto popIndex = m_popIndex.fetch_add(1);
-		item = m_data[popIndex % m_size];
-		m_data[popIndex % m_size].~T();
-		--m_count;
+		auto popIndex = pop_index_.fetch_add(1);
+		item = data_[popIndex % size_];
+		data_[popIndex % size_].~T();
+		--count_;
 
-		auto expected = m_popIndex.load();
-		while (!m_popIndex.compare_exchange_weak(expected, m_popIndex % m_size))
-			expected = m_popIndex.load();
+		auto expected = pop_index_.load();
+		while (!pop_index_.compare_exchange_weak(expected, pop_index_ % size_))
+			expected = pop_index_.load();
 
-		m_openSlots.post();
+		open_slots_.post();
 	}
 
 	template <typename Q = T>
@@ -693,18 +693,18 @@ public:
 		void>::type
 	pop(T &item) noexcept
 	{
-		m_fullSlots.wait();
+		full_slots_.wait();
 
-		auto popIndex = m_popIndex.fetch_add(1);
-		item = std::move(m_data[popIndex % m_size]);
-		m_data[popIndex % m_size].~T();
-		--m_count;
+		auto popIndex = pop_index_.fetch_add(1);
+		item = std::move(data_[popIndex % size_]);
+		data_[popIndex % size_].~T();
+		--count_;
 
-		auto expected = m_popIndex.load();
-		while (!m_popIndex.compare_exchange_weak(expected, m_popIndex % m_size))
-			expected = m_popIndex.load();
+		auto expected = pop_index_.load();
+		while (!pop_index_.compare_exchange_weak(expected, pop_index_ % size_))
+			expected = pop_index_.load();
 
-		m_openSlots.post();
+		open_slots_.post();
 	}
 
 	template <typename Q = T>
@@ -714,20 +714,20 @@ public:
 		bool>::type
 	try_pop(T &item) noexcept
 	{
-		auto result = m_fullSlots.wait_for(std::chrono::seconds(0));
+		auto result = full_slots_.wait_for(std::chrono::seconds(0));
 		if (!result)
 			return false;
 
-		auto popIndex = m_popIndex.fetch_add(1);
-		item = m_data[popIndex % m_size];
-		m_data[popIndex % m_size].~T();
-		--m_count;
+		auto popIndex = pop_index_.fetch_add(1);
+		item = data_[popIndex % size_];
+		data_[popIndex % size_].~T();
+		--count_;
 
-		auto expected = m_popIndex.load();
-		while (!m_popIndex.compare_exchange_weak(expected, m_popIndex % m_size))
-			expected = m_popIndex.load();
+		auto expected = pop_index_.load();
+		while (!pop_index_.compare_exchange_weak(expected, pop_index_ % size_))
+			expected = pop_index_.load();
 
-		m_openSlots.post();
+		open_slots_.post();
 		return true;
 	}
 
@@ -738,50 +738,50 @@ public:
 		bool>::type
 	try_pop(T &item) noexcept
 	{
-		auto result = m_fullSlots.wait_for(std::chrono::seconds(0));
+		auto result = full_slots_.wait_for(std::chrono::seconds(0));
 		if (!result)
 			return false;
 
-		auto popIndex = m_popIndex.fetch_add(1);
-		item = std::move(m_data[popIndex % m_size]);
-		m_data[popIndex % m_size].~T();
-		--m_count;
+		auto popIndex = pop_index_.fetch_add(1);
+		item = std::move(data_[popIndex % size_]);
+		data_[popIndex % size_].~T();
+		--count_;
 
-		auto expected = m_popIndex.load();
-		while (!m_popIndex.compare_exchange_weak(expected, m_popIndex % m_size))
-			expected = m_popIndex.load();
+		auto expected = pop_index_.load();
+		while (!pop_index_.compare_exchange_weak(expected, pop_index_ % size_))
+			expected = pop_index_.load();
 
-		m_openSlots.post();
+		open_slots_.post();
 		return true;
 	}
 
 	bool empty() const noexcept
 	{
-		return m_count == 0;
+		return count_ == 0;
 	}
 
 	bool full() const noexcept
 	{
-		return m_count == m_size;
+		return count_ == size_;
 	}
 
 	uint32_t size() const noexcept
 	{
-		return m_count;
+		return count_;
 	}
 
 	uint32_t capacity() const noexcept
 	{
-		return m_size;
+		return size_;
 	}
 
 private:
-	const uint32_t m_size;
-	std::atomic_uint m_pushIndex;
-	std::atomic_uint m_popIndex;
-	std::atomic_uint m_count;
-	T *m_data;
+	const uint32_t size_;
+	std::atomic_uint push_index_;
+	std::atomic_uint pop_index_;
+	std::atomic_uint count_;
+	T *data_;
 
-	semaphore m_openSlots;
-	semaphore m_fullSlots;
+	Semaphore open_slots_;
+	Semaphore full_slots_;
 };
