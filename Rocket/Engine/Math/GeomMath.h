@@ -7,6 +7,7 @@
 
 // For Physics Module
 using Real = float;
+#define RealPow std::powf
 
 using Vector2f = Eigen::Vector2f;
 using Vector3f = Eigen::Vector3f;
