@@ -108,7 +108,7 @@ bool VulkanShader::Initialize(const ShaderSourceList& list)
         if (!it->second.empty())
         {
             VkShaderModule shader = VK_NULL_HANDLE;
-            if (!m_IsBinary)
+            if (!is_binary_)
             {
                 auto config = g_Application->GetConfig();
                 String full_path = String("Shaders/" + RenderAPI + "/" + it->second);
@@ -124,7 +124,7 @@ bool VulkanShader::Initialize(const ShaderSourceList& list)
                 Vec<uint32_t> spirv = CompileAssemblyToBinary(assembly, true);
                 RK_GRAPHICS_INFO("Compiled to a binary module with {} words.", spirv.size());
 
-                shader = CreateShaderModule(spirv, m_DeviceHandle);
+                shader = CreateShaderModule(spirv, device_handle_);
             }
             else
             {
@@ -134,7 +134,7 @@ bool VulkanShader::Initialize(const ShaderSourceList& list)
 
                 Buffer shaderBuffer = g_AssetLoader->SyncOpenAndReadBinary(full_path);
                 
-                shader = CreateShaderModule(shaderBuffer, m_DeviceHandle);
+                shader = CreateShaderModule(shaderBuffer, device_handle_);
             }
 
             VkPipelineShaderStageCreateInfo shaderStageInfo{};
@@ -164,8 +164,8 @@ bool VulkanShader::Initialize(const ShaderSourceList& list)
                 break;
             }
 
-            m_Shader.emplace_back(shader);
-            m_ShaderInfo.emplace_back(shaderStageInfo);
+            shaders_.emplace_back(shader);
+            shader_infos_.emplace_back(shaderStageInfo);
         }
     }
     return true;
@@ -173,9 +173,9 @@ bool VulkanShader::Initialize(const ShaderSourceList& list)
 
 void VulkanShader::Finalize()
 {
-    for (auto shader : m_Shader)
+    for (auto shader : shaders_)
     {
-        vkDestroyShaderModule(m_DeviceHandle, shader, nullptr);
+        vkDestroyShaderModule(device_handle_, shader, nullptr);
     }
 }
 

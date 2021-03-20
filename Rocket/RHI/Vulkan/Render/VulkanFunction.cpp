@@ -379,7 +379,7 @@ void CreateImage(
 	VK_CHECK(vkBindImageMemory(device, image, memory, 0));
 
 	result.image = image;
-	result.imageView = CreateImageView(device, image, format, 0, mipLevels);
+	result.image_view = CreateImageView(device, image, format, 0, mipLevels);
 	result.memory = memory;
 }
 
@@ -387,7 +387,7 @@ void DestroyImage(
     const VulkanImage& image, 
     VkDevice device)
 {
-	vkDestroyImageView(device, image.imageView, 0);
+	vkDestroyImageView(device, image.image_view, 0);
 	vkDestroyImage(device, image.image, 0);
 	vkFreeMemory(device, image.memory, 0);
 }
@@ -499,73 +499,73 @@ static VkSwapchainKHR CreateSwapchain(
 	return swapchain;
 }
 
-void CreateSwapchain(
-    VulkanSwapchain& result, 
-    VkPhysicalDevice physicalDevice, 
-    VkDevice device, VkSurfaceKHR surface, 
-    uint32_t familyIndex, 
-    VkFormat format, 
-    VkSwapchainKHR oldSwapchain)
-{
-	VkSurfaceCapabilitiesKHR surfaceCaps;
-	VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCaps));
+//void CreateSwapchain(
+//    VulkanSwapchain& result, 
+//    VkPhysicalDevice physicalDevice, 
+//    VkDevice device, VkSurfaceKHR surface, 
+//    uint32_t familyIndex, 
+//    VkFormat format, 
+//    VkSwapchainKHR oldSwapchain)
+//{
+//	VkSurfaceCapabilitiesKHR surfaceCaps;
+//	VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCaps));
+//
+//	uint32_t width = surfaceCaps.currentExtent.width;
+//	uint32_t height = surfaceCaps.currentExtent.height;
+//
+//	VkSwapchainKHR swapchain = CreateSwapchain(device, surface, surfaceCaps, familyIndex, format, width, height, oldSwapchain);
+//	assert(swapchain);
+//
+//	uint32_t imageCount = 0;
+//	VK_CHECK(vkGetSwapchainImagesKHR(device, swapchain, &imageCount, 0));
+//
+//	Vec<VkImage> images(imageCount);
+//	VK_CHECK(vkGetSwapchainImagesKHR(device, swapchain, &imageCount, images.data()));
+//
+//	result.swapchain = swapchain;
+//	result.images = images;
+//	result.width = width;
+//	result.height = height;
+//	result.image_count = imageCount;
+//}
+//
+//void DestroySwapchain(
+//    VkDevice device, 
+//    const VulkanSwapchain& swapchain)
+//{
+//	vkDestroySwapchainKHR(device, swapchain.swapchain, 0);
+//}
 
-	uint32_t width = surfaceCaps.currentExtent.width;
-	uint32_t height = surfaceCaps.currentExtent.height;
-
-	VkSwapchainKHR swapchain = CreateSwapchain(device, surface, surfaceCaps, familyIndex, format, width, height, oldSwapchain);
-	assert(swapchain);
-
-	uint32_t imageCount = 0;
-	VK_CHECK(vkGetSwapchainImagesKHR(device, swapchain, &imageCount, 0));
-
-	Vec<VkImage> images(imageCount);
-	VK_CHECK(vkGetSwapchainImagesKHR(device, swapchain, &imageCount, images.data()));
-
-	result.swapchain = swapchain;
-	result.images = images;
-	result.width = width;
-	result.height = height;
-	result.imageCount = imageCount;
-}
-
-void DestroySwapchain(
-    VkDevice device, 
-    const VulkanSwapchain& swapchain)
-{
-	vkDestroySwapchainKHR(device, swapchain.swapchain, 0);
-}
-
-SwapchainStatus UpdateSwapchain(
-    VulkanSwapchain& result, 
-    VkPhysicalDevice physicalDevice, 
-    VkDevice device, 
-    VkSurfaceKHR surface, 
-    uint32_t familyIndex, 
-    VkFormat format)
-{
-	VkSurfaceCapabilitiesKHR surfaceCaps;
-	VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCaps));
-
-	uint32_t newWidth = surfaceCaps.currentExtent.width;
-	uint32_t newHeight = surfaceCaps.currentExtent.height;
-
-	if (newWidth == 0 || newHeight == 0)
-		return Swapchain_NotReady;
-
-	if (result.width == newWidth && result.height == newHeight)
-		return Swapchain_Ready;
-
-	VulkanSwapchain old = result;
-
-	CreateSwapchain(result, physicalDevice, device, surface, familyIndex, format, old.swapchain);
-
-	VK_CHECK(vkDeviceWaitIdle(device));
-
-	DestroySwapchain(device, old);
-
-	return Swapchain_Resized;
-}
+//SwapchainStatus UpdateSwapchain(
+//    VulkanSwapchain& result, 
+//    VkPhysicalDevice physicalDevice, 
+//    VkDevice device, 
+//    VkSurfaceKHR surface, 
+//    uint32_t familyIndex, 
+//    VkFormat format)
+//{
+//	VkSurfaceCapabilitiesKHR surfaceCaps;
+//	VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCaps));
+//
+//	uint32_t newWidth = surfaceCaps.currentExtent.width;
+//	uint32_t newHeight = surfaceCaps.currentExtent.height;
+//
+//	if (newWidth == 0 || newHeight == 0)
+//		return Swapchain_NotReady;
+//
+//	if (result.width == newWidth && result.height == newHeight)
+//		return Swapchain_Ready;
+//
+//	VulkanSwapchain old = result;
+//
+//	CreateSwapchain(result, physicalDevice, device, surface, familyIndex, format, old.swapchain);
+//
+//	VK_CHECK(vkDeviceWaitIdle(device));
+//
+//	DestroySwapchain(device, old);
+//
+//	return Swapchain_Resized;
+//}
 
 VkDevice CreateDevice(
     VkInstance instance, 
@@ -704,7 +704,7 @@ bool IsDeviceSuitable(const VkPhysicalDevice& device, const VkSurfaceKHR& surfac
     if (extensionsSupported)
     {
         SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(device, surface);
-        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.present_modes.empty();
     }
 
     return indices.isComplete() && extensionsSupported && swapChainAdequate;
@@ -743,16 +743,16 @@ QueueFamilyIndices FindQueueFamilies(const VkPhysicalDevice& device, const VkSur
     for (const auto& queueFamily : queueFamilies)
     {
         if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
-            indices.graphicsFamily = i;
+            indices.graphics_family = i;
 
         if (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT)
-            indices.computeFamily = i;
+            indices.compute_family = i;
 
         VkBool32 presentSupport = false;
         vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
 
         if (presentSupport)
-            indices.presentFamily = i;
+            indices.present_family = i;
 
         if (indices.isComplete())
             break;
@@ -824,8 +824,8 @@ SwapChainSupportDetails QuerySwapChainSupport(
 
     if (presentModeCount != 0)
     {
-        details.presentModes.resize(presentModeCount);
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.presentModes.data());
+        details.present_modes.resize(presentModeCount);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.present_modes.data());
     }
 
     return details;

@@ -30,11 +30,11 @@ void VulkanUI::Connect(
 {
 	this->instance = instance;
     this->device = device;
-    this->renderPass = renderPass;
+    this->render_pass = renderPass;
     this->queue = queue;
-    this->pipelineCache = pipelineCache;
-    this->multiSampleCount = multiSampleCount;
-	this->frameInFlight = frameInFlight;
+    this->pipeline_cache = pipelineCache;
+    this->msaa_samples = multiSampleCount;
+	this->frame_in_flight = frameInFlight;
 }
 
 void VulkanUI::Initialize()
@@ -61,7 +61,7 @@ void VulkanUI::Initialize()
 		descriptorPoolCI.poolSizeCount = (uint32_t)poolSizes.size();
 		descriptorPoolCI.pPoolSizes = poolSizes.data();
 		descriptorPoolCI.maxSets = 1000 * (uint32_t)poolSizes.size(); //1;
-		VK_CHECK(vkCreateDescriptorPool(device->logicalDevice, &descriptorPoolCI, nullptr, &descriptorPool));
+		VK_CHECK(vkCreateDescriptorPool(device->logical_device, &descriptorPoolCI, nullptr, &descriptor_pool));
 	}
 
 	// Setup ImGui
@@ -69,29 +69,29 @@ void VulkanUI::Initialize()
 
 	// Init Vulkan For ImGui
 	{
-		ImGui_ImplGlfw_InitForVulkan(windowHandle, true);
+		ImGui_ImplGlfw_InitForVulkan(window_handle, true);
 		ImGui_ImplVulkan_InitInfo init_info = {};
 		init_info.Instance = instance;
-		init_info.PhysicalDevice = device->physicalDevice;
-		init_info.Device = device->logicalDevice;
-		init_info.QueueFamily = device->queueFamilyIndices.graphicsFamily.value();
-		init_info.Queue = device->graphicsQueue;
-		init_info.PipelineCache = pipelineCache;
-		init_info.DescriptorPool = descriptorPool;
+		init_info.PhysicalDevice = device->physical_device;
+		init_info.Device = device->logical_device;
+		init_info.QueueFamily = device->queue_family_indices.graphics_family.value();
+		init_info.Queue = device->graphics_queue;
+		init_info.PipelineCache = pipeline_cache;
+		init_info.DescriptorPool = descriptor_pool;
 		init_info.Allocator = nullptr;
-		init_info.MinImageCount = frameInFlight;
-		init_info.ImageCount = frameInFlight;
-		init_info.MSAASamples = multiSampleCount;
+		init_info.MinImageCount = frame_in_flight;
+		init_info.ImageCount = frame_in_flight;
+		init_info.MSAASamples = msaa_samples;
 		init_info.CheckVkResultFn = check_vk_result_ui;
-		ImGui_ImplVulkan_Init(&init_info, renderPass);
+		ImGui_ImplVulkan_Init(&init_info, render_pass);
 	}
 
 	// Load Fonts
 	{
-		VkCommandPool command_pool = device->commandPool;
+		VkCommandPool command_pool = device->command_pool;
 		VkCommandBuffer command_buffer = device->CreateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, false);
 		
-		VK_CHECK(vkResetCommandPool(device->logicalDevice, command_pool, 0));
+		VK_CHECK(vkResetCommandPool(device->logical_device, command_pool, 0));
 		VkCommandBufferBeginInfo begin_info = {};
 		begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 		begin_info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
@@ -106,14 +106,14 @@ void VulkanUI::Initialize()
 		VK_CHECK(vkEndCommandBuffer(command_buffer));
 		VK_CHECK(vkQueueSubmit(queue, 1, &end_info, VK_NULL_HANDLE));
 		
-		VK_CHECK(vkDeviceWaitIdle(device->logicalDevice));
+		VK_CHECK(vkDeviceWaitIdle(device->logical_device));
 		ImGui_ImplVulkan_DestroyFontUploadObjects();
 	}
 }
 
 void VulkanUI::Finalize()
 {
-	vkDestroyDescriptorPool(device->logicalDevice, descriptorPool, nullptr);
+	vkDestroyDescriptorPool(device->logical_device, descriptor_pool, nullptr);
 
 	ImGui_ImplVulkan_Shutdown();
 	ImGui_ImplGlfw_Shutdown();

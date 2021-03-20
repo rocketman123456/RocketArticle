@@ -9,76 +9,76 @@ SceneCamera::SceneCamera()
 
 void SceneCamera::SetPerspective(float verticalFOV, float nearClip, float farClip)
 {
-	m_ProjectionType = ProjectionType::Perspective;
-	m_PerspectiveFOV = verticalFOV;
-	m_PerspectiveNear = nearClip;
-	m_PerspectiveFar = farClip;
+	projection_type_ = ProjectionType::Perspective;
+	perspective_fov_ = verticalFOV;
+	perspective_near_ = nearClip;
+	perspective_far_ = farClip;
 	RecalculateProjection();
 }
 
 void SceneCamera::SetOrthographic(float size, float nearClip, float farClip)
 {
-	m_ProjectionType = ProjectionType::Orthographic;
-	m_OrthographicSize = size;
-	m_OrthographicNear = nearClip;
-	m_OrthographicFar = farClip;
+	projection_type_ = ProjectionType::Orthographic;
+	orthographic_size_ = size;
+	orthographic_near_ = nearClip;
+	orthographic_far_ = farClip;
 	RecalculateProjection();
 }
 
 void SceneCamera::SetViewportSize(uint32_t width, uint32_t height)
 {
-	m_AspectRatio = (float)width / (float)height;
+	aspect_ratio_ = (float)width / (float)height;
 	RecalculateProjection();
 }
 
 void SceneCamera::RecalculateProjection()
 {
-	if (m_ProjectionType == ProjectionType::Perspective)
+	if (projection_type_ == ProjectionType::Perspective)
 	{
-		m_Projection = Matrix4f::Zero();
+		projection_ = Matrix4f::Zero();
 
-		const float range = tanf((m_PerspectiveFOV * 0.5f / 180.0f * M_PI)) * m_OrthographicNear;	
-		const float left = -range * m_AspectRatio;
-		const float right = range * m_AspectRatio;
+		const float range = tanf((perspective_fov_ * 0.5f / 180.0f * M_PI)) * orthographic_near_;	
+		const float left = -range * aspect_ratio_;
+		const float right = range * aspect_ratio_;
 		const float bottom = -range;
 		const float top = range;
 
-		const float zNear = m_PerspectiveNear;
-		const float zFar = m_PerspectiveFar;
+		const float zNear = perspective_near_;
+		const float zFar = perspective_far_;
 		const float zRange = (zFar - zNear);
-        const float tanHalfFOV = tanf((m_PerspectiveFOV / 2.0f / 180.0f * M_PI));
+        const float tanHalfFOV = tanf((perspective_fov_ / 2.0f / 180.0f * M_PI));
         
 		if(0)
 		{
-			m_Projection(0,0) = 1.0f / (tanHalfFOV * m_AspectRatio); 
-			m_Projection(1,1) = 1.0f / tanHalfFOV;   
-			m_Projection(2,2) = -(zNear + zFar) / zRange;  
-			m_Projection(2,3) = -2.0f * zFar * zNear / zRange;
-			m_Projection(3,2) = -1.0f;
+			projection_(0,0) = 1.0f / (tanHalfFOV * aspect_ratio_); 
+			projection_(1,1) = 1.0f / tanHalfFOV;   
+			projection_(2,2) = -(zNear + zFar) / zRange;  
+			projection_(2,3) = -2.0f * zFar * zNear / zRange;
+			projection_(3,2) = -1.0f;
 		}
 		else
 		{
-			m_Projection(0,0) = (2.0f * zNear) / (right - left);
-			m_Projection(1,1) = (2.0f * zNear) / (top - bottom);
-			m_Projection(2,2) = - (zFar + zNear) / (zRange);
-			m_Projection(2,3) = - 1.0f;
-			m_Projection(3,2) = - (2.0f * zFar * zNear) / (zRange);
+			projection_(0,0) = (2.0f * zNear) / (right - left);
+			projection_(1,1) = (2.0f * zNear) / (top - bottom);
+			projection_(2,2) = - (zFar + zNear) / (zRange);
+			projection_(2,3) = - 1.0f;
+			projection_(3,2) = - (2.0f * zFar * zNear) / (zRange);
 		}
 	}
 	else
 	{
-		float orthoLeft = -m_OrthographicSize * m_AspectRatio * 0.5f;
-		float orthoRight = m_OrthographicSize * m_AspectRatio * 0.5f;
-		float orthoBottom = -m_OrthographicSize * 0.5f;
-		float orthoTop = m_OrthographicSize * 0.5f;
+		float orthoLeft = -orthographic_size_ * aspect_ratio_ * 0.5f;
+		float orthoRight = orthographic_size_ * aspect_ratio_ * 0.5f;
+		float orthoBottom = -orthographic_size_ * 0.5f;
+		float orthoTop = orthographic_size_ * 0.5f;
 
-		m_Projection = Matrix4f::Identity();
+		projection_ = Matrix4f::Identity();
 
-		m_Projection(0,0) = 2.0f / (orthoRight - orthoLeft);
-		m_Projection(1,1) = 2.0f / (orthoTop - orthoBottom);
-		m_Projection(2,2) = - 2.0f / (m_OrthographicFar - m_OrthographicNear);
-		m_Projection(3,0) = - (orthoRight + orthoLeft) / (orthoRight - orthoLeft);
-		m_Projection(3,1) = - (orthoTop + orthoBottom) / (orthoTop - orthoBottom);
-		m_Projection(3,2) = - (m_OrthographicFar + m_OrthographicNear) / (m_OrthographicFar - m_OrthographicNear);
+		projection_(0,0) = 2.0f / (orthoRight - orthoLeft);
+		projection_(1,1) = 2.0f / (orthoTop - orthoBottom);
+		projection_(2,2) = - 2.0f / (orthographic_far_ - orthographic_near_);
+		projection_(3,0) = - (orthoRight + orthoLeft) / (orthoRight - orthoLeft);
+		projection_(3,1) = - (orthoTop + orthoBottom) / (orthoTop - orthoBottom);
+		projection_(3,2) = - (orthographic_far_ + orthographic_near_) / (orthographic_far_ - orthographic_near_);
 	}
 }

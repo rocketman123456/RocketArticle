@@ -14,9 +14,9 @@ namespace Rocket
 		virtual ~SceneComponent() = default;
 
 		virtual std::type_index GetType() = 0;
-		const uint64_t GetId() const { return m_Id; }
+		const uint64_t GetId() const { return id_; }
 	protected:
-		uint64_t m_Id;
+		uint64_t id_;
 	};
 
 	std::ostream& operator<<(std::ostream& out, SceneComponent& com);

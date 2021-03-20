@@ -8,13 +8,13 @@ using namespace Rocket;
 void VulkanPipeline::Connect(VkInstance instance, VkPhysicalDevice physicalDevice, VkDevice device, VkSurfaceKHR surface)
 {
     this->instance = instance;
-    this->physicalDevice = physicalDevice;
+    this->physical_device = physicalDevice;
     this->device = device;
     this->surface = surface;
 
     SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(physicalDevice, surface);
-    surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
-    extent = ChooseSwapExtent(swapChainSupport.capabilities, windowHandle);
+    surface_format = ChooseSwapSurfaceFormat(swapChainSupport.formats);
+    extent = ChooseSwapExtent(swapChainSupport.capabilities, window_handle);
 }
 
 void VulkanPipeline::Initialize()
@@ -27,18 +27,18 @@ void VulkanPipeline::Initialize()
 
 void VulkanPipeline::Finalize()
 {
-    vkDestroyPipeline(device, graphicsPipeline, nullptr);
-    vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-    vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
-    vkDestroyRenderPass(device, guiRenderPass, nullptr);
-    vkDestroyRenderPass(device, renderPass, nullptr);
+    vkDestroyPipeline(device, graphics_pipeline, nullptr);
+    vkDestroyPipelineLayout(device, pipeline_layout, nullptr);
+    vkDestroyDescriptorSetLayout(device, descriptor_set_layout, nullptr);
+    vkDestroyRenderPass(device, gui_render_pass, nullptr);
+    vkDestroyRenderPass(device, render_pass, nullptr);
 }
 
 void VulkanPipeline::CreateRenderPass()
 {
     VkAttachmentDescription colorAttachment{};
-    colorAttachment.format = surfaceFormat.format;
-    colorAttachment.samples = msaaSamples;
+    colorAttachment.format = surface_format.format;
+    colorAttachment.samples = msaa_samples;
     colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
     colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -47,8 +47,8 @@ void VulkanPipeline::CreateRenderPass()
     colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
     VkAttachmentDescription depthAttachment{};
-    depthAttachment.format = FindDepthFormat(physicalDevice);
-    depthAttachment.samples = msaaSamples;
+    depthAttachment.format = FindDepthFormat(physical_device);
+    depthAttachment.samples = msaa_samples;
     depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -57,7 +57,7 @@ void VulkanPipeline::CreateRenderPass()
     depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     VkAttachmentDescription colorAttachmentResolve{};
-    colorAttachmentResolve.format = surfaceFormat.format;
+    colorAttachmentResolve.format = surface_format.format;
     colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
     colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -83,7 +83,7 @@ void VulkanPipeline::CreateRenderPass()
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &colorAttachmentRef;
     subpass.pDepthStencilAttachment = &depthAttachmentRef;
-    if (msaaSamples > VK_SAMPLE_COUNT_1_BIT)
+    if (msaa_samples > VK_SAMPLE_COUNT_1_BIT)
     {
         subpass.pResolveAttachments = &colorAttachmentResolveRef;
     }
@@ -97,7 +97,7 @@ void VulkanPipeline::CreateRenderPass()
     dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
     Vec<VkAttachmentDescription> attachments = {};
-    if (msaaSamples > VK_SAMPLE_COUNT_1_BIT)
+    if (msaa_samples > VK_SAMPLE_COUNT_1_BIT)
     {
         attachments.push_back(colorAttachment);
         attachments.push_back(depthAttachment);
@@ -117,28 +117,28 @@ void VulkanPipeline::CreateRenderPass()
     renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies = &dependency;
 
-    if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
+    if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &render_pass) != VK_SUCCESS)
         RK_GRAPHICS_ERROR("failed to create render pass!");
 }
 
 void VulkanPipeline::CreateGuiRenderPass()
 {
     VkAttachmentDescription colorAttachment{};
-    colorAttachment.format = surfaceFormat.format;
-    colorAttachment.samples = msaaSamples;
+    colorAttachment.format = surface_format.format;
+    colorAttachment.samples = msaa_samples;
     colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
     colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
     colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     colorAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-    if (msaaSamples == VK_SAMPLE_COUNT_1_BIT)
+    if (msaa_samples == VK_SAMPLE_COUNT_1_BIT)
         colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
     else
         colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
     VkAttachmentDescription depthAttachment{};
-    depthAttachment.format = FindDepthFormat(physicalDevice);
-    depthAttachment.samples = msaaSamples;
+    depthAttachment.format = FindDepthFormat(physical_device);
+    depthAttachment.samples = msaa_samples;
     depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
     depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -147,7 +147,7 @@ void VulkanPipeline::CreateGuiRenderPass()
     depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     VkAttachmentDescription colorAttachmentResolve{};
-    colorAttachmentResolve.format = surfaceFormat.format;
+    colorAttachmentResolve.format = surface_format.format;
     colorAttachmentResolve.samples = VK_SAMPLE_COUNT_1_BIT;
     colorAttachmentResolve.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
     colorAttachmentResolve.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
@@ -173,7 +173,7 @@ void VulkanPipeline::CreateGuiRenderPass()
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &colorAttachmentRef;
     subpass.pDepthStencilAttachment = &depthAttachmentRef;
-    if (msaaSamples > VK_SAMPLE_COUNT_1_BIT)
+    if (msaa_samples > VK_SAMPLE_COUNT_1_BIT)
     {
         subpass.pResolveAttachments = &colorAttachmentResolveRef;
     }
@@ -187,7 +187,7 @@ void VulkanPipeline::CreateGuiRenderPass()
     dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
     Vec<VkAttachmentDescription> attachments = {};
-    if (msaaSamples > VK_SAMPLE_COUNT_1_BIT)
+    if (msaa_samples > VK_SAMPLE_COUNT_1_BIT)
     {
         attachments.push_back(colorAttachment);
         attachments.push_back(depthAttachment);
@@ -207,7 +207,7 @@ void VulkanPipeline::CreateGuiRenderPass()
     renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies = &dependency;
 
-    if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &guiRenderPass) != VK_SUCCESS)
+    if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &gui_render_pass) != VK_SUCCESS)
         RK_GRAPHICS_ERROR("failed to create render pass!");
 }
 
@@ -233,17 +233,17 @@ void VulkanPipeline::CreateDescriptorSetLayout()
     layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
     layoutInfo.pBindings = bindings.data();
 
-    if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
+    if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptor_set_layout) != VK_SUCCESS)
         RK_GRAPHICS_ERROR("failed to create descriptor set layout!");
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+    pipelineLayoutInfo.pSetLayouts = &descriptor_set_layout;
     //pipelineLayoutInfo.pushConstantRangeCount = 0;
     //pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
-    if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
+    if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipeline_layout) != VK_SUCCESS)
         RK_GRAPHICS_ERROR("failed to create pipeline layout!");
 }
 
@@ -313,7 +313,7 @@ void VulkanPipeline::CreateGraphicsPipeline()
     VkPipelineMultisampleStateCreateInfo multisampling{};
     multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampling.sampleShadingEnable = VK_FALSE;
-    multisampling.rasterizationSamples = msaaSamples;
+    multisampling.rasterizationSamples = msaa_samples;
 
     VkPipelineDepthStencilStateCreateInfo depthStencil{};
     depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
@@ -350,12 +350,12 @@ void VulkanPipeline::CreateGraphicsPipeline()
     pipelineInfo.pDepthStencilState = &depthStencil;
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDynamicState = &dynamicStateCI;
-    pipelineInfo.layout = pipelineLayout;
-    pipelineInfo.renderPass = renderPass;
+    pipelineInfo.layout = pipeline_layout;
+    pipelineInfo.renderPass = render_pass;
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-    if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS)
+    if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphics_pipeline) != VK_SUCCESS)
         RK_GRAPHICS_ERROR("failed to create graphics pipeline!");
 
     shader->Finalize();

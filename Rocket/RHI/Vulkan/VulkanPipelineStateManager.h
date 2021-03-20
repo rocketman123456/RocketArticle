@@ -9,11 +9,11 @@ namespace Rocket
         VulkanPipelineState(PipelineState& rhs) : PipelineState(rhs) {}
         VulkanPipelineState(PipelineState&& rhs) : PipelineState(std::move(rhs)) {}
 
-        VkDevice m_DeviceHandle;
-        VkRenderPass m_RenderPass;
-        VkDescriptorSetLayout m_DescriptorSetLayout;
-        VkPipelineLayout m_PipelineLayout;
-        VkPipeline m_GraphicsPipeline;
+        VkDevice device_handle;
+        VkRenderPass render_pass;
+        VkDescriptorSetLayout descriptor_set_layout;
+        VkPipelineLayout pipeline_layout;
+        VkPipeline graphics_pipeline;
     };
 
     class VulkanPipelineStateManager : public PipelineStateManager

@@ -8,9 +8,8 @@ typedef struct GLFWwindow GLFWwindow;
 
 namespace Rocket
 {
-	class VulkanFrameBuffer
+	struct VulkanFrameBuffer
 	{
-	public:
 		void Connect(
 			VkDevice device, 
 			VkPhysicalDevice physicalDevice,
@@ -24,30 +23,29 @@ namespace Rocket
 		void CreateDepthResources();
 		void CreateFramebuffers();
 
-		void SetWindowHandle(GLFWwindow* handle) { windowHandle = handle; }
-		void SetMsaaSample(VkSampleCountFlagBits msaa) { msaaSamples = msaa; }
+		void SetWindowHandle(GLFWwindow* handle) { window_handle = handle; }
+		void SetMsaaSample(VkSampleCountFlagBits msaa) { msaa_samples = msaa; }
 
-	public:
-		Vec<VkFramebuffer> swapChainFramebuffers;
+		Vec<VkFramebuffer> swapchain_framebuffers;
 
-		VkImage colorImage;
-		VkDeviceMemory colorImageMemory;
-		VkImageView colorImageView;
+		VkImage color_image;
+		VkDeviceMemory color_image_memory;
+		VkImageView color_image_view;
 
-		VkImage depthImage;
-		VkDeviceMemory depthImageMemory;
-		VkImageView depthImageView;
+		VkImage depth_image;
+		VkDeviceMemory depth_image_memory;
+		VkImageView depth_image_view;
 
 		VkDevice device;
-		VkRenderPass renderPass;
-		Vec<VkImageView> swapChainImageViews;
-		VkPhysicalDevice physicalDevice;
+		VkRenderPass render_pass;
+		Vec<VkImageView> swapchain_image_views;
+		VkPhysicalDevice physical_device;
 		VkSurfaceKHR surface;
 
-		VkSurfaceFormatKHR surfaceFormat;
+		VkSurfaceFormatKHR surface_format;
 		VkExtent2D extent = {};
 
-		VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
-		GLFWwindow* windowHandle;
+		VkSampleCountFlagBits msaa_samples = VK_SAMPLE_COUNT_1_BIT;
+		GLFWwindow* window_handle;
 	};
 }

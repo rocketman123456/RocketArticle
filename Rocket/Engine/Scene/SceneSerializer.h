@@ -7,7 +7,7 @@ namespace Rocket
     class SceneSerializer
 	{
 	public:
-		SceneSerializer(const Ref<Scene>& scene) : m_Scene(scene) {}
+		SceneSerializer(const Ref<Scene>& scene) : scene_(scene) {}
 
 		void Serialize(const String& filepath);
 		void SerializeRuntime(const String& filepath);
@@ -15,6 +15,6 @@ namespace Rocket
 		bool Deserialize(const String& filepath);
 		bool DeserializeRuntime(const String& filepath);
 	private:
-		Ref<Scene> m_Scene;
+		Ref<Scene> scene_;
 	};
 }

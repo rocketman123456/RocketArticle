@@ -9,7 +9,7 @@ void VulkanBufferStruct::Create(
 	VkDeviceSize size, bool map)
 {
 	RK_GRAPHICS_TRACE("VulkanBufferStruct Create");
-	this->device = device->logicalDevice;
+	this->device = device->logical_device;
 	this->size = size;
 	VkDeviceSize limit = device->properties.limits.nonCoherentAtomSize;
 
@@ -23,7 +23,7 @@ void VulkanBufferStruct::Create(
 	
 	descriptor = { buffer, 0, size };
 	if (map) {
-		VK_CHECK(vkMapMemory(device->logicalDevice, memory, 0, this->size, 0, &mapped));
+		VK_CHECK(vkMapMemory(device->logical_device, memory, 0, this->size, 0, &mapped));
 	}
 }
 

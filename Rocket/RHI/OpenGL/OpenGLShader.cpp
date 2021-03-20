@@ -150,18 +150,18 @@ static bool LoadShaderProgram(const ShaderSourceList& source, GLuint& shaderProg
 
 bool OpenGLShader::Initialize(const ShaderSourceList& list)
 {
-    bool result = LoadShaderProgram(list, m_RendererId);
+    bool result = LoadShaderProgram(list, renderer_id_);
     return result;
 }
 
 void OpenGLShader::Finalize()
 {
-    glDeleteProgram(m_RendererId);
+    glDeleteProgram(renderer_id_);
 }
 
 void OpenGLShader::Bind() const
 {
-    glUseProgram(m_RendererId);
+    glUseProgram(renderer_id_);
 }
 
 void OpenGLShader::Unbind() const
@@ -171,7 +171,7 @@ void OpenGLShader::Unbind() const
 
 int32_t OpenGLShader::GetLocation(const String& name)
 {
-    int32_t location = glGetUniformLocation(m_RendererId, name.c_str());
+    int32_t location = glGetUniformLocation(renderer_id_, name.c_str());
 #if defined(RK_DEBUG)
     if (location == -1)
     {

@@ -4,21 +4,21 @@
 
 using namespace Rocket;
 
-OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t* indices, uint32_t count) : m_Count(count)
+OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t* indices, uint32_t count) : count_(count)
 {
-	glGenBuffers(1, &m_RendererID);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
+	glGenBuffers(1, &renderer_id_);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderer_id_);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
 }
 
 OpenGLIndexBuffer::~OpenGLIndexBuffer()
 {
-	glDeleteBuffers(1, &m_RendererID);
+	glDeleteBuffers(1, &renderer_id_);
 }
 
 void OpenGLIndexBuffer::Bind() const
 {
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderer_id_);
 }
 
 void OpenGLIndexBuffer::Unbind() const

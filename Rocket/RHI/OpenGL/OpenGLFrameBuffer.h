@@ -18,16 +18,16 @@ namespace Rocket
 
 		uint32_t GetColorAttachmentRendererID(uint32_t index) const final 
 		{ 
-			RK_CORE_ASSERT(index < m_ColorAttachments.size(), "GetColorAttachmentRendererID index out of range");
-			return m_ColorAttachments[index];
+			RK_CORE_ASSERT(index < color_attachments_.size(), "GetColorAttachmentRendererID index out of range");
+			return color_attachments_[index];
 		}
-		uint32_t GetDepthAttachmentRendererID() const final { return m_DepthAttachment; }
-		const FramebufferSpec& GetSpecification() const final { return m_Specification; }
+		uint32_t GetDepthAttachmentRendererID() const final { return depth_attachment_; }
+		const FramebufferSpec& GetSpecification() const final { return specification_; }
 	private:
-		uint32_t m_RendererID = 0;
-		Vec<uint32_t> m_ColorSpecifications = {};
-		Vec<uint32_t> m_ColorAttachments = {};
-		uint32_t m_DepthAttachment = 0;
-		FramebufferSpec m_Specification;
+		uint32_t renderer_id_ = 0;
+		Vec<uint32_t> color_specifications_ = {};
+		Vec<uint32_t> color_attachments_ = {};
+		uint32_t depth_attachment_ = 0;
+		FramebufferSpec specification_;
 	};
 }

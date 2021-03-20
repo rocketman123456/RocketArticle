@@ -114,13 +114,13 @@ struct UniformBufferObject
 
 struct QueueFamilyIndices
 {
-    std::optional<uint32_t> graphicsFamily;
-    std::optional<uint32_t> presentFamily;
-	std::optional<uint32_t> computeFamily;
+    std::optional<uint32_t> graphics_family;
+    std::optional<uint32_t> present_family;
+	std::optional<uint32_t> compute_family;
 
     bool isComplete()
     {
-        return graphicsFamily.has_value() && presentFamily.has_value();
+        return graphics_family.has_value() && present_family.has_value();
     }
 };
 
@@ -128,7 +128,7 @@ struct SwapChainSupportDetails
 {
     VkSurfaceCapabilitiesKHR capabilities;
     Rocket::Vec<VkSurfaceFormatKHR> formats;
-    Rocket::Vec<VkPresentModeKHR> presentModes;
+    Rocket::Vec<VkPresentModeKHR> present_modes;
 };
 
 template<class T>
@@ -136,8 +136,8 @@ struct Resource
 {
 	T resource;
 	VkDeviceMemory memory;
-	VkDeviceSize allocationSize;
-	uint32_t memoryTypeIndex;
+	VkDeviceSize allocation_size;
+	uint32_t memory_type_index;
 };
 
 struct VulkanBuffer
@@ -151,24 +151,24 @@ struct VulkanBuffer
 struct VulkanImage
 {
 	VkImage image;
-	VkImageView imageView;
+	VkImageView image_view;
 	VkDeviceMemory memory;
 };
 
-struct VulkanSwapchain
-{
-	VkSwapchainKHR swapchain;
-	Rocket::Vec<VkImage> images;
-	uint32_t width, height;
-	uint32_t imageCount;
-};
+//struct VulkanSwapchain
+//{
+//	VkSwapchainKHR swapchain;
+//	Rocket::Vec<VkImage> images;
+//	uint32_t width, height;
+//	uint32_t image_count;
+//};
 
-enum SwapchainStatus
-{
-	Swapchain_Ready,
-	Swapchain_Resized,
-	Swapchain_NotReady,
-};
+//enum SwapchainStatus
+//{
+//	Swapchain_Ready,
+//	Swapchain_Resized,
+//	Swapchain_NotReady,
+//};
 
 // TODO : update vulkan shader class
 //struct Vulkan_Shader
@@ -190,9 +190,9 @@ struct VulkanProgram
 {
 	VkPipelineBindPoint bindPoint;
 	VkPipelineLayout layout;
-	VkDescriptorSetLayout setLayout;
-	VkDescriptorUpdateTemplate updateTemplate;
-	VkShaderStageFlags pushConstantStages;
+	VkDescriptorSetLayout set_layout;
+	VkDescriptorUpdateTemplate update_template;
+	VkShaderStageFlags push_constant_stages;
 };
 
 struct DescriptorInfo
@@ -332,26 +332,26 @@ VkFormat GetSwapchainFormat(
 	VkPhysicalDevice physicalDevice, 
 	VkSurfaceKHR surface);
 
-void CreateSwapchain(
-	VulkanSwapchain& result, 
-	VkPhysicalDevice physicalDevice, 
-	VkDevice device, 
-	VkSurfaceKHR surface, 
-	uint32_t familyIndex, 
-	VkFormat format, 
-	VkSwapchainKHR oldSwapchain = 0);
+//void CreateSwapchain(
+//	VulkanSwapchain& result, 
+//	VkPhysicalDevice physicalDevice, 
+//	VkDevice device, 
+//	VkSurfaceKHR surface, 
+//	uint32_t familyIndex, 
+//	VkFormat format, 
+//	VkSwapchainKHR oldSwapchain = 0);
+//
+//void DestroySwapchain(
+//	VkDevice device, 
+//	const VulkanSwapchain& swapchain);
 
-void DestroySwapchain(
-	VkDevice device, 
-	const VulkanSwapchain& swapchain);
-
-SwapchainStatus UpdateSwapchain(
-	VulkanSwapchain& result, 
-	VkPhysicalDevice physicalDevice, 
-	VkDevice device, 
-	VkSurfaceKHR surface, 
-	uint32_t familyIndex, 
-	VkFormat format);
+//SwapchainStatus UpdateSwapchain(
+//	VulkanSwapchain& result, 
+//	VkPhysicalDevice physicalDevice, 
+//	VkDevice device, 
+//	VkSurfaceKHR surface, 
+//	uint32_t familyIndex, 
+//	VkFormat format);
 
 // Device
 VkDevice CreateDevice(

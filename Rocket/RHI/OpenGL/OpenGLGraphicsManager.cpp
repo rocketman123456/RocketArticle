@@ -151,9 +151,9 @@ int OpenGLGraphicsManager::Initialize()
     RK_GRAPHICS_INFO("  Version: {0}", glGetString(GL_VERSION));
 
     auto config = g_Application->GetConfig();
-    m_VSync = config->GetConfigInfo<int8_t>("Graphics", "vsync");
+    vsync_ = config->GetConfigInfo<int8_t>("Graphics", "vsync");
 
-    if (m_VSync)
+    if (vsync_)
         glfwSwapInterval(1);
     else
         glfwSwapInterval(0);
@@ -252,7 +252,7 @@ void OpenGLGraphicsManager::BeginScene(const Scene& scene)
         auto dbc = CreateRef<OpenGLDrawBatchContext>();
         auto vertex = mesh->GetVertex();
         auto index = mesh->GetIndex();
-        dbc->VAO = CreateRef<OpenGLVertexArray>();
+        dbc->vao = CreateRef<OpenGLVertexArray>();
         //RK_GRAPHICS_INFO("Size of QuadVertex {}", sizeof(QuadVertex));
         auto vbo = CreateRef<OpenGLVertexBuffer>(vertex.size() * sizeof(QuadVertex));
         vbo->SetLayout({
@@ -264,11 +264,11 @@ void OpenGLGraphicsManager::BeginScene(const Scene& scene)
         });
         vbo->SetData(vertex.data(), vertex.size() * sizeof(QuadVertex));
         auto ibo = CreateRef<OpenGLIndexBuffer>(index.data(), index.size());
-        dbc->VAO->AddVertexBuffer(vbo);
-        dbc->VAO->SetIndexBuffer(ibo);
-        dbc->Count = ibo->GetCount();
-        dbc->Textures = &(mesh->GetTexture());
-        dbc->MaxTextures = mesh->GetTextureCount();
+        dbc->vao->AddVertexBuffer(vbo);
+        dbc->vao->SetIndexBuffer(ibo);
+        dbc->count = ibo->GetCount();
+        dbc->textures = &(mesh->GetTexture());
+        dbc->max_textures = mesh->GetTextureCount();
 
         // TODO : use real model matrix
         dbc->model_matrix = Matrix4f::Identity();
@@ -279,11 +279,11 @@ void OpenGLGraphicsManager::BeginScene(const Scene& scene)
         //  mode = GL_TRIANGLES;
         //  mode = GL_TRIANGLE_STRIP;
         //  mode = GL_TRIANGLE_FAN;
-        dbc->Mode = GL_TRIANGLES;
+        dbc->mode = GL_TRIANGLES;
         //  type = GL_UNSIGNED_BYTE;
         //  type = GL_UNSIGNED_SHORT;
         //  type = GL_UNSIGNED_INT;
-        dbc->Type = GL_UNSIGNED_INT;
+        dbc->type = GL_UNSIGNED_INT;
 
         for (int32_t n = 0; n < max_frame_in_flight_; n++)
         {
@@ -491,14 +491,14 @@ void OpenGLGraphicsManager::DrawBatch(const Frame &frame)
         SetPerBatchConstants(*pDbc);
         const auto& dbc = dynamic_cast<const OpenGLDrawBatchContext&>(*pDbc);
 
-        dbc.VAO->Bind();
+        dbc.vao->Bind();
 
-        for(int i = 0; i < dbc.MaxTextures; ++i)
+        for(int i = 0; i < dbc.max_textures; ++i)
         {
-            (*dbc.Textures)[i]->Bind(i);
+            (*dbc.textures)[i]->Bind(i);
         }
 
-        glDrawElements(dbc.Mode, dbc.Count, dbc.Type, nullptr);
+        glDrawElements(dbc.mode, dbc.count, dbc.type, nullptr);
         //glBindTexture(GL_TEXTURE_2D, 0);
     }
     EndFrameBuffer(frame);
@@ -546,9 +546,9 @@ bool OpenGLGraphicsManager::OnWindowResize(EventPtr& e)
 {
     if (e->GetInt32(3) == 0)
     {
-        m_Width = e->GetInt32(1);
-        m_Height = e->GetInt32(2);
-        return Resize(m_Width, m_Height);
+        width_ = e->GetInt32(1);
+        height_ = e->GetInt32(2);
+        return Resize(width_, height_);
     }
     else
     {

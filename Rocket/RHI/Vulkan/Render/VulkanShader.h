@@ -10,13 +10,13 @@ namespace Rocket
     class VulkanShader : implements Shader
     {
     public:
-        VulkanShader(const String& name) : m_NameId(GlobalHashTable::HashString("Asset"_hash, name)) {}
+        VulkanShader(const String& name) : name_id_(GlobalHashTable::HashString("Asset"_hash, name)) {}
         VulkanShader(const VulkanShader& rhs) = default;
         VulkanShader(VulkanShader&& rhs) = default;
         virtual ~VulkanShader() = default;
 
-        void SetDevice(VkDevice& device) { m_DeviceHandle = device; }
-        void SetIsBinary(bool type) { m_IsBinary = type; }
+        void SetDevice(VkDevice& device) { device_handle_ = device; }
+        void SetIsBinary(bool type) { is_binary_ = type; }
 
         bool Initialize(const ShaderSourceList& list) final;
 		void Finalize() final;
@@ -40,17 +40,17 @@ namespace Rocket
 		bool SetMatrix3f(const String& name, const Matrix3f& value) final;
 		bool SetMatrix4f(const String& name, const Matrix4f& value) final;
 
-        const String& GetName() const final { return GlobalHashTable::GetStringFromId("Asset"_hash, m_NameId); }
-		uint32_t GetRenderId() const final { return m_RendererId; }
+        const String& GetName() const final { return GlobalHashTable::GetStringFromId("Asset"_hash, name_id_); }
+		uint32_t GetRenderId() const final { return renderer_id_; }
 
-        Vec<VkShaderModule>& GetShader() { return m_Shader; }
-        Vec<VkPipelineShaderStageCreateInfo>& GetShaderInfo() { return m_ShaderInfo; }
+        Vec<VkShaderModule>& GetShader() { return shaders_; }
+        Vec<VkPipelineShaderStageCreateInfo>& GetShaderInfo() { return shader_infos_; }
     private:
-        uint64_t m_NameId;
-        uint32_t m_RendererId;
-        bool m_IsBinary = false;;
-        Vec<VkShaderModule> m_Shader;
-        Vec<VkPipelineShaderStageCreateInfo> m_ShaderInfo;
-        VkDevice m_DeviceHandle;
+        uint64_t name_id_;
+        uint32_t renderer_id_;
+        bool is_binary_ = false;;
+        Vec<VkShaderModule> shaders_;
+        Vec<VkPipelineShaderStageCreateInfo> shader_infos_;
+        VkDevice device_handle_;
     };
 }

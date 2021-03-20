@@ -16,7 +16,7 @@ namespace Rocket
     {
     public:
         Scene() = default;
-        Scene(const String& name) : m_Name(name) {}
+        Scene(const String& name) : name_(name) {}
         ~Scene() = default;
 
         void OnUpdateRuntime(Timestep ts);
@@ -81,39 +81,39 @@ namespace Rocket
 		}
 		bool HasComponent(const std::type_index& type_info) const;
 
-		inline void SetName(const String& new_name) { m_Name = new_name; }
-		inline const String& GetName() const { return m_Name; }
-		inline uint32_t GetViewWidth() const { return m_ViewportWidth; }
-		inline uint32_t GetViewHeight() const { return m_ViewportHeight; }
-		inline bool GetSceneChange() const { return m_SceneChange; }
-		inline void SetSceneChange(bool change) { m_SceneChange = change; }
+		inline void SetName(const String& new_name) { name_ = new_name; }
+		inline const String& GetName() const { return name_; }
+		inline uint32_t GetViewWidth() const { return viewport_width_; }
+		inline uint32_t GetViewHeight() const { return viewport_height_; }
+		inline bool GetSceneChange() const { return scene_change_; }
+		inline void SetSceneChange(bool change) { scene_change_ = change; }
 
-		SceneState GetSceneState() { return m_State; }
+		SceneState GetSceneState() { return state_; }
 
 		// For Debug
-		void SetPrimaryCamera(const Ref<SceneCamera>& camera) { m_PrimaryCamera = camera; }
-		void SetEditorCamera(const Ref<EditorCamera>& camera) { m_EditorCamera = camera; }
-		Ref<SceneCamera>& GetPrimaryCamera() { return m_PrimaryCamera; }
-		Ref<EditorCamera>& GetEditorCamera() { return m_EditorCamera; }
-		void SetPrimaryCameraTransform(const Matrix4f& mat) { m_PrimaryCameraTransform = mat; }
-		void SetEditorCameraTransform(const Matrix4f& mat) { m_EditorCameraTransform = mat; }
-		Matrix4f& GetPrimaryCameraTransform() { return m_PrimaryCameraTransform; }
-		Matrix4f& GetEditorCameraTransform() { return m_EditorCameraTransform; }
+		void SetPrimaryCamera(const Ref<SceneCamera>& camera) { primary_camera_ = camera; }
+		void SetEditorCamera(const Ref<EditorCamera>& camera) { editor_camera_ = camera; }
+		Ref<SceneCamera>& GetPrimaryCamera() { return primary_camera_; }
+		Ref<EditorCamera>& GetEditorCamera() { return editor_camera_; }
+		void SetPrimaryCameraTransform(const Matrix4f& mat) { primary_camera_transform_ = mat; }
+		void SetEditorCameraTransform(const Matrix4f& mat) { editor_camera_transform_ = mat; }
+		Matrix4f& GetPrimaryCameraTransform() { return primary_camera_transform_; }
+		Matrix4f& GetEditorCameraTransform() { return editor_camera_transform_; }
 	private:
-        String m_Name;
-		uint32_t m_ViewportWidth = 0;
-        uint32_t m_ViewportHeight = 0;
-        SceneState m_State = SceneState::Play;
-        bool m_SceneChange = false;
+        String name_;
+		uint32_t viewport_width_ = 0;
+        uint32_t viewport_height_ = 0;
+        SceneState state_ = SceneState::Play;
+        bool scene_change_ = false;
 
-		Matrix4f m_PrimaryCameraTransform = Matrix4f::Identity();
-		Matrix4f m_EditorCameraTransform = Matrix4f::Identity();
-		Ref<SceneCamera> m_PrimaryCamera = nullptr;
-		Ref<EditorCamera> m_EditorCamera = nullptr;
+		Matrix4f primary_camera_transform_ = Matrix4f::Identity();
+		Matrix4f editor_camera_transform_ = Matrix4f::Identity();
+		Ref<SceneCamera> primary_camera_ = nullptr;
+		Ref<EditorCamera> editor_camera_ = nullptr;
 
-        SceneNode* m_Root = nullptr;
-        Vec<Scope<SceneNode>> m_Nodes;
-        UMap<std::type_index, Vec<Scope<SceneComponent>>> m_Components;
+        SceneNode* root_ = nullptr;
+        Vec<Scope<SceneNode>> nodes_;
+        UMap<std::type_index, Vec<Scope<SceneComponent>>> components_;
 
         friend class SceneSerializer;
     };

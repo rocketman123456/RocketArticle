@@ -5,10 +5,10 @@
 
 using namespace Rocket;
 
-void VulkanSwapChain::Connect(VkInstance instance, VkPhysicalDevice physicalDevice, VkDevice device, VkSurfaceKHR surface)
+void VulkanSwapchain::Connect(VkInstance instance, VkPhysicalDevice physicalDevice, VkDevice device, VkSurfaceKHR surface)
 {
 	this->instance = instance;
-	this->physicalDevice = physicalDevice;
+	this->physical_device = physicalDevice;
 	this->device = device;
 	this->surface = surface;
 
@@ -25,27 +25,27 @@ void VulkanSwapChain::Connect(VkInstance instance, VkPhysicalDevice physicalDevi
 
 	SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(physicalDevice, surface);
 
-	surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
-	extent = ChooseSwapExtent(swapChainSupport.capabilities, windowHandle);
-	colorFormat = surfaceFormat.format;
-	colorSpace = surfaceFormat.colorSpace;
+	surface_format = ChooseSwapSurfaceFormat(swapChainSupport.formats);
+	extent = ChooseSwapExtent(swapChainSupport.capabilities, window_handle);
+	color_format = surface_format.format;
+	color_space = surface_format.colorSpace;
 }
 
-void VulkanSwapChain::Initialize(bool vsync)
+void VulkanSwapchain::Initialize(bool vsync)
 {
-	VkSwapchainKHR oldSwapchain = swapChain;
+	VkSwapchainKHR oldSwapchain = swapchain;
 
 	// Get physical device surface properties and formats
 	VkSurfaceCapabilitiesKHR surfCaps;
-	VK_CHECK(fpGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfCaps));
+	VK_CHECK(fpGetPhysicalDeviceSurfaceCapabilitiesKHR(physical_device, surface, &surfCaps));
 
 	// Get available present modes
 	uint32_t presentModeCount;
-	VK_CHECK(fpGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, NULL));
+	VK_CHECK(fpGetPhysicalDeviceSurfacePresentModesKHR(physical_device, surface, &presentModeCount, NULL));
 	RK_GRAPHICS_ASSERT(presentModeCount > 0, "available present modes = 0");
 
 	Vec<VkPresentModeKHR> presentModes(presentModeCount);
-	VK_CHECK(fpGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, presentModes.data()));
+	VK_CHECK(fpGetPhysicalDeviceSurfacePresentModesKHR(physical_device, surface, &presentModeCount, presentModes.data()));
 
 	// Select a present mode for the swapchain
 
@@ -107,12 +107,12 @@ void VulkanSwapChain::Initialize(bool vsync)
 	}
 
 	// Set Image Sharing Mode
-	QueueFamilyIndices indices = FindQueueFamilies(physicalDevice, surface);
+	QueueFamilyIndices indices = FindQueueFamilies(physical_device, surface);
 
 	std::set<uint32_t> uniqueQueueFamilyIndices = {
-		indices.graphicsFamily.value(),
-		indices.computeFamily.value(),
-		indices.presentFamily.value()
+		indices.graphics_family.value(),
+		indices.compute_family.value(),
+		indices.present_family.value()
 	};
 
 	Vec<uint32_t> uniqueQueueFamilyIndicesVec;
@@ -132,8 +132,8 @@ void VulkanSwapChain::Initialize(bool vsync)
 	swapchainCI.pNext = NULL;
 	swapchainCI.surface = surface;
 	swapchainCI.minImageCount = desiredNumberOfSwapchainImages;
-	swapchainCI.imageFormat = colorFormat;
-	swapchainCI.imageColorSpace = colorSpace;
+	swapchainCI.imageFormat = color_format;
+	swapchainCI.imageColorSpace = color_space;
 	swapchainCI.imageExtent = { extent.width, extent.height };
 	swapchainCI.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 	swapchainCI.preTransform = (VkSurfaceTransformFlagBitsKHR)preTransform;
@@ -154,37 +154,37 @@ void VulkanSwapChain::Initialize(bool vsync)
 
 	// Set additional usage flag for blitting from the swapchain images if supported
 	VkFormatProperties formatProps;
-	vkGetPhysicalDeviceFormatProperties(physicalDevice, colorFormat, &formatProps);
+	vkGetPhysicalDeviceFormatProperties(physical_device, color_format, &formatProps);
 	if ((formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT_KHR) || (formatProps.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_SRC_BIT)) {
 		swapchainCI.imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 	}
 
-	VK_CHECK(fpCreateSwapchainKHR(device, &swapchainCI, nullptr, &swapChain));
+	VK_CHECK(fpCreateSwapchainKHR(device, &swapchainCI, nullptr, &swapchain));
 
 	// If an existing swap chain is re-created, destroy the old swap chain
 	// This also cleans up all the presentable images
 	if (oldSwapchain != VK_NULL_HANDLE)
 	{
-		for (uint32_t i = 0; i < imageCount; i++)
+		for (uint32_t i = 0; i < image_count; i++)
 		{
 			vkDestroyImageView(device, buffers[i].view, nullptr);
 		}
 		fpDestroySwapchainKHR(device, oldSwapchain, nullptr);
 	}
-	VK_CHECK(fpGetSwapchainImagesKHR(device, swapChain, &imageCount, NULL));
+	VK_CHECK(fpGetSwapchainImagesKHR(device, swapchain, &image_count, NULL));
 
 	// Get the swap chain images
-	images.resize(imageCount);
-	VK_CHECK(fpGetSwapchainImagesKHR(device, swapChain, &imageCount, images.data()));
+	images.resize(image_count);
+	VK_CHECK(fpGetSwapchainImagesKHR(device, swapchain, &image_count, images.data()));
 
 	// Get the swap chain buffers containing the image and imageview
-	buffers.resize(imageCount);
-	for (uint32_t i = 0; i < imageCount; i++)
+	buffers.resize(image_count);
+	for (uint32_t i = 0; i < image_count; i++)
 	{
 		VkImageViewCreateInfo colorAttachmentView = {};
 		colorAttachmentView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		colorAttachmentView.pNext = NULL;
-		colorAttachmentView.format = colorFormat;
+		colorAttachmentView.format = color_format;
 		colorAttachmentView.components = {
 			VK_COMPONENT_SWIZZLE_R,
 			VK_COMPONENT_SWIZZLE_G,
@@ -207,9 +207,9 @@ void VulkanSwapChain::Initialize(bool vsync)
 	}
 }
 
-VkResult VulkanSwapChain::AcquireNextImage(VkSemaphore presentCompleteSemaphore, uint32_t* imageIndex)
+VkResult VulkanSwapchain::AcquireNextImage(VkSemaphore presentCompleteSemaphore, uint32_t* imageIndex)
 {
-	if (swapChain == VK_NULL_HANDLE) {
+	if (swapchain == VK_NULL_HANDLE) {
 		// Probably acquireNextImage() is called just after cleanup() (e.g. window has been terminated on Android).
 		// todo : Use a dedicated error code.
 		return VK_ERROR_OUT_OF_DATE_KHR;
@@ -217,16 +217,16 @@ VkResult VulkanSwapChain::AcquireNextImage(VkSemaphore presentCompleteSemaphore,
 
 	// By setting timeout to UINT64_MAX we will always wait until the next image has been acquired or an actual error is thrown
 	// With that we don't have to handle VK_NOT_READY
-	return fpAcquireNextImageKHR(device, swapChain, UINT64_MAX, presentCompleteSemaphore, (VkFence)nullptr, imageIndex);
+	return fpAcquireNextImageKHR(device, swapchain, UINT64_MAX, presentCompleteSemaphore, (VkFence)nullptr, imageIndex);
 }
 
-VkResult VulkanSwapChain::QueuePresent(VkQueue queue, uint32_t imageIndex, VkSemaphore waitSemaphore)
+VkResult VulkanSwapchain::QueuePresent(VkQueue queue, uint32_t imageIndex, VkSemaphore waitSemaphore)
 {
 	VkPresentInfoKHR presentInfo = {};
 	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 	presentInfo.pNext = NULL;
 	presentInfo.swapchainCount = 1;
-	presentInfo.pSwapchains = &swapChain;
+	presentInfo.pSwapchains = &swapchain;
 	presentInfo.pImageIndices = &imageIndex;
 	// Check if a wait semaphore has been specified to wait for before presenting the image
 	if (waitSemaphore != VK_NULL_HANDLE)
@@ -237,20 +237,20 @@ VkResult VulkanSwapChain::QueuePresent(VkQueue queue, uint32_t imageIndex, VkSem
 	return fpQueuePresentKHR(queue, &presentInfo);
 }
 
-void VulkanSwapChain::Finalize()
+void VulkanSwapchain::Finalize()
 {
-	if (swapChain != VK_NULL_HANDLE)
+	if (swapchain != VK_NULL_HANDLE)
 	{
-		for (uint32_t i = 0; i < imageCount; i++)
+		for (uint32_t i = 0; i < image_count; i++)
 		{
 			vkDestroyImageView(device, buffers[i].view, nullptr);
 		}
 	}
-	if (swapChain != VK_NULL_HANDLE)
+	if (swapchain != VK_NULL_HANDLE)
 	{
-		fpDestroySwapchainKHR(device, swapChain, nullptr);
+		fpDestroySwapchainKHR(device, swapchain, nullptr);
 	}
-	swapChain = VK_NULL_HANDLE;
+	swapchain = VK_NULL_HANDLE;
 	//if (surface != VK_NULL_HANDLE)
 	//{
 	//	fpDestroySwapchainKHR(device, swapChain, nullptr);

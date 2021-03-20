@@ -59,7 +59,7 @@ void Transform::SetTransform(const Matrix4f& mat)
 	}
 
 	// Next take care of translation (easy).
-	m_Translation = LocalTransform.block<3, 1>(0, 3);
+	translation_ = LocalTransform.block<3, 1>(0, 3);
 	LocalTransform.block<4, 1>(0, 3) = Vector4f({ 0, 0, 0, LocalTransform(3, 3) });
 
 	Vector3f Row[3], Pdum3;
@@ -70,7 +70,7 @@ void Transform::SetTransform(const Matrix4f& mat)
 			Row[i][j] = LocalTransform(i, j);
 
 	// Compute X scale factor and normalize first row.
-	m_Scale[0] = Row[0].norm();
+	scale_[0] = Row[0].norm();
 
 	Row[0].normalize();
 
@@ -79,9 +79,9 @@ void Transform::SetTransform(const Matrix4f& mat)
 	Row[1] = Row[1] - Row[0] * Skew[2];
 
 	// Now, compute Y scale and normalize 2nd row.
-	m_Scale[1] = Row[1].norm();
+	scale_[1] = Row[1].norm();
 	Row[1].normalize();
-	Skew[2] /= m_Scale[1];
+	Skew[2] /= scale_[1];
 
 	// Compute XZ and YZ shears, orthogonalize 3rd row.
 	Skew[1] = Row[0].dot(Row[2]);
@@ -90,10 +90,10 @@ void Transform::SetTransform(const Matrix4f& mat)
 	Row[2] = Row[2] - Skew[0] * Row[1];
 
 	// Next, get Z scale and normalize 3rd row.
-	m_Scale[2] = Row[2].norm();
+	scale_[2] = Row[2].norm();
 	Row[2].normalize();;
-	Skew[1] /= m_Scale[2];
-	Skew[0] /= m_Scale[2];
+	Skew[1] /= scale_[2];
+	Skew[0] /= scale_[2];
 
 	// At this point, the matrix (in rows[]) is orthonormal.
 	// Check for a coordinate system flip.  If the determinant
@@ -103,7 +103,7 @@ void Transform::SetTransform(const Matrix4f& mat)
 	{
 		for (int16_t i = 0; i < 3; i++)
 		{
-			m_Scale[i] *= static_cast<float>(-1);
+			scale_[i] *= static_cast<float>(-1);
 			Row[i] *= static_cast<float>(-1);
 		}
 	}
@@ -139,7 +139,7 @@ void Transform::SetTransform(const Matrix4f& mat)
 		orientation[3] = root * (Row[j][k] - Row[k][j]);
 	} // End if <= 0
 
-	m_Orientation = Quaternionf(Vector4f(orientation));
+	orientation_ = Quaternionf(Vector4f(orientation));
 
 	Invalidate(); 
 }
@@ -147,29 +147,29 @@ void Transform::SetTransform(const Matrix4f& mat)
 Matrix4f Transform::GetWorldMatrix()
 {
 	Matrix4f Trans = Matrix4f::Identity();
-	Trans.block<3, 1>(0, 3) = m_Translation;
-	Trans.block<3, 3>(0, 0) = m_Orientation.toRotationMatrix();
+	Trans.block<3, 1>(0, 3) = translation_;
+	Trans.block<3, 3>(0, 0) = orientation_.toRotationMatrix();
 	Matrix4f scale = Matrix4f::Identity();
-	scale(0, 0) = m_Scale[0];
-	scale(1, 1) = m_Scale[1];
-	scale(2, 2) = m_Scale[2];
+	scale(0, 0) = scale_[0];
+	scale(1, 1) = scale_[1];
+	scale(2, 2) = scale_[2];
 	Trans = Trans * scale;
 	return Trans;
 }
 
 void Transform::UpdateTransform()
 {
-	if (!UpdateMatrix)
+	if (!update_matrix_)
 		return;
 
-	m_WorldTransform = GetWorldMatrix();
+	world_transform_ = GetWorldMatrix();
 
-	auto parent = m_Node.GetParent();
+	auto parent = node_.GetParent();
 	if (parent)
 	{
 		auto& transform = parent->GetComponent<Transform>();
-		m_WorldTransform = m_WorldTransform * transform.GetWorldMatrix();
+		world_transform_ = world_transform_ * transform.GetWorldMatrix();
 	}
 
-	UpdateMatrix = false;
+	update_matrix_ = false;
 }

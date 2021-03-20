@@ -8,11 +8,11 @@ namespace Rocket
 	{
 	public:
 		Camera() = default;
-		Camera(const Matrix4f& projection) : m_Projection(projection) {}
+		Camera(const Matrix4f& projection) : projection_(projection) {}
 		virtual ~Camera() = default;
 
-		const Matrix4f& GetProjection() const { return m_Projection; }
+		const Matrix4f& GetProjection() const { return projection_; }
 	protected:
-		Matrix4f m_Projection = Matrix4f::Zero();
+		Matrix4f projection_ = Matrix4f::Zero();
 	};
 }

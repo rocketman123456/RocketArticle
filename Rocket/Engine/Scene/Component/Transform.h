@@ -11,33 +11,33 @@ namespace Rocket
 	public:
 		COMPONENT(Transform);
 	public:
-		Transform(SceneNode& node) : m_Node(node) {}
-		Transform(const Matrix4f& mat, SceneNode& node) : m_WorldTransform(mat), m_Node(node) {}
+		Transform(SceneNode& node) : node_(node) {}
+		Transform(const Matrix4f& mat, SceneNode& node) : world_transform_(mat), node_(node) {}
 		virtual ~Transform() = default;
 
 		SceneNode& GetNode();
 
-		Vector3f& GetTranslation() { return m_Translation; }
-		Quaternionf& GetOrientation() { return m_Orientation; }
-		Vector3f& GetScale() { return m_Translation; }
-		Matrix4f& GetTransform() { return m_WorldTransform; }
-		void SetTranslation(const Vector3f& vec) { m_Translation = vec; Invalidate(); }
-		void SetOrientation(const Quaternionf& rot) { m_Orientation = rot; Invalidate();}
-		void SetScale(const Vector3f& vec) { m_Translation = vec; Invalidate();}
+		Vector3f& GetTranslation() { return translation_; }
+		Quaternionf& GetOrientation() { return orientation_; }
+		Vector3f& GetScale() { return translation_; }
+		Matrix4f& GetTransform() { return world_transform_; }
+		void SetTranslation(const Vector3f& vec) { translation_ = vec; Invalidate(); }
+		void SetOrientation(const Quaternionf& rot) { orientation_ = rot; Invalidate();}
+		void SetScale(const Vector3f& vec) { translation_ = vec; Invalidate();}
 		void SetTransform(const Matrix4f& mat);
 
 		Matrix4f GetWorldMatrix();
 
-		void Invalidate() { UpdateMatrix = false; }
+		void Invalidate() { update_matrix_ = false; }
 	private:
 		void UpdateTransform();
 	private:
 		// TODO : fix eigen3 matrix aligement issue in memory manager
-		Matrix4f m_WorldTransform = Matrix4f::Identity();
-		Quaternionf m_Orientation = Quaternionf::Identity();
-		Vector3f m_Translation = Vector3f({ 0.0f, 0.0f, 0.0f });
-		Vector3f m_Scale = Vector3f({ 1.0f, 1.0f, 1.0f });
-		SceneNode& m_Node;
-		bool UpdateMatrix = false;
+		Matrix4f world_transform_ = Matrix4f::Identity();
+		Quaternionf orientation_ = Quaternionf::Identity();
+		Vector3f translation_ = Vector3f({ 0.0f, 0.0f, 0.0f });
+		Vector3f scale_ = Vector3f({ 1.0f, 1.0f, 1.0f });
+		SceneNode& node_;
+		bool update_matrix_ = false;
 	};
 }

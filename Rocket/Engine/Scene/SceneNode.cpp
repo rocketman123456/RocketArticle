@@ -5,60 +5,60 @@
 using namespace xg;
 using namespace Rocket;
 
-SceneNode::SceneNode() : m_Transform(*this)
+SceneNode::SceneNode() : transform_(*this)
 {
 	auto id = newGuid();
-	m_Id = std::hash<Guid>{}(id);
-	m_Tag.TagStr = id.str();
+	id_ = std::hash<Guid>{}(id);
+	tag_.tag_str = id.str();
 }
 
-SceneNode::SceneNode(const String& name) : m_Transform(*this)
+SceneNode::SceneNode(const String& name) : transform_(*this)
 {
 	auto id = newGuid();
-	m_Id = std::hash<Guid>{}(id);
-	m_Tag.TagStr = name;
+	id_ = std::hash<Guid>{}(id);
+	tag_.tag_str = name;
 }
 
 void SceneNode::SetParent(SceneNode& parent)
 {
-	m_Parent = &parent;
+	parent_ = &parent;
 }
 
 SceneNode* SceneNode::GetParent() const
 {
-	return m_Parent;
+	return parent_;
 }
 
 void SceneNode::AddChild(SceneNode& child)
 {
-	m_Children.push_back(&child);
+	children_.push_back(&child);
 }
 
 const Vec<SceneNode*>& SceneNode::GetChildren() const
 {
-	return m_Children;
+	return children_;
 }
 
 void SceneNode::SetComponent(SceneComponent& component)
 {
-	auto it = m_Components.find(component.GetType());
+	auto it = components_.find(component.GetType());
 
-	if (it != m_Components.end())
+	if (it != components_.end())
 	{
 		it->second = &component;
 	}
 	else
 	{
-		m_Components.insert(std::make_pair(component.GetType(), &component));
+		components_.insert(std::make_pair(component.GetType(), &component));
 	}
 }
 
 SceneComponent& SceneNode::GetComponent(const std::type_index index)
 {
-	return *m_Components.at(index);
+	return *components_.at(index);
 }
 
 bool SceneNode::HasComponent(const std::type_index index)
 {
-	return m_Components.count(index) > 0;
+	return components_.count(index) > 0;
 }

@@ -10,7 +10,7 @@ using namespace Rocket;
 SceneComponent::SceneComponent()
 {
     auto id = newGuid();
-    m_Id = std::hash<Guid>{}(id);
+    id_ = std::hash<Guid>{}(id);
 }
 
 std::ostream& Rocket::operator<<(std::ostream& out, SceneComponent& com)

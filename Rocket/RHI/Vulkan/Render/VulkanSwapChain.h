@@ -12,7 +12,7 @@ namespace Rocket
 		VkImageView view;
 	} SwapChainBuffer;
 
-	class VulkanSwapChain
+	class VulkanSwapchain
 	{
 	public:
 		void Connect(VkInstance instance, VkPhysicalDevice physicalDevice, VkDevice device, VkSurfaceKHR surface);
@@ -21,24 +21,24 @@ namespace Rocket
 		VkResult QueuePresent(VkQueue queue, uint32_t imageIndex, VkSemaphore waitSemaphore = VK_NULL_HANDLE);
 		void Finalize();
 
-		void SetWindowHandle(GLFWwindow* handle) { windowHandle = handle; }
+		void SetWindowHandle(GLFWwindow* handle) { window_handle = handle; }
 	public:
-		VkFormat colorFormat;
-		VkColorSpaceKHR colorSpace;
-		VkSwapchainKHR swapChain = VK_NULL_HANDLE;
-		uint32_t imageCount;
+		VkFormat color_format;
+		VkColorSpaceKHR color_space;
+		VkSwapchainKHR swapchain = VK_NULL_HANDLE;
+		uint32_t image_count;
 		Vec<VkImage> images;
 		Vec<SwapChainBuffer> buffers;
 		VkExtent2D extent = {};
-		uint32_t queueNodeIndex = UINT32_MAX;
+		uint32_t queue_node_index = UINT32_MAX;
 
 		VkInstance instance;
 		VkDevice device;
-		VkPhysicalDevice physicalDevice;
+		VkPhysicalDevice physical_device;
 		VkSurfaceKHR surface = VK_NULL_HANDLE;
-		VkSurfaceFormatKHR surfaceFormat;
+		VkSurfaceFormatKHR surface_format;
 
-		GLFWwindow* windowHandle;
+		GLFWwindow* window_handle;
 	private:
 		// Function pointers
 		PFN_vkGetPhysicalDeviceSurfaceSupportKHR fpGetPhysicalDeviceSurfaceSupportKHR;

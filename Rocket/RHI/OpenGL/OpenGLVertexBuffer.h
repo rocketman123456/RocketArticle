@@ -15,11 +15,11 @@ namespace Rocket
 
 		virtual void SetData(const void* data, uint32_t size) override;
 
-		virtual const BufferLayout& GetLayout() const override { return m_Layout; }
-		virtual void SetLayout(const BufferLayout& layout) override { m_Layout = layout; }
+		virtual const BufferLayout& GetLayout() const override { return layout_; }
+		virtual void SetLayout(const BufferLayout& layout) override { layout_ = layout; }
 
 	private:
-		uint32_t m_RendererID;
-		BufferLayout m_Layout;
+		uint32_t renderer_id_;
+		BufferLayout layout_;
 	};
 }

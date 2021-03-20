@@ -36,17 +36,17 @@ namespace Rocket
 		}
 		bool HasComponent(const std::type_index index);
 
-		inline uint64_t GetId() const { return m_Id; }
-		inline Transform& GetTransform() { return m_Transform; }
-		inline String& GetTagName() { return m_Tag.TagStr; }
+		inline uint64_t GetId() const { return id_; }
+		inline Transform& GetTransform() { return transform_; }
+		inline String& GetTagName() { return tag_.tag_str; }
 	protected:
-		uint64_t m_Id;
+		uint64_t id_;
 
-		TagName m_Tag;
-		Transform m_Transform;
+		TagName tag_;
+		Transform transform_;
 
-		SceneNode* m_Parent{ nullptr };
-		Vec<SceneNode*> m_Children;
-		UMap<std::type_index, SceneComponent*> m_Components;
+		SceneNode* parent_{ nullptr };
+		Vec<SceneNode*> children_;
+		UMap<std::type_index, SceneComponent*> components_;
 	};
 }

@@ -7,36 +7,35 @@ typedef struct GLFWwindow GLFWwindow;
 
 namespace Rocket
 {
-	class VulkanPipeline
+	struct VulkanPipeline
 	{
-	public:
 		void Connect(VkInstance instance, VkPhysicalDevice physicalDevice, VkDevice device, VkSurfaceKHR surface);
 		void Initialize();
 		void Finalize();
 
-		void SetWindowHandle(GLFWwindow* handle) { windowHandle = handle; }
-		void SetMsaaSample(VkSampleCountFlagBits msaa) { msaaSamples = msaa; }
+		void SetWindowHandle(GLFWwindow* handle) { window_handle = handle; }
+		void SetMsaaSample(VkSampleCountFlagBits msaa) { msaa_samples = msaa; }
 
 		void CreateRenderPass();
 		void CreateGuiRenderPass();
 		void CreateDescriptorSetLayout();
 		void CreateGraphicsPipeline();
-	public:
-		VkRenderPass renderPass;
-		VkRenderPass guiRenderPass;
-		VkDescriptorSetLayout descriptorSetLayout;
-		VkPipelineLayout pipelineLayout;
-		VkPipeline graphicsPipeline;
+
+		VkRenderPass render_pass;
+		VkRenderPass gui_render_pass;
+		VkDescriptorSetLayout descriptor_set_layout;
+		VkPipelineLayout pipeline_layout;
+		VkPipeline graphics_pipeline;
 
 		VkInstance instance;
 		VkDevice device;
-		VkPhysicalDevice physicalDevice;
+		VkPhysicalDevice physical_device;
 		VkSurfaceKHR surface;
 
-		VkSurfaceFormatKHR surfaceFormat;
+		VkSurfaceFormatKHR surface_format;
 		VkExtent2D extent = {};
 
-		VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
-		GLFWwindow* windowHandle;
+		VkSampleCountFlagBits msaa_samples = VK_SAMPLE_COUNT_1_BIT;
+		GLFWwindow* window_handle;
 	};
 }

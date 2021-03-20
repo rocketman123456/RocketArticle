@@ -67,27 +67,27 @@ namespace Rocket
 
     private:
         GLFWwindow* window_handle_ = nullptr;
-        bool m_VSync = true;
-        int32_t m_Width;
-        int32_t m_Height;
+        bool vsync_ = true;
+        int32_t width_;
+        int32_t height_;
 
         struct OpenGLDrawBatchContext : public DrawBatchContext
         {
-            Ref<OpenGLVertexArray> VAO;
-            Vec<Ref<Texture2D>>* Textures;
-            uint32_t Mode = 0;
-            uint32_t Type = 0;
-            uint32_t Count = 0;
-            uint32_t MaxTextures = 0;
+            Ref<OpenGLVertexArray> vao;
+            Vec<Ref<Texture2D>>* textures;
+            uint32_t mode = 0;
+            uint32_t type = 0;
+            uint32_t count = 0;
+            uint32_t max_textures = 0;
         };
 
         struct DebugDrawBatchContext : public OpenGLDrawBatchContext
         {
-            Vector3f Color;
-            Matrix4f Trans;
+            Vector3f color;
+            Matrix4f trans;
         };
 
-        OpenGLDrawBatchContext m_DrawContext;
-        OpenGLDrawBatchContext m_DebugContext;
+        OpenGLDrawBatchContext draw_context_;
+        OpenGLDrawBatchContext debug_context_;
     };
 }

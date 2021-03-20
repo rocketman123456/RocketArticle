@@ -26,17 +26,17 @@ static GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
 
 OpenGLVertexArray::OpenGLVertexArray()
 {
-	glGenVertexArrays(1, &m_RendererID);
+	glGenVertexArrays(1, &renderer_id_);
 }
 
 OpenGLVertexArray::~OpenGLVertexArray()
 {
-	glDeleteVertexArrays(1, &m_RendererID);
+	glDeleteVertexArrays(1, &renderer_id_);
 }
 
 inline void OpenGLVertexArray::Bind() const
 {
-	glBindVertexArray(m_RendererID);
+	glBindVertexArray(renderer_id_);
 }
 
 inline void OpenGLVertexArray::Unbind() const
@@ -48,7 +48,7 @@ inline void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBu
 {
 	RK_GRAPHICS_ASSERT(vertexBuffer->GetLayout().GetElements().size(), "Vertex Buffer has no layout!");
 
-	glBindVertexArray(m_RendererID);
+	glBindVertexArray(renderer_id_);
 	vertexBuffer->Bind();
 
 	const auto& layout = vertexBuffer->GetLayout();
@@ -66,14 +66,14 @@ inline void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBu
 		case ShaderDataType::Vec4i:
 		case ShaderDataType::Bool:
 		{
-			glEnableVertexAttribArray(m_VertexBufferIndex);
-			glVertexAttribPointer(m_VertexBufferIndex,
+			glEnableVertexAttribArray(vertex_buffer_index_);
+			glVertexAttribPointer(vertex_buffer_index_,
 				element.GetComponentCount(),
 				ShaderDataTypeToOpenGLBaseType(element.Type),
 				element.Normalized ? GL_TRUE : GL_FALSE,
 				layout.GetStride(),
 				(const void*)element.Offset);
-			m_VertexBufferIndex++;
+			vertex_buffer_index_++;
 			break;
 		}
 		case ShaderDataType::Mat2f:
@@ -83,15 +83,15 @@ inline void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBu
 			uint8_t count = element.GetComponentCount();
 			for (uint8_t i = 0; i < count; i++)
 			{
-				glEnableVertexAttribArray(m_VertexBufferIndex);
-				glVertexAttribPointer(m_VertexBufferIndex,
+				glEnableVertexAttribArray(vertex_buffer_index_);
+				glVertexAttribPointer(vertex_buffer_index_,
 					count,
 					ShaderDataTypeToOpenGLBaseType(element.Type),
 					element.Normalized ? GL_TRUE : GL_FALSE,
 					layout.GetStride(),
 					(const void*)(element.Offset + sizeof(float) * count * i));
-				glVertexAttribDivisor(m_VertexBufferIndex, 1);
-				m_VertexBufferIndex++;
+				glVertexAttribDivisor(vertex_buffer_index_, 1);
+				vertex_buffer_index_++;
 			}
 			break;
 		}
@@ -100,14 +100,14 @@ inline void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBu
 		}
 	}
 
-	m_VertexBuffers.push_back(vertexBuffer);
+	vertex_buffers_.push_back(vertexBuffer);
 	glBindVertexArray(0);
 }
 
 inline void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
 {
-	glBindVertexArray(m_RendererID);
+	glBindVertexArray(renderer_id_);
 	indexBuffer->Bind();
-	m_IndexBuffer = indexBuffer;
+	index_buffer_ = indexBuffer;
 	glBindVertexArray(0);
 }

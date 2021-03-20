@@ -29,7 +29,7 @@ namespace Rocket
 			VkPipelineCache pipelineCache, 
 			VkSampleCountFlagBits multiSampleCount,
 			uint32_t frameInFlight);
-		void SetWindowHandle(GLFWwindow* handle) { windowHandle = handle; }
+		void SetWindowHandle(GLFWwindow* handle) { window_handle = handle; }
 		
 		void Initialize() final;
 		void Finalize() final;
@@ -40,13 +40,13 @@ namespace Rocket
 	public:
 		VkInstance instance;
 		Ref<VulkanDevice> device;
-		VkRenderPass renderPass;
+		VkRenderPass render_pass;
 		VkQueue queue;
-		VkPipelineCache pipelineCache;
-		VkSampleCountFlagBits multiSampleCount;
-		GLFWwindow* windowHandle;
-		uint32_t frameInFlight;
+		VkPipelineCache pipeline_cache;
+		VkSampleCountFlagBits msaa_samples;
+		GLFWwindow* window_handle;
+		uint32_t frame_in_flight;
 
-		VkDescriptorPool descriptorPool;
+		VkDescriptorPool descriptor_pool;
 	};
 }

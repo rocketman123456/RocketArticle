@@ -61,7 +61,7 @@ bool VulkanPipelineStateManager::InitializePipelineState(PipelineState** ppPipel
     }
 
     VulkanGraphicsManager* vulkan_graphics_manager = dynamic_cast<VulkanGraphicsManager*>(g_GraphicsManager);
-    pnew_state->m_DeviceHandle = vulkan_graphics_manager->GetDevice();
+    pnew_state->device_handle = vulkan_graphics_manager->GetDevice();
     VkPhysicalDevice physicalDevice = vulkan_graphics_manager->GetPhysicalDevice();
     VkSurfaceKHR surface = vulkan_graphics_manager->GetSurface();
     VkSampleCountFlagBits msaaSamples = GetMaxUsableSampleCount(physicalDevice);
@@ -69,7 +69,7 @@ bool VulkanPipelineStateManager::InitializePipelineState(PipelineState** ppPipel
 
     SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(physicalDevice, surface);
     VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
-    VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
+    VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.present_modes);
     VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities, windowHandle);
     VkFormat swapChainImageFormat = surfaceFormat.format;
 
@@ -226,7 +226,7 @@ bool VulkanPipelineStateManager::InitializePipelineState(PipelineState** ppPipel
         renderPassInfo.pDependencies = &dependency;
     }
 
-    //if (vkCreateRenderPass(pnew_state->m_DeviceHandle, &renderPassInfo, nullptr, &pnew_state->m_RenderPass) != VK_SUCCESS)
+    //if (vkCreateRenderPass(pnew_state->device_handle_, &renderPassInfo, nullptr, &pnew_state->render_pass) != VK_SUCCESS)
     //{
     //    RK_GRAPHICS_ERROR("failed to create render pass!");
     //    return false;
@@ -251,31 +251,31 @@ bool VulkanPipelineStateManager::InitializePipelineState(PipelineState** ppPipel
     layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
     layoutInfo.pBindings = bindings.data();
 
-    //if (vkCreateDescriptorSetLayout(pnew_state->m_DeviceHandle, &layoutInfo, nullptr, &pnew_state->m_DescriptorSetLayout) != VK_SUCCESS)
+    //if (vkCreateDescriptorSetLayout(pnew_state->device_handle_, &layoutInfo, nullptr, &pnew_state->descriptor_set_layout) != VK_SUCCESS)
     //{
     //    RK_GRAPHICS_ERROR("failed to create descriptor set layout!");
-    //    vkDestroyRenderPass(pnew_state->m_DeviceHandle, pnew_state->m_RenderPass, nullptr);
+    //    vkDestroyRenderPass(pnew_state->device_handle_, pnew_state->render_pass, nullptr);
     //    return false;
     //}
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &pnew_state->m_DescriptorSetLayout;
+    pipelineLayoutInfo.pSetLayouts = &pnew_state->descriptor_set_layout;
     pipelineLayoutInfo.pushConstantRangeCount = 0;
     pipelineLayoutInfo.pPushConstantRanges = nullptr;
 
-    //if (vkCreatePipelineLayout(pnew_state->m_DeviceHandle, &pipelineLayoutInfo, nullptr, &pnew_state->m_PipelineLayout) != VK_SUCCESS)
+    //if (vkCreatePipelineLayout(pnew_state->device_handle_, &pipelineLayoutInfo, nullptr, &pnew_state->pipeline_layout) != VK_SUCCESS)
     //{
     //    RK_GRAPHICS_ERROR("failed to create pipeline layout!");
-    //    vkDestroyRenderPass(pnew_state->m_DeviceHandle, pnew_state->m_RenderPass, nullptr);
-    //    vkDestroyDescriptorSetLayout(pnew_state->m_DeviceHandle, pnew_state->m_DescriptorSetLayout, nullptr);
+    //    vkDestroyRenderPass(pnew_state->device_handle_, pnew_state->render_pass, nullptr);
+    //    vkDestroyDescriptorSetLayout(pnew_state->device_handle_, pnew_state->descriptor_set_layout, nullptr);
     //    return false;
     //}
     
     String name = pnew_state->pipelineStateName + " Shader";
     auto shaderProgram = CreateRef<VulkanShader>(name);
-    shaderProgram->SetDevice(pnew_state->m_DeviceHandle);
+    shaderProgram->SetDevice(pnew_state->device_handle);
     shaderProgram->SetIsBinary(true);
     bool result = shaderProgram->Initialize(list);
     pnew_state->shaderProgram = shaderProgram;
@@ -376,18 +376,18 @@ bool VulkanPipelineStateManager::InitializePipelineState(PipelineState** ppPipel
     pipelineInfo.pDepthStencilState = &depthStencil;
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDynamicState = nullptr;
-    pipelineInfo.layout = pnew_state->m_PipelineLayout;
-    pipelineInfo.renderPass = pnew_state->m_RenderPass;
+    pipelineInfo.layout = pnew_state->pipeline_layout;
+    pipelineInfo.renderPass = pnew_state->render_pass;
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-    //if (vkCreateGraphicsPipelines(pnew_state->m_DeviceHandle, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pnew_state->m_GraphicsPipeline) != VK_SUCCESS)
+    //if (vkCreateGraphicsPipelines(pnew_state->device_handle_, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pnew_state->graphics_pipeline) != VK_SUCCESS)
     //{
     //    RK_GRAPHICS_ERROR("failed to create graphics pipeline!");
     //    shaderProgram->Finalize();
-    //    vkDestroyPipelineLayout(pnew_state->m_DeviceHandle, pnew_state->m_PipelineLayout, nullptr);
-    //    vkDestroyRenderPass(pnew_state->m_DeviceHandle, pnew_state->m_RenderPass, nullptr);
-    //    vkDestroyDescriptorSetLayout(pnew_state->m_DeviceHandle, pnew_state->m_DescriptorSetLayout, nullptr);
+    //    vkDestroyPipelineLayout(pnew_state->device_handle_, pnew_state->pipeline_layout, nullptr);
+    //    vkDestroyRenderPass(pnew_state->device_handle_, pnew_state->render_pass, nullptr);
+    //    vkDestroyDescriptorSetLayout(pnew_state->device_handle_, pnew_state->descriptor_set_layout, nullptr);
     //    return false;
     //}
 
@@ -402,8 +402,8 @@ void VulkanPipelineStateManager::DestroyPipelineState(PipelineState& pipelineSta
 {
     VulkanPipelineState* pPipelineState = dynamic_cast<VulkanPipelineState*>(&pipelineState);
 
-    //vkDestroyPipeline(pPipelineState->m_DeviceHandle, pPipelineState->m_GraphicsPipeline, nullptr);
-    //vkDestroyPipelineLayout(pPipelineState->m_DeviceHandle, pPipelineState->m_PipelineLayout, nullptr);
-    //vkDestroyRenderPass(pPipelineState->m_DeviceHandle, pPipelineState->m_RenderPass, nullptr);
-    //vkDestroyDescriptorSetLayout(pPipelineState->m_DeviceHandle, pPipelineState->m_DescriptorSetLayout, nullptr);
+    //vkDestroyPipeline(pPipelineState->device_handle_, pPipelineState->graphics_pipeline, nullptr);
+    //vkDestroyPipelineLayout(pPipelineState->device_handle_, pPipelineState->pipeline_layout, nullptr);
+    //vkDestroyRenderPass(pPipelineState->device_handle_, pPipelineState->render_pass, nullptr);
+    //vkDestroyDescriptorSetLayout(pPipelineState->device_handle_, pPipelineState->descriptor_set_layout, nullptr);
 }

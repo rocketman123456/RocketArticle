@@ -6,13 +6,13 @@
 using namespace Rocket;
 
 OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height)
-	: m_Width(width), m_Height(height)
+	: width_(width), height_(height)
 {
-	m_InternalFormat = GL_RGBA8;
-	m_DataFormat = GL_RGBA;
+	internal_format_ = GL_RGBA8;
+	data_format_ = GL_RGBA;
 
-	glGenTextures(1, &m_RendererID);
-	glBindTexture(GL_TEXTURE_2D, m_RendererID);
+	glGenTextures(1, &renderer_id_);
+	glBindTexture(GL_TEXTURE_2D, renderer_id_);
 
 	// set the texture wrapping parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // set texture wrapping to GL_REPEAT (default wrapping method)
@@ -23,10 +23,10 @@ OpenGLTexture2D::OpenGLTexture2D(uint32_t width, uint32_t height)
 }
 
 OpenGLTexture2D::OpenGLTexture2D(const String& path)
-	: m_Path(path)
+	: path_(path)
 {
 	int channels;
-	auto data = g_AssetLoader->SyncOpenAndReadTexture(path, &m_Width, &m_Height, &channels);
+	auto data = g_AssetLoader->SyncOpenAndReadTexture(path, &width_, &height_, &channels);
 
 	GLenum internalFormat = 0, dataFormat = 0;
 	if (channels == 4)
@@ -40,13 +40,13 @@ OpenGLTexture2D::OpenGLTexture2D(const String& path)
 		dataFormat = GL_RGB;
 	}
 
-	m_InternalFormat = internalFormat;
-	m_DataFormat = dataFormat;
+	internal_format_ = internalFormat;
+	data_format_ = dataFormat;
 
 	RK_GRAPHICS_ASSERT(internalFormat & dataFormat, "Format not supported!");
 
-	glGenTextures(1, &m_RendererID);
-	glBindTexture(GL_TEXTURE_2D, m_RendererID);
+	glGenTextures(1, &renderer_id_);
+	glBindTexture(GL_TEXTURE_2D, renderer_id_);
 
 	glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -58,7 +58,7 @@ OpenGLTexture2D::OpenGLTexture2D(const String& path)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, m_DataFormat, m_Width, m_Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, data_format_, width_, height_, 0, data_format_, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	g_AssetLoader->SyncCloseTexture(data);
@@ -66,21 +66,21 @@ OpenGLTexture2D::OpenGLTexture2D(const String& path)
 
 OpenGLTexture2D::~OpenGLTexture2D()
 {
-	glDeleteTextures(1, &m_RendererID);
+	glDeleteTextures(1, &renderer_id_);
 }
 
 void OpenGLTexture2D::SetData(void* data, uint32_t size)
 {
-	uint32_t bpp = m_DataFormat == GL_RGBA ? 4 : 3;
-	RK_GRAPHICS_ASSERT(size == m_Width * m_Height * bpp, "Data must be entire texture!");
-	glTexImage2D(GL_TEXTURE_2D, 0, m_DataFormat, m_Width, m_Height, 0, m_DataFormat, GL_UNSIGNED_BYTE, data);
+	uint32_t bpp = data_format_ == GL_RGBA ? 4 : 3;
+	RK_GRAPHICS_ASSERT(size == width_ * height_ * bpp, "Data must be entire texture!");
+	glTexImage2D(GL_TEXTURE_2D, 0, data_format_, width_, height_, 0, data_format_, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 void OpenGLTexture2D::Bind(uint32_t slot) const
 {
 	glActiveTexture(GL_TEXTURE0 + slot);
-	glBindTexture(GL_TEXTURE_2D, m_RendererID);
+	glBindTexture(GL_TEXTURE_2D, renderer_id_);
 }
 void OpenGLTexture2D::Unbind(uint32_t slot) const
 {

@@ -38,7 +38,7 @@ namespace Rocket
     {
         YAML::Emitter out;
 		out << YAML::BeginMap;
-		out << YAML::Key << "Scene" << YAML::Value << m_Scene->GetName();
+		out << YAML::Key << "Scene" << YAML::Value << scene_->GetName();
 		out << YAML::Key << "SceneNodes" << YAML::Value << YAML::BeginSeq;
 
 		out << YAML::EndSeq;

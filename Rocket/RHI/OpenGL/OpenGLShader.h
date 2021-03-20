@@ -7,7 +7,7 @@ namespace Rocket
     class OpenGLShader : implements Shader
     {
     public:
-        OpenGLShader(const String& name) : m_NameId(AssetHashTable::HashString(name)) {}
+        OpenGLShader(const String& name) : name_id_(AssetHashTable::HashString(name)) {}
         OpenGLShader(const OpenGLShader& rhs) = default;
         OpenGLShader(OpenGLShader&& rhs) = default;
         virtual ~OpenGLShader() = default;
@@ -36,10 +36,10 @@ namespace Rocket
 		bool SetMatrix3f(const String& name, const Matrix3f& value) final;
 		bool SetMatrix4f(const String& name, const Matrix4f& value) final;
 
-        const String& GetName() const final { return AssetHashTable::GetStringFromId(m_NameId); }
-        uint32_t GetRenderId() const final { return m_RendererId; }
+        const String& GetName() const final { return AssetHashTable::GetStringFromId(name_id_); }
+        uint32_t GetRenderId() const final { return renderer_id_; }
     private:
-        uint32_t m_RendererId;
-        uint64_t m_NameId;
+        uint32_t renderer_id_;
+        uint64_t name_id_;
     };
 }

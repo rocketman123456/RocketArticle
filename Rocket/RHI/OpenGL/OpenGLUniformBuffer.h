@@ -15,11 +15,11 @@ namespace Rocket
         void SetSubData(void* data, uint32_t start, uint32_t size) final;
         
         void BindShader(uint32_t shader_id, uint32_t block_index, uint32_t pos) final;
-        uint32_t GetRenderID() const final { return m_RendererID; }
+        uint32_t GetRenderID() const final { return renderer_id_; }
 
     private:
-        uint32_t m_RendererID;
-        uint32_t m_BufferSize;
-        DRAW_TYPE m_Type;
+        uint32_t renderer_id_;
+        uint32_t buffer_size_;
+        DRAW_TYPE type_;
     };
 }

@@ -12,9 +12,9 @@ namespace Rocket
 		OpenGLTexture2D(const String& path);
 		virtual ~OpenGLTexture2D();
 
-		uint32_t GetWidth() const final { return m_Width; }
-		uint32_t GetHeight() const final { return m_Height; }
-		uint32_t GetRendererID() const final { return m_RendererID; }
+		uint32_t GetWidth() const final { return width_; }
+		uint32_t GetHeight() const final { return height_; }
+		uint32_t GetRendererID() const final { return renderer_id_; }
 
 		void SetData(void* data, uint32_t size) final;
 
@@ -23,13 +23,13 @@ namespace Rocket
 
 		bool operator==(const Texture& other) const final
 		{
-			return m_RendererID == ((OpenGLTexture2D&)other).m_RendererID;
+			return renderer_id_ == ((OpenGLTexture2D&)other).renderer_id_;
 		}
 
 	private:
-		String m_Path;
-		int32_t m_Width, m_Height;
-		uint32_t m_RendererID;
-		GLenum m_InternalFormat, m_DataFormat;
+		String path_;
+		int32_t width_, height_;
+		uint32_t renderer_id_;
+		GLenum internal_format_, data_format_;
 	};
 }
