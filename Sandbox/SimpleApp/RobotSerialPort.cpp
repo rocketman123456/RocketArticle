@@ -97,23 +97,32 @@ bool SerialPortModule::OnAction(EventPtr& e)
 
 bool SerialPortModule::OnMotor(Rocket::EventPtr& e)
 {
-    uint32_t motor_id = e->variable[1].asUInt32;
+    uint32_t control_id = e->variable[1].asUInt32;
     uint32_t command = e->variable[2].asUInt32;
-    uint8_t data[8];
-    data[0] = motor_id;
+    uint8_t data[8] = {0};
+    data[0] = control_id;
     data[1] = command;
     if(command == 0x01)
     {
         memcpy(&data[2], &e->variable[3].asUInt32, sizeof(uint32_t));
         CRC16_MODBUS(data, 6, &data[6], &data[7]);
-        RK_CORE_TRACE("Send Motor Data");
         serial_port_.writeData((char*)data, 8);
     }
     else if(command == 0x02)
     {
         memcpy(&data[2], &e->variable[3].asInt32, sizeof(int32_t));
         CRC16_MODBUS(data, 6, &data[6], &data[7]);
-        RK_CORE_TRACE("Send Motor Data");
+        serial_port_.writeData((char*)data, 8);
+    }
+    else if(command == 0x03)
+    {
+        CRC16_MODBUS(data, 6, &data[6], &data[7]);
+        serial_port_.writeData((char*)data, 8);
+    }
+    else if(command == 0x04)
+    {
+        memcpy(&data[2], &e->variable[3].asFloat, sizeof(float));
+        CRC16_MODBUS(data, 6, &data[6], &data[7]);
         serial_port_.writeData((char*)data, 8);
     }
     return false;
