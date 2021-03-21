@@ -2,13 +2,15 @@
 
 using namespace Rocket;
 
+static Rocket::Random crandom;
+
 bool Firework::Update(Real duration)
 { 
     // Update our physical state.
     Integrate(duration); 
     // We work backward from our age to zero.
-    age -= duration; 
-    return (age < 0) || (position.y < 0); 
+    age_ -= duration; 
+    return (age_ < 0) || (position_[0] < 0); 
 }
 
 void FireworkRule::Initialize(unsigned payload_count)
@@ -29,9 +31,8 @@ void FireworkRule::SetParameters(uint32_t type, Real min_age, Real max_age, cons
 
 void FireworkRule::Create(Firework* firework, const Firework* parent) const
 {
-    // TODO : add random part
     firework->SetType(type);
-    //firework->age = crandom.randomReal(min_age, max_age);
+    firework->SetAge(crandom.RandomReal(min_age, max_age));
 
     Real3 vel;
     if (parent)
@@ -43,12 +44,12 @@ void FireworkRule::Create(Firework* firework, const Firework* parent) const
     else
     {
         Real3 start;
-        int x = 0;//(int)crandom.randomInt(3) - 1;
+        int x = (int)crandom.RandomInt(3) - 1;
         start[0] = 5.0f * Real(x);
         firework->SetPosition(start);
     }
 
-    //vel += crandom.randomVector(minVelocity, maxVelocity);
+    vel += crandom.RandomVector(min_velocity, max_velocity);
     firework->SetVelocity(vel);
 
     // We use a mass of one in all cases (no point having fireworks

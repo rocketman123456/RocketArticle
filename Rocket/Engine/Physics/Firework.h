@@ -12,7 +12,7 @@ namespace Rocket
         const uint32_t GetType() const { return type_; }
         const Real GetAge() const { return age_; }
 
-        bool Update(Real duration)
+        bool Update(Real duration);
 
     protected:
         uint32_t type_;

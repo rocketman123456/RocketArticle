@@ -125,7 +125,8 @@
         "slist": "cpp",
         "cfenv": "cpp",
         "*.def": "cpp",
-        "*.lst": "cpp"
+        "*.lst": "cpp",
+        "adolcforward": "cpp"
     },
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }

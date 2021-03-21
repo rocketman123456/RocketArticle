@@ -5,19 +5,6 @@
 #include <Eigen/Eigen>
 #include <utility>
 
-// For Physics Module
-using Real = double;
-#define RealPow std::pow
-using Real2 = Eigen::Vector2d;
-using Real3 = Eigen::Vector3d;
-using Real4 = Eigen::Vector4d;
-
-namespace Rocket
-{
-	// TODO : finish random real
-	Real RandomReal();
-}
-
 // For Normal Module
 using Vector2f = Eigen::Vector2f;
 using Vector3f = Eigen::Vector3f;
@@ -38,6 +25,54 @@ using Quaterniond = Eigen::Quaterniond;
 
 using AngleAxisf = Eigen::AngleAxisf;
 using AngleAxisd = Eigen::AngleAxisd;
+
+// For Physics Module
+using Real = double;
+#define RealPow std::pow
+using Real2 = Eigen::Vector2d;
+using Real3 = Eigen::Vector3d;
+using Real4 = Eigen::Vector4d;
+using Quaternion = Quaterniond;
+
+namespace Rocket
+{
+	// Uses the RandRotB algorithm.
+	class Random
+	{
+	public:
+		Random();
+		Random(uint32_t seed);
+		~Random() = default;
+
+		void Seed(uint32_t seed);
+
+		// left bitwise rotation
+		uint32_t RotL(uint32_t n, uint32_t r);
+		// right bitwise rotation
+		uint32_t RotR(uint32_t n, uint32_t r);
+
+		uint32_t RandomBits();
+
+		Real RandomReal();
+		Real RandomReal(Real scale);
+		Real RandomReal(Real min, Real max);
+		Real RandomBinomial(Real scale);
+		uint32_t RandomInt(uint32_t max);
+
+		Real3 RandomVector(Real scale);
+		Real3 RandomVector(const Real3& scale);
+		Real3 RandomVector(const Real3& min, const Real3& max);
+		Real3 RandomXZVector(Real scale);
+		Real3 RandomXYVector(Real scale);
+		Real3 RandomYZVector(Real scale);
+		Quaternion RandomQuaternion();
+
+	private:
+		// Internal mechanics
+        int32_t p1, p2;
+        uint32_t buffer[17];
+	};
+}
 
 // For Render Module
 using Point2D = Vector2f;
