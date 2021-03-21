@@ -13,7 +13,7 @@ void Particle::Integrate(Real duration)
 
     // Work out the acceleration from the force.
     // (We’ll add to this vector when we come to generate forces.) 
-    Vector3f resultingAcc = acceleration_; 
+    Vector3d resultingAcc = acceleration_; 
     // Update linear velocity from the acceleration.
     velocity_ = velocity_ + duration * resultingAcc;
     // Impose drag.
@@ -24,5 +24,5 @@ void Particle::Integrate(Real duration)
 
 void Particle::ClearAccumulator()
 {
-    force_accumlate_ << 0, 0, 0;
+    force_accumulate_ << 0, 0, 0;
 }

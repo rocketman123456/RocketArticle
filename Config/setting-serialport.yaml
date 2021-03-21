@@ -1,5 +1,5 @@
 port-num: 3
-baud-rate: 9600
+baud-rate: 115200
 #ParityNone = 0,  ///< No Parity 无校验
 #ParityOdd = 1,   ///< Odd Parity 奇校验
 #ParityEven = 2,  ///< Even Parity 偶校验

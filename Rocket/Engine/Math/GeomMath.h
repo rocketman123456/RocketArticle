@@ -6,9 +6,19 @@
 #include <utility>
 
 // For Physics Module
-using Real = float;
-#define RealPow std::powf
+using Real = double;
+#define RealPow std::pow
+using Real2 = Eigen::Vector2d;
+using Real3 = Eigen::Vector3d;
+using Real4 = Eigen::Vector4d;
 
+namespace Rocket
+{
+	// TODO : finish random real
+	Real RandomReal();
+}
+
+// For Normal Module
 using Vector2f = Eigen::Vector2f;
 using Vector3f = Eigen::Vector3f;
 using Vector4f = Eigen::Vector4f;
@@ -29,6 +39,7 @@ using Quaterniond = Eigen::Quaterniond;
 using AngleAxisf = Eigen::AngleAxisf;
 using AngleAxisd = Eigen::AngleAxisd;
 
+// For Render Module
 using Point2D = Vector2f;
 using Point2DPtr = Rocket::Ref<Point2D>;
 using Point2DList = Rocket::Vec<Point2DPtr>;

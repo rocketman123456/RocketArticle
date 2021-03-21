@@ -73,6 +73,8 @@ add_library( RocketEngine
     Module/WindowManager.h
     Module/WindowManager.cpp
     # Physics
+    Physics/Firework.h
+    Physics/Firework.cpp
     Physics/Particle.h
     Physics/Particle.cpp
     # Process
