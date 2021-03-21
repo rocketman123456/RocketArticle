@@ -50,32 +50,74 @@ void RobotUI::DrawRobotSetting()
     ImGui::Combo("select motor", &motor_id, motors, IM_ARRAYSIZE(motors));
 
     ImGui::Separator();
-    ImGui::InputFloat("Motor", &motor_data_target[motor_id], 0.001); 
+    ImGui::InputInt4("Led Data", led_data);
+    ImGui::InputFloat("Motor", &motor_data_target[motor_id], 0.001);
+    ImGui::InputInt("Motor PWM", &motor_pwm);
+    led_set = ImGui::Button("Set Led");
     set_motor_data = ImGui::Button("Set Data");
+    set_motor_pwm = ImGui::Button("Set PWM");
     reset_motor = ImGui::Button("Reset Motor");
+    
     {
         EventVarVec var;
         var.resize(4);
         var[0].type = Variant::TYPE_STRING_ID;
         var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "ui_event_motor");
-        var[1].type = Variant::TYPE_UINT32;
-        var[1].asUInt32 = motor_id;
-        if(set_motor_data)
+
+        if(led_set)
         {
+            var[1].type = Variant::TYPE_UINT32;
+            var[1].asUInt32 = 0x00;
+
             var[2].type = Variant::TYPE_UINT32;
-            var[2].asUInt32 = 1;
+            var[2].asUInt32 = 0x01;
+
+            uint8_t led_data_u8[4];
+            for(int i = 0; i < 4; ++i)
+            {
+                led_data_u8[i] = (uint8_t)led_data[i];
+            }
+            var[3].type = Variant::TYPE_UINT32;
+            memcpy(&var[3].asUInt32, led_data_u8, sizeof(led_data_u8));
+        }
+        else if(set_motor_pwm)
+        {
+            var[1].type = Variant::TYPE_UINT32;
+            var[1].asUInt32 = motor_id + 1;
+
+            var[2].type = Variant::TYPE_UINT32;
+            var[2].asUInt32 = 0x02;
+
+            var[3].type = Variant::TYPE_FLOAT;
+            var[3].asInt32 = motor_pwm;
         }
         else if(reset_motor)
         {
+            var[1].type = Variant::TYPE_UINT32;
+            var[1].asUInt32 = motor_id + 1;
+
             var[2].type = Variant::TYPE_UINT32;
-            var[2].asUInt32 = 2;
+            var[2].asUInt32 = 0x03;
 
+            motor_data_curr[motor_id] = motor_data_curr[motor_id] - motor_data_target[motor_id];
             motor_data_target[motor_id] = 0;
-        }
-        var[3].type = Variant::TYPE_FLOAT;
-        var[3].asFloat = motor_data_target[motor_id];
 
-        if(get_motor_data || set_motor_data || reset_motor)
+            var[3].type = Variant::TYPE_FLOAT;
+            var[3].asFloat = motor_data_target[motor_id];
+        }
+        else if(set_motor_data)
+        {
+            var[1].type = Variant::TYPE_UINT32;
+            var[1].asUInt32 = motor_id + 1;
+
+            var[2].type = Variant::TYPE_UINT32;
+            var[2].asUInt32 = 0x04;
+
+            var[3].type = Variant::TYPE_FLOAT;
+            var[3].asFloat = motor_data_target[motor_id];
+        }
+
+        if(set_motor_pwm || set_motor_data || reset_motor || led_set)
         {
             EventPtr event = CreateRef<Event>(var);
             g_EventManager->QueueEvent(event);

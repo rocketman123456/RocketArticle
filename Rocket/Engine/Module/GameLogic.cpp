@@ -35,7 +35,7 @@ void GameLogic::Tick(Timestep ts)
 
 bool GameLogic::OnResponseEvent(EventPtr& e)
 {
-    RK_CORE_TRACE("Set Input Data");
+    //RK_CORE_TRACE("Set Input Data");
     current_input_data_.assign(e->variable.begin(), e->variable.end());
     state_machine_->UpdateAction(current_input_data_);
     current_input_data_.clear();

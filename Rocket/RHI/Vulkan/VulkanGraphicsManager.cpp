@@ -648,12 +648,6 @@ void VulkanGraphicsManager::EndScene()
 
     if (is_scene_prepared_)
     {
-        //vkFreeCommandBuffers(m_Device, m_CommandPool, static_cast<uint32_t>(m_CommandBuffers.size()), m_CommandBuffers.data());
-        //m_CommandBuffers.clear();
-        //m_CommandBuffers.resize(max_frame_in_flight_);
-
-        //ui_->Finalize();
-
         // Clear DescriptorPool / DescriptorSet
         vkDestroyDescriptorPool(device_, descriptor_pool_, nullptr);
 
@@ -746,7 +740,7 @@ void VulkanGraphicsManager::RecordCommandBuffer(uint32_t frame_index)
         vkCmdBindVertexBuffers(command_buffers_[frame_index], 0, 1, vertexBuffers, offsets);
         vkCmdBindIndexBuffer(command_buffers_[frame_index], index_buffer_, 0, VK_INDEX_TYPE_UINT32);
         vkCmdBindDescriptorSets(command_buffers_[frame_index], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout_, 0, 1, &descriptor_sets_[frame_index], 0, nullptr);
-        vkCmdDrawIndexed(command_buffers_[frame_index], static_cast<uint32_t>(indices_.size()), 1, 0, 0, 0);
+        //vkCmdDrawIndexed(command_buffers_[frame_index], static_cast<uint32_t>(indices_.size()), 1, 0, 0, 0);
     }
     vkCmdEndRenderPass(command_buffers_[frame_index]);
 

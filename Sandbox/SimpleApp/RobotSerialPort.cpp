@@ -5,6 +5,29 @@
 using namespace Rocket;
 using namespace itas109;
 
+static void CRC16_MODBUS(uint8_t input[], int size, uint8_t* low_value, uint8_t* high_value)
+{
+    uint16_t crc = 0xffff;
+    for (int n = 0; n < size; n++)
+    {
+        crc = input[n] ^ crc;
+        for (int i = 0; i < 8; i++)
+        {
+            if (crc & 0x01)
+            {
+                crc = crc >> 1;
+                crc = crc ^ 0xa001;
+            }
+            else
+            {
+                crc = crc >> 1;
+            }
+        }
+    }
+    *low_value = crc & 0xFF;
+    *high_value = (uint8_t)(crc >> 8);
+}
+
 int SerialPortModule::Initialize()
 {
     RK_CORE_INFO("Version : {}", serial_port_.getVersion());
@@ -25,16 +48,20 @@ int SerialPortModule::Initialize()
         auto& config = g_Application->GetConfig();
         uint32_t port_num = config->GetConfigInfo<uint32_t>("SerialPort", "port-num");
         uint32_t baud_rate = config->GetConfigInfo<uint32_t>("SerialPort", "baud-rate");
+        uint32_t parity = config->GetConfigInfo<uint32_t>("SerialPort", "parity");
         
         String portName = availablePortsList[port_num].portName;
-        serial_port_.init(portName, baud_rate, Parity::ParityNone, DataBits::DataBits8, StopBits::StopOne);
-        //serial_port_.open();
+        serial_port_.init(portName, baud_rate, (Parity)parity, DataBits::DataBits8, StopBits::StopOne);
+        serial_port_.open();
 
         use_fake_data_ = true;//!serial_port_.isOpened();
 		if(serial_port_.isOpened())
 			RK_CORE_INFO("open {} success", portName);	
 		else
 			RK_CORE_INFO("open {} failed", portName);
+
+        read_slot_ = CreateRef<ReadSlot>(&serial_port_);
+        serial_port_.readReady.connect(read_slot_.get(), &ReadSlot::OnReadMessage);
     }
 
     timer_.Start();
@@ -59,7 +86,6 @@ bool SerialPortModule::OnWindowClose(EventPtr& e)
 bool SerialPortModule::OnAction(EventPtr& e)
 {
     lock_.lock();
-    //vars_.push(e->Var);
     vars_.emplace(e->variable.begin(), e->variable.end());
     lock_.unlock();
     RK_CORE_TRACE("Send Control Data");
@@ -73,11 +99,23 @@ bool SerialPortModule::OnMotor(Rocket::EventPtr& e)
 {
     uint32_t motor_id = e->variable[1].asUInt32;
     uint32_t command = e->variable[2].asUInt32;
-    uint32_t data = e->variable[3].asFloat;
-    RK_CORE_TRACE("Send Motor Data");
-    static char str[1024];
-    str[0] = 'H';str[1] = 'e';str[2] = 'l';str[3] = 'l';str[4] = 'o';str[5] = '\0';
-    serial_port_.writeData(str, 5);
+    uint8_t data[8];
+    data[0] = motor_id;
+    data[1] = command;
+    if(command == 0x01)
+    {
+        memcpy(&data[2], &e->variable[3].asUInt32, sizeof(uint32_t));
+        CRC16_MODBUS(data, 6, &data[6], &data[7]);
+        RK_CORE_TRACE("Send Motor Data");
+        serial_port_.writeData((char*)data, 8);
+    }
+    else if(command == 0x02)
+    {
+        memcpy(&data[2], &e->variable[3].asInt32, sizeof(int32_t));
+        CRC16_MODBUS(data, 6, &data[6], &data[7]);
+        RK_CORE_TRACE("Send Motor Data");
+        serial_port_.writeData((char*)data, 8);
+    }
     return false;
 }
 
@@ -95,7 +133,7 @@ void SerialPortModule::MainLoop()
             if(use_fake_data_)
             {
                 lock_.lock();
-                RK_CORE_TRACE("Vars Queue Size {}", vars_.size());
+                //RK_CORE_TRACE("Vars Queue Size {}", vars_.size());
                 if(vars_.size() > 0)
                 {
                     auto top = vars_.front();

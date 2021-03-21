@@ -46,7 +46,7 @@ bool StateMachine::UpdateAction(const Vec<Variant>& input)
     // Empty edge always finish action
     if(!current_edge_)
     {
-        RK_CORE_TRACE("Empty Edge, No Action");
+        //RK_CORE_TRACE("Empty Edge, No Action");
         return true;
     }
     RK_CORE_TRACE("Update Along Edge {}", current_edge_->name);

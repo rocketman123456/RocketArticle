@@ -32,7 +32,10 @@ private:
     bool walk = false;
     bool rotation = false;
 
-    bool get_motor_data = false;
+    bool led_set = false;
+    int32_t led_data[4] = {0};
+    int32_t motor_pwm = 0;
+    bool set_motor_pwm = false;
     bool set_motor_data = false;
     bool reset_motor = false;
 

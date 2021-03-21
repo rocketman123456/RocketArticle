@@ -25,7 +25,8 @@ public:
 		{
 			countRead++;
 			str[recLen] = '\0';
-            RK_CORE_TRACE("receive data : {}, receive data : {}, receive count : {}", str, recLen, countRead);
+            RK_CORE_INFO("receive data : {}, receive data : {}, receive count : {}", str, recLen, countRead);
+            recLen = -1;
 		}
 	};
 
@@ -54,7 +55,9 @@ public:
     bool OnWindowClose(Rocket::EventPtr& e);
     bool OnAction(Rocket::EventPtr& e);
     bool OnMotor(Rocket::EventPtr& e);
+
 private:
+    Rocket::Ref<ReadSlot> read_slot_;
     std::atomic<bool> is_running_ = true;
     ElapseTimer timer_;
     itas109::CSerialPort serial_port_;
