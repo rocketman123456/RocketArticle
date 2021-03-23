@@ -33,6 +33,7 @@ using Real2 = Eigen::Vector2d;
 using Real3 = Eigen::Vector3d;
 using Real4 = Eigen::Vector4d;
 using Quaternion = Quaterniond;
+const Real3 g_gravity = Real3(0, 0, -9.81);
 
 namespace Rocket
 {
