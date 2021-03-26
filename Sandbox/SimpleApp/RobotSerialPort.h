@@ -13,31 +13,18 @@
 
 class ReadSlot : public has_slots<>
 {
+private:
+    ReadSlot() = default;
 public:
-    ReadSlot(itas109::CSerialPort * sp) : recLen(-1), p_sp(sp) {}
+    ReadSlot(itas109::CSerialPort* sp) : rec_len_(-1), sp_(sp) {}
 
-	void OnReadMessage()
-	{
-		//read
-        recLen = p_sp->readAllData(str);
-
-		if(recLen > 0)
-		{
-			countRead++;
-			str[recLen] = '\0';
-            RK_CORE_INFO("receive data : {}, receive data : {}, receive count : {}", str, recLen, countRead);
-            recLen = -1;
-		}
-	};
+	void OnReadMessage();
 
 private:
-	ReadSlot() = default;
-
-private:
-    itas109::CSerialPort* p_sp;
-	char str[1024];
-	int recLen;
-    int countRead = 0;
+    itas109::CSerialPort* sp_;
+	uint8_t get_data_[1024];
+	int rec_len_;
+    int count_read_ = 0;
 };
 
 class SerialPortModule : implements Rocket::IRuntimeModule
@@ -51,10 +38,15 @@ public:
     void Finalize() final;
     void Tick(Timestep ts) final {}
 
+    void OpenPort();
+
     void MainLoop();
     bool OnWindowClose(Rocket::EventPtr& e);
     bool OnAction(Rocket::EventPtr& e);
     bool OnMotor(Rocket::EventPtr& e);
+
+    Rocket::Ref<ReadSlot> GetReadSlot() { return read_slot_; }
+    itas109::CSerialPort& GetSerialPort() { return serial_port_; }
 
 private:
     Rocket::Ref<ReadSlot> read_slot_;

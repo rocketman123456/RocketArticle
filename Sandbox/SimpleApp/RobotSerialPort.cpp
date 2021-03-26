@@ -28,9 +28,52 @@ static void CRC16_MODBUS(uint8_t input[], int size, uint8_t* low_value, uint8_t*
     *high_value = (uint8_t)(crc >> 8);
 }
 
+void ReadSlot::OnReadMessage()
+{
+    //read
+    rec_len_ = sp_->readAllData((char*)get_data_);
+
+    if(rec_len_ > 0)
+    {
+        count_read_++;
+        get_data_[rec_len_] = '\0';
+        RK_CORE_INFO("receive data : {}, receive data : {}, receive count : {}", get_data_, rec_len_, count_read_);
+        rec_len_ = -1;
+    }
+
+    if(get_data_[0] = 0x01)
+    {
+        float data[3];
+        EventVarVec var;
+        var.resize(2 + 3);
+
+        for(int i = 0; i < 3; ++i)
+        {
+            memcpy(&data[i], &get_data_[i * 4 + 1], sizeof(float));
+            var[2 + i].type = Variant::TYPE_FLOAT;
+            var[2 + i].asFloat = data[i];
+            //RK_CORE_TRACE("imu: {}", data[i]);
+        }
+
+        var[0].type = Variant::TYPE_STRING_ID;
+        var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "ui_event_response");
+
+        var[1].type = Variant::TYPE_UINT32;
+        var[1].asUInt32 = 1;
+
+        EventPtr event = CreateRef<Event>(var);
+        g_EventManager->TriggerEvent(event);
+    }
+}
+
 int SerialPortModule::Initialize()
 {
     RK_CORE_INFO("Version : {}", serial_port_.getVersion());
+    return 0;
+}
+
+void SerialPortModule::OpenPort()
+{
     Vec<SerialPortInfo> availablePortsList = CSerialPortInfo::availablePortInfos();
 
 	if (availablePortsList.size() == 0)
@@ -65,7 +108,6 @@ int SerialPortModule::Initialize()
     }
 
     timer_.Start();
-    return 0;
 }
 
 void SerialPortModule::Finalize()

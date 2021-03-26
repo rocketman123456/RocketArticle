@@ -168,4 +168,5 @@ void SimpleApp::PreInitialize()
 
 void SimpleApp::PostInitialize()
 {
+    g_SerialPort->OpenPort();
 }
