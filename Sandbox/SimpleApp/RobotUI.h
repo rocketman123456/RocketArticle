@@ -56,12 +56,15 @@ private:
     Rocket::UMap<uint64_t, uint64_t> node_recovery_stage;
 
     const int32_t max_motor_data_store = 100 * 2;
+    const int32_t max_imu_data_store = 100 * 5;
     Rocket::Vec<float> motor_data[10];
+    Rocket::Vec<float> imu_data[3];
 
     float motor_data_start[10] = {0};
     float motor_data_prev[10] = {0};
     float motor_data_curr[10] = {0};
     float motor_data_target[10] = {0};
+    float imu_data_curr[3] = {0};
 
     uint8_t valve_data_target[10] = {0};
 };

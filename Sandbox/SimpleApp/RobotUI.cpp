@@ -25,6 +25,17 @@ void RobotUI::DrawRobotState()
         ImGui::PlotLines(label, motor_data[i].data() + offset, data_size, 0, overlay, 1.0f, -1.0f, ImVec2(0, 80.0f));
     }
 
+    for(int i = 0; i < 3; ++i)
+    {
+        uint64_t offset = std::max((int64_t)0, (int64_t)(imu_data[i].size() - max_imu_data_store));
+        uint64_t data_size = std::min((int64_t)imu_data[i].size(), (int64_t)max_imu_data_store);
+        char label[16] = {};
+        sprintf(label, "IMU %d", i);
+        char overlay[32];
+        sprintf(overlay, "size %d offset %d", (uint32_t)imu_data[i].size(), (uint32_t)offset);
+        ImGui::PlotLines(label, imu_data[i].data() + offset, data_size, 0, overlay, 1.0f, -1.0f, ImVec2(0, 80.0f));
+    }
+
     ImGui::End();
 }
 
@@ -157,12 +168,22 @@ void RobotUI::Draw()
 
 bool RobotUI::OnResponseEvent(EventPtr& e)
 {
-    for(int i = 0; i < 10; ++i)
+    // motor data
+    if(e->variable[1].asUInt32 == 0)
     {
-        //float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-        motor_data_curr[i] = e->variable[2 + i].asFloat;
-        motor_data[i].push_back(motor_data_curr[i]);
+        for(int i = 0; i < 10; ++i)
+        {
+            //float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+            motor_data_curr[i] = e->variable[2 + i].asFloat;
+            motor_data[i].push_back(motor_data_curr[i]);
+        }
     }
+    // imu data
+    else if(e->variable[1].asUInt32 == 1)
+    {
+
+    }
+    
     return false;
 }
 
