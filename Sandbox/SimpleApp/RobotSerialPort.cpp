@@ -41,25 +41,21 @@ void ReadSlot::OnReadMessage()
         rec_len_ = -1;
     }
 
-    if(get_data_[0] = 0x01)
+    if(get_data_[1] = 0x08)
     {
-        float data[3];
+        float data;
         EventVarVec var;
-        var.resize(2 + 3);
-
-        for(int i = 0; i < 3; ++i)
-        {
-            memcpy(&data[i], &get_data_[i * 4 + 1], sizeof(float));
-            var[2 + i].type = Variant::TYPE_FLOAT;
-            var[2 + i].asFloat = data[i];
-            //RK_CORE_TRACE("imu: {}", data[i]);
-        }
+        var.resize(2 + 1);
 
         var[0].type = Variant::TYPE_STRING_ID;
         var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "ui_event_response");
 
         var[1].type = Variant::TYPE_UINT32;
-        var[1].asUInt32 = 1;
+        var[1].asUInt32 = get_data_[0];
+
+        memcpy(&data, &get_data_[2], sizeof(float));
+        var[2].type = Variant::TYPE_FLOAT;
+        var[2].asFloat = data;
 
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->TriggerEvent(event);
@@ -137,7 +133,7 @@ bool SerialPortModule::OnAction(EventPtr& e)
     return false;
 }
 
-bool SerialPortModule::OnMotor(Rocket::EventPtr& e)
+bool SerialPortModule::OnSendData(Rocket::EventPtr& e)
 {
     uint32_t control_id = e->variable[1].asUInt32;
     uint32_t command = e->variable[2].asUInt32;
@@ -175,11 +171,17 @@ void SerialPortModule::MainLoop()
     while(is_running_)
     {
         double elapsed = timer_.GetElapsedTime();
-        if(elapsed >= 50)
+        if(elapsed >= 1000)
         {
             timer_.MarkLapping();
             EventVarVec var;
             var.resize(2 + 10 + 10);
+
+            uint8_t data[8] = {0};
+            data[0] = 0x00;
+            data[1] = 0x07;
+            CRC16_MODBUS(data, 6, &data[6], &data[7]);
+            //serial_port_.writeData((char*)data, 8);
             
             if(use_fake_data_)
             {

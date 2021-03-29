@@ -65,7 +65,7 @@ void RobotUI::DrawRobotSetting()
     ImGui::InputFloat("Motor", &motor_data_target[motor_id], 0.001);
     ImGui::InputInt("Motor PWM", &motor_pwm);
     led_set = ImGui::Button("Set Led");
-    set_motor_data = ImGui::Button("Set Data");
+    set_motor_data = ImGui::Button("Set Motor Pos");
     set_motor_pwm = ImGui::Button("Set PWM");
     reset_motor = ImGui::Button("Reset Motor");
     
@@ -73,12 +73,12 @@ void RobotUI::DrawRobotSetting()
         EventVarVec var;
         var.resize(4);
         var[0].type = Variant::TYPE_STRING_ID;
-        var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "ui_event_motor");
+        var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "ui_event_send_data");
 
         if(led_set)
         {
             var[1].type = Variant::TYPE_UINT32;
-            var[1].asUInt32 = 0x00;
+            var[1].asUInt32 = 0x01;
 
             var[2].type = Variant::TYPE_UINT32;
             var[2].asUInt32 = 0x01;
@@ -171,21 +171,28 @@ bool RobotUI::OnResponseEvent(EventPtr& e)
     // motor data
     if(e->variable[1].asUInt32 == 0)
     {
-        for(int i = 0; i < 10; ++i)
-        {
-            //float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-            motor_data_curr[i] = e->variable[2 + i].asFloat;
-            motor_data[i].push_back(motor_data_curr[i]);
-        }
+        //for(int i = 0; i < 10; ++i)
+        //{
+        //    //float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        //    motor_data_curr[i] = e->variable[2 + i].asFloat;
+        //    motor_data[i].push_back(motor_data_curr[i]);
+        //}
     }
     // imu data
-    else if(e->variable[1].asUInt32 == 1)
+    else if(e->variable[1].asUInt32 == 0x11)
     {
-        for(int i = 0; i < 3; ++i)
-        {
-            imu_data_curr[i] = e->variable[2 + i].asFloat;
-            imu_data[i].push_back(imu_data_curr[i]);
-        }
+        imu_data_curr[0] = e->variable[2].asFloat;
+        imu_data[0].push_back(imu_data_curr[0]);
+    }
+    else if(e->variable[1].asUInt32 == 0x12)
+    {
+        imu_data_curr[1] = e->variable[2].asFloat;
+        imu_data[1].push_back(imu_data_curr[1]);
+    }
+    else if(e->variable[1].asUInt32 == 0x13)
+    {
+        imu_data_curr[2] = e->variable[2].asFloat;
+        imu_data[2].push_back(imu_data_curr[2]);
     }
     
     return false;

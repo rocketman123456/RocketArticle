@@ -1,8 +1,8 @@
-port-num: 4
-baud-rate: 115200
+port-num: 2
+baud-rate: 9600
 #ParityNone = 0,  ///< No Parity 无校验
 #ParityOdd = 1,   ///< Odd Parity 奇校验
 #ParityEven = 2,  ///< Even Parity 偶校验
 #ParityMark = 3,  ///< Mark Parity 1校验
 #ParitySpace = 4, ///< Space Parity 0校验
-parity: 0
+parity: 1

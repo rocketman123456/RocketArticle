@@ -43,7 +43,7 @@ public:
     void MainLoop();
     bool OnWindowClose(Rocket::EventPtr& e);
     bool OnAction(Rocket::EventPtr& e);
-    bool OnMotor(Rocket::EventPtr& e);
+    bool OnSendData(Rocket::EventPtr& e);
 
     Rocket::Ref<ReadSlot> GetReadSlot() { return read_slot_; }
     itas109::CSerialPort& GetSerialPort() { return serial_port_; }
