@@ -5,6 +5,22 @@
 using namespace Rocket;
 using namespace itas109;
 
+static FastSemaphore g_motor_sem;
+static std::mutex g_mutex;
+
+static void sleep_high_res(int32_t count_ms)
+{
+    bool sleep = true;
+    auto start = std::chrono::system_clock::now();
+    while(sleep)
+    {
+        auto now = std::chrono::system_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(now - start);
+        if ( elapsed.count() > count_ms )
+            sleep = false;
+    }
+}
+
 static void CRC16_MODBUS(uint8_t input[], int size, uint8_t* low_value, uint8_t* high_value)
 {
     uint16_t crc = 0xffff;
@@ -41,24 +57,37 @@ void ReadSlot::OnReadMessage()
         rec_len_ = -1;
     }
 
-    if(get_data_[1] = 0x08)
+    EventVarVec var;
+    var.resize(2 + 2);
+
+    var[0].type = Variant::TYPE_STRING_ID;
+    var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "ui_event_response");
+
+    // id/type
+    var[1].type = Variant::TYPE_UINT32;
+    var[1].asUInt32 = get_data_[0];
+
+    // cmd
+    var[2].type = Variant::TYPE_UINT32;
+    var[2].asUInt32 = get_data_[1];
+
+    float data;
+
+    memcpy(&data, &get_data_[2], sizeof(float));
+    var[3].type = Variant::TYPE_FLOAT;
+    var[3].asFloat = data;
+
+    if(get_data_[1] == 0x05)
     {
-        float data;
-        EventVarVec var;
-        var.resize(2 + 1);
-
-        var[0].type = Variant::TYPE_STRING_ID;
-        var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "ui_event_response");
-
-        var[1].type = Variant::TYPE_UINT32;
-        var[1].asUInt32 = get_data_[0];
-
-        memcpy(&data, &get_data_[2], sizeof(float));
-        var[2].type = Variant::TYPE_FLOAT;
-        var[2].asFloat = data;
-
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->TriggerEvent(event);
+        g_motor_sem.post();
+    }
+    else if(get_data_[1] == 0x08)
+    {
+        EventPtr event = CreateRef<Event>(var);
+        g_EventManager->TriggerEvent(event);
+        g_motor_sem.post();
     }
 }
 
@@ -142,26 +171,42 @@ bool SerialPortModule::OnSendData(Rocket::EventPtr& e)
     data[1] = command;
     if(command == 0x01)
     {
+        std::lock_guard<std::mutex> lock(g_mutex);
         memcpy(&data[2], &e->variable[3].asUInt32, sizeof(uint32_t));
         CRC16_MODBUS(data, 6, &data[6], &data[7]);
         serial_port_.writeData((char*)data, 8);
+        sleep_high_res(20);
     }
     else if(command == 0x02)
     {
         memcpy(&data[2], &e->variable[3].asInt32, sizeof(int32_t));
         CRC16_MODBUS(data, 6, &data[6], &data[7]);
+        std::lock_guard<std::mutex> lock(g_mutex);
         serial_port_.writeData((char*)data, 8);
+        sleep_high_res(20);
     }
     else if(command == 0x03)
     {
         CRC16_MODBUS(data, 6, &data[6], &data[7]);
+        std::lock_guard<std::mutex> lock(g_mutex);
         serial_port_.writeData((char*)data, 8);
+        sleep_high_res(20);
     }
     else if(command == 0x04)
     {
+        
         memcpy(&data[2], &e->variable[3].asFloat, sizeof(float));
         CRC16_MODBUS(data, 6, &data[6], &data[7]);
+        std::lock_guard<std::mutex> lock(g_mutex);
         serial_port_.writeData((char*)data, 8);
+        sleep_high_res(20);
+    }
+    else if(command == 0x05)
+    {
+        CRC16_MODBUS(data, 6, &data[6], &data[7]);
+        std::lock_guard<std::mutex> lock(g_mutex);
+        serial_port_.writeData((char*)data, 8);
+        sleep_high_res(20);
     }
     return false;
 }
@@ -171,34 +216,35 @@ void SerialPortModule::MainLoop()
     while(is_running_)
     {
         double elapsed = timer_.GetElapsedTime();
-        if(elapsed >= 1000)
+        if(elapsed >= 100)
         {
             timer_.MarkLapping();
             EventVarVec var;
             var.resize(2 + 10 + 10);
 
             uint8_t data[8] = {0};
+
+            // get motor data
+            for(int i = 0; i < 10; ++i)
+            {
+                data[0] = i;
+                data[1] = 0x05;
+                CRC16_MODBUS(data, 6, &data[6], &data[7]);
+                {
+                    std::lock_guard<std::mutex> lock(g_mutex);
+                    serial_port_.writeData((char*)data, 8);
+                    sleep_high_res(20);
+                }
+            }
+
+            // get imu data
             data[0] = 0x00;
             data[1] = 0x07;
             CRC16_MODBUS(data, 6, &data[6], &data[7]);
-            //serial_port_.writeData((char*)data, 8);
-            
-            if(use_fake_data_)
             {
-                lock_.lock();
-                //RK_CORE_TRACE("Vars Queue Size {}", vars_.size());
-                if(vars_.size() > 0)
-                {
-                    auto top = vars_.front();
-                    var.assign(top.begin(), top.end());
-                    if(vars_.size() > 1)
-                        vars_.pop();
-                }
-                lock_.unlock();
-            }
-            else
-            {
-
+                std::lock_guard<std::mutex> lock(g_mutex);
+                serial_port_.writeData((char*)data, 8);
+                sleep_high_res(20);
             }
 
             // Event Type

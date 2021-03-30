@@ -17,7 +17,7 @@ void RobotUI::DrawRobotState()
         uint64_t offset = std::max((int64_t)0, (int64_t)(motor_data[i].size() - max_motor_data_store));
         uint64_t data_size = std::min((int64_t)motor_data[i].size(), (int64_t)max_motor_data_store);
         char label[16] = {};
-        sprintf(label, "Motor %2d", i);
+        sprintf(label, "Motor %2d", i+1);
         char overlay[32];
         sprintf(overlay, "size %d offset %d", (uint32_t)motor_data[i].size(), (uint32_t)offset);
         float result = CalculateProgress(motor_data_start[i], motor_data_target[i], motor_data_curr[i]);
@@ -56,16 +56,18 @@ void RobotUI::DrawRobotSetting()
 
     ImGui::Separator();
     const char* modes[] = { "mode 01", "mode 02"};
-    ImGui::Combo("select rotation mode", &rotate_mode, modes, IM_ARRAYSIZE(modes));
     const char* motors[] = { "motor 01", "motor 02", "motor 03", "motor 04", "motor 05", "motor 06", "motor 07", "motor 08", "motor 09", "motor 10"};
+    ImGui::Combo("select rotation mode", &rotate_mode, modes, IM_ARRAYSIZE(modes));
     ImGui::Combo("select motor", &motor_id, motors, IM_ARRAYSIZE(motors));
 
     ImGui::Separator();
     ImGui::InputInt4("Led Data", led_data);
     ImGui::InputFloat("Motor", &motor_data_target[motor_id], 0.001);
     ImGui::InputInt("Motor PWM", &motor_pwm);
+
     led_set = ImGui::Button("Set Led");
     set_motor_data = ImGui::Button("Set Motor Pos");
+    get_motor_data = ImGui::Button("Get Motor Pos");
     set_motor_pwm = ImGui::Button("Set PWM");
     reset_motor = ImGui::Button("Reset Motor");
     
@@ -85,9 +87,7 @@ void RobotUI::DrawRobotSetting()
 
             uint8_t led_data_u8[4];
             for(int i = 0; i < 4; ++i)
-            {
                 led_data_u8[i] = (uint8_t)led_data[i];
-            }
             var[3].type = Variant::TYPE_UINT32;
             memcpy(&var[3].asUInt32, led_data_u8, sizeof(led_data_u8));
         }
@@ -101,6 +101,14 @@ void RobotUI::DrawRobotSetting()
 
             var[3].type = Variant::TYPE_FLOAT;
             var[3].asInt32 = motor_pwm;
+        }
+        else if(get_motor_data)
+        {
+            var[1].type = Variant::TYPE_UINT32;
+            var[1].asUInt32 = motor_id + 1;
+
+            var[2].type = Variant::TYPE_UINT32;
+            var[2].asUInt32 = 0x05;
         }
         else if(reset_motor)
         {
@@ -126,9 +134,11 @@ void RobotUI::DrawRobotSetting()
 
             var[3].type = Variant::TYPE_FLOAT;
             var[3].asFloat = motor_data_target[motor_id];
+
+            motor_data_start[motor_id] = motor_data_curr[motor_id];
         }
 
-        if(set_motor_pwm || set_motor_data || reset_motor || led_set)
+        if(set_motor_pwm || set_motor_data || get_motor_data || reset_motor || led_set)
         {
             EventPtr event = CreateRef<Event>(var);
             g_EventManager->QueueEvent(event);
@@ -168,31 +178,19 @@ void RobotUI::Draw()
 
 bool RobotUI::OnResponseEvent(EventPtr& e)
 {
-    // motor data
-    if(e->variable[1].asUInt32 == 0)
+    // get motor data
+    if(e->variable[2].asUInt32 == 0x05)
     {
-        //for(int i = 0; i < 10; ++i)
-        //{
-        //    //float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-        //    motor_data_curr[i] = e->variable[2 + i].asFloat;
-        //    motor_data[i].push_back(motor_data_curr[i]);
-        //}
+        uint32_t id = e->variable[1].asUInt32 - 0x01;
+        motor_data_curr[id] = e->variable[3].asFloat;
+        motor_data[id].push_back(motor_data_curr[id]);
     }
     // imu data
-    else if(e->variable[1].asUInt32 == 0x11)
+    else if(e->variable[2].asUInt32 == 0x08)
     {
-        imu_data_curr[0] = e->variable[2].asFloat;
-        imu_data[0].push_back(imu_data_curr[0]);
-    }
-    else if(e->variable[1].asUInt32 == 0x12)
-    {
-        imu_data_curr[1] = e->variable[2].asFloat;
-        imu_data[1].push_back(imu_data_curr[1]);
-    }
-    else if(e->variable[1].asUInt32 == 0x13)
-    {
-        imu_data_curr[2] = e->variable[2].asFloat;
-        imu_data[2].push_back(imu_data_curr[2]);
+        uint32_t id = e->variable[1].asUInt32 - 0x11;
+        imu_data_curr[id] = e->variable[3].asFloat;
+        imu_data[id].push_back(imu_data_curr[id]);
     }
     
     return false;
@@ -347,10 +345,8 @@ float RobotUI::CalculateProgress(float start, float end, float current)
 {
     float total = end - start;
     float delta = current - start;
-    if(total < 1e-4)
-    {
+    if(total < 1e-3)
         return 1;
-    }
     float progress = delta / total;
     progress = std::clamp(progress, 0.0f, 1.0f);
     return progress;

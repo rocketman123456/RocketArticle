@@ -4,6 +4,7 @@
 #include "Event/Event.h"
 #include "Utils/Timer.h"
 #include "Utils/Variant.h"
+#include "Utils/Semaphore.h"
 
 #include "CSerialPort/SerialPort.h"
 #include "CSerialPort/SerialPortInfo.h"
@@ -18,12 +19,12 @@ private:
 public:
     ReadSlot(itas109::CSerialPort* sp) : rec_len_(-1), sp_(sp) {}
 
-	void OnReadMessage();
+    void OnReadMessage();
 
 private:
     itas109::CSerialPort* sp_;
-	uint8_t get_data_[1024];
-	int rec_len_;
+    uint8_t get_data_[1024];
+    int rec_len_;
     int count_read_ = 0;
 };
 
@@ -56,6 +57,9 @@ private:
     Rocket::Queue<Rocket::EventVarVec> vars_;
     bool use_fake_data_ = false;
     std::mutex lock_;
+
+    float motor_data[10] = {0};
+    float imu_data[3] = {0};
 };
 
 extern SerialPortModule* g_SerialPort;

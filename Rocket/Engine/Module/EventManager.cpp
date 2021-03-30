@@ -283,7 +283,7 @@ bool EventManager::Update(uint64_t maxMillis)
             for (auto it = eventListeners.begin(); it != eventListeners.end(); ++it)
             {
                 EventListenerDelegate listener = (*it);
-                RK_EVENT_TRACE("\tSending event {0} to delegate", pEvent->GetName());
+                //RK_EVENT_TRACE("\tSending event {0} to delegate", pEvent->GetName());
                 bool processed = listener(pEvent);
                 if (processed)
                     break;
@@ -364,7 +364,7 @@ bool EventManager::TriggerEvent(EventPtr& event) const
         for (EventListenerList::const_iterator it = eventListenerList.begin(); it != eventListenerList.end(); ++it)
         {
             auto listener = (*it);
-            RK_EVENT_TRACE("Sending Event {0} to delegate.", event->GetName());
+            //RK_EVENT_TRACE("Trigger Event {0} to delegate.", event->GetName());
             processed = listener(event);  // call the delegate
             if (processed)
                 break;

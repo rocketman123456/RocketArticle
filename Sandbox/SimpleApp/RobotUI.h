@@ -37,6 +37,7 @@ private:
     int32_t motor_pwm = 0;
     bool set_motor_pwm = false;
     bool set_motor_data = false;
+    bool get_motor_data = false;
     bool reset_motor = false;
 
     bool showRobotState = true;
