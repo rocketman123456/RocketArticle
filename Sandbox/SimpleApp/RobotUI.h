@@ -10,6 +10,7 @@ public:
     virtual ~RobotUI() = default;
     void Draw() final;
     bool OnResponseEvent(Rocket::EventPtr& e);
+
 private:
     void Calculation();
     void CalculateRotation(double x, double y);
@@ -22,6 +23,7 @@ private:
     void DrawRobotSetting();
     void DrawRobotState();
     
+private:
     Rocket::Ref<Rocket::StateNode> node_curr;
 
     // UI Control Variable
@@ -68,4 +70,5 @@ private:
     float imu_data_curr[3] = {0};
 
     uint8_t valve_data_target[10] = {0};
+    uint16_t valve_data_set;
 };

@@ -225,7 +225,7 @@ RobotUI::RobotUI()
 void RobotUI::Calculation()
 {
     EventVarVec var;
-    var.resize(2 + 10 + 10);
+    var.resize(2 + 10 + 1);
     // Event Type
     var[0].type = Variant::TYPE_STRING_ID;
     var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "ui_event_logic");
@@ -343,11 +343,11 @@ void RobotUI::Calculation()
 
 float RobotUI::CalculateProgress(float start, float end, float current)
 {
-    float total = end - start;
-    float delta = current - start;
-    if(total < 1e-3)
+    float total = std::abs(end - start);
+    float delta = std::abs(current - start);
+    if(total < 1e-5)
         return 1;
-    float progress = delta / total;
+    float progress = std::abs(delta / total);
     progress = std::clamp(progress, 0.0f, 1.0f);
     return progress;
 }
@@ -362,11 +362,8 @@ void RobotUI::SetEventData(Rocket::EventVarVec& var)
         var[2 + i].asFloat = motor_data_target[i];
     }
     // set valve data
-    for(int i = 0; i < 10 ; ++i)
-    {
-        var[12 + i].type = Variant::TYPE_INT32;
-        var[12 + i].asFloat = valve_data_target[i];
-    }
+    var[12].type = Variant::TYPE_UINT32;
+    var[12].asUInt32 = valve_data_set;
 }
 
 void RobotUI::CalculateRotation(double x, double y)
@@ -389,27 +386,33 @@ void RobotUI::CalculateRotation(double x, double y)
     }
 
     motor_data_target[0] = L2 - h;
-    motor_data_target[1] = -up_height;
-    motor_data_target[2] = -up_height;
+    motor_data_target[1] = -up_height;  // inner
+    motor_data_target[2] = -up_height;  // inner
     motor_data_target[3] = L3 - h;
     motor_data_target[4] = 0;
-    motor_data_target[5] = -up_height;
-    motor_data_target[6] = -up_height;
+    motor_data_target[5] = -up_height;  // inner
+    motor_data_target[6] = -up_height;  // inner
     motor_data_target[7] = L1 - h;
     motor_data_target[8] = 0;
     motor_data_target[9] = 0;
     
     // TODO : re number motor and valve
-    valve_data_target[0] = 0;
-    valve_data_target[1] = 0;
-    valve_data_target[2] = 0;
-    valve_data_target[3] = 1;
-    valve_data_target[4] = 1;
-    valve_data_target[5] = 1;
-    valve_data_target[6] = 1;
-    valve_data_target[7] = 1;
-    valve_data_target[8] = 0;
-    valve_data_target[9] = 1;
+    valve_data_target[0] = 1;   // 2 x
+    valve_data_target[1] = 1;   // 2 y
+    valve_data_target[2] = 1;   // 1 x
+    valve_data_target[3] = 1;   // 1 y
+    valve_data_target[4] = 0;   // 0 x
+    valve_data_target[5] = 1;   // 0 y
+    valve_data_target[6] = 0;   // 3 x
+    valve_data_target[7] = 0;   // 3 y
+    valve_data_target[8] = 0;   // vacuum inner
+    valve_data_target[9] = 1;   // vacuum outter
+
+    valve_data_set = 0;
+    for(int i = 0; i < 10; ++i)
+    {
+        valve_data_set = valve_data_set | (valve_data_target[i] << i);
+    }
 }
 
 void RobotUI::CalculateMovement(int32_t stage)
@@ -508,6 +511,7 @@ void RobotUI::CalculateMovement(int32_t stage)
     motor_data_target[8] *= sign;
     motor_data_target[9] *= sign;
     
+    valve_data_set = 0;
     for(int i = 0; i < 10; ++i)
     {
         valve_data_target[i] = 0;
@@ -584,6 +588,7 @@ void RobotUI::CalculateMovementRecover(int32_t stage)
         break;
     }
     
+    valve_data_set = 0;
     for(int i = 0; i < 10; ++i)
     {
         valve_data_target[i] = 0;

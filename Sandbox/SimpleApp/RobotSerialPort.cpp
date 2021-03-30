@@ -7,6 +7,7 @@ using namespace itas109;
 
 static FastSemaphore g_motor_sem;
 static std::mutex g_mutex;
+static const int32_t delay_ms = 50;
 
 static void sleep_high_res(int32_t count_ms)
 {
@@ -52,8 +53,8 @@ void ReadSlot::OnReadMessage()
     if(rec_len_ > 0)
     {
         count_read_++;
-        get_data_[rec_len_] = '\0';
-        RK_CORE_INFO("receive data : {}, receive data : {}, receive count : {}", get_data_, rec_len_, count_read_);
+        //get_data_[rec_len_] = '\0';
+        RK_CORE_INFO("receive data len : {}, receive count : {}", rec_len_, count_read_);
         rec_len_ = -1;
     }
 
@@ -107,7 +108,7 @@ void SerialPortModule::OpenPort()
 	}
     else
     {
-        RK_CORE_INFO("availableFriendlyPorts : ");
+        RK_CORE_INFO("availableFriendlyPorts : {}", availablePortsList.size());
 		
         for (int i = 0; i < availablePortsList.size(); i++)
         {
@@ -118,6 +119,9 @@ void SerialPortModule::OpenPort()
         uint32_t baud_rate = config->GetConfigInfo<uint32_t>("SerialPort", "baud-rate");
         uint32_t parity = config->GetConfigInfo<uint32_t>("SerialPort", "parity");
         
+        if(port_num > availablePortsList.size() - 1)
+            port_num = availablePortsList.size() - 1;
+
         String portName = availablePortsList[port_num].portName;
         serial_port_.init(portName, baud_rate, (Parity)parity, DataBits::DataBits8, StopBits::StopOne);
         serial_port_.open();
@@ -156,9 +160,9 @@ bool SerialPortModule::OnAction(EventPtr& e)
     vars_.emplace(e->variable.begin(), e->variable.end());
     lock_.unlock();
     RK_CORE_TRACE("Send Control Data");
-    static char str[1024];
-    str[0] = 'H';str[1] = 'e';str[2] = 'l';str[3] = 'l';str[4] = 'o';str[5] = '\0';
-    serial_port_.writeData(str, 5);
+    static uint8_t str[1024];
+    //str[0] = 'H';str[1] = 'e';str[2] = 'l';str[3] = 'l';str[4] = 'o';str[5] = '\0';
+    //serial_port_.writeData(str, 5);
     return false;
 }
 
@@ -171,11 +175,11 @@ bool SerialPortModule::OnSendData(Rocket::EventPtr& e)
     data[1] = command;
     if(command == 0x01)
     {
-        std::lock_guard<std::mutex> lock(g_mutex);
         memcpy(&data[2], &e->variable[3].asUInt32, sizeof(uint32_t));
         CRC16_MODBUS(data, 6, &data[6], &data[7]);
+        std::lock_guard<std::mutex> lock(g_mutex);
         serial_port_.writeData((char*)data, 8);
-        sleep_high_res(20);
+        sleep_high_res(delay_ms);
     }
     else if(command == 0x02)
     {
@@ -183,14 +187,14 @@ bool SerialPortModule::OnSendData(Rocket::EventPtr& e)
         CRC16_MODBUS(data, 6, &data[6], &data[7]);
         std::lock_guard<std::mutex> lock(g_mutex);
         serial_port_.writeData((char*)data, 8);
-        sleep_high_res(20);
+        sleep_high_res(delay_ms);
     }
     else if(command == 0x03)
     {
         CRC16_MODBUS(data, 6, &data[6], &data[7]);
         std::lock_guard<std::mutex> lock(g_mutex);
         serial_port_.writeData((char*)data, 8);
-        sleep_high_res(20);
+        sleep_high_res(delay_ms);
     }
     else if(command == 0x04)
     {
@@ -199,28 +203,29 @@ bool SerialPortModule::OnSendData(Rocket::EventPtr& e)
         CRC16_MODBUS(data, 6, &data[6], &data[7]);
         std::lock_guard<std::mutex> lock(g_mutex);
         serial_port_.writeData((char*)data, 8);
-        sleep_high_res(20);
+        sleep_high_res(delay_ms);
     }
     else if(command == 0x05)
     {
         CRC16_MODBUS(data, 6, &data[6], &data[7]);
         std::lock_guard<std::mutex> lock(g_mutex);
         serial_port_.writeData((char*)data, 8);
-        sleep_high_res(20);
+        sleep_high_res(delay_ms);
     }
     return false;
 }
 
 void SerialPortModule::MainLoop()
 {
+    double elapsed = 0.0;
+    
+
     while(is_running_)
     {
-        double elapsed = timer_.GetElapsedTime();
-        if(elapsed >= 100)
+        elapsed = timer_.GetElapsedTime();
+        if(elapsed >= 800)
         {
             timer_.MarkLapping();
-            EventVarVec var;
-            var.resize(2 + 10 + 10);
 
             uint8_t data[8] = {0};
 
@@ -233,9 +238,11 @@ void SerialPortModule::MainLoop()
                 {
                     std::lock_guard<std::mutex> lock(g_mutex);
                     serial_port_.writeData((char*)data, 8);
-                    sleep_high_res(20);
+                    sleep_high_res(delay_ms);
                 }
             }
+
+            sleep_high_res(delay_ms);
 
             // get imu data
             data[0] = 0x00;
@@ -244,15 +251,10 @@ void SerialPortModule::MainLoop()
             {
                 std::lock_guard<std::mutex> lock(g_mutex);
                 serial_port_.writeData((char*)data, 8);
-                sleep_high_res(20);
+                sleep_high_res(delay_ms);
             }
 
-            // Event Type
-            var[0].type = Variant::TYPE_STRING_ID;
-            var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "ui_event_response");
-
-            EventPtr event = CreateRef<Event>(var);
-            g_EventManager->TriggerEvent(event);
+            sleep_high_res(delay_ms);
         }
     }
 }
