@@ -8,6 +8,7 @@ using namespace itas109;
 static FastSemaphore g_motor_sem;
 static std::mutex g_mutex;
 static const int32_t delay_ms = 50;
+static std::atomic<bool> g_wait_data;
 
 static void sleep_high_res(int32_t count_ms)
 {
@@ -16,7 +17,7 @@ static void sleep_high_res(int32_t count_ms)
     while(sleep)
     {
         auto now = std::chrono::system_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(now - start);
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
         if ( elapsed.count() > count_ms )
             sleep = false;
     }
@@ -78,18 +79,20 @@ void ReadSlot::OnReadMessage()
     var[3].type = Variant::TYPE_FLOAT;
     var[3].asFloat = data;
 
-    if(get_data_[1] == 0x05)
+    if(get_data_[1] == 0x09)    // motor data
     {
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->TriggerEvent(event);
-        g_motor_sem.post();
+        //g_motor_sem.post();
     }
-    else if(get_data_[1] == 0x08)
+    else if(get_data_[1] == 0x08)   // imu data
     {
         EventPtr event = CreateRef<Event>(var);
         g_EventManager->TriggerEvent(event);
-        g_motor_sem.post();
+        //g_motor_sem.post();
     }
+
+    g_wait_data = false;
 }
 
 int SerialPortModule::Initialize()
@@ -154,15 +157,49 @@ bool SerialPortModule::OnWindowClose(EventPtr& e)
     return false;
 }
 
+void SerialPortModule::DelayMs(uint32_t ms)
+{
+    timer_.MarkLapping();
+    double elapsed = 0.0;
+    while (elapsed < ms)
+        elapsed = timer_.GetElapsedTime();
+}
+
+void SerialPortModule::SendData(uint8_t* data, uint32_t len)
+{
+    {
+        std::lock_guard<std::mutex> lock(g_mutex);
+        serial_port_.writeData((char*)data, len);
+    }
+    sleep_high_res(delay_ms);
+}
+
 bool SerialPortModule::OnAction(EventPtr& e)
 {
     lock_.lock();
     vars_.emplace(e->variable.begin(), e->variable.end());
     lock_.unlock();
     RK_CORE_TRACE("Send Control Data");
-    static uint8_t str[1024];
-    //str[0] = 'H';str[1] = 'e';str[2] = 'l';str[3] = 'l';str[4] = 'o';str[5] = '\0';
-    //serial_port_.writeData(str, 5);
+    static uint8_t str[128];
+
+    for(int i = 0; i < 10; ++i)
+    {
+        uint8_t data[8] = {0};
+        data[0] = i + 1;
+        data[1] = 0x04;
+        memcpy(&data[2], &e->variable[2 + i].asFloat, sizeof(float));
+        CRC16_MODBUS(data, 6, &data[6], &data[7]);
+        SendData(data, 8);
+    }
+
+    uint8_t data[8] = {0};
+    data[0] = 0x00;
+    data[1] = 0x06;
+    data[2] = e->variable[12].asUInt32 >> 8;
+    data[3] = e->variable[12].asUInt32 & 0xff;
+    CRC16_MODBUS(data, 6, &data[6], &data[7]);
+    SendData(data, 8);
+
     return false;
 }
 
@@ -177,40 +214,30 @@ bool SerialPortModule::OnSendData(Rocket::EventPtr& e)
     {
         memcpy(&data[2], &e->variable[3].asUInt32, sizeof(uint32_t));
         CRC16_MODBUS(data, 6, &data[6], &data[7]);
-        std::lock_guard<std::mutex> lock(g_mutex);
-        serial_port_.writeData((char*)data, 8);
-        sleep_high_res(delay_ms);
+        SendData(data, 8);
     }
     else if(command == 0x02)
     {
         memcpy(&data[2], &e->variable[3].asInt32, sizeof(int32_t));
         CRC16_MODBUS(data, 6, &data[6], &data[7]);
-        std::lock_guard<std::mutex> lock(g_mutex);
-        serial_port_.writeData((char*)data, 8);
-        sleep_high_res(delay_ms);
+        SendData(data, 8);
     }
     else if(command == 0x03)
     {
         CRC16_MODBUS(data, 6, &data[6], &data[7]);
-        std::lock_guard<std::mutex> lock(g_mutex);
-        serial_port_.writeData((char*)data, 8);
-        sleep_high_res(delay_ms);
+        SendData(data, 8);
     }
     else if(command == 0x04)
     {
         
         memcpy(&data[2], &e->variable[3].asFloat, sizeof(float));
         CRC16_MODBUS(data, 6, &data[6], &data[7]);
-        std::lock_guard<std::mutex> lock(g_mutex);
-        serial_port_.writeData((char*)data, 8);
-        sleep_high_res(delay_ms);
+        SendData(data, 8);
     }
     else if(command == 0x05)
     {
         CRC16_MODBUS(data, 6, &data[6], &data[7]);
-        std::lock_guard<std::mutex> lock(g_mutex);
-        serial_port_.writeData((char*)data, 8);
-        sleep_high_res(delay_ms);
+        SendData(data, 8);
     }
     return false;
 }
@@ -222,39 +249,33 @@ void SerialPortModule::MainLoop()
 
     while(is_running_)
     {
-        elapsed = timer_.GetElapsedTime();
-        if(elapsed >= 800)
+        //elapsed = timer_.GetElapsedTime();
+        //if(elapsed >= 800)
+        //{
+        //timer_.MarkLapping();
+
+        uint8_t data[8] = {0};
+
+        // get motor data
+        for(int i = 0; i < 5; ++i)
         {
-            timer_.MarkLapping();
-
-            uint8_t data[8] = {0};
-
-            // get motor data
-            for(int i = 0; i < 10; ++i)
-            {
-                data[0] = i;
-                data[1] = 0x05;
-                CRC16_MODBUS(data, 6, &data[6], &data[7]);
-                {
-                    std::lock_guard<std::mutex> lock(g_mutex);
-                    serial_port_.writeData((char*)data, 8);
-                    sleep_high_res(delay_ms);
-                }
-            }
-
-            sleep_high_res(delay_ms);
-
-            // get imu data
-            data[0] = 0x00;
-            data[1] = 0x07;
+            g_wait_data = false;
+            data[0] = i;
+            data[1] = 0x05;
             CRC16_MODBUS(data, 6, &data[6], &data[7]);
-            {
-                std::lock_guard<std::mutex> lock(g_mutex);
-                serial_port_.writeData((char*)data, 8);
-                sleep_high_res(delay_ms);
-            }
-
-            sleep_high_res(delay_ms);
+            SendData(data, 8);
+            //while(!g_wait_data) {}
         }
+
+        sleep_high_res(delay_ms);
+
+        // get imu data
+        data[0] = 0x00;
+        data[1] = 0x07;
+        CRC16_MODBUS(data, 6, &data[6], &data[7]);
+        //SendData(data, 8);
+
+        //sleep_high_res(delay_ms);
+        //}
     }
 }

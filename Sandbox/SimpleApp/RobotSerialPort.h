@@ -41,6 +41,9 @@ public:
 
     void OpenPort();
 
+    void DelayMs(uint32_t ms);
+    void SendData(uint8_t* data, uint32_t len);
+
     void MainLoop();
     bool OnWindowClose(Rocket::EventPtr& e);
     bool OnAction(Rocket::EventPtr& e);

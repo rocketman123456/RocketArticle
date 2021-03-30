@@ -179,9 +179,9 @@ void RobotUI::Draw()
 bool RobotUI::OnResponseEvent(EventPtr& e)
 {
     // get motor data
-    if(e->variable[2].asUInt32 == 0x05)
+    if(e->variable[2].asUInt32 == 0x09)
     {
-        uint32_t id = e->variable[1].asUInt32 - 0x01;
+        uint32_t id = e->variable[1].asUInt32 - 0x10;
         motor_data_curr[id] = e->variable[3].asFloat;
         motor_data[id].push_back(motor_data_curr[id]);
     }
