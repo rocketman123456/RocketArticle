@@ -20,8 +20,8 @@ namespace Rocket
         void SetStateMachine(const Ref<StateMachine>& stateMachine) { state_machine_ = stateMachine; }
         Ref<StateMachine> GetStateMachine() { return state_machine_; }
 
-        bool OnUIEvent(EventPtr& e);
-        bool OnResponseEvent(EventPtr& e);
+        bool OnDataEvent(EventPtr& e);
+        bool OnActionEvent(EventPtr& e);
 
     private:
         Ref<StateMachine> state_machine_ = nullptr;

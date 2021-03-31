@@ -83,8 +83,8 @@ void SimpleApp::PostInitializeModule()
         REGISTER_DELEGATE_CLASS(Application, Application::OnWindowClose, g_Application, window_close);
         REGISTER_DELEGATE_CLASS(GraphicsManager, GraphicsManager::OnWindowResize, g_GraphicsManager, window_resize);
         REGISTER_DELEGATE_CLASS(WindowManager, WindowManager::OnWindowResize, g_WindowManager, window_resize);
-        REGISTER_DELEGATE_CLASS(GameLogic, GameLogic::OnUIEvent, g_GameLogic, ui_event_logic);
-        REGISTER_DELEGATE_CLASS(GameLogic, GameLogic::OnResponseEvent, g_GameLogic, ui_event_response);
+        REGISTER_DELEGATE_CLASS(GameLogic, GameLogic::OnActionEvent, g_GameLogic, ui_event_logic);
+        REGISTER_DELEGATE_CLASS(GameLogic, GameLogic::OnDataEvent, g_GameLogic, ui_event_response_data);
         REGISTER_DELEGATE_CLASS(SerialPortModule, SerialPortModule::OnWindowClose, g_SerialPort, window_close);
         REGISTER_DELEGATE_CLASS(SerialPortModule, SerialPortModule::OnAction, g_SerialPort, ui_event_logic);
         REGISTER_DELEGATE_CLASS(SerialPortModule, SerialPortModule::OnSendData, g_SerialPort, ui_event_send_data);

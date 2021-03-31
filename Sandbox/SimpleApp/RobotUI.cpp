@@ -174,6 +174,20 @@ void RobotUI::Draw()
     node_curr = g_GameLogic->GetStateMachine()->GetCurrentNode();
 
     Calculation();
+
+    EventVarVec var;
+    var.resize(2 + 10);
+    var[0].type = Variant::TYPE_STRING_ID;
+    var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "ui_event_response_data");
+    var[1].type = Variant::TYPE_UINT32;
+    var[1].asUInt32 = 0x01; // cmd
+    for(int i = 0; i < 10; ++i)
+    {
+        var[2 + i].type = Variant::TYPE_FLOAT;
+        var[2 + i].asFloat = motor_data_curr[i]; // data
+    }
+    EventPtr event = CreateRef<Event>(var);
+    g_EventManager->QueueEvent(event);
 }
 
 bool RobotUI::OnResponseEvent(EventPtr& e)

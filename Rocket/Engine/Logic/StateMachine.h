@@ -52,8 +52,8 @@ namespace Rocket
 
         void SetInitState(Ref<StateNode> init);
         void ResetToInitState();
-        bool UpdateAction(const Vec<Variant>& data);
-        bool UpdateEdge(const Vec<Variant>& data);
+        bool UpdateActionData(const Vec<Variant>& data);
+        bool UpdateStateEdge(const Vec<Variant>& data);
         bool GetTransferFinish() { return is_transfer_finish_; }
 
         Ref<StateNode> GetInitNode() { return init_state_node_; }

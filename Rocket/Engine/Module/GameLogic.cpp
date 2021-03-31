@@ -24,25 +24,25 @@ void GameLogic::Tick(Timestep ts)
     if(!result && current_input_data_.size() > 0)
     {
         // Update Action
-        state_machine_->UpdateAction(current_input_data_);
+        state_machine_->UpdateActionData(current_input_data_);
     }
     else if(result && pending_state_data_.size() > 0)
     {
-        result = state_machine_->UpdateEdge(pending_state_data_);
+        result = state_machine_->UpdateStateEdge(pending_state_data_);
         pending_state_data_.clear();
     }
 }
 
-bool GameLogic::OnResponseEvent(EventPtr& e)
+bool GameLogic::OnDataEvent(EventPtr& e)
 {
     //RK_CORE_TRACE("Set Input Data");
     current_input_data_.assign(e->variable.begin(), e->variable.end());
-    state_machine_->UpdateAction(current_input_data_);
+    state_machine_->UpdateActionData(current_input_data_);
     current_input_data_.clear();
     return false;
 }
 
-bool GameLogic::OnUIEvent(EventPtr& e)
+bool GameLogic::OnActionEvent(EventPtr& e)
 {
     bool result = state_machine_->GetTransferFinish();
     if(!result)
@@ -55,7 +55,7 @@ bool GameLogic::OnUIEvent(EventPtr& e)
         return false;
     }
     pending_state_data_.clear();
-    result = state_machine_->UpdateEdge(e->variable);
+    result = state_machine_->UpdateStateEdge(e->variable);
     current_state_data_.assign(e->variable.begin(), e->variable.end());
     return false;
 }

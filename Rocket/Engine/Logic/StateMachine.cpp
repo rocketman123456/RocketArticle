@@ -41,7 +41,7 @@ void StateMachine::ResetToInitState()
     curr_state_node_ = init_state_node_;
 }
 
-bool StateMachine::UpdateAction(const Vec<Variant>& input)
+bool StateMachine::UpdateActionData(const Vec<Variant>& input)
 {
     // Empty edge always finish action
     if(!current_edge_)
@@ -64,7 +64,7 @@ bool StateMachine::UpdateAction(const Vec<Variant>& input)
     return result;
 }
 
-bool StateMachine::UpdateEdge(const Vec<Variant>& target)
+bool StateMachine::UpdateStateEdge(const Vec<Variant>& target)
 {
     RK_CORE_TRACE("State Machine Update on Action {}", GlobalHashTable::GetStringFromId("StateMachine"_hash, target[1].asStringId));
     // Get Edge to Follow
@@ -92,23 +92,6 @@ bool StateMachine::UpdateEdge(const Vec<Variant>& target)
     }
 }
 
-uint64_t StateMachine::Get2Mat(const UMap<uint64_t, uint64_t>& map, uint64_t input)
-{
-    auto it = map.find(input);
-    if(it != map.end())
-        return it->second;
-    RK_CORE_ASSERT(false, "cannot find id in mat");
-    return 0;
-}
-
-uint64_t StateMachine::Get2Map(const UMap<uint64_t, uint64_t>& map, uint64_t input)
-{
-    for(auto it : map)
-        if(it.second == input)
-            return it.first;
-    return UINT_MAX;
-}
-
 uint64_t StateMachine::update_along_mat(const Vec<Variant>& data, const uint64_t state)
 {
     uint64_t action = data[1].asStringId;
@@ -127,11 +110,6 @@ uint64_t StateMachine::update_along_mat(const Vec<Variant>& data, const uint64_t
     return edge;
 }
 
-bool StateMachine::is_near(float i, float j, float esp)
-{
-    return std::abs(i - j) <= esp;
-}
-
 bool StateMachine::action_on_edge(const Vec<Variant>& input, const Vec<Variant>& target)
 {
     RK_CORE_ASSERT(input.size() == target.size(), "Data Size Unmatch");
@@ -143,4 +121,26 @@ bool StateMachine::action_on_edge(const Vec<Variant>& input, const Vec<Variant>&
     }
     // if finished, return true
     return result;
+}
+
+bool StateMachine::is_near(float i, float j, float esp)
+{
+    return std::abs(i - j) <= esp;
+}
+
+uint64_t StateMachine::Get2Mat(const UMap<uint64_t, uint64_t>& map, uint64_t input)
+{
+    auto it = map.find(input);
+    if(it != map.end())
+        return it->second;
+    RK_CORE_ASSERT(false, "cannot find id in mat");
+    return 0;
+}
+
+uint64_t StateMachine::Get2Map(const UMap<uint64_t, uint64_t>& map, uint64_t input)
+{
+    for(auto it : map)
+        if(it.second == input)
+            return it.first;
+    return UINT_MAX;
 }
