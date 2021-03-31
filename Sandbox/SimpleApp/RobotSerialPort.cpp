@@ -5,6 +5,14 @@
 using namespace Rocket;
 using namespace itas109;
 
+#ifdef _WIN32
+#include <windows.h>
+#define imsleep(microsecond) Sleep(microsecond) // ms
+#else
+#include <unistd.h>
+#define imsleep(microsecond) usleep(1000 * microsecond) // ms
+#endif
+
 static FastSemaphore g_motor_sem;
 static std::mutex g_mutex;
 static const int32_t delay_ms = 50;
@@ -12,15 +20,17 @@ static std::atomic<bool> g_wait_data;
 
 static void sleep_high_res(int32_t count_ms)
 {
-    bool sleep = true;
-    auto start = std::chrono::system_clock::now();
-    while(sleep)
-    {
-        auto now = std::chrono::system_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
-        if ( elapsed.count() > count_ms )
-            sleep = false;
-    }
+    //bool sleep = true;
+    //auto start = std::chrono::system_clock::now();
+    //while(sleep)
+    //{
+    //    auto now = std::chrono::system_clock::now();
+    //    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
+    //    if ( elapsed.count() > count_ms )
+    //        sleep = false;
+    //}
+
+    imsleep(count_ms);
 }
 
 static void CRC16_MODBUS(uint8_t input[], int size, uint8_t* low_value, uint8_t* high_value)
@@ -51,10 +61,9 @@ void ReadSlot::OnReadMessage()
     //read
     rec_len_ = sp_->readAllData((char*)get_data_);
 
-    if(rec_len_ > 0)
+    if(rec_len_ >= 8)
     {
         count_read_++;
-        //get_data_[rec_len_] = '\0';
         RK_CORE_INFO("receive data len : {}, receive count : {}", rec_len_, count_read_);
         rec_len_ = -1;
     }
@@ -97,7 +106,7 @@ void ReadSlot::OnReadMessage()
 
 int SerialPortModule::Initialize()
 {
-    RK_CORE_INFO("Version : {}", serial_port_.getVersion());
+    RK_CORE_INFO("Serial Version : {}", serial_port_.getVersion());
     return 0;
 }
 
@@ -244,8 +253,7 @@ bool SerialPortModule::OnSendData(Rocket::EventPtr& e)
 
 void SerialPortModule::MainLoop()
 {
-    double elapsed = 0.0;
-    
+    //double elapsed = 0.0;
 
     while(is_running_)
     {
@@ -257,10 +265,10 @@ void SerialPortModule::MainLoop()
         uint8_t data[8] = {0};
 
         // get motor data
-        for(int i = 0; i < 5; ++i)
+        for(int i = 0; i < 10; ++i)
         {
             g_wait_data = false;
-            data[0] = i;
+            data[0] = i + 1;
             data[1] = 0x05;
             CRC16_MODBUS(data, 6, &data[6], &data[7]);
             SendData(data, 8);

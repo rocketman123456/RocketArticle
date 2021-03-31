@@ -23,7 +23,7 @@ public:
 
 private:
     itas109::CSerialPort* sp_;
-    uint8_t get_data_[1024];
+    uint8_t get_data_[1024] = {0};
     int rec_len_;
     int count_read_ = 0;
 };

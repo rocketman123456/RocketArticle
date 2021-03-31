@@ -21,7 +21,7 @@ void RobotUI::DrawRobotState()
         char overlay[32];
         sprintf(overlay, "size %d offset %d", (uint32_t)motor_data[i].size(), (uint32_t)offset);
         float result = CalculateProgress(motor_data_start[i], motor_data_target[i], motor_data_curr[i]);
-        ImGui::ProgressBar(result, ImVec2(0.0f, 0.0f)); ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x); ImGui::Text("Motor Progress %2d", i);
+        ImGui::ProgressBar(result, ImVec2(0.0f, 0.0f)); ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x); ImGui::Text("Motor Progress %2d", i+1);
         ImGui::PlotLines(label, motor_data[i].data() + offset, data_size, 0, overlay, 100.0f, -100.0f, ImVec2(0, 80.0f));
     }
 
@@ -118,7 +118,7 @@ void RobotUI::DrawRobotSetting()
             var[2].type = Variant::TYPE_UINT32;
             var[2].asUInt32 = 0x03;
 
-            motor_data_curr[motor_id] = motor_data_curr[motor_id] - motor_data_target[motor_id];
+            //motor_data_curr[motor_id] = 0;//motor_data_curr[motor_id] - motor_data_target[motor_id];
             motor_data_target[motor_id] = 0;
 
             var[3].type = Variant::TYPE_FLOAT;
@@ -181,7 +181,7 @@ bool RobotUI::OnResponseEvent(EventPtr& e)
     // get motor data
     if(e->variable[2].asUInt32 == 0x09)
     {
-        uint32_t id = e->variable[1].asUInt32 - 0x10;
+        uint32_t id = e->variable[1].asUInt32 - 0x01;
         motor_data_curr[id] = e->variable[3].asFloat;
         motor_data[id].push_back(motor_data_curr[id]);
     }
