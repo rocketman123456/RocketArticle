@@ -15,22 +15,22 @@ using namespace itas109;
 
 static FastSemaphore g_motor_sem;
 static std::mutex g_mutex;
-static const int32_t delay_ms = 50;
+static const int32_t delay_ms = 8;
 static std::atomic<bool> g_wait_data;
 
 static void sleep_high_res(int32_t count_ms)
 {
-    //bool sleep = true;
-    //auto start = std::chrono::system_clock::now();
-    //while(sleep)
-    //{
-    //    auto now = std::chrono::system_clock::now();
-    //    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
-    //    if ( elapsed.count() > count_ms )
-    //        sleep = false;
-    //}
+    bool sleep = true;
+    auto start = std::chrono::system_clock::now();
+    while(sleep)
+    {
+        auto now = std::chrono::system_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
+        if ( elapsed.count() > count_ms )
+            sleep = false;
+    }
 
-    imsleep(count_ms);
+    //imsleep(count_ms);
 }
 
 static void CRC16_MODBUS(uint8_t input[], int size, uint8_t* low_value, uint8_t* high_value)
@@ -68,40 +68,70 @@ void ReadSlot::OnReadMessage()
         rec_len_ = -1;
     }
 
-    EventVarVec var;
-    var.resize(2 + 2);
-
-    var[0].type = Variant::TYPE_STRING_ID;
-    var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "ui_event_response");
-
-    // id/type
-    var[1].type = Variant::TYPE_UINT32;
-    var[1].asUInt32 = get_data_[0];
-
-    // cmd
-    var[2].type = Variant::TYPE_UINT32;
-    var[2].asUInt32 = get_data_[1];
-
-    float data;
-
-    memcpy(&data, &get_data_[2], sizeof(float));
-    var[3].type = Variant::TYPE_FLOAT;
-    var[3].asFloat = data;
-
-    if(get_data_[1] == 0x09)    // motor data
+    if((rec_len_ % 8) == 0)
     {
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->TriggerEvent(event);
-        //g_motor_sem.post();
-    }
-    else if(get_data_[1] == 0x08)   // imu data
-    {
-        EventPtr event = CreateRef<Event>(var);
-        g_EventManager->TriggerEvent(event);
-        //g_motor_sem.post();
-    }
+        int curr_len = 0;
+        while(curr_len < rec_len_)
+        {
+            EventVarVec var;
+            var.resize(2 + 2);
 
-    g_wait_data = false;
+            var[0].type = Variant::TYPE_STRING_ID;
+            var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "ui_event_response");
+
+            // id/type
+            var[1].type = Variant::TYPE_UINT32;
+            var[1].asUInt32 = get_data_[curr_len + 0];
+
+            // cmd
+            var[2].type = Variant::TYPE_UINT32;
+            var[2].asUInt32 = get_data_[curr_len + 1];
+
+            float data;
+
+            memcpy(&data, &get_data_[curr_len + 2], sizeof(float));
+            var[3].type = Variant::TYPE_FLOAT;
+            var[3].asFloat = data;
+
+            EventPtr event = CreateRef<Event>(var);
+            if(get_data_[curr_len + 1] == 0x09)    // motor data
+                g_EventManager->TriggerEvent(event);
+            else if(get_data_[curr_len + 1] == 0x08)   // imu data
+                g_EventManager->TriggerEvent(event);
+
+            curr_len += 8;
+        }
+    }
+    else
+    {
+        EventVarVec var;
+        var.resize(2 + 2);
+
+        var[0].type = Variant::TYPE_STRING_ID;
+        var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "ui_event_response");
+
+        // id/type
+        var[1].type = Variant::TYPE_UINT32;
+        var[1].asUInt32 = get_data_[0];
+
+        // cmd
+        var[2].type = Variant::TYPE_UINT32;
+        var[2].asUInt32 = get_data_[1];
+
+        float data;
+
+        memcpy(&data, &get_data_[2], sizeof(float));
+        var[3].type = Variant::TYPE_FLOAT;
+        var[3].asFloat = data;
+
+        EventPtr event = CreateRef<Event>(var);
+        if(get_data_[1] == 0x09)    // motor data
+            g_EventManager->TriggerEvent(event);
+        else if(get_data_[1] == 0x08)   // imu data
+            g_EventManager->TriggerEvent(event);
+
+        g_wait_data = false;
+    }
 }
 
 int SerialPortModule::Initialize()
@@ -176,10 +206,8 @@ void SerialPortModule::DelayMs(uint32_t ms)
 
 void SerialPortModule::SendData(uint8_t* data, uint32_t len)
 {
-    {
-        std::lock_guard<std::mutex> lock(g_mutex);
-        serial_port_.writeData((char*)data, len);
-    }
+    std::lock_guard<std::mutex> lock(g_mutex);
+    serial_port_.writeData((char*)data, len);
     sleep_high_res(delay_ms);
 }
 
@@ -257,11 +285,6 @@ void SerialPortModule::MainLoop()
 
     while(is_running_)
     {
-        //elapsed = timer_.GetElapsedTime();
-        //if(elapsed >= 800)
-        //{
-        //timer_.MarkLapping();
-
         uint8_t data[8] = {0};
 
         // get motor data
@@ -281,9 +304,6 @@ void SerialPortModule::MainLoop()
         data[0] = 0x00;
         data[1] = 0x07;
         CRC16_MODBUS(data, 6, &data[6], &data[7]);
-        //SendData(data, 8);
-
-        //sleep_high_res(delay_ms);
-        //}
+        SendData(data, 8);
     }
 }

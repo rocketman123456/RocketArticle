@@ -22,7 +22,7 @@ void RobotUI::DrawRobotState()
         sprintf(overlay, "size %d offset %d", (uint32_t)motor_data[i].size(), (uint32_t)offset);
         float result = CalculateProgress(motor_data_start[i], motor_data_target[i], motor_data_curr[i]);
         ImGui::ProgressBar(result, ImVec2(0.0f, 0.0f)); ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x); ImGui::Text("Motor Progress %2d", i+1);
-        ImGui::PlotLines(label, motor_data[i].data() + offset, data_size, 0, overlay, 100.0f, -100.0f, ImVec2(0, 80.0f));
+        ImGui::PlotLines(label, motor_data[i].data() + offset, data_size, 0, overlay, -100.0f, 100.0f, ImVec2(0, 80.0f));
     }
 
     for(int i = 0; i < 3; ++i)
@@ -33,7 +33,7 @@ void RobotUI::DrawRobotState()
         sprintf(label, "IMU %d", i);
         char overlay[32];
         sprintf(overlay, "size %d offset %d", (uint32_t)imu_data[i].size(), (uint32_t)offset);
-        ImGui::PlotLines(label, imu_data[i].data() + offset, (int32_t)data_size, 0, overlay, 90.0f, -90.0f, ImVec2(0, 80.0f));
+        ImGui::PlotLines(label, imu_data[i].data() + offset, (int32_t)data_size, 0, overlay, -90.0f, 90.0f, ImVec2(0, 80.0f));
     }
 
     ImGui::End();

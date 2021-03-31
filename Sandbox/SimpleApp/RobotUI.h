@@ -44,15 +44,15 @@ private:
 
     bool showRobotState = true;
 
-    double W = 800;
-    double L = 1000;
-    double h = 120;
+    double W = 640;
+    double L = 930;
+    double h = 150;
     double angle_x_prev = 0;
     double angle_y_prev = 0;
     double angle_x_curr = 0;
     double angle_y_curr = 0;
     double stride = 100;
-    double up_height = 80;
+    double up_height = 25;
     int32_t direction = 1;
 
     Rocket::UMap<uint64_t, uint64_t> node_calculate_stage;
