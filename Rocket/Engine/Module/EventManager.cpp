@@ -268,7 +268,7 @@ bool EventManager::Update(uint64_t maxMillis)
         // pop the front of the queue
         EventPtr pEvent = event_queue_[queueToProcess].front();
         event_queue_[queueToProcess].pop_front();
-        RK_EVENT_TRACE("\tProcessing Event {0}", pEvent->GetName());
+        //RK_EVENT_TRACE("\tProcessing Event {0}", pEvent->GetName());
 
         const EventType& eventType = pEvent->GetEventType();
 
@@ -277,7 +277,7 @@ bool EventManager::Update(uint64_t maxMillis)
         if (findIt != event_listener_.end())
         {
             const EventListenerList& eventListeners = findIt->second;
-            RK_EVENT_TRACE("\tFound {0} delegates", (unsigned long)eventListeners.size());
+            //RK_EVENT_TRACE("\tFound {0} delegates", (unsigned long)eventListeners.size());
 
             // call each listener
             for (auto it = eventListeners.begin(); it != eventListeners.end(); ++it)
@@ -378,18 +378,18 @@ bool EventManager::QueueEvent(const EventPtr& event)
     RK_CORE_ASSERT(active_event_queue_ >= 0, "EventManager Active Queue Error");
     RK_CORE_ASSERT(active_event_queue_ < EVENTMANAGER_NUM_QUEUES, "EventManager Active Queue Error");
 
-    RK_EVENT_TRACE("Attempting to queue event: {0}", event->GetName());
+    //RK_EVENT_TRACE("Attempting to queue event: {0}", event->GetName());
 
     auto findIt = event_listener_.find(event->GetEventType());
     if (findIt != event_listener_.end())
     {
         event_queue_[active_event_queue_].push_back(event);
-        RK_EVENT_TRACE("Successfully queued event: {0}", event->GetName());
+        //RK_EVENT_TRACE("Successfully queued event: {0}", event->GetName());
         return true;
     }
     else
     {
-        RK_EVENT_TRACE("Skipping event since there are no delegates registered: {0}", event->GetName());
+        //RK_EVENT_TRACE("Skipping event since there are no delegates registered: {0}", event->GetName());
         return false;
     }
 }

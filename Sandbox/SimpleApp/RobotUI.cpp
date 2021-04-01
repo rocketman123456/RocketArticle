@@ -176,7 +176,7 @@ void RobotUI::Draw()
     Calculation();
 
     EventVarVec var;
-    var.resize(2 + 10);
+    var.resize(2 + 10 + 1);
     var[0].type = Variant::TYPE_STRING_ID;
     var[0].asStringId = GlobalHashTable::HashString("Event"_hash, "ui_event_response_data");
     var[1].type = Variant::TYPE_UINT32;
@@ -238,6 +238,9 @@ RobotUI::RobotUI()
 
 void RobotUI::Calculation()
 {
+    if(!(init || walk || rotation))
+        return;
+    
     EventVarVec var;
     var.resize(2 + 10 + 1);
     // Event Type
@@ -250,6 +253,11 @@ void RobotUI::Calculation()
     if(init) { var[1].asStringId = GlobalHashTable::HashString("StateMachine"_hash, "initialize"); }
     if(walk) { var[1].asStringId = GlobalHashTable::HashString("StateMachine"_hash, "movement"); }
     if(rotation) { var[1].asStringId = GlobalHashTable::HashString("StateMachine"_hash, "rotation"); }
+
+    for(int i = 0; i < 10; ++i)
+    {
+        motor_data_start[i] = motor_data_curr[i];
+    }
 
     //--------------------------------------------------------------//
     //--------------------------------------------------------------//

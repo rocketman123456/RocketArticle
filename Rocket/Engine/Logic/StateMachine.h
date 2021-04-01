@@ -67,7 +67,7 @@ namespace Rocket
     private:
         static uint64_t Get2Mat(const UMap<uint64_t, uint64_t>& map, uint64_t input);
         static uint64_t Get2Map(const UMap<uint64_t, uint64_t>& map, uint64_t input);
-        static bool is_near(float i, float j, float esp = 1e-3);
+        static bool is_near(float i, float j, float esp = 1e-1);
 
     private:
         String name_;

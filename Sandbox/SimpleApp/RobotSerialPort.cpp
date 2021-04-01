@@ -64,7 +64,7 @@ void ReadSlot::OnReadMessage()
     if(rec_len_ >= 8)
     {
         count_read_++;
-        RK_CORE_INFO("receive data len : {}, receive count : {}", rec_len_, count_read_);
+        //RK_CORE_INFO("receive data len : {}, receive count : {}", rec_len_, count_read_);
         rec_len_ = -1;
     }
 

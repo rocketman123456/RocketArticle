@@ -39,38 +39,4 @@ namespace Rocket
         Real damping_;
         Real inverse_mass_;
     };
-
-    class ParticleForceGenerator
-    {
-    public:
-        virtual void UpdateForce(Particle* particle, Real duration) = 0;
-    };
-
-    class ParticleForceRegistry
-    {
-    public:
-        void Add(Particle* particle, ParticleForceGenerator* fg);
-        void Remove(Particle* particle, ParticleForceGenerator *fg); // TODO
-        void Clear();
-        void UpdateForces(Real duration);
-
-    protected:
-        struct ParticleForceRegistration 
-        { 
-            Particle* particle; 
-            ParticleForceGenerator* force_generate; 
-        };
-        typedef Vec<ParticleForceRegistration> Registry;
-        Registry registrations_;
-    };
-
-    class ParticleGravity : public ParticleForceGenerator
-    {
-    public:
-        ParticleGravity(const Real3& gravity) : gravity_(gravity) {}
-        void UpdateForce(Particle* particle, Real duration) final;
-
-    private:
-        Real3 gravity_;
-    };
 }

@@ -77,6 +77,8 @@ add_library( RocketEngine
     Physics/Firework.cpp
     Physics/Particle.h
     Physics/Particle.cpp
+    Physics/ParticleForce.h
+    Physics/ParticleForce.cpp
     # Process
     Process/Process.h
     Process/Process.cpp

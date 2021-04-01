@@ -51,15 +51,15 @@ private:
     double angle_y_prev = 0;
     double angle_x_curr = 0;
     double angle_y_curr = 0;
-    double stride = 100;
-    double up_height = 25;
+    double stride = 60;
+    double up_height = 40;
     int32_t direction = 1;
 
     Rocket::UMap<uint64_t, uint64_t> node_calculate_stage;
     Rocket::UMap<uint64_t, uint64_t> node_recovery_stage;
 
-    const int32_t max_motor_data_store = 100 * 2;
-    const int32_t max_imu_data_store = 100 * 5;
+    const int32_t max_motor_data_store = 100 * 50;
+    const int32_t max_imu_data_store = 100 * 50;
     Rocket::Vec<float> motor_data[10];
     Rocket::Vec<float> imu_data[3];
 
