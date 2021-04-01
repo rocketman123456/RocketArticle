@@ -22,6 +22,8 @@ private:
 
     void DrawRobotSetting();
     void DrawRobotState();
+
+    void SaveData();
     
 private:
     Rocket::Ref<Rocket::StateNode> node_curr;
@@ -41,6 +43,10 @@ private:
     bool set_motor_data = false;
     bool get_motor_data = false;
     bool reset_motor = false;
+
+    char file_name[1024] = {0};
+    bool save_data = false;
+    bool clear_data = false;
 
     bool showRobotState = true;
 

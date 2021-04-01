@@ -1,6 +1,7 @@
 #include "RobotUI.h"
 #include "Module/EventManager.h"
 #include "Module/GameLogic.h"
+#include "Module/AssetLoader.h"
 
 #include <algorithm>
 #define _USE_MATH_DEFINES
@@ -149,6 +150,27 @@ void RobotUI::DrawRobotSetting()
     ImGui::Checkbox("Show Robot State", &showRobotState);
 
     ImGui::Separator();
+    ImGui::InputText("Save Data Name", file_name, 1024);
+    save_data = ImGui::Button("Save Data");
+    if(save_data)
+    {
+        RK_CORE_TRACE("{}", file_name);
+        SaveData();
+    }
+    clear_data = ImGui::Button("Clear Data");
+    if(clear_data)
+    {
+        for(int j = 0; j < 10; j++)
+        {
+            motor_data[j].clear();
+        }
+        for(int k = 0; k < 3; k++)
+        {
+            imu_data[k].clear();
+        }
+    }
+
+    ImGui::Separator();
     ImGui::Text("Robot Data");
     ImGui::InputDouble("W(mm)", &W, 0.01);
     ImGui::InputDouble("L(mm)", &L, 0.01);
@@ -160,6 +182,35 @@ void RobotUI::DrawRobotSetting()
     ImGui::InputInt("direction", &direction, 1);
 
     ImGui::End();
+}
+
+void RobotUI::SaveData()
+{
+    uint32_t data_size = motor_data[0].size();
+    std::stringstream fout;
+    for(int i = 0; i < data_size; ++i)
+    {
+        for(int j = 0; j < 10; j++)
+        {
+            if(i < motor_data[j].size())
+                fout << motor_data[j][i];
+            else
+                fout << "0.0";
+            fout << ",";
+        }
+        for(int k = 0; k < 3; k++)
+        {
+            if(i < imu_data[k].size())
+                fout << imu_data[k][i];
+            else
+                fout << "0.0";
+            fout << ",";
+        }
+        fout << std::endl;
+    }
+
+    String str = fout.str();
+    g_AssetLoader->SyncOpenAndWriteStringToTextFile(file_name, str);
 }
 
 void RobotUI::Draw()
