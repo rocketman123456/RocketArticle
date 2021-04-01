@@ -418,7 +418,6 @@ void RobotUI::CalculateRotation(double x, double y)
     motor_data_target[8] = 0;
     motor_data_target[9] = 0;
     
-    // TODO : re number motor and valve
     valve_data_target[0] = 1;   // 2 x
     valve_data_target[1] = 1;   // 2 y
     valve_data_target[2] = 1;   // 1 x

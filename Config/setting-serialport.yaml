@@ -6,8 +6,3 @@ baud-rate: 115200
 #ParityMark = 3,  ///< Mark Parity 1校验
 #ParitySpace = 4, ///< Space Parity 0校验
 parity: 1
-
-06: 96.70
-07: 95.92
-02: 92.58
-03: 96.77
