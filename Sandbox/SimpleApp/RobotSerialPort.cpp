@@ -301,9 +301,12 @@ void SerialPortModule::MainLoop()
         sleep_high_res(delay_ms);
 
         // get imu data
-        data[0] = 0x00;
-        data[1] = 0x07;
-        CRC16_MODBUS(data, 6, &data[6], &data[7]);
-        SendData(data, 8);
+        for(int i = 0; i < 3; ++i)
+        {
+            data[0] = 0x11 + i;
+            data[1] = 0x07;
+            CRC16_MODBUS(data, 6, &data[6], &data[7]);
+            SendData(data, 8);
+        }
     }
 }

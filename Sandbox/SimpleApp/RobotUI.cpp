@@ -418,7 +418,7 @@ float RobotUI::CalculateProgress(float start, float end, float current)
 {
     float total = std::abs(end - start);
     float delta = std::abs(current - start);
-    if(total < 1e-5)
+    if(total < 1e-1)
         return 1;
     float progress = std::abs(delta / total);
     progress = std::clamp(progress, 0.0f, 1.0f);
