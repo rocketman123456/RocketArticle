@@ -27,7 +27,7 @@ namespace Rocket
         Registry registrations_;
     };
 
-    class ParticleGravity : public ParticleForceGenerator
+    class ParticleGravity : implements ParticleForceGenerator
     {
     public:
         ParticleGravity(const Real3& gravity) : gravity_(gravity) {}
@@ -37,7 +37,7 @@ namespace Rocket
         Real3 gravity_;
     };
 
-    class ParticleDrag : public ParticleForceGenerator
+    class ParticleDrag : implements ParticleForceGenerator
     {
     public:
         ParticleDrag(Real k1, Real k2) : k1_(k1), k2_(k2) {}
@@ -45,5 +45,9 @@ namespace Rocket
     private:
         Real k1_;
         Real k2_;
+    };
+
+    class ParticleSpring : implements ParticleForceGenerator
+    {
     };
 }
