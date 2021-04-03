@@ -24,6 +24,9 @@ add_library( RocketEngine
     Core/Template.h
     # Event
     Event/Event.h
+    # Geometry
+    Geometry/QuadTree.h
+    Geometry/QuadTree.cpp
     # Graph
     Graph/Graph.h
     Graph/Graph.cpp
