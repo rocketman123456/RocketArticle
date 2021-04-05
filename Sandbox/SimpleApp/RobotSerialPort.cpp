@@ -15,7 +15,7 @@ using namespace itas109;
 
 static FastSemaphore g_motor_sem;
 static std::mutex g_mutex;
-static const int32_t delay_ms = 8;
+static const int32_t delay_ms = 10;
 static std::atomic<bool> g_wait_data;
 
 static void sleep_high_res(int32_t count_ms)
@@ -273,6 +273,15 @@ bool SerialPortModule::OnSendData(Rocket::EventPtr& e)
     }
     else if(command == 0x05)
     {
+        CRC16_MODBUS(data, 6, &data[6], &data[7]);
+        SendData(data, 8);
+    }
+    else if(command == 0x06)
+    {
+        data[2] = (e->variable[3].asInt32 >> 0) & 0xff;
+        data[3] = (e->variable[3].asInt32 >> 8) & 0xff;
+        data[4] = (e->variable[3].asInt32 >> 16) & 0xff;
+        data[5] = (e->variable[3].asInt32 >> 24) & 0xff;
         CRC16_MODBUS(data, 6, &data[6], &data[7]);
         SendData(data, 8);
     }

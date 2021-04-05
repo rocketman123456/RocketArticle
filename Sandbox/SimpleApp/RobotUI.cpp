@@ -42,9 +42,7 @@ void RobotUI::DrawRobotState()
 
 void RobotUI::DrawRobotSetting()
 {
-    ImGui::Begin("Rocket", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-
-    ImGui::Text("Rocket Vulkan Render");
+    ImGui::Begin("Rocket Engine");
 
     ImGui::Separator();
     init = ImGui::Button("Init");
@@ -65,12 +63,14 @@ void RobotUI::DrawRobotSetting()
     ImGui::InputInt4("Led Data", led_data);
     ImGui::InputFloat("Motor", &motor_data_target[motor_id], 0.001);
     ImGui::InputInt("Motor PWM", &motor_pwm);
+    ImGui::InputInt("Valve Control", &valve_data);
 
     led_set = ImGui::Button("Set Led");
     set_motor_data = ImGui::Button("Set Motor Pos");
     get_motor_data = ImGui::Button("Get Motor Pos");
     set_motor_pwm = ImGui::Button("Set PWM");
     reset_motor = ImGui::Button("Reset Motor");
+    set_valve = ImGui::Button("Set Valve");
     
     {
         EventVarVec var;
@@ -138,8 +138,19 @@ void RobotUI::DrawRobotSetting()
 
             motor_data_start[motor_id] = motor_data_curr[motor_id];
         }
+        else if(set_valve)
+        {
+            var[1].type = Variant::TYPE_UINT32;
+            var[1].asUInt32 = 0x00;
 
-        if(set_motor_pwm || set_motor_data || get_motor_data || reset_motor || led_set)
+            var[2].type = Variant::TYPE_UINT32;
+            var[2].asUInt32 = 0x06;
+
+            var[3].type = Variant::TYPE_INT32;
+            var[3].asInt32 = valve_data;
+        }
+
+        if(set_motor_pwm || set_motor_data || set_valve || get_motor_data || reset_motor || led_set)
         {
             EventPtr event = CreateRef<Event>(var);
             g_EventManager->QueueEvent(event);

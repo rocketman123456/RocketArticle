@@ -43,6 +43,8 @@ private:
     bool set_motor_data = false;
     bool get_motor_data = false;
     bool reset_motor = false;
+    bool set_valve = false;
+    int32_t valve_data = 0;
 
     char file_name[1024] = {0};
     bool save_data = false;
