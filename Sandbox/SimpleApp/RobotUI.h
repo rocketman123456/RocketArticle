@@ -16,14 +16,15 @@ private:
     void CalculateRotation(double x, double y);
     void CalculateMovement(int32_t stage);
     void CalculateMovementRecover(int32_t stage);
-    float CalculateProgress(float start, float end, float current);
 
     void SetEventData(Rocket::EventVarVec& var);
 
+    float CalculateProgress(float start, float end, float current);
     void DrawRobotSetting();
     void DrawRobotState();
 
     void SaveData();
+    void SingleControl();
     
 private:
     Rocket::Ref<Rocket::StateNode> node_curr;
@@ -77,6 +78,6 @@ private:
     float motor_data_target[10] = {0};
     float imu_data_curr[3] = {0};
 
-    uint8_t valve_data_target[10] = {0};
+    uint8_t valve_data_target[12] = {0};
     uint16_t valve_data_set;
 };
