@@ -61,7 +61,7 @@ private:
     double angle_x_curr = 0;
     double angle_y_curr = 0;
     double stride = 60;
-    double up_height = 40;
+    double up_height = 80;
     int32_t direction = 1;
 
     Rocket::UMap<uint64_t, uint64_t> node_calculate_stage;

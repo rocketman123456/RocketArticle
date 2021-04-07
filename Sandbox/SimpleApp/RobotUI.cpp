@@ -357,41 +357,102 @@ void RobotUI::Calculation()
     }
     else if(
         (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_00") && rotation) ||
-        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_02") && rotation) ||
-        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_02") && init))
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_01") && rotation) ||
+        (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_02") && rotation))
     {
-        if(init)
-        {
-            angle_y_curr = angle_x_curr = 0;
-        }
-
         if(rotate_mode == 0)
         {
-            CalculateRotation(angle_x_prev, angle_y_curr);
-            SetEventData(var);
-            EventPtr event = CreateRef<Event>(var);
-            g_EventManager->QueueEvent(event);
+            if((node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_00")) ||
+               (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_02")))
+            {
+                CalculateRotation(angle_x_prev, angle_y_curr);
+                SetEventData(var);
+                EventPtr event = CreateRef<Event>(var);
+                g_EventManager->QueueEvent(event);
+            }
 
-            CalculateRotation(angle_x_curr, angle_y_curr);
-            SetEventData(var);
-            event = CreateRef<Event>(var);
-            g_EventManager->QueueEvent(event);
+            if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_01"))
+            {
+                CalculateRotation(angle_x_curr, angle_y_curr);
+                SetEventData(var);
+                EventPtr event = CreateRef<Event>(var);
+                g_EventManager->QueueEvent(event);
+
+                angle_x_prev = angle_x_curr;
+                angle_y_prev = angle_y_curr;
+            }
         }
         else if(rotate_mode == 1)
         {
-            CalculateRotation(angle_x_curr, angle_y_prev);
-            SetEventData(var);
-            EventPtr event = CreateRef<Event>(var);
-            g_EventManager->QueueEvent(event);
+            if((node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_00")) ||
+               (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_02")))
+            {
+                CalculateRotation(angle_x_curr, angle_y_prev);
+                SetEventData(var);
+                EventPtr event = CreateRef<Event>(var);
+                g_EventManager->QueueEvent(event);
+            }
 
-            CalculateRotation(angle_x_curr, angle_y_curr);
-            SetEventData(var);
-            event = CreateRef<Event>(var);
-            g_EventManager->QueueEvent(event);
+            if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_01"))
+            {
+                CalculateRotation(angle_x_curr, angle_y_curr);
+                SetEventData(var);
+                EventPtr event = CreateRef<Event>(var);
+                g_EventManager->QueueEvent(event);
+
+                angle_x_prev = angle_x_curr;
+                angle_y_prev = angle_y_curr;
+            }
         }
-        
-        angle_x_prev = angle_x_curr;
-        angle_y_prev = angle_y_curr;
+    }
+    else if((node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_02") && init) ||
+            (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_rec_01") && init) ||
+            (node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_rec_02") && init))
+    {
+        angle_y_curr = angle_x_curr = 0;
+
+        if(rotate_mode == 0)
+        {
+            if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_02"))
+            {
+                CalculateRotation(angle_x_prev, angle_y_curr);
+                SetEventData(var);
+                EventPtr event = CreateRef<Event>(var);
+                g_EventManager->QueueEvent(event);
+            }
+
+            if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_rec_01"))
+            {
+                CalculateRotation(angle_x_curr, angle_y_curr);
+                SetEventData(var);
+                EventPtr event = CreateRef<Event>(var);
+                g_EventManager->QueueEvent(event);
+
+                angle_x_prev = angle_x_curr;
+                angle_y_prev = angle_y_curr;
+            }
+        }
+        else if(rotate_mode == 1)
+        {
+            if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_02"))
+            {
+                CalculateRotation(angle_x_curr, angle_y_prev);
+                SetEventData(var);
+                EventPtr event = CreateRef<Event>(var);
+                g_EventManager->QueueEvent(event);
+            }
+
+            if(node_curr->id == GlobalHashTable::HashString("StateMachine"_hash, "rot_rec_01"))
+            {
+                CalculateRotation(angle_x_curr, angle_y_curr);
+                SetEventData(var);
+                EventPtr event = CreateRef<Event>(var);
+                g_EventManager->QueueEvent(event);
+
+                angle_x_prev = angle_x_curr;
+                angle_y_prev = angle_y_curr;
+            }
+        }
     }
     //--------------------------------------------------------------//
     //--------------------------------------------------------------//
