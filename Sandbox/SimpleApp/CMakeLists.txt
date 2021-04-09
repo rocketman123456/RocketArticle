@@ -2,9 +2,11 @@ message(STATUS "Add SimpleApp")
 if(Apple)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Cocoa -framework IOKit -framework CoreVideo")
 endif()
+
+#set(CMAKE_CXX_FLAGS "${CAMKE_CXX_FLAGS} -ldl")
+
 add_executable( SimpleApp
     SimpleApp.cpp
-    #RobotControl.cpp
     RobotUI.cpp
     RobotSerialPort.cpp
 )
