@@ -278,10 +278,10 @@ bool SerialPortModule::OnSendData(Rocket::EventPtr& e)
     }
     else if(command == 0x06)
     {
-        data[2] = (e->variable[3].asInt32 >> 0) & 0xff;
-        data[3] = (e->variable[3].asInt32 >> 8) & 0xff;
-        data[4] = (e->variable[3].asInt32 >> 16) & 0xff;
-        data[5] = (e->variable[3].asInt32 >> 24) & 0xff;
+        data[2] = (e->variable[3].asInt32 >> 8) & 0xff;
+        data[3] = (e->variable[3].asInt32 >> 0) & 0xff;
+        //data[4] = (e->variable[3].asInt32 >> 16) & 0xff;
+        //data[5] = (e->variable[3].asInt32 >> 24) & 0xff;
         CRC16_MODBUS(data, 6, &data[6], &data[7]);
         SendData(data, 8);
     }

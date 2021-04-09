@@ -14,7 +14,7 @@ rst::pos_buf_id rst::Rasterizer::load_positions(const std::vector<Eigen::Vector3
     auto id = get_next_id();
     pos_buf.emplace(id, positions);
 
-    return { id };
+    return rst::pos_buf_id({ id });
 }
 
 rst::ind_buf_id rst::Rasterizer::load_indices(const std::vector<Eigen::Vector3i>& indices)
@@ -22,7 +22,7 @@ rst::ind_buf_id rst::Rasterizer::load_indices(const std::vector<Eigen::Vector3i>
     auto id = get_next_id();
     ind_buf.emplace(id, indices);
 
-    return { id };
+    return rst::ind_buf_id({ id });
 }
 
 rst::col_buf_id rst::Rasterizer::load_colors(const std::vector<Eigen::Vector3f> &cols)
@@ -30,7 +30,7 @@ rst::col_buf_id rst::Rasterizer::load_colors(const std::vector<Eigen::Vector3f> 
     auto id = get_next_id();
     col_buf.emplace(id, cols);
 
-    return {id};
+    return rst::col_buf_id({id});
 }
 
 // Bresenham's line drawing algorithm
@@ -137,20 +137,20 @@ void rst::Rasterizer::draw_line(Eigen::Vector3f begin, Eigen::Vector3f end)
 
 auto to_vec4(const Eigen::Vector3f& v3, float w = 1.0f)
 {
-    return Vector4f(v3.x(), v3.y(), v3.z(), w);
+    return Eigen::Vector4f(v3.x(), v3.y(), v3.z(), w);
 }
 
-static bool insideTriangle(float x, float y, const Vector3f* _v)
+static bool insideTriangle(float x, float y, const Eigen::Vector3f* _v)
 {   
     // Implement this function to check if the point (x, y) is inside the triangle represented by _v[0], _v[1], _v[2]
-    Vector2f screen_point = Vector2f(x, y);
+    Eigen::Vector2f screen_point = Eigen::Vector2f(x, y);
 
-    Vector2f v[3];
+    Eigen::Vector2f v[3];
     v[0] = _v[1].head(2) - _v[0].head(2);
     v[1] = _v[2].head(2) - _v[1].head(2);
     v[2] = _v[0].head(2) - _v[2].head(2);
 
-    Vector2f dir[3];
+    Eigen::Vector2f dir[3];
     dir[0] = screen_point - _v[0].head(2);
     dir[1] = screen_point - _v[1].head(2);
     dir[2] = screen_point - _v[2].head(2);
@@ -172,7 +172,7 @@ static bool insideTriangle(float x, float y, const Vector3f* _v)
     return count == 3 || count == -3;
 }
 
-static std::tuple<float, float, float> computeBarycentric2D(float x, float y, const Vector3f* v)
+static std::tuple<float, float, float> computeBarycentric2D(float x, float y, const Eigen::Vector3f* v)
 {
     float c1 = (x*(v[1].y() - v[2].y()) + (v[2].x() - v[1].x())*y + v[1].x()*v[2].y() - v[2].x()*v[1].y()) / (v[0].x()*(v[1].y() - v[2].y()) + (v[2].x() - v[1].x())*v[0].y() + v[1].x()*v[2].y() - v[2].x()*v[1].y());
     float c2 = (x*(v[2].y() - v[0].y()) + (v[0].x() - v[2].x())*y + v[2].x()*v[0].y() - v[0].x()*v[2].y()) / (v[1].x()*(v[2].y() - v[0].y()) + (v[0].x() - v[2].x())*v[1].y() + v[2].x()*v[0].y() - v[0].x()*v[2].y());
@@ -252,8 +252,8 @@ void rst::Rasterizer::rasterize_triangle(const Triangle& t) {
     
     // Find out the bounding box of current triangle.
     // iterate through the pixel and find if the current pixel is inside the triangle
-    Vector2i minAabb; // left bottom
-    Vector2i maxAabb; // right up
+    Eigen::Vector2i minAabb; // left bottom
+    Eigen::Vector2i maxAabb; // right up
 
     minAabb[0] = std::min(v[0][0],std::min(v[1][0], v[2][0]));
     maxAabb[0] = std::max(v[0][0],std::max(v[1][0], v[2][0]));
@@ -310,8 +310,8 @@ void rst::Rasterizer::rasterize_triangle(const Triangle& t) {
             {
                 if (depth_buf[get_index(x, y)] > minDepth)
                 {
-                    Vector3f color = t.getColor() * count / (float)pos.size();
-                    Vector3f point(3);
+                    Eigen::Vector3f color = t.getColor() * count / (float)pos.size();
+                    Eigen::Vector3f point(3);
                     point << (float)x, (float)y, minDepth;
                     // 替换深度
                     depth_buf[get_index(x, y)] = minDepth;
@@ -323,17 +323,17 @@ void rst::Rasterizer::rasterize_triangle(const Triangle& t) {
     }
 }
 
-void rst::Rasterizer::set_model(const Matrix4f& m)
+void rst::Rasterizer::set_model(const Eigen::Matrix4f& m)
 {
     model = m;
 }
 
-void rst::Rasterizer::set_view(const Matrix4f& v)
+void rst::Rasterizer::set_view(const Eigen::Matrix4f& v)
 {
     view = v;
 }
 
-void rst::Rasterizer::set_projection(const Matrix4f& p)
+void rst::Rasterizer::set_projection(const Eigen::Matrix4f& p)
 {
     projection = p;
 }

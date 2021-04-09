@@ -1,4 +1,4 @@
-port-num: 3
+port-num: 0
 baud-rate: 115200
 #ParityNone = 0,  ///< No Parity 无校验
 #ParityOdd = 1,   ///< Odd Parity 奇校验

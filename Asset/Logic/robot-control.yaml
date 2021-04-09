@@ -1,142 +1,142 @@
 init_node: init
 edge:
   - edge: 1
-    name: edge_move_out_up_move_out_mid
-    parent: move_out_up
-    child: move_out_mid
-    action: initialize
-  - edge: 2
-    name: edge_move_06_move_out_mid
-    parent: move_06
-    child: move_out_mid
-    action: initialize
-  - edge: 3
-    name: edge_move_in_down_init
-    parent: move_in_down
-    child: init
-    action: initialize
-  - edge: 4
-    name: edge_move_in_mid_move_in_down
-    parent: move_in_mid
-    child: move_in_down
-    action: initialize
-  - edge: 5
-    name: edge_move_04_move_05
-    parent: move_04
-    child: move_05
-    action: movement
-  - edge: 6
-    name: edge_move_01_move_02
-    parent: move_01
-    child: move_02
-    action: movement
-  - edge: 7
-    name: edge_move_04_move_in_mid
-    parent: move_04
-    child: move_in_mid
-    action: initialize
-  - edge: 8
-    name: edge_rot_00_init
-    parent: rot_00
-    child: init
-    action: initialize
-  - edge: 9
-    name: edge_move_03_move_in_mid
-    parent: move_03
-    child: move_in_mid
-    action: initialize
-  - edge: 10
-    name: edge_move_03_move_04
-    parent: move_03
-    child: move_04
-    action: movement
-  - edge: 11
-    name: edge_move_02_move_03
-    parent: move_02
-    child: move_03
-    action: movement
-  - edge: 12
-    name: edge_move_02_move_out_up
-    parent: move_02
-    child: move_out_up
-    action: initialize
-  - edge: 13
-    name: edge_move_out_mid_move_out_down
-    parent: move_out_mid
-    child: move_out_down
-    action: initialize
-  - edge: 14
-    name: edge_move_05_move_06
-    parent: move_05
-    child: move_06
-    action: movement
-  - edge: 15
-    name: edge_rot_rec_01_rot_rec_02
-    parent: rot_rec_01
-    child: rot_rec_02
-    action: initialize
-  - edge: 16
-    name: edge_rot_rec_02_rot_00
-    parent: rot_rec_02
-    child: rot_00
-    action: initialize
-  - edge: 17
-    name: edge_rot_00_rot_01
-    parent: rot_00
-    child: rot_01
-    action: rotation
-  - edge: 18
-    name: edge_move_06_move_01
-    parent: move_06
-    child: move_01
-    action: movement
-  - edge: 19
-    name: edge_rot_02_rot_01
-    parent: rot_02
-    child: rot_01
-    action: rotation
-  - edge: 20
-    name: edge_rot_02_rot_rec_01
-    parent: rot_02
-    child: rot_rec_01
-    action: initialize
-  - edge: 21
-    name: edge_move_in_up_move_in_mid
-    parent: move_in_up
-    child: move_in_mid
-    action: initialize
-  - edge: 22
-    name: edge_move_out_down_init
-    parent: move_out_down
-    child: init
-    action: initialize
-  - edge: 23
     name: edge_init_rot_00
     parent: init
     child: rot_00
     action: rotation
-  - edge: 24
-    name: edge_rot_01_rot_02
-    parent: rot_01
-    child: rot_02
-    action: rotation
-  - edge: 25
-    name: edge_move_01_move_out_mid
-    parent: move_01
-    child: move_out_mid
-    action: initialize
-  - edge: 26
-    name: edge_move_05_move_in_up
-    parent: move_05
-    child: move_in_up
-    action: initialize
-  - edge: 27
-    name: edge_move_00_move_01
-    parent: move_00
-    child: move_01
-    action: movement
-  - edge: 28
+  - edge: 2
     name: edge_init_move_00
     parent: init
     child: move_00
     action: movement
+  - edge: 3
+    name: edge_move_01_move_02
+    parent: move_01
+    child: move_02
+    action: movement
+  - edge: 4
+    name: edge_rot_00_rot_01
+    parent: rot_00
+    child: rot_01
+    action: rotation
+  - edge: 5
+    name: edge_rot_00_init
+    parent: rot_00
+    child: init
+    action: initialize
+  - edge: 6
+    name: edge_move_00_move_01
+    parent: move_00
+    child: move_01
+    action: movement
+  - edge: 7
+    name: edge_move_out_up_move_out_mid
+    parent: move_out_up
+    child: move_out_mid
+    action: initialize
+  - edge: 8
+    name: edge_rot_01_rot_02
+    parent: rot_01
+    child: rot_02
+    action: rotation
+  - edge: 9
+    name: edge_move_01_move_out_mid
+    parent: move_01
+    child: move_out_mid
+    action: initialize
+  - edge: 10
+    name: edge_move_out_mid_move_out_down
+    parent: move_out_mid
+    child: move_out_down
+    action: initialize
+  - edge: 11
+    name: edge_rot_02_rot_01
+    parent: rot_02
+    child: rot_01
+    action: rotation
+  - edge: 12
+    name: edge_rot_02_rot_rec_01
+    parent: rot_02
+    child: rot_rec_01
+    action: initialize
+  - edge: 13
+    name: edge_move_02_move_03
+    parent: move_02
+    child: move_03
+    action: movement
+  - edge: 14
+    name: edge_move_02_move_out_up
+    parent: move_02
+    child: move_out_up
+    action: initialize
+  - edge: 15
+    name: edge_move_03_move_04
+    parent: move_03
+    child: move_04
+    action: movement
+  - edge: 16
+    name: edge_move_03_move_in_mid
+    parent: move_03
+    child: move_in_mid
+    action: initialize
+  - edge: 17
+    name: edge_move_04_move_05
+    parent: move_04
+    child: move_05
+    action: movement
+  - edge: 18
+    name: edge_move_out_down_init
+    parent: move_out_down
+    child: init
+    action: initialize
+  - edge: 19
+    name: edge_rot_rec_01_rot_rec_02
+    parent: rot_rec_01
+    child: rot_rec_02
+    action: initialize
+  - edge: 20
+    name: edge_move_in_mid_move_in_down
+    parent: move_in_mid
+    child: move_in_down
+    action: initialize
+  - edge: 21
+    name: edge_move_04_move_in_mid
+    parent: move_04
+    child: move_in_mid
+    action: initialize
+  - edge: 22
+    name: edge_move_in_down_init
+    parent: move_in_down
+    child: init
+    action: initialize
+  - edge: 23
+    name: edge_move_05_move_06
+    parent: move_05
+    child: move_06
+    action: movement
+  - edge: 24
+    name: edge_move_05_move_in_up
+    parent: move_05
+    child: move_in_up
+    action: initialize
+  - edge: 25
+    name: edge_move_in_up_move_in_mid
+    parent: move_in_up
+    child: move_in_mid
+    action: initialize
+  - edge: 26
+    name: edge_rot_rec_02_rot_00
+    parent: rot_rec_02
+    child: rot_00
+    action: initialize
+  - edge: 27
+    name: edge_move_06_move_01
+    parent: move_06
+    child: move_01
+    action: movement
+  - edge: 28
+    name: edge_move_06_move_out_mid
+    parent: move_06
+    child: move_out_mid
+    action: initialize

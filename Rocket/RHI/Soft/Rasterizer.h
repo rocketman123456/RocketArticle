@@ -7,8 +7,8 @@
 #include "Math/GeomMath.h"
 #include "Triangle.h"
 #include <algorithm>
-#include <Eigen/Eigen>
-using namespace Eigen;
+//#include <Eigen/Eigen>
+//using namespace Eigen;
 
 namespace rst {
     enum class Buffers
@@ -79,9 +79,9 @@ namespace rst {
         void rasterize_triangle(const Triangle& t);
 
     private:
-        Matrix4f model;
-        Matrix4f view;
-        Matrix4f projection;
+        Eigen::Matrix4f model;
+        Eigen::Matrix4f view;
+        Eigen::Matrix4f projection;
 
         std::map<int, std::vector<Eigen::Vector3f>> pos_buf;
         std::map<int, std::vector<Eigen::Vector3i>> ind_buf;

@@ -55,7 +55,7 @@ namespace Rocket
 	template <typename T1, typename T2>
 	using UMap = std::unordered_map<T1, T2>;
 
-	template <typename T1, auto T2>
+	template <typename T1, size_t T2>
 	using Array = std::array<T1, T2>;
 
 	template <typename T>
