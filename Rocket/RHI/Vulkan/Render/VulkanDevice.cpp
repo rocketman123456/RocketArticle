@@ -127,7 +127,7 @@ VkResult VulkanDevice::CreateLogicalDevice(
 		queue_family_indices.graphics_family = indices.graphics_family.value();
 	}
 	else {
-		queue_family_indices.graphics_family = VK_NULL_HANDLE;
+		queue_family_indices.graphics_family = 0;//static_cast<uint32_t>(VK_NULL_HANDLE);
 	}
 
 	// Dedicated compute queue

@@ -1,0 +1,16 @@
+{
+    options = {
+        render_api = "vulkan",
+        mode = "debug"
+    },
+    mtimes = {
+        ["Sandbox/xmake.lua"] = 1621843960,
+        ["xmake.lua"] = 1621847929,
+        ["Thirdparty/xmake.lua"] = 1621847626,
+        ["Rocket/xmake.lua"] = 1621844054,
+        ["Rocket/RHI/xmake.lua"] = 1621847991,
+        ["Rocket/Platform/xmake.lua"] = 1621847987,
+        ["Rocket/Engine/xmake.lua"] = 1621847983,
+        ["Sandbox/SimpleApp/xmake.lua"] = 1621848067
+    }
+}

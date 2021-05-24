@@ -1,0 +1,14 @@
+{
+    render_api = {
+        __sourceinfo_description = {
+            ["The Render API config option"] = {
+                file = "./xmake.lua",
+                line = 21
+            }
+        },
+        __scriptdir = "/Users/developer/Program/CppCode/RocketArticle",
+        showmenu = true,
+        description = "The Render API config option",
+        __sourceinfo_showmenu = { }
+    }
+}

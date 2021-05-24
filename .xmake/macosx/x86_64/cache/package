@@ -1,0 +1,211 @@
+{
+    ["vcpkg::spdlog"] = {
+        envs = {
+            LD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_spdlog/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            },
+            DYLD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_spdlog/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            }
+        },
+        __requirestr = "vcpkg::spdlog",
+        sysincludedirs = "/Users/developer/Program/vcpkg/installed/x64-osx/include",
+        linkdirs = "/Users/developer/Program/vcpkg/installed/x64-osx/lib",
+        __enabled = true,
+        libfiles = "/Users/developer/Program/vcpkg/installed/x64-osx/lib/libspdlog.a",
+        links = "spdlog"
+    },
+    ["vcpkg::fmt"] = {
+        envs = {
+            LD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_fmt/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            },
+            DYLD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_fmt/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            }
+        },
+        __requirestr = "vcpkg::fmt",
+        sysincludedirs = "/Users/developer/Program/vcpkg/installed/x64-osx/include",
+        linkdirs = "/Users/developer/Program/vcpkg/installed/x64-osx/lib",
+        __enabled = true,
+        libfiles = "/Users/developer/Program/vcpkg/installed/x64-osx/lib/libfmt.a",
+        links = "fmt"
+    },
+    ["vcpkg::entt"] = {
+        envs = {
+            LD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_entt/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            },
+            DYLD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_entt/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            }
+        },
+        sysincludedirs = "/Users/developer/Program/vcpkg/installed/x64-osx/include",
+        __requirestr = "vcpkg::entt",
+        __enabled = true
+    },
+    ["vcpkg::eigen3"] = {
+        envs = {
+            LD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_eigen3/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            },
+            DYLD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_eigen3/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            }
+        },
+        sysincludedirs = "/Users/developer/Program/vcpkg/installed/x64-osx/include",
+        __requirestr = "vcpkg::eigen3",
+        __enabled = true
+    },
+    ["vcpkg::yaml-cpp"] = {
+        envs = {
+            LD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_yaml-cpp/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            },
+            DYLD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_yaml-cpp/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            }
+        },
+        __requirestr = "vcpkg::yaml-cpp",
+        sysincludedirs = "/Users/developer/Program/vcpkg/installed/x64-osx/include",
+        linkdirs = "/Users/developer/Program/vcpkg/installed/x64-osx/lib",
+        __enabled = true,
+        libfiles = "/Users/developer/Program/vcpkg/installed/x64-osx/lib/libyaml-cpp.a",
+        links = "yaml-cpp"
+    },
+    ["vcpkg::glfw3"] = {
+        envs = {
+            LD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_glfw3/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            },
+            DYLD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_glfw3/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            }
+        },
+        __requirestr = "vcpkg::glfw3",
+        sysincludedirs = "/Users/developer/Program/vcpkg/installed/x64-osx/include",
+        linkdirs = "/Users/developer/Program/vcpkg/installed/x64-osx/lib",
+        __enabled = true,
+        libfiles = "/Users/developer/Program/vcpkg/installed/x64-osx/lib/libglfw3.a",
+        links = "glfw3"
+    },
+    ["vcpkg::shaderc"] = {
+        envs = {
+            LD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_shaderc/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            },
+            DYLD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_shaderc/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            }
+        },
+        __requirestr = "vcpkg::shaderc",
+        sysincludedirs = "/Users/developer/Program/vcpkg/installed/x64-osx/include",
+        linkdirs = "/Users/developer/Program/vcpkg/installed/x64-osx/lib",
+        __enabled = true,
+        libfiles = "/Users/developer/Program/vcpkg/installed/x64-osx/lib/libshaderc.a",
+        links = "shaderc"
+    },
+    ["vcpkg::glslang"] = {
+        envs = {
+            LD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_glslang/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            },
+            DYLD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_glslang/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            }
+        },
+        __requirestr = "vcpkg::glslang",
+        sysincludedirs = "/Users/developer/Program/vcpkg/installed/x64-osx/include",
+        linkdirs = "/Users/developer/Program/vcpkg/installed/x64-osx/lib",
+        __enabled = true,
+        libfiles = {
+            "/Users/developer/Program/vcpkg/installed/x64-osx/lib/libHLSL.a",
+            "/Users/developer/Program/vcpkg/installed/x64-osx/lib/libOGLCompiler.a",
+            "/Users/developer/Program/vcpkg/installed/x64-osx/lib/libOSDependent.a",
+            "/Users/developer/Program/vcpkg/installed/x64-osx/lib/libSPIRV.a",
+            "/Users/developer/Program/vcpkg/installed/x64-osx/lib/libSPVRemapper.a",
+            "/Users/developer/Program/vcpkg/installed/x64-osx/lib/libglslang-default-resource-limits.a",
+            "/Users/developer/Program/vcpkg/installed/x64-osx/lib/libglslang.a"
+        },
+        links = {
+            "HLSL",
+            "OGLCompiler",
+            "OSDependent",
+            "SPIRV",
+            "SPVRemapper",
+            "glslang-default-resource-limits",
+            "glslang"
+        }
+    },
+    ["vcpkg::nlohmann-json"] = {
+        envs = {
+            LD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_nlohmann-json/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            },
+            DYLD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_nlohmann-json/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            }
+        },
+        sysincludedirs = "/Users/developer/Program/vcpkg/installed/x64-osx/include",
+        __requirestr = "vcpkg::nlohmann-json",
+        __enabled = true
+    },
+    ["vcpkg::gli"] = {
+        envs = {
+            LD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_gli/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            },
+            DYLD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_gli/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            }
+        },
+        sysincludedirs = "/Users/developer/Program/vcpkg/installed/x64-osx/include",
+        __requirestr = "vcpkg::gli",
+        __enabled = true
+    },
+    ["vcpkg::openal-soft"] = {
+        envs = {
+            LD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_openal-soft/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            },
+            DYLD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_openal-soft/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            }
+        },
+        __requirestr = "vcpkg::openal-soft",
+        sysincludedirs = "/Users/developer/Program/vcpkg/installed/x64-osx/include",
+        linkdirs = "/Users/developer/Program/vcpkg/installed/x64-osx/lib",
+        __enabled = true,
+        libfiles = "/Users/developer/Program/vcpkg/installed/x64-osx/lib/libopenal.a",
+        links = "openal"
+    },
+    ["vcpkg::volk"] = {
+        envs = {
+            LD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_volk/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            },
+            DYLD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_volk/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            }
+        },
+        __requirestr = "vcpkg::volk",
+        sysincludedirs = "/Users/developer/Program/vcpkg/installed/x64-osx/include",
+        linkdirs = "/Users/developer/Program/vcpkg/installed/x64-osx/lib",
+        __enabled = true,
+        libfiles = "/Users/developer/Program/vcpkg/installed/x64-osx/lib/libvolk.a",
+        links = "volk"
+    },
+    ["vcpkg::vulkan-headers"] = {
+        envs = {
+            LD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_vulkan-headers/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            },
+            DYLD_LIBRARY_PATH = {
+                "/Users/developer/.xmake/packages/v/vcpkg_vulkan-headers/latest/c7232be0a19840829d7f6dddc668b927/lib"
+            }
+        },
+        sysincludedirs = "/Users/developer/Program/vcpkg/installed/x64-osx/include",
+        __requirestr = "vcpkg::vulkan-headers",
+        __enabled = true
+    }
+}

@@ -1,0 +1,34 @@
+target("RocketEngine")
+    set_kind("static")
+    add_files(
+        "Common/*.cpp",
+        "Core/*.cpp",
+        "Geometry/*.cpp",
+        --"Graph/*.cpp",
+        "Logic/*.cpp",
+        "Math/*.cpp",
+        "Module/*.cpp",
+        "Physics/*.cpp",
+        "Process/*.cpp",
+        "Reflection/*.cpp",
+        "Render/DispatchPass/*.cpp",
+        "Render/DrawBasic/*.cpp",
+        "Render/DrawPass/*.cpp",
+        "Render/DrawSubPass/*.cpp",
+        --"Render/RayTrace/*.cpp"
+        "Scene/*.cpp",
+        "Scene/Component/*.cpp",
+        "Utils/*.cpp"
+    )
+    add_packages(
+        "vcpkg::spdlog",
+        "vcpkg::fmt",
+        "vcpkg::eigen3",
+        "vcpkg::entt",
+        "vcpkg::gli",
+        "vcpkg::yaml-cpp",
+        "vcpkg::glfw3",
+        "vcpkg::shaderc",
+        "vcpkg::openal-soft",
+        {public = true}
+    )

@@ -5,9 +5,9 @@ static const std::string ProjectSourceDir = PROJECT_SOURCE_DIR;
 static const std::string RenderAPI = RENDER_API;
 
 #ifdef RK_DEBUG
-    #if defined(PLATFORM_WINDOWS)
+    #if defined(RK_WINDOWS)
         #define RK_DEBUGBREAK() __debugbreak()
-    #elif defined(PLATFORM_LINUX) || defined(PLATFORM_APPLE)
+    #elif defined(RK_LINUX) || defined(RK_MACOS)
         #include <signal.h>
         #define RK_DEBUGBREAK() raise(SIGTRAP)
     #else

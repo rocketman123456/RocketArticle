@@ -1,0 +1,111 @@
+{
+    tool_target_RocketPlatform_macosx_x86_64_cxx = {
+        program = "/usr/bin/xcrun -sdk macosx clang",
+        toolchain_info = {
+            arch = "x86_64",
+            plat = "macosx",
+            name = "xcode",
+            cachekey = "xcode_arch_x86_64_plat_macosx"
+        },
+        toolname = "clang"
+    },
+    tool_target_RocketEngine_macosx_x86_64_ar = {
+        program = "/usr/bin/xcrun -sdk macosx ar",
+        toolchain_info = {
+            arch = "x86_64",
+            cachekey = "xcode_arch_x86_64_plat_macosx",
+            plat = "macosx",
+            name = "xcode"
+        },
+        toolname = "ar"
+    },
+    xcode_arch_x86_64_plat_macosx = {
+        arch = "x86_64",
+        plat = "macosx",
+        __global = true,
+        xcode_sysroot = "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.3.sdk",
+        target_minver = "11.3",
+        xcode = "/Applications/Xcode.app",
+        xcode_sdkver = "11.3"
+    },
+    tool_target_RocketPlatform_macosx_x86_64_ar = {
+        program = "/usr/bin/xcrun -sdk macosx ar",
+        toolchain_info = {
+            arch = "x86_64",
+            cachekey = "xcode_arch_x86_64_plat_macosx",
+            plat = "macosx",
+            name = "xcode"
+        },
+        toolname = "ar"
+    },
+    tool_target_CSerialPort_macosx_x86_64_ar = {
+        program = "/usr/bin/xcrun -sdk macosx ar",
+        toolchain_info = {
+            arch = "x86_64",
+            cachekey = "xcode_arch_x86_64_plat_macosx",
+            plat = "macosx",
+            name = "xcode"
+        },
+        toolname = "ar"
+    },
+    tool_target_simple_app_macosx_x86_64_ld = {
+        program = "/usr/bin/xcrun -sdk macosx clang++",
+        toolchain_info = {
+            arch = "x86_64",
+            cachekey = "xcode_arch_x86_64_plat_macosx",
+            plat = "macosx",
+            name = "xcode"
+        },
+        toolname = "clangxx"
+    },
+    tool_target_crossguid_macosx_x86_64_ar = {
+        program = "/usr/bin/xcrun -sdk macosx ar",
+        toolchain_info = {
+            arch = "x86_64",
+            cachekey = "xcode_arch_x86_64_plat_macosx",
+            plat = "macosx",
+            name = "xcode"
+        },
+        toolname = "ar"
+    },
+    tool_target_RocketEngine_macosx_x86_64_cxx = {
+        program = "/usr/bin/xcrun -sdk macosx clang",
+        toolchain_info = {
+            arch = "x86_64",
+            plat = "macosx",
+            name = "xcode",
+            cachekey = "xcode_arch_x86_64_plat_macosx"
+        },
+        toolname = "clang"
+    },
+    tool_target_simple_app_macosx_x86_64_cxx = {
+        program = "/usr/bin/xcrun -sdk macosx clang",
+        toolchain_info = {
+            arch = "x86_64",
+            plat = "macosx",
+            name = "xcode",
+            cachekey = "xcode_arch_x86_64_plat_macosx"
+        },
+        toolname = "clang"
+    },
+    tool_target_CSerialPort_macosx_x86_64_cxx = {
+        program = "/usr/bin/xcrun -sdk macosx clang",
+        toolchain_info = {
+            arch = "x86_64",
+            plat = "macosx",
+            name = "xcode",
+            cachekey = "xcode_arch_x86_64_plat_macosx"
+        },
+        toolname = "clang"
+    },
+    tool_target_crossguid_macosx_x86_64_cxx = {
+        program = "/usr/bin/xcrun -sdk macosx clang",
+        toolchain_info = {
+            arch = "x86_64",
+            plat = "macosx",
+            name = "xcode",
+            cachekey = "xcode_arch_x86_64_plat_macosx"
+        },
+        toolname = "clang"
+    }
+}
